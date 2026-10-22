@@ -90,7 +90,7 @@ jobs:
         shell: bash
         run: |
           npm run typecheck
-          echo "::notice title=Typecheck::tsc $(npx tsc --version | cut -d' ' -f2): 0 errors in $(npx tsc --listFilesOnly | grep -c "^${GITHUB_WORKSPACE}/" ) project files"
+          echo "::notice title=Typecheck::tsc $(npx tsc --version | cut -d' ' -f2): 0 errors in $(npx tsc --listFilesOnly | grep "^${GITHUB_WORKSPACE}/" | grep -vc '/node_modules/') project files"
 
       - name: Unit tests
         shell: bash

@@ -100,15 +100,34 @@ These migrations have not been applied to any shared environment, so the review 
 | Harness self-checks: deliberately failing SQL and unit assertions | Correctly reported as failures (exit code 1) |
 | Type-level check: adding a core capability to a paid plan | Rejected by the compiler, as intended |
 
-Notes: Vitest could not be installed, so unit and contract tests (written against the Vitest API) ran on Node's built-in
-test runner through a temporary bridge kept outside the repository; they run unchanged under Vitest once dependencies
-are installed. Hosted Supabase runs PostgreSQL 17 with the real Auth schema; the suite should be re-run there
-(`DATABASE_URL=… scripts/db/test.sh`) before Stage 2.
+Notes: Vitest could not be installed in the build workspace, so there the unit and contract tests ran on Node's built-in
+test runner through a temporary bridge kept outside the repository. On GitHub Actions they run unchanged under real
+Vitest (below).
+
+### On GitHub Actions
+
+Repository `adamconcadoro-4/base-recruits` (private). Run
+[39733890872](https://github.com/adamconcadoro-4/base-recruits/actions/runs/39733890872) at commit `f837179`; counts
+read from the run's published notices. Each test step fails if anything fails, and the Vitest steps also fail if nothing
+ran or anything was skipped.
+
+| Job | Result |
+| --- | --- |
+| Database security suite — PostgreSQL 16 / 17 | **309 assertions in 9 files, all passed** on both |
+| Concurrency scenarios — PostgreSQL 16 / 17 | **9 of 9 passed** on both |
+| Contract tests under Vitest 5.0.0 — PostgreSQL 16 / 17 | **5 passed, 0 skipped** on both |
+| Unit tests under Vitest 5.0.0 | **52 passed, 0 failed, 0 skipped** (5 files) |
+| Typecheck, TypeScript 6.0.3 | **0 errors** |
+
+Still untested: the real Supabase Auth schema and Data API. PostgreSQL 17 is now covered, but with Supabase's roles and
+`auth` functions emulated; re-run the suite against the Base Recruits dev project (decision F1) before Stage 2. CI
+installs its development tools without a lockfile; commit `package-lock.json` when the app's dependencies are added.
 
 ## Integrations actually functional
 
-None external yet. No Supabase project is connected, no Auth server has run against this schema, and no data source is
-integrated. The GitHub Actions workflow (`.github/workflows/ci.yml`) is included but has not run on GitHub.
+GitHub: the private repository and its Actions workflow (`.github/workflows/ci.yml`) run on every push to `main` and
+every pull request (results above). Nothing else: no Supabase project is connected, no Auth server has run against this
+schema, and no data source is integrated.
 
 ## Records imported / data coverage
 

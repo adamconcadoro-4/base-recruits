@@ -11,7 +11,7 @@ Stage 1 of 7 (foundation) — **in progress**. See `docs/reports/stage-1.md`.
 | Stage 1 item | Status |
 | --- | --- |
 | Database: roles, profiles, athletes, coach verification, family links, consent, audit log, capability catalog | Done — 6 migrations |
-| Row-level security and free-access guards, through two independent security reviews | Done — 309 database assertions and 9 concurrency scenarios passing |
+| Row-level security and free-access guards, through two independent security reviews | Done — 309 database assertions and 9 concurrency scenarios passing, locally and on GitHub Actions (PostgreSQL 16 and 17) |
 | Access-policy domain logic (age rules, route access, coach verification, entitlements) | Done — 52 unit tests + 5 contract tests passing |
 | Architecture and dependency plan, conventions, open decisions | Done — `docs/` |
 | Next.js app: design system, public pages, Supabase Auth flows, role dashboards, end-to-end and accessibility tests | Not started — the build environment could not reach the npm registry |

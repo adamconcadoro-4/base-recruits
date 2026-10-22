@@ -146,6 +146,7 @@ missing. Test fixtures are synthetic and never loaded into production.
 | Environment | Purpose | Status |
 | --- | --- | --- |
 | Local test database | Plain PostgreSQL + Supabase role/auth emulation; runs migrations and the security suite (`npm run test:db`) | Working |
+| GitHub Actions CI | Every push and pull request: database suite, concurrency and contract tests on PostgreSQL 16 and 17; typecheck and unit tests under Vitest | Working |
 | Local Supabase (`supabase start`, Docker) | Full Auth + Data API for development | Documented; requires Docker on the developer machine |
 | Supabase dev project | Shared development and end-to-end tests | Not created — founder decision |
 | Staging / production | Vercel + Supabase, separate projects and secrets | Stage 5 |
