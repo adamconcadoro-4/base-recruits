@@ -126,11 +126,11 @@ None. School and program data are Stage 2. No school, program or admissions reco
 
 | Dependency | Needed for | Owner |
 | --- | --- | --- |
-| A Supabase project for Base Recruits in its own organization (F1) | Hosted development environment, staging and production | Founder / Jonathan Caceres |
+| A hosted Supabase project (F1: paid plan chosen; creation not yet confirmed) | Hosted development environment, staging and production | Founder |
 | Production email sender (SMTP) and a support address (F7) | Real sign-up emails, appeals and privacy requests | Founder / Jonathan Caceres |
-| Coach-verification reviewer and turnaround (F2) | Stage 4 coach onboarding | Founder / Jonathan Caceres |
+| Coach-verification backup reviewer and turnaround (F2: Adam Concadoro reviews) | Stage 4 coach onboarding | Founder |
 | Legal review L1–L8 | Production launch | Counsel |
 
 ## Next exact step
 
-Stage 2 (Pillar A, nationwide program registry). First the institution and baseball-program schema with provenance. Then a College Scorecard adapter, which needs an api.data.gov key, and an admin CSV/JSON import with review. Before any data is published, F1 should be completed and the hosted Auth settings applied.
+Stage 2 (Pillar A, nationwide program registry). First the institution and baseball-program schema with provenance. Then a College Scorecard adapter, and an admin CSV/JSON import with review. The founder has an api.data.gov key; it must be stored as the GitHub Actions secret `COLLEGE_SCORECARD_API_KEY` (never in the repository). Before any data is published, F1 should be completed and the hosted Auth settings applied.
