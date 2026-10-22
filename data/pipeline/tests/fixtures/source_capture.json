@@ -2,7 +2,7 @@
  "_source": {
   "eada": "https://ope.ed.gov/athletics/api/dataFiles/file?fileName=EADA_2024-2025.zip",
   "college_scorecard": "https://api.data.gov/ed/collegescorecard/v1/schools",
-  "retrieved_at": "2026-10-22T20:57:36Z"
+  "retrieved_at": "2026-10-22T21:09:09Z"
  },
  "eada_rows": [
   {
