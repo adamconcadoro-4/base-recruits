@@ -121,3 +121,17 @@ select tests.ok(
      'capabilities_guard_core', 'capabilities_guard_truncate', 'plan_capabilities_guard',
      'user_roles_audit', 'coaches_audit', 'family_links_audit', 'consent_grants_audit', 'profiles_audit')) = 12,
   'signup, email, append-only audit, row-level audit and free-access guard triggers are installed');
+
+-- Supabase rejects UPDATE and DELETE without a WHERE clause on Data API requests
+-- (safeupdate), so no function may contain one. ("do update" is an upsert.)
+select tests.ok(
+  not exists (
+    select 1
+      from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+      cross join lateral regexp_matches(lower(p.prosrc),
+        '((do\s+)?\m(?:update\s+[a-z_.]+(?:\s+(?:as\s+)?[a-z_]+)?\s+set\M|delete\s+from\s+[a-z_.]+)[^;]*;)', 'g') as m
+     where n.nspname in ('public', 'private')
+       and m[2] is null
+       and m[1] !~ '\mwhere\M'),
+  'no Base Recruits function runs an UPDATE or DELETE without a WHERE clause');

@@ -834,7 +834,7 @@ begin
     raise exception 'the registry changed after this import was reviewed; stage it again to see current changes'
       using errcode = 'BR004';
   end if;
-  update private.registry_state set publish_version = publish_version + 1;
+  update private.registry_state set publish_version = publish_version + 1 where singleton;
 
   perform private.set_registry_context(p_job_id, coalesce(p_note, 'import published'));
 
