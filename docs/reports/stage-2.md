@@ -23,14 +23,14 @@ run and is now guarded by a database test.
 
 ## Exit gate evidence
 
-| Gate item | Evidence (GitHub Actions on pull request #3, commit `RUN_COMMIT`) |
+| Gate item | Evidence (GitHub Actions run 39860962993 on pull request #3, commit `2eb5d5e`) |
 | --- | --- |
 | Authorized real institutions and confirmed programs are searchable | E2E: a visitor without an account searches "Stanford", filters by division (CCCAA: 88 programs, paged), state and admission rate, and compares schools. Search covers names, source aliases and misspellings (database test 012). Only programs the latest federal report lists are searchable |
 | Source-backed fields display correctly | E2E: Stanford's page shows NCAA Division I with "Federal report" verification, 3.6% admission rate and SAT Math 770–800 labelled Fall 2024, $92,892 cost of attendance labelled 2025–26, and EADA_2024-2025.zip with its retrieval date. Values match the snapshot exactly (database test 012 checks the stored values) |
 | Missing data handled honestly | E2E: Long Beach City College shows "Not reported" admissions and no percentages; GPA reads "Not reported in federal data" everywhere; filters on a figure say which schools they leave out. Database: missing sections are null, never zero; coverage reports GPA 0 |
 | Admin can reconcile and republish | E2E: an administrator stages the bundled snapshot, reviews it (1,670 unchanged), publishes; corrects Johns Hopkins from EADA's "Other" to NCAA Division III citing the athletics site; republishes and the correction stands; hides and relists a school. Database: changed/missing/invalid classification, skip decisions, rollback by restaging, stale reviews refused |
 
-Totals for that run: RUN_TOTALS.
+Totals for that run: **127 end-to-end and accessibility tests passed, 0 failed, 0 flaky, 1 skipped** (the phone-menu check, which runs only at phone size). The new automated WCAG 2.2 AA checks cover search results, two school pages, compare and data methodology at desktop and phone sizes, and the three admin registry screens at desktop size: zero violations.
 
 Limits of this evidence:
 
@@ -102,14 +102,14 @@ version-pinned but not hash-pinned.
 
 ## Test commands and results
 
-| Command | Result (CI, commit `RUN_COMMIT`) |
+| Command | Result (CI run 39860962993, commit `2eb5d5e`) |
 | --- | --- |
-| `scripts/db/test.sh` (PostgreSQL 16, 17 and the real Supabase stack) | RUN_DB |
-| `scripts/db/race-test.sh` | RUN_RACE |
-| `npm run test:contract` | RUN_CONTRACT |
-| `python3 -m unittest discover -s data/pipeline/tests -t .` | RUN_PIPELINE |
-| `npm run typecheck` / `npm run test:unit` | RUN_UNIT |
-| `npx playwright test` (production build, desktop and Pixel 7) | RUN_E2E |
+| `scripts/db/test.sh` (PostgreSQL 16, 17 and the real Supabase stack) | 426 assertions in 12 files, all passed, on each of the three (Stage 1: 341) |
+| `scripts/db/race-test.sh` | 12 of 12 scenarios (3 new: concurrent staging, concurrent publishes, a review prepared during a publish) |
+| `npm run test:contract` | 6 of 6 (new: registry divisions and value lists match the TypeScript catalogs) |
+| `python3 -m unittest discover -s data/pipeline/tests -t .` | 15 of 15 |
+| `npm run typecheck` / `npm run test:unit` | 0 errors in 142 files / 74 of 74 (16 new: explorer URL state, labels, canonical JSON, snapshot integrity) |
+| `npx playwright test` (production build, desktop and Pixel 7) | 127 passed, 0 failed, 1 skipped by design |
 
 Local full-snapshot timing (PostgreSQL 16): staging 1,670 rows 60 ms, review 0.35 s, first publish 3–4 s, restage 1.2 s,
 filtered search 4–25 ms.
