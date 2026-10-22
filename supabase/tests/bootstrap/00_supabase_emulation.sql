@@ -51,6 +51,7 @@ create table if not exists auth.users (
   email varchar(255),
   encrypted_password varchar(255),
   email_confirmed_at timestamptz,
+  email_change varchar(255) default '',
   last_sign_in_at timestamptz,
   raw_app_meta_data jsonb,
   raw_user_meta_data jsonb,

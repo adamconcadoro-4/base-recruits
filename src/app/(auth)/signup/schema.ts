@@ -19,12 +19,15 @@ export const accountSchema = z.object({
 
 export const emailSchema = z.string().trim().max(254, 'Use 254 characters or fewer.').email('Enter a valid email address.');
 
+/** Supabase Auth limits passwords to 72 bytes (bcrypt); accented letters and emoji use more than one. */
+export const MAXIMUM_PASSWORD_BYTES = 72;
+
 export const verificationSchema = z.object({
   code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code from the email.'),
   password: z
     .string()
     .min(MINIMUM_PASSWORD_LENGTH, `Use at least ${MINIMUM_PASSWORD_LENGTH} characters.`)
-    .max(72, 'Use 72 characters or fewer.'),
+    .refine((value) => new TextEncoder().encode(value).length <= MAXIMUM_PASSWORD_BYTES, 'Use a shorter password.'),
 });
 
 /** "2008-03-07" from month/day/year fields. */

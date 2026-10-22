@@ -97,10 +97,10 @@ select tests.throws('select public.complete_onboarding(''coach'')', 'BR002',
 select tests.authenticate_as('no_type');
 select tests.throws('select public.complete_onboarding(''admin'')', 'BR003',
   'onboarding cannot select the admin role');
-select tests.lives('select public.complete_onboarding(''parent'', ''Jordan Parent'')',
+select tests.lives('select public.complete_onboarding(''athlete'', ''Jordan Athlete'')',
   'onboarding can select a self-selectable role');
 select tests.ok(
-  (select primary_role = 'parent' and role_selected_at is not null from public.profiles where id = tests.id('no_type')),
+  (select primary_role = 'athlete' and role_selected_at is not null from public.profiles where id = tests.id('no_type')),
   'onboarding sets the primary role once');
 select tests.throws('select public.complete_onboarding(''coach'')', 'BR004',
   'onboarding cannot be repeated to add roles');

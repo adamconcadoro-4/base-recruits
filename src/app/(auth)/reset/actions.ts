@@ -7,7 +7,11 @@ import { setPendingVerification } from '@/lib/auth/pending-verification';
 import { failure, field, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { createClient } from '@/lib/supabase/server';
 
-/** Sends a sign-in code to an existing account. Unknown addresses get the same answer. */
+/**
+ * Sends a sign-in code to an existing account. The page answers the same way
+ * for unknown addresses, but Supabase's own rate limits (repeat requests for a
+ * real account) and its public API can still reveal whether an account exists.
+ */
 export async function requestResetAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = emailSchema.safeParse(field(formData, 'email'));
   if (!parsed.success) return failure('Enter a valid email address.', { email: 'Enter a valid email address.' });

@@ -22,8 +22,9 @@ select tests.ok(
   not exists (select 1 from public.user_roles where user_id = tests.id('preregistered')),
   'confirming the email does not apply the earlier metadata either');
 select tests.authenticate_as('preregistered');
+select public.record_birthdate(date '1984-04-04');
 select tests.lives('select public.complete_onboarding(''coach'', ''Real Owner'')',
-  'the verified owner chooses the role');
+  'the verified owner records their age, then chooses the role');
 select tests.clear_authentication();
 select tests.ok(
   (select c.verification_status = 'email_verified' from public.coaches c where c.user_id = tests.id('preregistered'))
@@ -119,3 +120,45 @@ select tests.ok(
   exists (select 1 from auth.users where id = tests.id('fresh_signup'))
   and exists (select 1 from auth.users where id = tests.id('minor')),
   'recent sign-ups and confirmed accounts are kept');
+
+-- ---------------------------------------------------------------- second review
+-- A password and metadata set before confirmation do not survive it.
+select tests.clear_authentication();
+insert into auth.users (id, aud, role, email, encrypted_password, raw_user_meta_data, raw_app_meta_data, created_at, updated_at)
+values ('33333333-3333-4333-8333-333333333333', 'authenticated', 'authenticated', 'owner.later@example.test',
+        '$2a$10$someoneelsespasswordhashxxxxxxxxxxxxxxxxxxxxxxxxxxxx', '{"display_name": "Someone Else"}',
+        '{"provider":"email","providers":["email"]}', now(), now());
+update auth.users set email_confirmed_at = now() where id = '33333333-3333-4333-8333-333333333333';
+select tests.ok(
+  (select encrypted_password = '' and raw_user_meta_data = '{}'::jsonb from auth.users
+    where id = '33333333-3333-4333-8333-333333333333'),
+  'confirming an email wipes any password and metadata set before confirmation');
+update auth.users set encrypted_password = '$2a$10$ownerspasswordhashxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+ where id = '33333333-3333-4333-8333-333333333333';
+select tests.ok(
+  (select encrypted_password like '$2a$10$owners%' from auth.users where id = '33333333-3333-4333-8333-333333333333'),
+  'the verified owner''s password, set after confirmation, is kept');
+
+-- Email change requests are refused.
+select tests.throws(
+  format('update auth.users set email_change = %L where id = %L', 'coach@state.edu', tests.id('minor')),
+  'BR004', 'requests to change an email to another address are refused');
+
+-- Disguised staff links are refused whatever the letter case.
+select tests.clear_authentication();
+select tests.create_user('coach_two', 'coach', 'second.coach@state.edu', p_date_of_birth => date '1981-01-01');
+select tests.authenticate_as('coach_two');
+select tests.throws(
+  'select public.submit_coach_affiliation(''State University'', ''Assistant Coach'', ''HTTPS://gostate.edu@evil.example/staff'')',
+  '23514', 'the credentials check ignores letter case');
+
+-- Adult roles need a recorded adult date of birth.
+select tests.create_user('unknown_age', null);
+select tests.create_user('young', null, p_date_of_birth => (private.today_utc() - interval '16 years')::date);
+select tests.authenticate_as('unknown_age');
+select tests.throws('select public.complete_onboarding(''coach'')', 'BR004',
+  'an account of unknown age cannot become a coach');
+select tests.authenticate_as('young');
+select tests.throws('select public.complete_onboarding(''parent'')', 'BR004',
+  'a minor cannot become a parent or guardian');
+select tests.lives('select public.complete_onboarding(''athlete'')', 'a minor can become an athlete');

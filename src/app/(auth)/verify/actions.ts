@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { verificationSchema } from '@/app/(auth)/signup/schema';
+import { checkBirthDate, todayUtc } from '@/lib/age/age-policy';
 import { blockAgeGate } from '@/lib/auth/age-gate';
 import { clearPendingVerification, readPendingVerification } from '@/lib/auth/pending-verification';
 import { failure, field, success, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
@@ -12,11 +13,12 @@ import { createClient } from '@/lib/supabase/server';
 const START_AGAIN = 'This code request has expired. Start again to get a new code.';
 
 /**
- * Verify the emailed code, then — as the person who proved they own the email —
+ * Verify the emailed code, then, as the person who proved they own the email,
  * set the account's password, sign out every other session, and apply the
- * sign-up details from this browser. Whatever anyone else attached to an
- * unconfirmed account for this email (a password, a role, a name) is replaced
- * or was never trusted by the database.
+ * sign-up details from this browser. Anything someone else attached to an
+ * unconfirmed account for this email is gone: the database wipes any earlier
+ * password and metadata at the moment the email is confirmed
+ * (private.reset_credentials_on_confirmation), and never trusts sign-up metadata.
  */
 export async function verifyCodeAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const pending = await readPendingVerification();
@@ -49,8 +51,8 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
 
   const { error: passwordError } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (passwordError && passwordError.code !== 'same_password') {
-    // Never leave a verified session on an account whose password we could
-    // not replace.
+    // The account now has no usable password (the earlier one, if any, was
+    // wiped at confirmation). Sign out; the owner can set one with a new code.
     await supabase.auth.signOut();
     if (passwordError.code === 'weak_password') {
       return failure('Choose a stronger password, then enter a new code.', { password: 'Choose a stronger password.' });
@@ -75,7 +77,11 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
       // BR004: a date of birth is already recorded (an existing account).
       if (error && error.code !== 'BR004') console.error('record_birthdate failed', { code: error.code });
     }
-    if (pending.accountType) {
+    // The browser-held details are re-checked here (the database also refuses
+    // adult roles without a recorded adult date of birth).
+    const birth = pending.dateOfBirth ? checkBirthDate(pending.dateOfBirth, todayUtc()) : null;
+    const adult = birth !== null && birth.ok && birth.band === 'adult';
+    if (pending.accountType && (pending.accountType === 'athlete' || adult)) {
       const { error } = await supabase.rpc('complete_onboarding', {
         p_account_type: pending.accountType,
         p_display_name: pending.displayName ?? null,

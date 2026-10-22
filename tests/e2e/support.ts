@@ -58,6 +58,11 @@ export async function createAccount(options: {
   const confirmed = options.emailConfirmed ?? true;
   const { data, error } = await admin().auth.admin.createUser({ email, password: PASSWORD, email_confirm: confirmed });
   if (error || !data.user) throw new Error(`createUser failed: ${error?.message ?? 'no user'}`);
+  if (confirmed) {
+    // Confirmation wipes any password set before it, so set it again after.
+    const { error: passwordError } = await admin().auth.admin.updateUserById(data.user.id, { password: PASSWORD });
+    if (passwordError) throw new Error(`password update failed: ${passwordError.message}`);
+  }
   const { error: birthdateError } = await admin().rpc('admin_record_birthdate', {
     p_user_id: data.user.id,
     p_date_of_birth: options.dateOfBirth,

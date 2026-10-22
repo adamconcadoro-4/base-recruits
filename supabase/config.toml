@@ -61,3 +61,17 @@ content_path = "./supabase/templates/email-code.html"
 [auth.email.template.magic_link]
 subject = "Your Base Recruits code"
 content_path = "./supabase/templates/email-code.html"
+
+# Every other Auth email is code-only too: a clickable recovery, email-change or
+# invite link could otherwise confirm an account someone else pre-registered.
+[auth.email.template.recovery]
+subject = "Your Base Recruits code"
+content_path = "./supabase/templates/email-code.html"
+
+[auth.email.template.email_change]
+subject = "Your Base Recruits code"
+content_path = "./supabase/templates/email-code.html"
+
+[auth.email.template.invite]
+subject = "Your Base Recruits code"
+content_path = "./supabase/templates/email-code.html"

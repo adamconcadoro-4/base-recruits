@@ -31,7 +31,7 @@ export function VerifyForm({ purpose }: { readonly purpose: 'signup' | 'reset' }
           name="password"
           type="password"
           label={purpose === 'signup' ? 'Create a password' : 'New password'}
-          hint={`At least ${MINIMUM_PASSWORD_LENGTH} characters.`}
+          hint={`At least ${MINIMUM_PASSWORD_LENGTH} characters. Avoid very long passwords with accented letters or emoji.`}
           autoComplete="new-password"
           error={errors.password}
           required

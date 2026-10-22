@@ -41,6 +41,7 @@ test('a minor’s coach visibility waits for a linked parent, then takes effect'
 
   // Ending the parent link ends what depended on it.
   await athletePage.getByRole('button', { name: 'Remove access' }).click();
+  await expect(athletePage.getByText('No family members are linked yet.')).toBeVisible();
   await athletePage.reload();
   await expect(athletePage.getByText('Off', { exact: true })).toBeVisible();
   await expect(athletePage.getByText('On: visible to verified coaches')).toHaveCount(0);

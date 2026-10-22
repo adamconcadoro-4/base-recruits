@@ -98,11 +98,14 @@ select cron.schedule('base-recruits-maintenance', '17 7 * * *',
 Required Supabase Auth settings for every hosted project (security depends on them):
 
 - **Email confirmations on**, anonymous sign-ins off, minimum password length 10.
-- **The "Confirm signup" and "Magic link" email templates must contain the 6-digit code (`{{ .Token }}`) and no
-  link**, as in `supabase/templates/email-code.html`. Sign-up is finished by typing the code on the site, where the
-  person also sets their password. A clickable confirmation link would let someone who registered another person's
-  email first keep a working password on it. `supabase config push` applies `supabase/config.toml`'s auth settings
+- **Every Auth email template (Confirm signup, Magic link, Reset password, Change email address, Invite user) must
+  contain only the 6-digit code (`{{ .Token }}`) and no link**, as in `supabase/templates/email-code.html`. Sign-up and
+  password reset are finished by typing the code on the site, where the person also sets their password. The database
+  additionally wipes any password set before an email is confirmed and refuses email-change requests, so a link a
+  stranger triggers cannot hand them an account. `supabase config push` applies `supabase/config.toml`'s auth settings
   and templates to a linked project; check them in the dashboard afterwards.
+- Because every Auth call comes from the app server, Supabase sees one IP address for all users. Before launch,
+  configure client-IP forwarding for Auth rate limits (or raise them deliberately) and add per-person limits in the app.
 - A custom SMTP sender for production, and the site URL of each environment.
 - The daily maintenance job above; it also deletes sign-ups left unconfirmed for more than a day.
 

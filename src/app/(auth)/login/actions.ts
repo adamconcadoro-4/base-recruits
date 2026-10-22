@@ -21,7 +21,7 @@ export async function logInAction(_previous: ActionState, formData: FormData): P
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     if (error.code === 'email_not_confirmed') {
-      return failure('Confirm your email first. Use the link we sent when you signed up.');
+      return failure('Confirm your email first: finish signing up with the code we emailed you, or reset your password.');
     }
     if (error.status === 429 || error.code === 'over_request_rate_limit') {
       return failure('Too many attempts. Please wait a few minutes and try again.');

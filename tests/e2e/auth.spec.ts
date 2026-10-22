@@ -51,6 +51,36 @@ test('an account someone else pre-registered for your email is taken over cleanl
   expect(ownerLogin).toBeNull();
 });
 
+// Second review: whichever way an email gets confirmed, a password set before
+// confirmation must not survive it (database safeguard, tested here against
+// real Supabase Auth without the app's own password step).
+test('confirming an email wipes a password someone set before confirmation', async () => {
+  const email = uniqueEmail('wipe');
+  const earlierPassword = 'set-before-confirmation-1';
+  const { error: preRegisterError } = await publicClient().auth.signUp({ email, password: earlierPassword });
+  expect(preRegisterError).toBeNull();
+  await new Promise((resolve) => setTimeout(resolve, 2500));
+
+  const owner = publicClient();
+  const requestedAt = new Date(Date.now() - 2000);
+  const { error: otpError } = await owner.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+  expect(otpError).toBeNull();
+  const { error: verifyError } = await owner.auth.verifyOtp({ email, token: await emailCode(email, requestedAt), type: 'email' });
+  expect(verifyError).toBeNull();
+
+  const { error: earlierLogin } = await publicClient().auth.signInWithPassword({ email, password: earlierPassword });
+  expect(earlierLogin).not.toBeNull();
+});
+
+test('changing an account email is refused for now', async () => {
+  const account = await createAccount({ role: 'athlete', name: 'Email Change', dateOfBirth: yearsAgo(20) });
+  const client = publicClient();
+  const { error: signInError } = await client.auth.signInWithPassword({ email: account.email, password: PASSWORD });
+  expect(signInError).toBeNull();
+  const { error } = await client.auth.updateUser({ email: uniqueEmail('someone-else', 'example.edu') });
+  expect(error).not.toBeNull();
+});
+
 test('a forgotten password is reset with an emailed code', async ({ page }) => {
   const account = await createAccount({ role: 'athlete', name: 'Reset Synthetic', dateOfBirth: yearsAgo(20) });
   const requestedAt = new Date(Date.now() - 2000);
