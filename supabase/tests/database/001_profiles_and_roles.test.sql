@@ -17,22 +17,22 @@ select private.bootstrap_first_admin('admin@baserecruits.test');
 -- ---------------------------------------------------------------- signup trigger
 select tests.ok(
   (select primary_role = 'athlete' and role_selected_at is not null from public.profiles where id = tests.id('athlete_adult')),
-  'signup trigger creates a profile with the self-selected role');
+  'an account has a profile with its once-chosen role');
 select tests.ok(
   exists (select 1 from public.user_roles where user_id = tests.id('athlete_adult') and role = 'athlete')
   and exists (select 1 from public.athletes where user_id = tests.id('athlete_adult'))
   and exists (select 1 from public.user_settings where user_id = tests.id('athlete_adult')),
-  'athlete signup provisions role, athlete record and settings');
+  'choosing athlete provisions the role, athlete record and settings');
 select tests.ok(
   (select display_name = 'Adult Athlete' from public.profiles where id = tests.id('athlete_adult')),
-  'display name from signup metadata is stored');
+  'the chosen display name is stored');
 select tests.ok(
   not exists (select 1 from public.user_roles where user_id = tests.id('wants_admin'))
   and (select primary_role is null from public.profiles where id = tests.id('wants_admin')),
-  'signing up with account_type=admin grants nothing');
+  'admin can never be self-selected');
 select tests.ok(
   not exists (select 1 from public.user_roles where user_id = tests.id('anonymous_visitor')),
-  'anonymous sessions never receive a role from signup metadata');
+  'anonymous sessions never receive a role');
 select tests.ok(
   (select verification_status = 'email_verified' and work_email = 'pat.coach@state.edu'
      from public.coaches where user_id = tests.id('coach_edu')),
@@ -97,10 +97,10 @@ select tests.throws('select public.complete_onboarding(''coach'')', 'BR002',
 select tests.authenticate_as('no_type');
 select tests.throws('select public.complete_onboarding(''admin'')', 'BR003',
   'onboarding cannot select the admin role');
-select tests.lives('select public.complete_onboarding(''parent'', ''Jordan Parent'')',
+select tests.lives('select public.complete_onboarding(''athlete'', ''Jordan Athlete'')',
   'onboarding can select a self-selectable role');
 select tests.ok(
-  (select primary_role = 'parent' and role_selected_at is not null from public.profiles where id = tests.id('no_type')),
+  (select primary_role = 'athlete' and role_selected_at is not null from public.profiles where id = tests.id('no_type')),
   'onboarding sets the primary role once');
 select tests.throws('select public.complete_onboarding(''coach'')', 'BR004',
   'onboarding cannot be repeated to add roles');

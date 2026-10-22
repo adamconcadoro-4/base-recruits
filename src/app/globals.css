@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+
+/*
+ * Base Recruits design tokens.
+ * Brand palette from the product spec. Text colours are checked for WCAG 2.2 AA
+ * contrast (attention #9A4508 is 5.8:1 on its soft tint): royal #176BFF is used for filled buttons (white text, 4.6:1); links
+ * and text use royal-ink #0F55D6 (6.4:1 on white, 5.7:1 on ice). Green is only
+ * for real positive statuses; success-ink is its text-safe shade.
+ */
+@theme {
+  --color-navy: #071426;
+  --color-navy-raised: #0d2240;
+  --color-royal: #176bff;
+  --color-royal-ink: #0f55d6;
+  --color-royal-soft: #9cc0ff;
+  --color-ice: #eaf3ff;
+  --color-graphite: #182538;
+  --color-slate: #4a5a73;
+  --color-rule: #c9d6ea;
+  --color-field: #6b7a90;
+  --color-success: #16a36a;
+  --color-success-ink: #0b6b45;
+  --color-success-soft: #e3f6ed;
+  --color-attention: #9a4508;
+  --color-attention-soft: #fdf1e3;
+  --color-danger: #c2261c;
+  --color-danger-soft: #fdecea;
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-variation-settings: 'wdth' 100;
+    line-height: 1.55;
+  }
+
+  /* Display type: Archivo pulled condensed and heavy, like scoreboard lettering. */
+  h1,
+  h2,
+  h3,
+  .display {
+    font-variation-settings: 'wdth' 72;
+    font-weight: 800;
+    letter-spacing: -0.005em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    text-underline-offset: 0.18em;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-royal);
+    outline-offset: 2px;
+  }
+
+  .on-navy :focus-visible {
+    outline-color: var(--color-ice);
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 50;
+  padding: 0.6rem 1rem;
+  background: var(--color-ice);
+  color: var(--color-navy);
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

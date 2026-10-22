@@ -17,6 +17,7 @@ changeable with one migration or config edit. Recommended answers are engineerin
 | F7 | Support and appeals channel | Not defined; UI copy says "contact support" | Coaches need an appeal path; families need privacy-request handling | Create a dedicated support address before Stage 4 |
 | F8 | Paid plan prices | $14.99 / $29.99 / $39.99 proposed, marked as hypotheses, not purchasable | Stage 6 decision | Decide after Stage 5 with usage data |
 | F9 | How strongly to verify that a "parent" is a parent | Self-attested adult age and relationship, plus the athlete's approval after seeing the account's name and email | Light verification keeps family onboarding easy; a determined teen with a second account and false answers could still pose as a parent | Keep for launch with audit monitoring; decide on stronger verification before coach messaging with minors (Stage 4) |
+| F10 | When to let people change their account email | Off: the database refuses email-change requests | A change confirmed by a link or code sent to someone else's address could hand them that address (for a coach, a path toward a fake verification) | Keep off for launch. When added: confirm by code typed while signed in, and send coaches back through verification |
 
 ## Legal / compliance review (production gate)
 

@@ -1,159 +1,136 @@
-# Stage 1 Engineering Report — Foundation (in progress)
+# Stage 1 Engineering Report — Project, design system, security baseline
 
-Date: 2026-10-21 · Exit gate: **not yet met** (authentication flows, routes and UI are not built)
+Date: 2026-10-22 · Spec exit gate: **"real authentication and routes work, authorization tests pass, and UI is usable on
+desktop/mobile"** — **met in CI against a real local Supabase stack** (details and limits below). Not yet run against a
+hosted Supabase project (decision F1).
 
 ## Summary
 
-The database foundation for Stage 1 is complete, has been through two independent security reviews, and is fixed and
-re-tested: roles, profiles,
-the neutral-age rules, coach verification, parent/guardian links, consent, the audit log and the free-access
-capability guards, all behind row-level security. The framework-free access-policy logic the web app will use is
-written and tested. The Next.js application could not be started: the build environment's network policy blocked the
-npm registry, so no framework packages could be installed.
+Stage 1 is built and tested end to end. It has five parts:
+
+- **Database foundation.** Roles, the age rules, coach verification, parent/guardian links, consent, the audit log and the free-access guards, all behind row-level security.
+- **The Next.js web app.** The design system, public pages, sign-up and sign-in, and role-gated dashboards for athletes, parents, coaches and admins.
+- **Automated testing.** Every push runs on GitHub: the database suite on PostgreSQL 16, PostgreSQL 17 and the real Supabase stack, type checking, unit tests, and end-to-end and accessibility tests against a production build.
+
+Four independent security reviews were run: two on the database, one on the app, and one focused on the fix for the app review's main finding. The app review found a serious sign-up flaw. The focused review found the first fix incomplete. Both are now fixed at the database level and covered by tests against real Supabase Auth.
+
+## Exit gate evidence
+
+| Gate item | Evidence (GitHub Actions run 39747948768 on commit `17268d1`, unless noted) |
+| --- | --- |
+| Real authentication works | Supabase Auth from the Supabase CLI 2.121.0 stack, not a stand-in. End-to-end tests pass for: sign-up with an emailed 6-digit code, log in, log out, password reset by code, a wrong code refused, an unconfirmed email unable to log in, the neutral age screen (under-13 creates nothing and blocks retrying), minors limited to athlete accounts, the pre-registration attack below, a password set before confirmation being wiped by confirmation, and email changes being refused |
+| Routes work | All 17 public routes open for anonymous visitors on desktop and phone. The 8 protected prefixes redirect to log in. Each role is kept out of the other roles' areas. Accounts without a role are sent to onboarding. Unverified coaches are redirected away from coach tools until an admin approves them. Unknown school pages return an honest 404 |
+| Authorization tests pass | Database: 341 assertions in 11 files pass on PostgreSQL 16, on PostgreSQL 17, and on the real Supabase stack (real Auth schema and default privileges). Concurrency: 9 of 9 scenarios. Contract: 5 of 5. Unit: 58 of 58. End-to-end: role gates, coach verification by an admin, and the minor-consent flow with a linked parent's approval |
+| UI usable on desktop and mobile | Automated axe checks for WCAG 2.2 AA (tags wcag2a/aa, 21a/aa, 22aa) report zero violations at desktop and phone (Pixel 7) sizes. They cover 11 public pages, the sign-up account step and the athlete home. Also tested: keyboard skip link, and the phone menu opening and closing by keyboard |
+
+Totals for that run: **105 end-to-end and accessibility tests passed, 0 failed, 0 flaky, 1 skipped**. The skipped test is the phone-menu check, which runs only at phone size.
+
+Limits of this evidence:
+
+- Accessibility is automated only. No manual screen-reader or usability session has been run.
+- The Supabase stack is the CLI's local stack inside CI. The hosted project and its settings (README, "Required Supabase Auth settings") still need to be created and checked.
 
 ## Features built
 
-| Area | What exists | Evidence |
-| --- | --- | --- |
-| Roles and profiles | Signup trigger provisions profile, settings and the self-selected role; admin can never be self-selected; anonymous sessions get no role; one-time onboarding that cannot undo an admin's role removal; admin grant/revoke (serialized) with last-admin protection; one-time admin bootstrap | `001` — 57 assertions |
-| Age rules | Accounts 13+ only; an under-13 answer stores nothing but a block on retrying; unknown age is a minor and never an adult; Feb 29 handled identically in SQL and TypeScript; date of birth readable only by owner/admin, recorded through a narrow server-only path | `001`, `tests/unit/age-policy.test.ts` |
-| Coach verification | Nine-status state machine with an explicit transition table; `.edu` email alone grants nothing; adults only; admin review with required notes; remediation and appeal paths; verification bound to the reviewed email and a 365-day window; a suspension lifts only to the prior status; access ends on expiry, suspension, revocation, role removal or email change | `002` — 56 assertions |
-| Parent/guardian links | Athlete-generated one-time codes (hashed, 7-day expiry, max 5 open); only adult parent/guardian accounts can redeem; the athlete sees the redeemer's name and email before approving; rate-limited redemption; scope-limited visibility; re-consent at 18; ending a link (or removing the parent role) ends what depended on it | `003` — 42 assertions |
-| Consent | Eight scopes in a policy table; versioned wording; age step required first; idempotent grants; for minors, coach-facing scopes need a linked **parent or legal guardian** (not other family) and stay effective only while that link is — decided at read time from current rules and age; discovery switch hides everything at once; one-named-coach document access capped at a year; grantees see only active grants; co-guardians cannot see or control each other's grants | `004` — 54 assertions; `009` |
-| Audit log | Append-only (no update, delete or truncate for any role; retention only via owner + explicit switch); row-level audit triggers on profiles, roles, coaches, family links and consent capture every insert, update and delete by any path, including direct database access | `005` — 14 assertions; `007` |
-| Free access | Capability catalog (16 core, 12 premium); database refuses to re-tier, re-scope, rename, delete or sell core capabilities, and refuses to promote a premium capability to core while a plan sells it; core answers never read billing; premium not sellable before Stage 6 | `006` — 31 assertions; unit free-access suite |
-| Structural guardrails | RLS on every table; anonymous visitors read only the capability catalog; neither users nor the service role insert, delete or update directly; no API role touches sequences; exact allow-lists of callable functions for signed-in users and the service role; pinned `search_path` on every privileged function | `007` — 15 assertions |
-| Concurrency | Limits and invariants hold when two sessions race (link limit, invite limit, last admin, one-time onboarding, duplicate grants, approval vs. link ending, catalog re-labelling vs. plan changes) | `scripts/db/race-test.sh` — 9 scenarios |
-| Access-policy logic (TypeScript) | Route access (sign-in, onboarding, role, coach verification — payment not expressible), safe post-login redirects, role homes, coach status descriptions, entitlement decisions, plan configuration with hypothesis prices, consent scope copy, database error messages | 52 unit tests, 5 contract tests |
+| Area | What exists |
+| --- | --- |
+| Design system | Tailwind 4 tokens for the spec palette, with every text colour checked for contrast. Archivo type, condensed for display headings. An original home-plate "BR" mark. Primitives in shadcn style (button, fields, notices, status chips, submit buttons with pending state). The four-step journey drawn as the base path. Reduced-motion and visible-focus defaults |
+| Public site | Home page (spec structure: hero, Quick Match panel, base path, school-result anatomy, division browse, coaches, free vs planned plans, trust, FAQ). Also /schools, /match, /compare, /how-it-works, /athletes, /transfers, /coaches, /pricing and /resources. Draft trust pages: /privacy, /terms, /data-methodology and /accessibility. Stage 2 and 3 features show an honest "not published yet" state, and no school records exist anywhere |
+| Sign-up and sign-in | 1. Neutral age screen. 2. Role, name and email. 3. A 6-digit code is emailed. 4. The code and a new password are entered on the site. 5. Other sessions are signed out. 6. The owner's choices are applied. Also: log in, log out, password reset by code, onboarding fallback (date of birth first, then a role filtered by age), and safe post-login redirects |
+| Athlete home | Coach visibility always shows the database's effective state (off, on, waiting for a parent, not in effect, couldn't load). One-time family codes, approving or declining family members, and cancelling codes |
+| Parent home | Redeem a family code. Approve coach-facing sharing for linked minors, including re-approvals. Remove a link |
+| Coach area | Verification status and history. Staff-page submission (https only, no hidden credentials). Athlete search page reachable only once verified (search itself is Stage 4) |
+| Admin | Coach verification queue. It shows the real site a staff link opens and flags look-alike or mismatched domains. Decisions: approve, ask for more information, or reject (a note is required) |
+| Security | Content Security Policy (`frame-ancestors 'none'`, `connect-src 'self'`, `form-action 'self'`), nosniff, DENY framing, referrer policy, COOP, no `x-powered-by`. httpOnly session cookies, and Secure on https. The proxy applies Supabase's no-store headers when a session refreshes. Every protected page checks access itself, and every server action ends in a database check |
+| Database additions | `my_consent_grants()` (effective consent state) and `guardian_consent_requests()`. Sign-up metadata is ignored. Disguised staff links are rejected. Unconfirmed sign-ups are deleted after 24 hours |
+| Automated testing (CI) | `.github/workflows/ci.yml`: database (PostgreSQL 16 and 17), database on the real Supabase stack, type checking and unit tests, and end-to-end and accessibility tests. Every step publishes its test counts as a GitHub notice, and test runs fail if a test is skipped or nothing runs |
 
-## Independent security review
+## Independent security reviews
 
-A separate reviewer attacked the first draft of the migrations and reproduced seven classes of problems. All are fixed
-and each original reproduction is now a regression test (`008_security_review_regressions.test.sql`, 19 assertions).
+Database (two passes, earlier this stage): 7 then 10 findings, all fixed, with regression tests in files `008` and `009`.
 
-| # | Finding (first draft) | Severity | Fix |
+App layer (first pass, this session):
+
+| # | Finding | Severity | Fix |
 | --- | --- | --- | --- |
-| 1 | A minor could create a second "parent" account, link it, approve their own coach visibility, then unlink | Critical | Family members must have a recorded adult age; only parent/legal-guardian links can approve; approvals die with the approving link; athletes see who redeemed their code |
-| 2 | A user could re-run onboarding to restore a role an admin removed (and a stale coach verification) | High | Role selection is one-time and locked; removing "coach" revokes verification; removing "parent" ends family links |
-| 3 | Suspend → email change → reinstate produced a verified coach on an unreviewed email | High | Verification bound to the reviewed email; leaving verified clears the window; reinstatement returns only to the prior status |
-| 4 | Count-then-insert races (link limit, last admin, onboarding) | Medium | Row locks / advisory lock; concurrency suite added and mutation-checked (removing the locks makes it fail) |
-| 5 | Service role and sequences over-privileged; unaudited direct changes | Medium | Revoked; row-level audit triggers on security tables |
-| 6 | A premium capability could be re-labelled core while plans still sold it | Medium | Blocked by the catalog guard |
-| 7 | Low: grantee saw pending grants and bookkeeping columns, co-guardian overreach, under-13 retry, anonymous roles, row-existence checks | Low | All addressed with tests |
+| 1 | Pre-registration takeover. Someone could register another person's email with their own password. Once the owner clicked the confirmation link, the attacker held a working password on a confirmed account, which could become a fake verified coach. The same route let an attacker pre-set a minor's role or age | High | Code-based confirmation typed on the site. The owner sets the password after the code, and other sessions are signed out. Sign-up metadata is never trusted. Stale unconfirmed sign-ups are deleted. The e2e test "pre-registered" reproduces the attack and passes |
+| 2 | `safeNextPath` let dot segments collapse to `//host` | Medium (latent) | Normalized path re-checked, with unit tests |
+| 3 | Admin saw the raw staff URL (a user name before `@`, look-alike hosts) | Medium | Credentials rejected in the app and the database; the real host is shown, with look-alike and mismatch flags |
+| 4 | Consent screens could disagree with the effective state (load failure, expiry, turned 18, parent re-approvals) | Low | Explicit states; `guardian_consent_requests()` |
+| 5 | Proxy dropped Supabase's cache headers on session refresh | Low | Headers applied to responses and redirects |
+| 6 | Session cookies readable by scripts; `connect-src` wider than needed | Low | httpOnly (and Secure on https); `connect-src 'self'` |
+| 7 | Age-screen retry block skipped onboarding | Low | Checked there too |
+| 8 | Settings reported success when nothing was saved; onboarding offered adult roles to accounts of unknown age | Info | Fixed |
 
-A second, time-boxed reviewer then attacked the fixes and found ten further issues, mostly edge cases created by the
-fixes themselves. All are fixed and covered by `009_second_review_regressions.test.sql` (21 assertions) and new
-concurrency scenarios:
+Focused second pass on the fix for finding 1, checked against the Supabase Auth source:
 
-| # | Finding (after first fixes) | Severity | Fix |
+| # | Finding | Severity | Fix |
 | --- | --- | --- | --- |
-| N1 | Deleting the approving parent's account (or correcting an age, or tightening a rule) left a minor's approved sharing in force | High | Whether a grant works is now decided at read time from the current rules and age; an approval counts only through an active parent/legal-guardian link; cascades are audited |
-| N2 | Admin-granted roles could be replaced through onboarding; removing the athlete role left sharing in place | Medium | Any role completes the one-time role step; removing the athlete role revokes sharing and ends family links |
-| N3 | An approval could race a link ending, and an old approval could revive on re-linking | Medium | Athlete-level locking in both paths; approvals require that specific link to be active |
-| N4 | Soft-deleting a coach could fail on hosted Supabase | Medium | Email-change handling skips deleted accounts and non-email values |
-| N5 | Some changes (owner edits, deletes, a few columns) were not audited | Low | Row audit covers updates and deletes, with personal values recorded only as "changed" |
-| N6 | Ended family links still showed the other side's current details | Low | Details hidden once a link ends |
-| N7 | A request's time-zone setting could shift ages by a day | Low | Ages computed from the UTC date |
-| N8 | Accounts blocked at the age screen could still add profile details | Low | Blocked accounts cannot update anything |
-| N9 | Owner-only race between re-labelling a capability and adding it to a plan | Low | Capability row locked in both paths |
-| N10 | A minor's document sharing with their own parent could never be approved | Fails closed | Sharing with one's own parent/legal guardian needs no extra approval |
+| S1 | The password-reset email was still a link. Clicking it on a pre-registered account confirmed the account with the other person's password | High | All Auth email templates are code-only. **Database safeguard:** when an email is confirmed by any path, any earlier password and user metadata are wiped (`private.reset_credentials_on_confirmation`). Tested against real Auth |
+| S2 | An email-change link sent to a coach's address could hand that address to the requester | High | Email-change requests refused by the database until the app supports them (decision F10). Template code-only. Tested against real Auth |
+| S3 | If setting the owner's password failed (for example the 72-byte limit), the earlier password survived | High | Covered by the S1 safeguard. Passwords are also checked against the byte limit first |
+| S4 | A brief window between confirmation and the owner's password let an earlier password log in and pick the role or date of birth | Medium | Closed by the S1 safeguard: the earlier password no longer exists at confirmation |
+| S5 | The staff-link credentials check was case-sensitive in the database | Low | Case-insensitive, with a test |
+| S6 | The reset form can reveal whether an account exists through Supabase's rate limits | Low | Documented. Supabase's public API reveals this anyway |
+| S7 | Browser-held sign-up details weren't re-checked at verification | Low | Re-checked. The database now requires a recorded adult date of birth for parent and coach roles |
+| S8 | Leftover "link" wording; pre-registration metadata stayed in user metadata | Low | Fixed; metadata wiped at confirmation |
 
-The fixes to the second review's findings have not had a third independent pass.
+The fixes for the second pass have not had a third independent review; each is covered by database tests and, where
+it depends on Supabase Auth behaviour, by end-to-end tests against the real Auth server.
 
-## Residual risk (cannot be closed in code)
-
-Ages and family relationships are self-attested, as on comparable consumer platforms:
-
-- A teen who lies about their age and relationship on a separate account could still pose as a parent. Mitigations: the
-  athlete approves the link after seeing the account's name and email, only parent/legal-guardian links can approve,
-  approvals end with the link, and every step is audited. Stronger parent verification is open decision F9.
-- A minor can claim to be an adult at the age screen, and someone refused at the age screen can return with a new
-  email. The app layer will add the standard neutral-age-screen safeguards (no hints, a block on immediate retries);
-  counsel should confirm the approach (L1).
-
-One consequence for the app: a grant's stored status can read `active` while it is not in effect (for example, waiting
-for a guardian's re-approval after an age correction). Screens must show the effective state from the database helpers,
-never the raw status.
-
-## Migrations
+## Migrations (Stage 1)
 
 | File | Contents |
 | --- | --- |
-| `20261021000100_foundation.sql` | `private` schema, enums, append-only audit log, row-level audit trigger, shared triggers, error-code convention |
-| `20261021000200_identity_and_roles.sql` | profiles, user_roles, user_settings, athletes, role/age helpers, RLS |
-| `20261021000300_coach_verification.sql` | coaches, transitions, verification events, `submit_coach_affiliation`, `admin_review_coach`, expiry job |
-| `20261021000400_family_links_and_consent.sql` | family invites and links, consent rules and grants, access helpers, family and consent functions, maintenance jobs |
-| `20261021000500_auth_hooks_and_onboarding.sql` | auth.users triggers, onboarding, birthdate recording, admin role management, bootstrap, maintenance entry point |
-| `20261021000600_capabilities_free_access.sql` | capability catalog, plan contents, free-access triggers, `has_capability` |
+| `20261021000100` – `000600` | Foundation, identity and roles, coach verification, family links and consent, auth hooks and onboarding, capability catalog (see `docs/architecture.md`) |
+| `20261022000100_consent_overview.sql` | `public.my_consent_grants()`, effective consent state for the athlete |
+| `20261022000200_auth_hardening.sql` | Sign-up metadata ignored. Pre-confirmation passwords and metadata wiped at confirmation. Email-change requests refused. Adult date of birth required for parent and coach roles. Staff-link credential check. `guardian_consent_requests()`. Stale unconfirmed sign-ups deleted by the daily job |
 
-These migrations have not been applied to any shared environment, so the review fixes were made in place.
+None of these migrations have been applied to a shared or hosted environment.
 
-## Tests run (all executed in this session, from a clean start)
+## Test commands and results
 
-| Command | Result |
-| --- | --- |
-| `scripts/db/test.sh` (PostgreSQL 16.15, Supabase roles/auth emulated) | 9 files, **309 assertions, all passed** |
-| `scripts/db/race-test.sh` | **9 of 9 scenarios passed**; removing the locks makes the lock-dependent scenarios fail (mutation checks) |
-| Unit tests (`tests/unit`, 5 files) | **52 passed, 0 failed** |
-| Contract tests (`tests/contract`) against the migrated database | **5 passed, 0 failed** |
-| TypeScript 6.0.3 typecheck, strict + `noUncheckedIndexedAccess` (15 files) | **0 errors** |
-| Harness self-checks: deliberately failing SQL and unit assertions | Correctly reported as failures (exit code 1) |
-| Type-level check: adding a core capability to a paid plan | Rejected by the compiler, as intended |
-
-Notes: Vitest could not be installed in the build workspace, so there the unit and contract tests ran on Node's built-in
-test runner through a temporary bridge kept outside the repository. On GitHub Actions they run unchanged under real
-Vitest (below).
-
-### On GitHub Actions
-
-Repository `adamconcadoro-4/base-recruits` (private). Run
-[39733890872](https://github.com/adamconcadoro-4/base-recruits/actions/runs/39733890872) at commit `f837179`; counts
-read from the run's published notices. Each test step fails if anything fails, and the Vitest steps also fail if nothing
-ran or anything was skipped.
-
-| Job | Result |
-| --- | --- |
-| Database security suite — PostgreSQL 16 / 17 | **309 assertions in 9 files, all passed** on both |
-| Concurrency scenarios — PostgreSQL 16 / 17 | **9 of 9 passed** on both |
-| Contract tests under Vitest 5.0.0 — PostgreSQL 16 / 17 | **5 passed, 0 skipped** on both |
-| Unit tests under Vitest 5.0.0 | **52 passed, 0 failed, 0 skipped** (5 files) |
-| Typecheck, TypeScript 6.0.3 | **0 errors** |
-
-Still untested: the real Supabase Auth schema and Data API. PostgreSQL 17 is now covered, but with Supabase's roles and
-`auth` functions emulated; re-run the suite against the Base Recruits dev project (decision F1) before Stage 2. CI
-installs its development tools without a lockfile; commit `package-lock.json` when the app's dependencies are added.
+| Command | Where | Result |
+| --- | --- | --- |
+| `scripts/db/test.sh` | Local (PG 16), CI (PG 16, PG 17) | 11 files, 341 assertions, all passed |
+| `DATABASE_URL=… scripts/db/test.sh` against `supabase start` | CI | 11 files, 341 assertions, all passed |
+| `scripts/db/race-test.sh` | Local, CI (PG 16, PG 17) | 9 of 9 scenarios |
+| `npm run test:contract` | CI (PG 16, PG 17) | 5 passed, 0 skipped |
+| `npm run typecheck` (TypeScript 6.0.3) | CI | 0 errors, 117 files |
+| `npm run test:unit` (Vitest 5.0.5) | CI | 58 passed |
+| `npm run build` (Next.js 16.4.2) | CI | Succeeded |
+| `npx playwright test` (Playwright 1.64.1, axe 4.14.0) | CI | 105 passed, 0 failed, 1 skipped by design |
+| `npm ci` from the committed `package-lock.json` (generated in CI; 181 packages, all from registry.npmjs.org with integrity hashes) | CI | Clean install |
 
 ## Integrations actually functional
 
-GitHub: the private repository and its Actions workflow (`.github/workflows/ci.yml`) run on every push to `main` and
-every pull request (results above). Nothing else: no Supabase project is connected, no Auth server has run against this
-schema, and no data source is integrated.
+- **GitHub repository and Actions:** private repository `adamconcadoro-4/base-recruits`, with checks on every pull request and every push to `main`.
+- **Supabase Auth, Data API and Postgres:** working only as the Supabase CLI's local stack (Docker, in CI and on developer machines). Emails go to the local mail catcher.
+- **Not connected:** hosted Supabase, email delivery (SMTP), Stripe and data sources.
 
-## Records imported / data coverage
+## Records imported
 
-None — school and program data are Stage 2. No school, program or admissions record of any kind exists in the codebase.
+None. School and program data are Stage 2. No school, program or admissions record exists in the codebase or the database.
 
-## Not done (Stage 1 remainder)
+## Known gaps and residual risk
 
-- Next.js App Router project, Tailwind design system with the brand palette, shadcn/ui-style components
-- Public routes and trust pages (privacy, terms, data methodology, accessibility — labelled as drafts pending counsel)
-- Supabase Auth integration: neutral age screen → signup → email confirmation → onboarding; login, logout, session
-  refresh; role-gated layouts using `src/lib/auth/route-access.ts`; account deletion after an under-13 answer
-- Minimal role dashboards: athlete privacy and family invites, parent link redemption, coach verification, admin review
-  queue
-- Vitest, Playwright end-to-end, and automated accessibility (axe, WCAG 2.2 AA) tests at desktop and mobile widths
+- **Hosted Supabase settings are a security dependency.** Code-only templates for every Auth email, confirmations on and minimum password length are set in `supabase/config.toml` for local use. They must be applied to each hosted project (`supabase config push`) and checked (README). The database safeguards hold even if a template is missed.
+- **Rate limiting.** All Auth calls come from the app server, so Supabase's per-IP limits apply to the server, not to each person. That is both an availability risk and an attack lever. Before launch (Stage 5): forward client IPs to Supabase Auth, or raise its limits deliberately, and add per-person and per-IP throttling for sign-up, log-in and code requests.
+- **Email changes are switched off** (decision F10) until the app offers them with re-verification.
+- **Content Security Policy** still allows inline scripts, which Next.js needs for bootstrapping. A per-request nonce is the next step.
+- **Ages and family relationships are self-attested** (decision F9). An attacker who registered someone's email in advance gains nothing, but a person lying about their own age or relationship remains the documented residual risk.
+- **Not yet built:** admin multi-factor authentication (spec §19, optional MFA for admins and coaches); data export and account-deletion requests (shown as "before launch"); ESLint; TypeScript 7 (latest), deliberately deferred.
+- **Accessibility** is verified by automated checks only.
 
 ## Unresolved dependencies
 
 | Dependency | Needed for | Owner |
 | --- | --- | --- |
-| npm registry access in the build environment | Everything in "Not done" | Founder (claude.ai Settings → Capabilities) |
-| A Supabase project dedicated to Base Recruits, in its own Supabase organization (decision F1), and permission to apply migrations | Real Auth, end-to-end tests, running this suite on PostgreSQL 17 | Founder / Jonathan Caceres |
-| Network access from the build environment to that Supabase project (the package-manager allowance does not include `supabase.co`; fallback: run the end-to-end tests in GitHub Actions) | End-to-end tests | Founder / Jonathan Caceres |
-| Open decisions F1–F9 and legal review L1–L8 | See `docs/decisions.md` | Founder / Jonathan Caceres + counsel |
+| A Supabase project for Base Recruits in its own organization (F1) | Hosted development environment, staging and production | Founder / Jonathan Caceres |
+| Production email sender (SMTP) and a support address (F7) | Real sign-up emails, appeals and privacy requests | Founder / Jonathan Caceres |
+| Coach-verification reviewer and turnaround (F2) | Stage 4 coach onboarding | Founder / Jonathan Caceres |
+| Legal review L1–L8 | Production launch | Counsel |
 
 ## Next exact step
 
-Install the framework packages (Next.js, React, TypeScript, Tailwind, `@supabase/ssr`, `@supabase/supabase-js`, Zod,
-Lucide, Vitest, Playwright, axe) at their current versions, point Vitest at the existing `tests/unit` and
-`tests/contract`, and build the app shell and Supabase Auth flows against the tested database contract.
+Stage 2 (Pillar A, nationwide program registry). First the institution and baseball-program schema with provenance. Then a College Scorecard adapter, which needs an api.data.gov key, and an admin CSV/JSON import with review. Before any data is published, F1 should be completed and the hosted Auth settings applied.
