@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
+import { staffUrlProblem, staffUrlProblemMessage } from '@/lib/auth/staff-url';
 import { userMessageForDatabaseError } from '@/lib/db/errors';
 import { failure, field, success, type ActionState } from '@/lib/forms/action-state';
 import { createClient } from '@/lib/supabase/server';
@@ -13,7 +14,10 @@ const affiliationSchema = z.object({
   staffDirectoryUrl: z
     .string()
     .max(500, 'Use a shorter link.')
-    .regex(/^https:\/\/\S+$/i, 'Enter the full https:// link to the official staff page.'),
+    .superRefine((value, context) => {
+      const problem = staffUrlProblem(value);
+      if (problem) context.addIssue({ code: 'custom', message: staffUrlProblemMessage(problem) });
+    }),
   note: z.string().max(2000, 'Use 2,000 characters or fewer.'),
 });
 

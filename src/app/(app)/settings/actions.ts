@@ -17,8 +17,8 @@ export async function updateNameAction(_previous: ActionState, formData: FormDat
   if (!user) return failure('Please sign in again.');
   // Row-level security limits this update to the signed-in user's own profile,
   // and only the display_name column is writable.
-  const { error } = await supabase.from('profiles').update({ display_name: displayName }).eq('id', user.id);
-  if (error) return failure('We couldn’t save your name. Please try again.');
+  const { data, error } = await supabase.from('profiles').update({ display_name: displayName }).eq('id', user.id).select('id');
+  if (error || !Array.isArray(data) || data.length !== 1) return failure('We couldn’t save your name. Please try again.');
   revalidatePath('/', 'layout');
   return success('Saved.');
 }

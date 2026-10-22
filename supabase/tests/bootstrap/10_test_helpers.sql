@@ -57,6 +57,17 @@ begin
           '{"provider":"email","providers":["email"]}'::jsonb,
           case when p_email_confirmed and not p_is_anonymous then now() end, p_is_anonymous, now(), now());
 
+  -- Sign-up metadata is only trusted on accounts created already confirmed.
+  -- Fixtures for unconfirmed accounts that need a role (e.g. a coach waiting
+  -- to confirm a changed email) get it provisioned directly.
+  if not p_email_confirmed and not p_is_anonymous and p_account_type in ('athlete', 'parent', 'coach') then
+    update public.profiles
+       set primary_role = p_account_type::public.app_role, role_selected_at = now(),
+           display_name = coalesce(left(p_display_name, 80), display_name)
+     where id = v_id;
+    perform private.provision_role(v_id, p_account_type::public.app_role, null);
+  end if;
+
   if p_date_of_birth is not null then
     update public.profiles
        set date_of_birth = p_date_of_birth, birthdate_recorded_at = now()

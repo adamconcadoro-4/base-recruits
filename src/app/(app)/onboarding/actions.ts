@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 
 import { dateOfBirthSchema, isoDate } from '@/app/(auth)/signup/schema';
 import { birthDateMessage, checkBirthDate, todayUtc } from '@/lib/age/age-policy';
-import { blockAgeGate } from '@/lib/auth/age-gate';
+import { getAccount } from '@/lib/auth/account';
+import { blockAgeGate, isAgeGateBlocked } from '@/lib/auth/age-gate';
 import { isSelfSelectableRole } from '@/lib/auth/roles';
 import { userMessageForDatabaseError } from '@/lib/db/errors';
 import { failure, field, type ActionState } from '@/lib/forms/action-state';
@@ -15,6 +16,11 @@ export async function chooseRoleAction(_previous: ActionState, formData: FormDat
   const accountType = field(formData, 'accountType');
   if (!isSelfSelectableRole(accountType)) return failure('Choose who this account is for.');
 
+  // Unknown age counts as a minor, so the date of birth comes first.
+  const account = await getAccount();
+  if (accountType !== 'athlete' && account.isMinor) {
+    return failure('Parent, guardian and coach accounts are for adults.');
+  }
   const supabase = await createClient();
   const { error } = await supabase.rpc('complete_onboarding', {
     p_account_type: accountType,
@@ -25,6 +31,7 @@ export async function chooseRoleAction(_previous: ActionState, formData: FormDat
 }
 
 export async function recordBirthdateAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  if (await isAgeGateBlocked()) return failure('Base Recruits accounts are for people 13 and older.');
   const parsed = dateOfBirthSchema.safeParse({
     month: field(formData, 'month'),
     day: field(formData, 'day'),

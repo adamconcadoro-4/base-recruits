@@ -5,16 +5,13 @@ import { PageIntro } from '@/components/site/page-intro';
 import { ButtonLink } from '@/components/ui/button';
 import { StatusChip } from '@/components/ui/status-chip';
 import { PLANS } from '@/config/plans';
-import { CAPABILITIES, CORE_CAPABILITY_KEYS } from '@/lib/entitlements/capabilities';
+import { CAPABILITIES, CORE_CAPABILITY_KEYS, type CapabilityDefinition } from '@/lib/entitlements/capabilities';
 
 export const metadata: Metadata = { title: 'Free and optional plans' };
 
-const coreForPeople = CORE_CAPABILITY_KEYS.map((key) => CAPABILITIES[key]).filter(
-  (capability) => capability.audience !== 'verified_coach' && capability.audience !== 'admin',
-);
-const coreForCoaches = CORE_CAPABILITY_KEYS.map((key) => CAPABILITIES[key]).filter(
-  (capability) => capability.audience === 'verified_coach',
-);
+const CORE: readonly CapabilityDefinition[] = CORE_CAPABILITY_KEYS.map((key) => CAPABILITIES[key]);
+const coreForPeople = CORE.filter((capability) => capability.audience !== 'verified_coach' && capability.audience !== 'admin');
+const coreForCoaches = CORE.filter((capability) => capability.audience === 'verified_coach');
 
 export default function PricingPage() {
   const paidPlans = PLANS.filter((plan) => plan.availability === 'planned');

@@ -2,17 +2,18 @@ import type { NextConfig } from 'next';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isProduction = process.env.NEXT_PUBLIC_APP_ENV === 'production';
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 
-// Server actions post to this origin; the browser only talks to this origin
-// (all Supabase calls run on the server), so connect-src stays narrow.
+// Server actions post to this origin and every Supabase call runs on the
+// server, so the browser only ever talks to this origin.
+// Known gap: script-src allows inline scripts (Next.js bootstrapping). Moving to
+// a per-request nonce is tracked in docs/reports/stage-1.md.
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  `connect-src 'self'${supabaseUrl ? ` ${supabaseUrl}` : ''}`,
+  "connect-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

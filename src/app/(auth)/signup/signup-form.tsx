@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react';
 
 import { checkAgeAction, signUpAction } from '@/app/(auth)/signup/actions';
 import { AgeScreenBlocked } from '@/app/(auth)/signup/age-screen-blocked';
-import { MINIMUM_PASSWORD_LENGTH, type AgeStepState } from '@/app/(auth)/signup/schema';
+import type { AgeStepState } from '@/app/(auth)/signup/schema';
 import { SelectField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { SubmitButton } from '@/components/ui/submit-button';
@@ -138,19 +138,9 @@ export function SignupForm() {
         name="email"
         type="email"
         label="Email"
-        hint="Coaches: use your institutional email address."
+        hint="We'll email you a 6-digit code. Coaches: use your institutional email address."
         autoComplete="email"
         error={errors.email}
-        required
-      />
-      <TextField
-        id="password"
-        name="password"
-        type="password"
-        label="Password"
-        hint={`At least ${MINIMUM_PASSWORD_LENGTH} characters.`}
-        autoComplete="new-password"
-        error={errors.password}
         required
       />
 
@@ -165,7 +155,7 @@ export function SignupForm() {
         and <a href="/privacy" className="font-semibold text-royal-ink underline">privacy approach</a>. Nothing you enter is shared
         until you choose to share it.
       </p>
-      <SubmitButton pendingLabel="Creating your account…">Create account</SubmitButton>
+      <SubmitButton pendingLabel="Sending your code…">Email me a code</SubmitButton>
     </form>
   );
 }

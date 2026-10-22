@@ -6,8 +6,7 @@ import { accountSchema, dateOfBirthSchema, isoDate, type AgeStepState } from '@/
 import { birthDateMessage, checkBirthDate, todayUtc } from '@/lib/age/age-policy';
 import { blockAgeGate, isAgeGateBlocked } from '@/lib/auth/age-gate';
 import { failure, field, type ActionState } from '@/lib/forms/action-state';
-import { createAdminClient } from '@/lib/supabase/admin';
-import { siteUrl } from '@/lib/supabase/env';
+import { setPendingVerification } from '@/lib/auth/pending-verification';
 import { createClient } from '@/lib/supabase/server';
 
 function readBirthDate(formData: FormData) {
@@ -41,7 +40,11 @@ export async function checkAgeAction(_previous: AgeStepState, formData: FormData
   return { status: 'success', passed: true, adult: check.band === 'adult' };
 }
 
-/** Step 2: create the account, then record the date of birth server-side. */
+/**
+ * Step 2: send a 6-digit code to the email. No account details are attached
+ * yet; they are applied after the code proves the person owns the email
+ * (see src/app/(auth)/verify/actions.ts).
+ */
 export async function signUpAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   if (await isAgeGateBlocked()) {
     return failure('Base Recruits accounts are for people 13 and older.');
@@ -63,7 +66,6 @@ export async function signUpAction(_previous: ActionState, formData: FormData): 
     accountType: field(formData, 'accountType'),
     displayName: field(formData, 'displayName'),
     email: field(formData, 'email'),
-    password: typeof formData.get('password') === 'string' ? (formData.get('password') as string) : '',
   });
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
@@ -73,7 +75,7 @@ export async function signUpAction(_previous: ActionState, formData: FormData): 
     }
     return failure('Check the highlighted fields.', fieldErrors);
   }
-  const { accountType, displayName, email, password } = parsed.data;
+  const { accountType, displayName, email } = parsed.data;
 
   if (accountType !== 'athlete' && check.band === 'minor') {
     return failure('Parent, guardian and coach accounts are for adults.', {
@@ -82,43 +84,17 @@ export async function signUpAction(_previous: ActionState, formData: FormData): 
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${siteUrl()}/auth/callback`,
-      data: { account_type: accountType, display_name: displayName },
-    },
-  });
-
+  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
   if (error) {
-    if (error.code === 'weak_password') {
-      return failure('Choose a stronger password.', { password: 'Choose a stronger password.' });
-    }
-    if (error.code === 'over_email_send_rate_limit' || error.status === 429) {
+    if (error.status === 429 || error.code === 'over_email_send_rate_limit' || error.code === 'over_request_rate_limit') {
       return failure('Too many attempts. Please wait a few minutes and try again.');
     }
     if (error.code === 'email_address_invalid') {
       return failure('Enter a valid email address.', { email: 'Enter a valid email address.' });
     }
-    return failure('We couldn’t create your account. Please try again.');
+    return failure('We couldn’t send a code to that address. Please try again.');
   }
 
-  // A brand-new account has an identity; an address that is already registered
-  // returns a placeholder user, and we respond identically so the form never
-  // reveals who has an account.
-  const user = data.user;
-  if (user && (user.identities?.length ?? 0) > 0) {
-    const admin = createAdminClient();
-    const { error: birthdateError } = await admin.rpc('admin_record_birthdate', {
-      p_user_id: user.id,
-      p_date_of_birth: dateOfBirth,
-    });
-    if (birthdateError) {
-      // The account still works: onboarding asks for the date of birth again.
-      console.error('admin_record_birthdate failed', { code: birthdateError.code });
-    }
-  }
-
-  redirect('/signup/check-email');
+  await setPendingVerification({ purpose: 'signup', email, dateOfBirth, accountType, displayName });
+  redirect('/verify');
 }

@@ -20,8 +20,31 @@ Stage 1 of 7 (foundation) — **in progress**. See `docs/reports/stage-1.md`.
 
 - PostgreSQL 15+ server binaries (`initdb`, `pg_ctl`, `psql`) for the database test suite
   - macOS: `brew install postgresql@16` · Ubuntu: `apt install postgresql`
-- Node.js 22.12+ (app work, Stage 1 remainder)
-- Supabase CLI (optional, for `supabase start` with Docker and for `supabase db push`)
+- Node.js 22.12+ and npm
+- Supabase CLI and Docker, for the local Supabase stack (`supabase start`) the app and end-to-end tests use
+
+## Run the app locally
+
+```bash
+npm install
+supabase start                                   # local Auth, Data API and PostgreSQL 17, with every migration
+scripts/ci/supabase-env.sh > .env.local          # point the app at the local stack
+npm run dev                                      # http://localhost:3000
+```
+
+Confirmation emails go to the local mail catcher at http://127.0.0.1:54324, never to a real inbox. To make your own
+account the first administrator, sign up, confirm, then run once:
+`psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -c "select private.bootstrap_first_admin('you@example.com')"`.
+
+End-to-end and accessibility tests (Playwright, axe) run against a production build and the local stack:
+
+```bash
+npx playwright install chromium   # first time only
+set -a; . ./.env.local; set +a
+npm run build && npm run test:e2e
+```
+
+Before a run, `.env.local` must point `NEXT_PUBLIC_SITE_URL` at `http://127.0.0.1:3000`, which the script above does.
 
 ## Run the database security tests
 
@@ -47,7 +70,9 @@ DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres scripts/db/
 
 `.github/workflows/ci.yml` runs on every push to `main` and on every pull request. It runs the database security suite,
 the concurrency scenarios and the catalog contract test on PostgreSQL 16 and 17 (the version hosted Supabase runs),
-plus the TypeScript typecheck and the unit tests under Vitest.
+plus the database suite against the real Supabase stack (`supabase start`), the TypeScript typecheck, the unit tests
+under Vitest, and the end-to-end and accessibility tests against a production build. Each step publishes its test
+counts as a notice on the run.
 
 ## Apply the migrations to a Supabase project
 

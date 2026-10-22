@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { findProtectedRoute, loginRedirectFor } from '@/lib/auth/route-access';
+import { sessionCookieOptions } from '@/lib/supabase/cookie-options';
 
 /**
  * Runs before every page request:
@@ -25,15 +26,21 @@ export async function proxy(request: NextRequest) {
   }
 
   let response = NextResponse.next({ request });
+  // Headers Supabase asks for when it refreshes a session (no-store caching),
+  // so a shared cache can never hand one person's session cookie to another.
+  let refreshHeaders: Record<string, string> = {};
   const supabase = createServerClient(url, key, {
+    cookieOptions: sessionCookieOptions(),
     cookies: {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet, headers) {
         for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
         response = NextResponse.next({ request });
         for (const { name, value, options } of cookiesToSet) response.cookies.set(name, value, options);
+        refreshHeaders = { ...(headers ?? {}) };
+        for (const [name, value] of Object.entries(refreshHeaders)) response.headers.set(name, value);
       },
     },
   });
@@ -44,6 +51,7 @@ export async function proxy(request: NextRequest) {
   if (!signedIn && isProtected) {
     const redirect = NextResponse.redirect(new URL(loginRedirectFor(request.nextUrl.pathname), request.url));
     for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
+    for (const [name, value] of Object.entries(refreshHeaders)) redirect.headers.set(name, value);
     return redirect;
   }
   return response;

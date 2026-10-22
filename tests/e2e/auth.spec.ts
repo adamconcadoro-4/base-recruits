@@ -1,21 +1,20 @@
 import { expect, test } from '@playwright/test';
 
-import { PASSWORD, confirmationLink, createAccount, fillBirthDate, logIn, uniqueEmail, yearsAgo } from './support';
+import {
+  PASSWORD,
+  createAccount,
+  emailCode,
+  fillBirthDate,
+  logIn,
+  publicClient,
+  signUpThroughSite,
+  uniqueEmail,
+  yearsAgo,
+} from './support';
 
-test('an athlete signs up, confirms their email and lands on their home', async ({ page }) => {
+test('an athlete signs up with an emailed code and lands on their home', async ({ page }) => {
   const email = uniqueEmail('signup');
-  await page.goto('/signup');
-  await fillBirthDate(page, yearsAgo(19));
-  await page.getByRole('button', { name: 'Continue' }).click();
-
-  await page.getByRole('radio', { name: /Student-athlete/ }).check();
-  await page.getByLabel('Your name').fill('Jordan Synthetic');
-  await page.getByLabel('Email', { exact: true }).fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
-  await page.getByRole('button', { name: 'Create account' }).click();
-  await expect(page.getByRole('heading', { name: 'Check your email' })).toBeVisible();
-
-  await page.goto(await confirmationLink(email));
+  await signUpThroughSite(page, { email, name: 'Jordan Synthetic', dateOfBirth: yearsAgo(19), role: /Student-athlete/ });
   await expect(page).toHaveURL('/athlete');
   await expect(page.getByRole('heading', { level: 1, name: 'Welcome, Jordan Synthetic' })).toBeVisible();
 
@@ -23,6 +22,61 @@ test('an athlete signs up, confirms their email and lands on their home', async 
   await expect(page).toHaveURL('/');
   await logIn(page, email);
   await expect(page).toHaveURL('/athlete');
+});
+
+// Review finding: someone registers another person's email first. The real
+// owner must end up with their own password, role and name, and the other
+// person's password must stop working.
+test('an account someone else pre-registered for your email is taken over cleanly by you', async ({ page }) => {
+  const email = uniqueEmail('prereg');
+  const attackerPassword = 'someone-elses-password-1';
+  const { error: preRegisterError } = await publicClient().auth.signUp({
+    email,
+    password: attackerPassword,
+    options: { data: { account_type: 'parent', display_name: 'Not The Owner' } },
+  });
+  expect(preRegisterError).toBeNull();
+
+  await signUpThroughSite(page, { email, name: 'Real Owner', dateOfBirth: yearsAgo(17), role: /Student-athlete/ });
+  await expect(page).toHaveURL('/athlete');
+  await expect(page.getByRole('heading', { level: 1, name: 'Welcome, Real Owner' })).toBeVisible();
+
+  const { error: attackerLogin } = await publicClient().auth.signInWithPassword({ email, password: attackerPassword });
+  expect(attackerLogin).not.toBeNull();
+  const { error: ownerLogin } = await publicClient().auth.signInWithPassword({ email, password: PASSWORD });
+  expect(ownerLogin).toBeNull();
+});
+
+test('a forgotten password is reset with an emailed code', async ({ page }) => {
+  const account = await createAccount({ role: 'athlete', name: 'Reset Synthetic', dateOfBirth: yearsAgo(20) });
+  const requestedAt = new Date(Date.now() - 2000);
+  await page.goto('/login');
+  await page.getByRole('link', { name: 'Forgot your password?' }).click();
+  await page.getByLabel('Email', { exact: true }).fill(account.email);
+  await page.getByRole('button', { name: 'Email me a code' }).click();
+  await page.waitForURL('**/verify');
+  await page.getByLabel('6-digit code').fill(await emailCode(account.email, requestedAt));
+  await page.getByLabel('New password').fill('a-brand-new-password-7');
+  await page.getByRole('button', { name: 'Set new password' }).click();
+  await expect(page).toHaveURL('/athlete');
+
+  const { error: oldPassword } = await publicClient().auth.signInWithPassword({ email: account.email, password: PASSWORD });
+  expect(oldPassword).not.toBeNull();
+});
+
+test('a wrong code is refused', async ({ page }) => {
+  await page.goto('/signup');
+  await fillBirthDate(page, yearsAgo(22));
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByLabel('Your name').fill('Wrong Code');
+  await page.getByLabel('Email', { exact: true }).fill(uniqueEmail('wrongcode'));
+  await page.getByRole('button', { name: 'Email me a code' }).click();
+  await page.waitForURL('**/verify');
+  await page.getByLabel('6-digit code').fill('000000');
+  await page.getByLabel('Create a password').fill(PASSWORD);
+  await page.getByRole('button', { name: 'Create my account' }).click();
+  await expect(page.getByText(/That code is wrong or has expired/).first()).toBeVisible();
+  await expect(page).toHaveURL('/verify');
 });
 
 test('an under-13 answer creates nothing and blocks retrying', async ({ page }) => {

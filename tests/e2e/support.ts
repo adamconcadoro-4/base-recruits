@@ -92,22 +92,48 @@ export async function fillBirthDate(page: Page, isoDate: string): Promise<void> 
   await page.getByLabel('Year', { exact: true }).fill(year ?? '');
 }
 
-/** The confirmation link from the local email catcher (Mailpit). */
-export async function confirmationLink(email: string): Promise<string> {
+/** The newest 6-digit code emailed to this address (local Mailpit). */
+export async function emailCode(email: string, after: Date = new Date(0)): Promise<string> {
   const base = (process.env.MAILPIT_URL ?? 'http://127.0.0.1:54324').replace(/\/+$/, '');
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const search = await fetch(`${base}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`);
     if (search.ok) {
-      const body = (await search.json()) as { messages?: Array<{ ID: string }> };
-      const id = body.messages?.[0]?.ID;
-      if (id) {
-        const message = (await (await fetch(`${base}/api/v1/message/${id}`)).json()) as { Text?: string; HTML?: string };
-        const text = `${message.Text ?? ''} ${message.HTML ?? ''}`;
-        const match = /https?:\/\/[^\s"'<>]*\/verify\?[^\s"'<>]+/.exec(text);
-        if (match) return match[0].replace(/&amp;/g, '&');
+      const body = (await search.json()) as { messages?: Array<{ ID: string; Created?: string }> };
+      const newest = (body.messages ?? []).filter((message) => !message.Created || new Date(message.Created) >= after)[0];
+      if (newest) {
+        const message = (await (await fetch(`${base}/api/v1/message/${newest.ID}`)).json()) as { Text?: string; HTML?: string };
+        const match = /\b(\d{6})\b/.exec(`${message.Text ?? ''} ${message.HTML ?? ''}`);
+        if (match?.[1]) return match[1];
       }
     }
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  throw new Error(`No confirmation email arrived for ${email}`);
+  throw new Error(`No code arrived for ${email}`);
+}
+
+/** A client with only the public key, as anyone on the internet could use. */
+export function publicClient(): SupabaseClient {
+  return createClient(env('NEXT_PUBLIC_SUPABASE_URL'), env('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+/** Goes through the site's sign-up: age screen, account details, emailed code, password. */
+export async function signUpThroughSite(
+  page: Page,
+  options: { readonly email: string; readonly name: string; readonly dateOfBirth: string; readonly role: RegExp },
+): Promise<void> {
+  const requestedAt = new Date(Date.now() - 2000);
+  await page.goto('/signup');
+  await fillBirthDate(page, options.dateOfBirth);
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('radio', { name: options.role }).check();
+  await page.getByLabel('Your name').fill(options.name);
+  await page.getByLabel('Email', { exact: true }).fill(options.email);
+  await page.getByRole('button', { name: 'Email me a code' }).click();
+  await page.waitForURL('**/verify');
+  await page.getByLabel('6-digit code').fill(await emailCode(options.email, requestedAt));
+  await page.getByLabel('Create a password').fill(PASSWORD);
+  await page.getByRole('button', { name: 'Create my account' }).click();
+  await page.waitForURL((url) => url.pathname !== '/verify');
 }

@@ -21,19 +21,19 @@ export default async function OnboardingPage() {
     );
   }
 
-  if (account.roles.length === 0) {
+  if (!account.profile?.birthdate_recorded_at) {
     return (
       <>
-        <PageTitle title="Finish setting up">Tell us who this account is for. You can only choose once.</PageTitle>
-        <RoleForm defaultName={account.profile?.display_name ?? ''} />
+        <PageTitle title="Finish setting up">We need your date of birth to apply the right privacy protections.</PageTitle>
+        <BirthdateForm />
       </>
     );
   }
 
   return (
     <>
-      <PageTitle title="One more step">We need your date of birth to apply the right privacy protections.</PageTitle>
-      <BirthdateForm />
+      <PageTitle title="One more step">Tell us who this account is for. You can only choose once.</PageTitle>
+      <RoleForm defaultName={account.profile?.display_name ?? ''} adult={!account.isMinor} />
     </>
   );
 }

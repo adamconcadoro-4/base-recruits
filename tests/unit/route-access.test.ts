@@ -113,6 +113,18 @@ describe('safeNextPath', () => {
     }
     expect(safeNextPath(null, '/')).toBe('/');
   });
+
+  it('rejects paths whose dot segments collapse to another site', () => {
+    for (const attack of ['/.//evil.com', '/%2e//evil.com', '/a/..//evil.com', '/./%2e//evil.com/x']) {
+      expect(safeNextPath(attack)).toBe('/dashboard');
+    }
+  });
+
+  it('never returns a protocol-relative path', () => {
+    for (const candidate of ['/', '/a/../b', '/athlete/./schools', '/x?next=//y']) {
+      expect(safeNextPath(candidate).startsWith('//')).toBe(false);
+    }
+  });
 });
 
 describe('roles', () => {

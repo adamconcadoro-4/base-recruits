@@ -48,3 +48,16 @@ enable_signup = true
 double_confirm_changes = true
 enable_confirmations = true
 max_frequency = "1s"
+otp_length = 6
+otp_expiry = 3600
+
+# Sign-up and sign-in use a 6-digit code typed into the site, never a link, so
+# only the person who proves they own the inbox, in their own browser, can
+# finish an account. Hosted projects need the same templates (see README).
+[auth.email.template.confirmation]
+subject = "Your Base Recruits code"
+content_path = "./supabase/templates/email-code.html"
+
+[auth.email.template.magic_link]
+subject = "Your Base Recruits code"
+content_path = "./supabase/templates/email-code.html"

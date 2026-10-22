@@ -23,22 +23,25 @@ const MONTHS = [
   'December',
 ] as const;
 
-export function RoleForm({ defaultName }: { readonly defaultName: string }) {
+export function RoleForm({ defaultName, adult }: { readonly defaultName: string; readonly adult: boolean }) {
   const [state, action] = useActionState<ActionState, FormData>(chooseRoleAction, IDLE);
   return (
     <form action={action} className="max-w-xl space-y-6">
       <fieldset className="space-y-3">
         <legend className="text-xl font-bold text-navy">Who is this account for?</legend>
         {[
-          { value: 'athlete', label: 'Student-athlete' },
-          { value: 'parent', label: 'Parent or guardian' },
-          { value: 'coach', label: 'College coach' },
-        ].map((option, index) => (
+          { value: 'athlete', label: 'Student-athlete', adultsOnly: false },
+          { value: 'parent', label: 'Parent or guardian', adultsOnly: true },
+          { value: 'coach', label: 'College coach', adultsOnly: true },
+        ]
+          .filter((option) => adult || !option.adultsOnly)
+          .map((option, index) => (
           <label key={option.value} className="flex cursor-pointer items-center gap-3 border-2 border-field p-4 has-[:checked]:border-royal has-[:checked]:bg-ice">
             <input type="radio" name="accountType" value={option.value} defaultChecked={index === 0} className="size-5 accent-royal" />
             <span className="font-semibold">{option.label}</span>
           </label>
         ))}
+        {!adult ? <p className="text-sm text-slate">Parent, guardian and coach accounts are for adults.</p> : null}
       </fieldset>
       <TextField id="displayName" name="displayName" label="Your name" defaultValue={defaultName} autoComplete="name" />
       {state.status === 'error' && state.message ? (

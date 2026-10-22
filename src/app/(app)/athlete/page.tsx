@@ -31,6 +31,24 @@ interface InviteRow {
   readonly expires_at: string;
 }
 
+type VisibilityState = 'unknown' | 'off' | 'on' | 'waiting' | 'not_in_effect';
+
+/** Always the database's effective state (public.my_consent_grants), never the raw status. */
+function VisibilityChip({ state }: { readonly state: VisibilityState }) {
+  switch (state) {
+    case 'unknown':
+      return <StatusChip tone="neutral">Couldn’t load</StatusChip>;
+    case 'off':
+      return <StatusChip tone="neutral">Off</StatusChip>;
+    case 'on':
+      return <StatusChip tone="positive">On: visible to verified coaches</StatusChip>;
+    case 'waiting':
+      return <StatusChip tone="attention">Waiting for parent or guardian approval</StatusChip>;
+    case 'not_in_effect':
+      return <StatusChip tone="attention">Not in effect</StatusChip>;
+  }
+}
+
 export default async function AthleteHomePage() {
   const account = await requireAccess('/athlete');
   const supabase = await createClient();
@@ -54,6 +72,15 @@ export default async function AthleteHomePage() {
     (link) => link.status === 'active' && (link.relationship === 'parent' || link.relationship === 'legal_guardian'),
   );
   const loadFailed = Boolean(grantsResult.error || linksResult.error || invitesResult.error);
+  const visibility: VisibilityState = grantsResult.error
+    ? 'unknown'
+    : discovery === null
+      ? 'off'
+      : discovery.in_effect
+        ? 'on'
+        : discovery.waiting_for_guardian
+          ? 'waiting'
+          : 'not_in_effect';
 
   return (
     <>
@@ -72,44 +99,47 @@ export default async function AthleteHomePage() {
           id="coach-visibility"
           title="Coach visibility"
           description={CONSENT_SCOPES.coach_discovery.description}
-          aside={
-            discovery === null ? (
-              <StatusChip tone="neutral">Off</StatusChip>
-            ) : discovery.in_effect ? (
-              <StatusChip tone="positive">On: visible to verified coaches</StatusChip>
-            ) : (
-              <StatusChip tone="attention">Waiting for parent or guardian approval</StatusChip>
-            )
-          }
+          aside={<VisibilityChip state={visibility} />}
         >
-          {discovery === null ? (
-            <div className="space-y-4">
+          <div className="space-y-4">
+            {visibility === 'unknown' ? (
+              <p className="max-w-2xl">We couldn&apos;t load your coach visibility. Refresh the page to see it.</p>
+            ) : null}
+            {visibility === 'off' ? (
               <p className="max-w-2xl">
                 Only coaches whose role we&apos;ve confirmed can search athletes. You can turn this off at any time.
                 {account.isMinor ? ' Because you’re under 18, a linked parent or legal guardian must approve it too.' : ''}
               </p>
-              <ActionButtonForm action={turnOnCoachVisibilityAction} label="Turn on coach visibility" pendingLabel="Saving…" />
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {discovery.waiting_for_guardian ? (
-                <p className="max-w-2xl">
-                  {hasActiveGuardian
+            ) : null}
+            {visibility === 'on' ? <p className="max-w-2xl">Verified college coaches can find your basic recruiting profile.</p> : null}
+            {visibility === 'waiting' ? (
+              <p className="max-w-2xl">
+                {!account.isMinor
+                  ? 'You’re 18 now, so you can turn this on yourself.'
+                  : hasActiveGuardian
                     ? 'Your parent or guardian can approve this from their Base Recruits account. Coaches can’t see you until they do.'
                     : 'Link a parent or legal guardian below, then ask them to approve this. Coaches can’t see you until they do.'}
-                </p>
-              ) : (
-                <p className="max-w-2xl">Verified college coaches can find your basic recruiting profile.</p>
-              )}
-              <ActionButtonForm
-                action={turnOffCoachVisibilityAction}
-                fields={{ grantId: discovery.grant_id }}
-                label="Turn off coach visibility"
-                pendingLabel="Saving…"
-                variant="secondary"
-              />
+              </p>
+            ) : null}
+            {visibility === 'not_in_effect' ? (
+              <p className="max-w-2xl">This permission isn&apos;t in effect right now, so coaches can&apos;t see you. Turn it on again to share.</p>
+            ) : null}
+
+            <div className="flex flex-wrap gap-4">
+              {visibility === 'off' || visibility === 'not_in_effect' || (visibility === 'waiting' && !account.isMinor) ? (
+                <ActionButtonForm action={turnOnCoachVisibilityAction} label="Turn on coach visibility" pendingLabel="Saving…" />
+              ) : null}
+              {discovery !== null && visibility !== 'unknown' ? (
+                <ActionButtonForm
+                  action={turnOffCoachVisibilityAction}
+                  fields={{ grantId: discovery.grant_id }}
+                  label="Turn off coach visibility"
+                  pendingLabel="Saving…"
+                  variant="secondary"
+                />
+              ) : null}
             </div>
-          )}
+          </div>
         </DashboardSection>
 
         <DashboardSection

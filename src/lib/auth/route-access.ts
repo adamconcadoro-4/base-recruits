@@ -117,7 +117,12 @@ export function safeNextPath(candidate: string | null | undefined, fallback = '/
   try {
     const url = new URL(candidate, 'https://base-recruits.invalid');
     if (url.origin !== 'https://base-recruits.invalid') return fallback;
-    return `${url.pathname}${url.search}`;
+    // Dot segments can collapse to a protocol-relative path ("/.//evil.com"
+    // becomes "//evil.com"), which a later redirect would treat as another
+    // site, so check the normalized result too.
+    const path = url.pathname;
+    if (!path.startsWith('/') || path.startsWith('//') || path.includes('\\')) return fallback;
+    return `${path}${url.search}`;
   } catch {
     return fallback;
   }

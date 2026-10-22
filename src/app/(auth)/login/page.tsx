@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { LoginForm } from '@/app/(auth)/login/login-form';
-import { Notice } from '@/components/ui/notice';
 import { safeNextPath } from '@/lib/auth/route-access';
 
 export const metadata: Metadata = { title: 'Log in' };
@@ -16,7 +15,6 @@ function first(value: string | string[] | undefined): string | undefined {
 export default async function LoginPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
   const next = safeNextPath(first(params.next), '/dashboard');
-  const problem = first(params.error);
 
   return (
     <div className="border-t-8 border-royal bg-white p-6 sm:p-8">
@@ -27,13 +25,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
           Create a free account
         </Link>
       </p>
-      {problem === 'confirmation' ? (
-        <Notice tone="error" className="mt-6">
-          That confirmation link didn&apos;t work. It may have expired or already been used. Log in, or sign up again
-          to get a new link.
-        </Notice>
-      ) : null}
       <LoginForm next={next} />
+      <p className="mt-6">
+        <Link href="/reset" className="font-semibold text-royal-ink underline">
+          Forgot your password?
+        </Link>
+      </p>
     </div>
   );
 }

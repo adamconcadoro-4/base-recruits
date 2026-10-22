@@ -6,6 +6,7 @@ import { Notice } from '@/components/ui/notice';
 import { StatusChip } from '@/components/ui/status-chip';
 import { requireAccess } from '@/lib/auth/guard';
 import { describeCoachStatus, type CoachVerificationStatus } from '@/lib/auth/coach-verification';
+import { reviewFlags, staffUrlProblem } from '@/lib/auth/staff-url';
 import { formatDate } from '@/lib/family/family';
 import { createClient } from '@/lib/supabase/server';
 
@@ -28,21 +29,34 @@ interface RecentRow {
   readonly status_changed_at: string;
 }
 
-/** Shows the URL as text unless it is a well-formed https link. */
-function StaffLink({ url }: { readonly url: string | null }) {
+/**
+ * Shows the site the link really opens (ASCII host) first, then the full link.
+ * Flags internationalized hosts and staff pages on a different site from the
+ * work email, which are common ways to disguise a fake listing.
+ */
+function StaffLink({ url, emailDomain }: { readonly url: string | null; readonly emailDomain: string }) {
   if (!url) return <span>Not provided</span>;
-  let safe = false;
-  try {
-    safe = new URL(url).protocol === 'https:';
-  } catch {
-    safe = false;
-  }
-  return safe ? (
-    <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="break-all font-semibold text-royal-ink underline">
-      {url}
-    </a>
-  ) : (
-    <span className="break-all">{url}</span>
+  const flags = reviewFlags(url, emailDomain);
+  const safe = flags.host !== null && staffUrlProblem(url) === null;
+  return (
+    <div className="space-y-2">
+      <p>
+        <span className="font-semibold">Site: </span>
+        <span className="break-all">{flags.host ?? 'Not a valid link'}</span>
+      </p>
+      {safe ? (
+        <a href={url} target="_blank" rel="noopener noreferrer nofollow" className="block break-all text-sm font-semibold text-royal-ink underline">
+          {url}
+        </a>
+      ) : (
+        <p className="break-all text-sm">{url}</p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        {flags.internationalized ? <StatusChip tone="blocked">Look-alike characters in the site name</StatusChip> : null}
+        {flags.domainMismatch ? <StatusChip tone="attention">Different site from the work email</StatusChip> : null}
+        {!safe ? <StatusChip tone="blocked">Not a plain https link</StatusChip> : null}
+      </div>
+    </div>
   );
 }
 
@@ -87,14 +101,17 @@ export default async function AdminPage() {
                 <li key={coach.user_id} className="grid gap-6 border-2 border-navy p-5 lg:grid-cols-2">
                   <dl className="grid gap-x-4 gap-y-2 sm:grid-cols-[9rem_1fr]">
                     <dt className="font-semibold">Work email</dt>
-                    <dd className="break-all">{coach.work_email}</dd>
+                    <dd className="break-all">
+                      {coach.work_email}
+                      <span className="block text-sm text-slate">Domain: {coach.email_domain}</span>
+                    </dd>
                     <dt className="font-semibold">School</dt>
                     <dd>{coach.institution_name_claimed ?? 'Not provided'}</dd>
                     <dt className="font-semibold">Title</dt>
                     <dd>{coach.coaching_title ?? 'Not provided'}</dd>
                     <dt className="font-semibold">Staff page</dt>
                     <dd>
-                      <StaffLink url={coach.staff_directory_url} />
+                      <StaffLink url={coach.staff_directory_url} emailDomain={coach.email_domain} />
                     </dd>
                     <dt className="font-semibold">Submitted</dt>
                     <dd>{coach.affiliation_submitted_at ? formatDate(coach.affiliation_submitted_at) : 'Unknown'}</dd>

@@ -67,8 +67,8 @@ select tests.ok(
     where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'EXECUTE'))
   = array['admin_grant_role', 'admin_review_coach', 'admin_revoke_role', 'approve_consent_as_guardian',
           'approve_family_link', 'cancel_family_invite', 'complete_onboarding', 'create_family_invite',
-          'end_family_link', 'grant_consent', 'list_family_links', 'my_consent_grants', 'record_birthdate',
-          'redeem_family_invite', 'revoke_consent', 'submit_coach_affiliation'],
+          'end_family_link', 'grant_consent', 'guardian_consent_requests', 'list_family_links', 'my_consent_grants',
+          'record_birthdate', 'redeem_family_invite', 'revoke_consent', 'submit_coach_affiliation'],
   'signed-in users can call exactly the reviewed list of API functions');
 select tests.ok(
   (select array_agg(p.proname::text order by p.proname)

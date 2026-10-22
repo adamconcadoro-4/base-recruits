@@ -12,7 +12,7 @@ async function violations(page: Page): Promise<string[]> {
   );
 }
 
-const PUBLIC_PAGES = ['/', '/schools', '/match', '/compare', '/how-it-works', '/coaches', '/pricing', '/login', '/signup', '/privacy'];
+const PUBLIC_PAGES = ['/', '/schools', '/match', '/compare', '/how-it-works', '/coaches', '/pricing', '/login', '/signup', '/reset', '/privacy'];
 
 for (const path of PUBLIC_PAGES) {
   test(`${path} meets WCAG 2.2 AA automated checks`, async ({ page }) => {
@@ -27,7 +27,7 @@ test('the signup account step meets WCAG 2.2 AA automated checks', async ({ page
   await page.getByLabel('Day', { exact: true }).fill('15');
   await page.getByLabel('Year', { exact: true }).fill(yearsAgo(20).slice(0, 4));
   await page.getByRole('button', { name: 'Continue' }).click();
-  await expect(page.getByRole('button', { name: 'Create account' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Email me a code' })).toBeVisible();
   expect(await violations(page)).toEqual([]);
 });
 

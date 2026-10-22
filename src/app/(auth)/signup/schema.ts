@@ -15,6 +15,12 @@ export const accountSchema = z.object({
   accountType: z.enum(SELF_SELECTABLE_ROLES, { error: 'Choose who this account is for.' }),
   displayName: z.string().trim().min(1, 'Enter your name.').max(80, 'Use 80 characters or fewer.'),
   email: z.string().trim().max(254, 'Use 254 characters or fewer.').email('Enter a valid email address.'),
+});
+
+export const emailSchema = z.string().trim().max(254, 'Use 254 characters or fewer.').email('Enter a valid email address.');
+
+export const verificationSchema = z.object({
+  code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code from the email.'),
   password: z
     .string()
     .min(MINIMUM_PASSWORD_LENGTH, `Use at least ${MINIMUM_PASSWORD_LENGTH} characters.`)
