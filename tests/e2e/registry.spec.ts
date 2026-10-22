@@ -48,7 +48,7 @@ test.describe('visitors (no account)', () => {
 
   test('figure filters say which schools they leave out', async ({ page }) => {
     await page.goto('/schools?rate=15&state=CA');
-    await expect(page.getByText('Filtering by admission rate leaves out schools that don't report that figure.')).toBeVisible();
+    await expect(page.getByText("Filtering by admission rate leaves out schools that don't report that figure.")).toBeVisible();
     await expect(page.getByRole('article', { name: 'Stanford University' })).toBeVisible();
     await expect(page.getByRole('article', { name: 'Long Beach City College' })).toHaveCount(0);
   });
