@@ -1,0 +1,12 @@
+== EADA (ope.ed.gov/athletics) ==
+index: 2180 bytes
+href="public/styles/Site.css"
+href="public/styles/site.min.5e7eadb8.css"
+src="public/js/lib.min.d0622d0f.js"
+src="public/js/app.min.8f396f2e.js"
+40 ops-output/eada-endpoints.txt
+== College Scorecard ==
+COLLEGE_SCORECARD_API_KEY secret: set
+HTTP 200
+{"metadata":{"page":0,"total":6278,"per_page":2},"results":[{"latest.admissions.admission_rate.overall":0.5795,"latest.admissions.sat_scores.25th_percentile.critical_reading":420,"latest.admissions.test_requirements":5,"school.name":"Alabama A & M University","school.city":"Normal","school.state":"AL","school.school_url":"www.aamu.edu\/","school.ownership":1,"id":100654,"ope8_id":"00100200"},{"latest.admissions.admission_rate.overall":0.8818,"latest.admissions.sat_scores.25th_percentile.critical_reading":600,"latest.admissions.test_requirements":5,"school.name":"University of Alabama at Birmingham","school.city":"Birmingham","school.state":"AL","school.school_url":"https:\/\/www.uab.edu\/","school.ownership":1,"id":100663,"ope8_id":"00105200"}]}
+bulk links:
