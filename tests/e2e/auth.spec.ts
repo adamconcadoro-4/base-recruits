@@ -37,6 +37,9 @@ test('an account someone else pre-registered for your email is taken over cleanl
     options: { data: { account_type: 'parent', display_name: 'Not The Owner' } },
   });
   expect(preRegisterError).toBeNull();
+  // Supabase will not email the same address twice within a moment; a real
+  // pre-registration happens well before the owner signs up.
+  await page.waitForTimeout(2500);
 
   await signUpThroughSite(page, { email, name: 'Real Owner', dateOfBirth: yearsAgo(17), role: /Student-athlete/ });
   await expect(page).toHaveURL('/athlete');
@@ -53,6 +56,7 @@ test('a forgotten password is reset with an emailed code', async ({ page }) => {
   const requestedAt = new Date(Date.now() - 2000);
   await page.goto('/login');
   await page.getByRole('link', { name: 'Forgot your password?' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Reset your password' })).toBeVisible();
   await page.getByLabel('Email', { exact: true }).fill(account.email);
   await page.getByRole('button', { name: 'Email me a code' }).click();
   await reachVerifyPage(page);

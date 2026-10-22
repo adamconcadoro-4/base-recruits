@@ -15,7 +15,8 @@ test('a minor’s coach visibility waits for a linked parent, then takes effect'
 
   await athletePage.getByRole('button', { name: 'Create a family code' }).click();
   const code = (await athletePage.getByTestId('family-code').innerText()).trim();
-  expect(code).toMatch(/^[A-Z2-9]{12}$/);
+  // Shown in groups of four for readability; the database ignores the dashes.
+  expect(code).toMatch(/^[A-Z2-9]{4}-[A-Z2-9]{4}-[A-Z2-9]{4}$/);
 
   const parentPage = await (await browser.newContext()).newPage();
   await logIn(parentPage, parent.email);
