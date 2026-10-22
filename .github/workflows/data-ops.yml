@@ -1,0 +1,42 @@
+name: data-ops
+
+# Runs ops/run.sh on GitHub's runners (which can reach public data sources) and
+# commits whatever it writes to ops-output/ back to the same ops/* branch.
+# Lives only on ops/* branches; never merged into main.
+on:
+  push:
+    branches: ['ops/**']
+    paths-ignore: ['ops-output/**']
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Run ops script
+        env:
+          COLLEGE_SCORECARD_API_KEY: ${{ secrets.COLLEGE_SCORECARD_API_KEY }}
+        run: |
+          mkdir -p ops-output
+          bash ops/run.sh > ops-output/log.txt 2>&1 || echo "ops script exited with $?" >> ops-output/log.txt
+          # Never let the key reach a committed file.
+          if [ -n "${COLLEGE_SCORECARD_API_KEY}" ]; then
+            grep -rl "${COLLEGE_SCORECARD_API_KEY}" ops-output | xargs -r sed -i "s/${COLLEGE_SCORECARD_API_KEY}/[key]/g"
+          fi
+
+      - name: Commit ops output
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops-output
+          git commit -m "ops: output from run ${GITHUB_RUN_ID}" || exit 0
+          git push
