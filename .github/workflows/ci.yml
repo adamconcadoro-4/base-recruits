@@ -83,9 +83,19 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Choose the Supabase CLI version
+        id: supabase-cli
+        # Resolved from npm (the CLI's npm package carries the same version), which
+        # avoids GitHub's anonymous API rate limit on "latest".
+        run: |
+          version="${SUPABASE_CLI_VERSION:-$(npm view supabase@2 version | tail -n 1 | awk '{print $2}' | tr -d "'")}"
+          [ -n "$version" ] || version="$(npm view supabase version)"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "::notice title=Supabase CLI::${version}"
+
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: ${{ steps.supabase-cli.outputs.version }}
 
       - name: Start Supabase with the migrations
         run: >-
@@ -142,9 +152,19 @@ jobs:
         with:
           node-version: 24
 
+      - name: Choose the Supabase CLI version
+        id: supabase-cli
+        # Resolved from npm (the CLI's npm package carries the same version), which
+        # avoids GitHub's anonymous API rate limit on "latest".
+        run: |
+          version="${SUPABASE_CLI_VERSION:-$(npm view supabase@2 version | tail -n 1 | awk '{print $2}' | tr -d "'")}"
+          [ -n "$version" ] || version="$(npm view supabase version)"
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+          echo "::notice title=Supabase CLI::${version}"
+
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: ${{ steps.supabase-cli.outputs.version }}
 
       - name: Start Supabase with the migrations
         run: >-

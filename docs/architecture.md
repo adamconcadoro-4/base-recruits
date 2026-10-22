@@ -1,6 +1,6 @@
 # Base Recruits — Architecture and Dependency Plan
 
-Status: Stage 1 in progress (database foundation complete; web app shell pending). Source of truth for product
+Status: Stage 1 (foundation, web app, sign-in, role dashboards). See `docs/reports/stage-1.md` for the exit-gate evidence. Source of truth for product
 requirements: `Base_Recruits_Claude_Master_Prompt.md` (v1.0). This document records how the product is being built and in
 what order.
 
@@ -36,7 +36,7 @@ Three enforcement layers, each sufficient to stop a data leak on its own:
 | --- | --- | --- |
 | Database | Row-level security on every table, column-level grants, writes only through checked `SECURITY DEFINER` functions, append-only audit, free-access triggers | `supabase/migrations/` |
 | Server | Session gate on protected prefixes, role / onboarding / coach-verification gates in layouts, capability decisions | `src/lib/auth/`, `src/lib/entitlements/` |
-| UI | Shows only what the server decided; never the only protection | `src/app/` (pending) |
+| UI | Shows only what the server decided (effective consent state from `my_consent_grants()`); never the only protection | `src/app/` |
 
 ## 2. Modules and ownership boundaries
 
@@ -89,13 +89,24 @@ Each stage stops at its exit gate with a report (`docs/reports/`). External depe
 
 ## 4. Security model (Stage 1)
 
-- **Roles.** `athlete`, `parent`, `coach` are self-selected at signup through Supabase Auth metadata; anything else
-  (including `admin`) is ignored. Admin is granted only by an existing admin, or once by the database owner via
+- **Sign-up.** A neutral age screen comes first (an under-13 answer creates nothing and blocks retrying in that
+  browser). The person then enters their role, name and email; Supabase emails a 6-digit code. Typing the code on the
+  site proves they own the inbox; only then do they set the password, every other session is signed out, and the role,
+  name and date of birth kept in that browser are applied as the account owner (`record_birthdate`,
+  `complete_onboarding`). Nothing anyone attaches to an unconfirmed account is trusted, so registering someone else's
+  email first gains nothing. Password reset uses the same code step. Confirmation links are not used.
+- **Roles.** `athlete`, `parent`, `coach` are chosen once by the verified owner (`complete_onboarding`). The sign-up
+  trigger reads a role only from app metadata, which only the service role can set (administrator-created accounts);
+  user-supplied metadata is ignored. `admin` is granted only by an existing admin, or once by the database owner via
   `private.bootstrap_first_admin()`.
 - **Writes.** Signed-in users have no `INSERT`/`DELETE` on any table and `UPDATE` only on named harmless columns (display
   name, email preferences, basic athlete fields). The service role has no direct table writes at all. Every other change
   goes through a `SECURITY DEFINER` function with a pinned `search_path`, explicit checks and an audit entry; functions
   that count before writing take a row or advisory lock. Tests assert the exact lists of callable functions.
+- **App layer.** `src/proxy.ts` refreshes the session and sends anonymous visitors on protected prefixes to log in.
+  Every protected page and layout calls `requireAccess()` (role, onboarding, coach verification) itself, and every
+  server action ends at a database function or RLS check, so no gate depends on a layout alone. Session cookies are
+  httpOnly (the browser never calls Supabase directly). Post-login redirects accept same-site paths only.
 - **Private schema.** RLS helpers (`private.is_verified_coach`, `private.coach_can_view`, …) live in a schema the Data API
   does not expose.
 - **Coach verification.** `private.is_verified_coach()` requires the coach role, admin-approved status `verified`, an
@@ -147,7 +158,7 @@ missing. Test fixtures are synthetic and never loaded into production.
 | --- | --- | --- |
 | Local test database | Plain PostgreSQL + Supabase role/auth emulation; runs migrations and the security suite (`npm run test:db`) | Working |
 | GitHub Actions CI | Every push and pull request: database suite, concurrency and contract tests on PostgreSQL 16 and 17; typecheck and unit tests under Vitest | Working |
-| Local Supabase (`supabase start`, Docker) | Full Auth + Data API for development | Documented; requires Docker on the developer machine |
+| Local Supabase (`supabase start`, Docker) | Full Auth + Data API for development and end-to-end tests; codes land in the local mail catcher | Working in CI; requires Docker on a developer machine |
 | Supabase dev project | Shared development and end-to-end tests | Not created — founder decision |
 | Staging / production | Vercel + Supabase, separate projects and secrets | Stage 5 |
 
