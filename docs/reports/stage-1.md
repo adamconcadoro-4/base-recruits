@@ -12,18 +12,18 @@ Stage 1 is built and tested end to end. It has five parts:
 - **The Next.js web app.** The design system, public pages, sign-up and sign-in, and role-gated dashboards for athletes, parents, coaches and admins.
 - **Automated testing.** Every push runs on GitHub: the database suite on PostgreSQL 16, PostgreSQL 17 and the real Supabase stack, type checking, unit tests, and end-to-end and accessibility tests against a production build.
 
-Three independent security reviews were run: two on the database, one on the app. The app review found a serious sign-up flaw, now fixed and covered by a regression test. A fourth, focused review of that fix was in progress when this report was written.
+Four independent security reviews were run: two on the database, one on the app, and one focused on the fix for the app review's main finding. The app review found a serious sign-up flaw. The focused review found the first fix incomplete. Both are now fixed at the database level and covered by tests against real Supabase Auth.
 
 ## Exit gate evidence
 
-| Gate item | Evidence (GitHub Actions run 39745910406 on commit `6314a6d`, unless noted) |
+| Gate item | Evidence (GitHub Actions run 39747948768 on commit `17268d1`, unless noted) |
 | --- | --- |
-| Real authentication works | Supabase Auth from the Supabase CLI 2.121.0 stack, not a stand-in. End-to-end tests pass for: sign-up with an emailed 6-digit code, log in, log out, password reset by code, a wrong code refused, an unconfirmed email unable to log in, the neutral age screen (under-13 creates nothing and blocks retrying), minors limited to athlete accounts, and the pre-registration attack below |
+| Real authentication works | Supabase Auth from the Supabase CLI 2.121.0 stack, not a stand-in. End-to-end tests pass for: sign-up with an emailed 6-digit code, log in, log out, password reset by code, a wrong code refused, an unconfirmed email unable to log in, the neutral age screen (under-13 creates nothing and blocks retrying), minors limited to athlete accounts, the pre-registration attack below, a password set before confirmation being wiped by confirmation, and email changes being refused |
 | Routes work | All 17 public routes open for anonymous visitors on desktop and phone. The 8 protected prefixes redirect to log in. Each role is kept out of the other roles' areas. Accounts without a role are sent to onboarding. Unverified coaches are redirected away from coach tools until an admin approves them. Unknown school pages return an honest 404 |
-| Authorization tests pass | Database: 334 assertions in 11 files pass on PostgreSQL 16, on PostgreSQL 17, and on the real Supabase stack (real Auth schema and default privileges). Concurrency: 9 of 9 scenarios. Contract: 5 of 5. Unit: 58 of 58. End-to-end: role gates, coach verification by an admin, and the minor-consent flow with a linked parent's approval |
+| Authorization tests pass | Database: 341 assertions in 11 files pass on PostgreSQL 16, on PostgreSQL 17, and on the real Supabase stack (real Auth schema and default privileges). Concurrency: 9 of 9 scenarios. Contract: 5 of 5. Unit: 58 of 58. End-to-end: role gates, coach verification by an admin, and the minor-consent flow with a linked parent's approval |
 | UI usable on desktop and mobile | Automated axe checks for WCAG 2.2 AA (tags wcag2a/aa, 21a/aa, 22aa) report zero violations at desktop and phone (Pixel 7) sizes. They cover 11 public pages, the sign-up account step and the athlete home. Also tested: keyboard skip link, and the phone menu opening and closing by keyboard |
 
-Totals for that run: **103 end-to-end and accessibility tests passed, 0 failed, 0 flaky, 1 skipped**. The skipped test is the phone-menu check, which runs only at phone size.
+Totals for that run: **105 end-to-end and accessibility tests passed, 0 failed, 0 flaky, 1 skipped**. The skipped test is the phone-menu check, which runs only at phone size.
 
 Limits of this evidence:
 
@@ -62,8 +62,21 @@ App layer (first pass, this session):
 | 7 | Age-screen retry block skipped onboarding | Low | Checked there too |
 | 8 | Settings reported success when nothing was saved; onboarding offered adult roles to accounts of unknown age | Info | Fixed |
 
-A focused second pass on the fix for finding 1 was running when this report was written; its result is recorded in the
-pull request.
+Focused second pass on the fix for finding 1, checked against the Supabase Auth source:
+
+| # | Finding | Severity | Fix |
+| --- | --- | --- | --- |
+| S1 | The password-reset email was still a link. Clicking it on a pre-registered account confirmed the account with the other person's password | High | All Auth email templates are code-only. **Database safeguard:** when an email is confirmed by any path, any earlier password and user metadata are wiped (`private.reset_credentials_on_confirmation`). Tested against real Auth |
+| S2 | An email-change link sent to a coach's address could hand that address to the requester | High | Email-change requests refused by the database until the app supports them (decision F10). Template code-only. Tested against real Auth |
+| S3 | If setting the owner's password failed (for example the 72-byte limit), the earlier password survived | High | Covered by the S1 safeguard. Passwords are also checked against the byte limit first |
+| S4 | A brief window between confirmation and the owner's password let an earlier password log in and pick the role or date of birth | Medium | Closed by the S1 safeguard: the earlier password no longer exists at confirmation |
+| S5 | The staff-link credentials check was case-sensitive in the database | Low | Case-insensitive, with a test |
+| S6 | The reset form can reveal whether an account exists through Supabase's rate limits | Low | Documented. Supabase's public API reveals this anyway |
+| S7 | Browser-held sign-up details weren't re-checked at verification | Low | Re-checked. The database now requires a recorded adult date of birth for parent and coach roles |
+| S8 | Leftover "link" wording; pre-registration metadata stayed in user metadata | Low | Fixed; metadata wiped at confirmation |
+
+The fixes for the second pass have not had a third independent review; each is covered by database tests and, where
+it depends on Supabase Auth behaviour, by end-to-end tests against the real Auth server.
 
 ## Migrations (Stage 1)
 
@@ -71,7 +84,7 @@ pull request.
 | --- | --- |
 | `20261021000100` – `000600` | Foundation, identity and roles, coach verification, family links and consent, auth hooks and onboarding, capability catalog (see `docs/architecture.md`) |
 | `20261022000100_consent_overview.sql` | `public.my_consent_grants()`, effective consent state for the athlete |
-| `20261022000200_auth_hardening.sql` | Sign-up metadata ignored, staff-link credential check, `guardian_consent_requests()`, stale unconfirmed sign-ups deleted by the daily job |
+| `20261022000200_auth_hardening.sql` | Sign-up metadata ignored. Pre-confirmation passwords and metadata wiped at confirmation. Email-change requests refused. Adult date of birth required for parent and coach roles. Staff-link credential check. `guardian_consent_requests()`. Stale unconfirmed sign-ups deleted by the daily job |
 
 None of these migrations have been applied to a shared or hosted environment.
 
@@ -79,14 +92,15 @@ None of these migrations have been applied to a shared or hosted environment.
 
 | Command | Where | Result |
 | --- | --- | --- |
-| `scripts/db/test.sh` | Local (PG 16), CI (PG 16, PG 17) | 11 files, 334 assertions, all passed |
-| `DATABASE_URL=… scripts/db/test.sh` against `supabase start` | CI | 11 files, 334 assertions, all passed |
+| `scripts/db/test.sh` | Local (PG 16), CI (PG 16, PG 17) | 11 files, 341 assertions, all passed |
+| `DATABASE_URL=… scripts/db/test.sh` against `supabase start` | CI | 11 files, 341 assertions, all passed |
 | `scripts/db/race-test.sh` | Local, CI (PG 16, PG 17) | 9 of 9 scenarios |
 | `npm run test:contract` | CI (PG 16, PG 17) | 5 passed, 0 skipped |
 | `npm run typecheck` (TypeScript 6.0.3) | CI | 0 errors, 117 files |
 | `npm run test:unit` (Vitest 5.0.5) | CI | 58 passed |
 | `npm run build` (Next.js 16.4.2) | CI | Succeeded |
-| `npx playwright test` (Playwright 1.64.1, axe 4.14.0) | CI | 103 passed, 0 failed, 1 skipped by design |
+| `npx playwright test` (Playwright 1.64.1, axe 4.14.0) | CI | 105 passed, 0 failed, 1 skipped by design |
+| `npm ci` from the committed `package-lock.json` (generated in CI; 181 packages, all from registry.npmjs.org with integrity hashes) | CI | Clean install |
 
 ## Integrations actually functional
 
@@ -100,11 +114,12 @@ None. School and program data are Stage 2. No school, program or admissions reco
 
 ## Known gaps and residual risk
 
-- **Hosted Supabase settings are a security dependency.** Code-only email templates, confirmations on and minimum password length are set in `supabase/config.toml` for local use. They must be applied to each hosted project (`supabase config push`) and checked (README).
-- **Rate limiting.** All Auth calls come from the app server, so Supabase's per-IP limits apply to the server, not to each person. Per-person and per-IP throttling for sign-up, log-in and code requests must be added before launch (Stage 5).
+- **Hosted Supabase settings are a security dependency.** Code-only templates for every Auth email, confirmations on and minimum password length are set in `supabase/config.toml` for local use. They must be applied to each hosted project (`supabase config push`) and checked (README). The database safeguards hold even if a template is missed.
+- **Rate limiting.** All Auth calls come from the app server, so Supabase's per-IP limits apply to the server, not to each person. That is both an availability risk and an attack lever. Before launch (Stage 5): forward client IPs to Supabase Auth, or raise its limits deliberately, and add per-person and per-IP throttling for sign-up, log-in and code requests.
+- **Email changes are switched off** (decision F10) until the app offers them with re-verification.
 - **Content Security Policy** still allows inline scripts, which Next.js needs for bootstrapping. A per-request nonce is the next step.
 - **Ages and family relationships are self-attested** (decision F9). An attacker who registered someone's email in advance gains nothing, but a person lying about their own age or relationship remains the documented residual risk.
-- **Not yet built:** admin multi-factor authentication (spec §19, optional MFA for admins and coaches); data export and account-deletion requests (shown as "before launch"); ESLint; a committed `package-lock.json` (CI installs fresh); TypeScript 7 (latest), deliberately deferred.
+- **Not yet built:** admin multi-factor authentication (spec §19, optional MFA for admins and coaches); data export and account-deletion requests (shown as "before launch"); ESLint; TypeScript 7 (latest), deliberately deferred.
 - **Accessibility** is verified by automated checks only.
 
 ## Unresolved dependencies
