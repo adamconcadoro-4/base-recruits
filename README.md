@@ -94,8 +94,16 @@ select cron.schedule('base-recruits-maintenance', '17 7 * * *',
                      $$select private.run_scheduled_maintenance()$$);
 ```
 
-Supabase Auth settings to use: email confirmations on, anonymous sign-ins off, a custom SMTP sender for production,
-and the site and redirect URLs of each environment.
+Required Supabase Auth settings for every hosted project (security depends on them):
+
+- **Email confirmations on**, anonymous sign-ins off, minimum password length 10.
+- **The "Confirm signup" and "Magic link" email templates must contain the 6-digit code (`{{ .Token }}`) and no
+  link**, as in `supabase/templates/email-code.html`. Sign-up is finished by typing the code on the site, where the
+  person also sets their password. A clickable confirmation link would let someone who registered another person's
+  email first keep a working password on it. `supabase config push` applies `supabase/config.toml`'s auth settings
+  and templates to a linked project; check them in the dashboard afterwards.
+- A custom SMTP sender for production, and the site URL of each environment.
+- The daily maintenance job above; it also deletes sign-ups left unconfirmed for more than a day.
 
 ## Documentation
 

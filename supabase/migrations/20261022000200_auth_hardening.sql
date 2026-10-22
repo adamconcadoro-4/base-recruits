@@ -3,11 +3,12 @@
 --
 -- From the independent review of the app layer:
 --
--- 1. Sign-up metadata on an UNCONFIRMED account is no longer trusted. Anyone can
---    create an unconfirmed account for someone else's email through the public
---    Auth API and attach a role or name to it. Roles and names now come only
---    from the verified owner (complete_onboarding, after the email code), or from
---    accounts created already confirmed (administrator-created accounts).
+-- 1. User-supplied sign-up metadata (raw_user_meta_data) is no longer trusted.
+--    Anyone can create an unconfirmed account for someone else's email through
+--    the public Auth API and attach a role or name to it. Roles and names now
+--    come only from the verified owner (complete_onboarding, after the email
+--    code), or from app metadata, which only the server (service role) can set
+--    — for example on accounts an administrator creates.
 -- 2. Staff-directory links may not carry a user name or password. In
 --    https://school.edu@other.example/ the real site is other.example, which
 --    could mislead a reviewer into verifying a fake coach.
@@ -22,15 +23,13 @@ security definer
 set search_path = ''
 as $$
 declare
-  -- Metadata is trusted only when the account is created already confirmed
-  -- (for example by an administrator). Self-service sign-ups are unconfirmed
-  -- at this point, and anyone can create one for any email address.
-  v_trusted boolean := new.email_confirmed_at is not null
-                       and not coalesce((to_jsonb(new) ->> 'is_anonymous')::boolean, false);
+  -- Only app metadata is trusted: users cannot set it (the public sign-up API
+  -- writes their data to raw_user_meta_data), only the service role can.
+  v_trusted boolean := not coalesce((to_jsonb(new) ->> 'is_anonymous')::boolean, false);
   v_type text := case when v_trusted
-                      then nullif(btrim(coalesce(new.raw_user_meta_data ->> 'account_type', '')), '') end;
+                      then nullif(btrim(coalesce(new.raw_app_meta_data ->> 'account_type', '')), '') end;
   v_name text := case when v_trusted
-                      then nullif(btrim(coalesce(new.raw_user_meta_data ->> 'display_name', '')), '') end;
+                      then nullif(btrim(coalesce(new.raw_app_meta_data ->> 'display_name', '')), '') end;
   v_role public.app_role;
 begin
   if v_type in ('athlete', 'parent', 'coach') then

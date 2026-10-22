@@ -27,7 +27,7 @@ export function ContentSection({
     <section className={tone === 'ice' ? 'bg-ice' : 'bg-white'}>
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         {title ? <h2 className="text-4xl text-navy">{title}</h2> : null}
-        <div className="mt-5 max-w-3xl space-y-4 text-graphite [&_a]:font-semibold [&_a]:text-royal-ink [&_a]:underline [&_li]:ml-5 [&_li]:list-disc [&_ul]:space-y-2">
+        <div className="mt-5 max-w-3xl space-y-4 text-graphite [&_ul>li]:ml-5 [&_ul>li]:list-disc [&_li_a]:font-semibold [&_li_a]:text-royal-ink [&_li_a]:underline [&_p_a]:font-semibold [&_p_a]:text-royal-ink [&_p_a]:underline [&_ul]:space-y-2">
           {children}
         </div>
       </div>

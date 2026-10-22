@@ -30,12 +30,21 @@ select tests.ok(
   and (select display_name = 'Real Owner' from public.profiles where id = tests.id('preregistered')),
   'a coach role chosen after confirmation starts at email_verified, with the owner''s name');
 
--- Accounts created already confirmed (by an administrator) keep their metadata.
+-- User metadata is ignored even on an account created already confirmed.
+insert into auth.users (id, aud, role, email, raw_user_meta_data, raw_app_meta_data, email_confirmed_at, created_at, updated_at)
+values ('22222222-2222-4222-8222-222222222222', 'authenticated', 'authenticated', 'confirmed.signup@example.test',
+        '{"account_type": "coach", "display_name": "User Supplied"}',
+        '{"provider":"email","providers":["email"]}', now(), now(), now());
+select tests.ok(
+  not exists (select 1 from public.user_roles where user_id = '22222222-2222-4222-8222-222222222222'),
+  'user-supplied metadata never grants a role, confirmed or not');
+
+-- Accounts created by the server (role in app metadata) keep their details.
 select tests.create_user('admin_created', 'athlete', p_display_name => 'Admin Created');
 select tests.ok(
   exists (select 1 from public.user_roles where user_id = tests.id('admin_created') and role = 'athlete')
   and (select display_name = 'Admin Created' from public.profiles where id = tests.id('admin_created')),
-  'an account created already confirmed keeps its role and name');
+  'an account created with app metadata (server-set) keeps its role and name');
 
 -- ---------------------------------------------------------------- staff-page links
 select tests.create_user('coach', 'coach', 'real.coach@state.edu', p_date_of_birth => date '1980-01-01');

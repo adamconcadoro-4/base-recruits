@@ -50,23 +50,14 @@ begin
     v_meta := v_meta || jsonb_build_object('display_name', p_display_name);
   end if;
 
+  -- Fixtures are created the way an administrator creates accounts: role and
+  -- name in app metadata, which only the server can set.
   insert into auth.users (id, aud, role, email, raw_user_meta_data, raw_app_meta_data,
                           email_confirmed_at, is_anonymous, created_at, updated_at)
   values (v_id, 'authenticated', 'authenticated',
-          case when p_is_anonymous then null else coalesce(p_email, p_name || '@example.test') end, v_meta,
-          '{"provider":"email","providers":["email"]}'::jsonb,
+          case when p_is_anonymous then null else coalesce(p_email, p_name || '@example.test') end, '{}'::jsonb,
+          '{"provider":"email","providers":["email"]}'::jsonb || v_meta,
           case when p_email_confirmed and not p_is_anonymous then now() end, p_is_anonymous, now(), now());
-
-  -- Sign-up metadata is only trusted on accounts created already confirmed.
-  -- Fixtures for unconfirmed accounts that need a role (e.g. a coach waiting
-  -- to confirm a changed email) get it provisioned directly.
-  if not p_email_confirmed and not p_is_anonymous and p_account_type in ('athlete', 'parent', 'coach') then
-    update public.profiles
-       set primary_role = p_account_type::public.app_role, role_selected_at = now(),
-           display_name = coalesce(left(p_display_name, 80), display_name)
-     where id = v_id;
-    perform private.provision_role(v_id, p_account_type::public.app_role, null);
-  end if;
 
   if p_date_of_birth is not null then
     update public.profiles

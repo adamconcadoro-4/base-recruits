@@ -7,6 +7,7 @@ import {
   fillBirthDate,
   logIn,
   publicClient,
+  reachVerifyPage,
   signUpThroughSite,
   uniqueEmail,
   yearsAgo,
@@ -54,7 +55,7 @@ test('a forgotten password is reset with an emailed code', async ({ page }) => {
   await page.getByRole('link', { name: 'Forgot your password?' }).click();
   await page.getByLabel('Email', { exact: true }).fill(account.email);
   await page.getByRole('button', { name: 'Email me a code' }).click();
-  await page.waitForURL('**/verify');
+  await reachVerifyPage(page);
   await page.getByLabel('6-digit code').fill(await emailCode(account.email, requestedAt));
   await page.getByLabel('New password').fill('a-brand-new-password-7');
   await page.getByRole('button', { name: 'Set new password' }).click();
@@ -71,7 +72,7 @@ test('a wrong code is refused', async ({ page }) => {
   await page.getByLabel('Your name').fill('Wrong Code');
   await page.getByLabel('Email', { exact: true }).fill(uniqueEmail('wrongcode'));
   await page.getByRole('button', { name: 'Email me a code' }).click();
-  await page.waitForURL('**/verify');
+  await reachVerifyPage(page);
   await page.getByLabel('6-digit code').fill('000000');
   await page.getByLabel('Create a password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Create my account' }).click();

@@ -59,7 +59,8 @@ export async function createAccount(options: {
     email,
     password: PASSWORD,
     email_confirm: options.emailConfirmed ?? true,
-    user_metadata: options.role ? { account_type: options.role, display_name: options.name } : { display_name: options.name },
+    // Server-set app metadata, as when an administrator creates an account.
+    app_metadata: options.role ? { account_type: options.role, display_name: options.name } : { display_name: options.name },
   });
   if (error || !data.user) throw new Error(`createUser failed: ${error?.message ?? 'no user'}`);
   const { error: birthdateError } = await admin().rpc('admin_record_birthdate', {
@@ -118,6 +119,15 @@ export function publicClient(): SupabaseClient {
   });
 }
 
+/** Waits for the code page; if the form shows an error instead, fails with its text. */
+export async function reachVerifyPage(page: Page): Promise<void> {
+  const alert = page.getByRole('alert').first();
+  await Promise.race([page.waitForURL('**/verify'), alert.waitFor({ state: 'visible' })]);
+  if (!page.url().endsWith('/verify')) {
+    throw new Error(`Did not reach the code page. The form said: ${(await alert.innerText()).trim()}`);
+  }
+}
+
 /** Goes through the site's sign-up: age screen, account details, emailed code, password. */
 export async function signUpThroughSite(
   page: Page,
@@ -131,7 +141,7 @@ export async function signUpThroughSite(
   await page.getByLabel('Your name').fill(options.name);
   await page.getByLabel('Email', { exact: true }).fill(options.email);
   await page.getByRole('button', { name: 'Email me a code' }).click();
-  await page.waitForURL('**/verify');
+  await reachVerifyPage(page);
   await page.getByLabel('6-digit code').fill(await emailCode(options.email, requestedAt));
   await page.getByLabel('Create a password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Create my account' }).click();
