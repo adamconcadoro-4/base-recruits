@@ -57,7 +57,8 @@ set search_path = ''
 as $$
   select p_url is null
       or (length(p_url) <= 500
-          and p_url ~* (case when p_https_only then '^https://' else '^https?://' end) || '[a-z0-9.-]+\.[a-z]{2,}(:[0-9]+)?([/?#][^[:space:]]*)?$'
+          and p_url ~* ((case when p_https_only then '^https://' else '^https?://' end)
+                        || '[a-z0-9.-]+\.[a-z]{2,}(:[0-9]+)?([/?#][^[:space:]]*)?$')
           and p_url !~* '^https?://[^/?#]*@')
 $$;
 
@@ -371,6 +372,8 @@ comment on table public.registry_revisions is
   'Every change to a registry row: before and after values, the import job or administrator behind it, and the reason given.';
 create index registry_revisions_institution_idx on public.registry_revisions (institution_id, id desc);
 create index registry_revisions_job_idx on public.registry_revisions (import_job_id) where import_job_id is not null;
+
+revoke all on sequence public.registry_revisions_id_seq from anon, authenticated, service_role;
 
 create trigger registry_revisions_append_only
   before update or delete on public.registry_revisions
