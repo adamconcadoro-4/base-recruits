@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import { ReviewForm } from '@/app/(app)/admin/review-form';
 import { DashboardSection, PageTitle } from '@/components/app/section';
@@ -82,7 +83,12 @@ export default async function AdminPage() {
 
   return (
     <>
-      <PageTitle title="Admin">Every decision is recorded in the audit log with your account.</PageTitle>
+      <PageTitle title="Admin">
+        Every decision is recorded in the audit log with your account.{' '}
+        <Link href="/admin/data" className="font-semibold text-royal-ink underline">
+          School data and imports
+        </Link>
+      </PageTitle>
       {queueResult.error || recentResult.error ? (
         <Notice tone="error" className="mb-8">
           The review queue didn&apos;t load. Refresh to try again.

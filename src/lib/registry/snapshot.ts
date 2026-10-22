@@ -77,19 +77,19 @@ export interface SnapshotListing {
 
 export class SnapshotError extends Error {}
 
-export async function snapshotNames(): Promise<string[]> {
+export async function snapshotNames(directory = snapshotDirectory()): Promise<string[]> {
   try {
-    return (await readdir(snapshotDirectory())).filter((n) => SNAPSHOT_NAME.test(n)).sort().reverse();
+    return (await readdir(directory)).filter((n) => SNAPSHOT_NAME.test(n)).sort().reverse();
   } catch {
     return [];
   }
 }
 
 /** Reads, validates and integrity-checks one bundled snapshot. */
-export async function loadSnapshot(name: string): Promise<SnapshotFile> {
-  const names = await snapshotNames();
+export async function loadSnapshot(name: string, directory = snapshotDirectory()): Promise<SnapshotFile> {
+  const names = await snapshotNames(directory);
   if (!SNAPSHOT_NAME.test(name) || !names.includes(name)) throw new SnapshotError('That snapshot is not available.');
-  const bytes = await readFile(path.join(snapshotDirectory(), name));
+  const bytes = await readFile(path.join(directory, name));
   let parsed: unknown;
   try {
     parsed = JSON.parse(bytes.toString('utf8'));
