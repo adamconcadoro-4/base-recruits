@@ -1,4 +1,0 @@
-href="public/styles/Site.css"
-href="public/styles/site.min.5e7eadb8.css"
-src="public/js/lib.min.d0622d0f.js"
-src="public/js/app.min.8f396f2e.js"
