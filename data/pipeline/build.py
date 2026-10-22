@@ -203,6 +203,7 @@ def main(argv: list[str] | None = None) -> int:
         captured_text = json.dumps({"_source": source_note, **captured}, indent=1, ensure_ascii=False, default=str) + "\n"
         if api_key in captured_text:
             raise RuntimeError("refusing to write fixtures that contain the API key")
+        os.makedirs(os.path.dirname(os.path.abspath(args.capture_out)), exist_ok=True)
         with open(args.capture_out, "w", encoding="utf-8") as handle:
             handle.write(captured_text)
     print(json.dumps(snapshot["summary"], indent=1))
