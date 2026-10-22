@@ -1,0 +1,24 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  database-security:
+    # Runs migrations and the database security suite on the runner's
+    # preinstalled PostgreSQL (no Docker, no secrets).
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Database security tests
+        run: scripts/db/test.sh
+      - name: Database concurrency tests
+        run: scripts/db/race-test.sh
+
+  # The application job (install, typecheck, unit, contract and end-to-end tests)
+  # is added when the Next.js app and its dependencies land.

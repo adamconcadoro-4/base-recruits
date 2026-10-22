@@ -1,0 +1,31 @@
+# dependencies
+node_modules/
+
+# Next.js / build output
+.next/
+out/
+build/
+next-env.d.ts
+*.tsbuildinfo
+
+# local databases and tooling state
+.local/
+supabase/.branches/
+supabase/.temp/
+
+# environment — never commit secrets
+.env
+.env.*
+!.env.example
+
+# test output
+coverage/
+playwright-report/
+test-results/
+
+# OS / editor
+.DS_Store
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea/
