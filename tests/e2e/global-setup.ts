@@ -1,9 +1,10 @@
-import { createAccount, sql, yearsAgo } from './support';
+import { createAccount, publishBundledRegistry, sql, yearsAgo } from './support';
 
 /**
  * Creates the one test administrator through the documented bootstrap path
  * (private.bootstrap_first_admin, database owner only) and shares its email
- * with the tests.
+ * with the tests, then publishes the bundled registry snapshot if the
+ * database has none.
  */
 export default async function globalSetup(): Promise<void> {
   const email = 'e2e-admin@example.test';
@@ -17,4 +18,11 @@ export default async function globalSetup(): Promise<void> {
     sql(`select private.bootstrap_first_admin('${email}')`);
   }
   process.env.E2E_ADMIN_EMAIL = email;
+
+  // Public school pages need the registry; publish the bundled real snapshot once.
+  const published = sql("select exists (select 1 from public.data_import_jobs where status = 'published')");
+  if (published !== 't') {
+    sql("update public.data_import_jobs set status = 'discarded', discarded_at = now() where status in ('staging', 'staged')");
+    await publishBundledRegistry(email);
+  }
 }

@@ -12,6 +12,15 @@ import { COACH_STATUS_TRANSITIONS, COACH_VERIFICATION_STATUSES } from '@/lib/aut
 import { APP_ROLES } from '@/lib/auth/roles';
 import { CONSENT_SCOPES, CONSENT_SCOPE_KEYS } from '@/lib/consent/scopes';
 import { CAPABILITIES, CAPABILITY_KEYS } from '@/lib/entitlements/capabilities';
+import {
+  CONTROLS,
+  DIVISION_CODES,
+  LEVELS,
+  PROGRAM_STATUSES,
+  SETTINGS,
+  TEST_POLICIES,
+  VERIFICATIONS,
+} from '@/lib/registry/types';
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const PSQL = process.env.PSQL ?? 'psql';
@@ -90,5 +99,16 @@ describe.skipIf(!DATABASE_URL)('database and TypeScript catalogs agree', () => {
       max_days: CONSENT_SCOPES[scope].maxDurationDays,
     }));
     expect(canonical(db)).toEqual(canonical(ts));
+  });
+
+  it('registry divisions and value lists', () => {
+    const divisions = rows<{ code: string }>('select code from public.athletic_divisions order by sort_order').map((r) => r.code);
+    expect(divisions).toEqual([...DIVISION_CODES]);
+    expect(enumValues('institution_control')).toEqual([...CONTROLS]);
+    expect(enumValues('institution_level')).toEqual([...LEVELS]);
+    expect(enumValues('campus_setting')).toEqual([...SETTINGS]);
+    expect(enumValues('test_policy')).toEqual([...TEST_POLICIES]);
+    expect(enumValues('program_status')).toEqual([...PROGRAM_STATUSES]);
+    expect(enumValues('program_verification')).toEqual([...VERIFICATIONS]);
   });
 });

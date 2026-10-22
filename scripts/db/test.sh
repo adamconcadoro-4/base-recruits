@@ -42,6 +42,7 @@ for test_file in "${TEST_DIR}"/*.test.sql; do
   if {
        echo "begin;"
        cat "${TEST_BOOTSTRAP_DIR}/10_test_helpers.sql"
+       cat "${TEST_BOOTSTRAP_DIR}/20_registry_fixture.sql"
        echo "reset role;"
        cat "${test_file}"
        echo "select tests.finish();"

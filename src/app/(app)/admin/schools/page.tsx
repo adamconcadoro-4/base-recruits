@@ -45,15 +45,13 @@ export default async function AdminSchoolsPage({
     const supabase = await createClient();
     let request = supabase
       .from('institutions')
-      .select('slug, name, state, is_listed, baseball_programs!inner(status, division_code, verification, classification_other)')
-      .order('name')
-      .limit(100);
+      .select('slug, name, state, is_listed, baseball_programs!inner(status, division_code, verification, classification_other)');
     if (q) request = request.ilike('name', `%${q.replace(/[%_\\]/g, (c) => `\\${c}`)}%`);
     if (queue === 'other') request = request.eq('baseball_programs.division_code', 'other');
     if (queue === 'federal') request = request.eq('baseball_programs.verification', 'federal_report');
     if (queue === 'not_reported') request = request.eq('baseball_programs.status', 'not_reported');
     if (queue === 'unlisted') request = request.eq('is_listed', false);
-    const { data, error } = await request;
+    const { data, error } = await request.order('name').limit(100);
     failed = Boolean(error);
     rows = (data ?? []) as unknown as Row[];
   }

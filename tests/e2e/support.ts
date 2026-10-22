@@ -166,3 +166,53 @@ export async function signUpThroughSite(
   await page.getByRole('button', { name: 'Create my account' }).click();
   await page.waitForURL((url) => url.pathname !== '/verify');
 }
+
+/**
+ * Publishes the bundled registry snapshot through the same admin functions the
+ * import screen uses (create, stage in chunks, review, publish), signed in as
+ * the test administrator. Real records only; nothing here is invented.
+ */
+export async function publishBundledRegistry(adminEmail: string): Promise<void> {
+  const { readdirSync, readFileSync } = await import('node:fs');
+  const path = await import('node:path');
+  const { createHash } = await import('node:crypto');
+  const directory = path.join(process.cwd(), 'data', 'snapshots');
+  const name = readdirSync(directory).filter((n) => /^registry-\d{4}-\d{2}\.json$/.test(n)).sort().reverse()[0];
+  if (!name) throw new Error('no bundled registry snapshot');
+  const bytes = readFileSync(path.join(directory, name));
+  const snapshot = JSON.parse(bytes.toString('utf8')) as {
+    format: string;
+    generated_at: string;
+    content_sha256: string;
+    sources: unknown[];
+    issues: { unitid: number | null }[];
+    records: { unitid: number }[];
+  };
+  const admin = publicClient();
+  const { error: signInError } = await admin.auth.signInWithPassword({ email: adminEmail, password: PASSWORD });
+  if (signInError) throw new Error(`admin sign-in failed: ${signInError.message}`);
+  const { data: jobId, error: createError } = await admin.rpc('admin_create_import_job', {
+    p_snapshot_name: name,
+    p_snapshot_sha256: createHash('sha256').update(bytes).digest('hex'),
+    p_content_sha256: snapshot.content_sha256,
+    p_snapshot_format: snapshot.format,
+    p_generated_at: snapshot.generated_at,
+    p_sources: snapshot.sources,
+    p_expected_rows: snapshot.records.length,
+  });
+  if (createError) throw new Error(`admin_create_import_job: ${createError.message}`);
+  const rows = snapshot.records.map((record) => ({
+    unitid: record.unitid,
+    record,
+    issues: snapshot.issues.filter((i) => i.unitid === record.unitid),
+  }));
+  for (let start = 0; start < rows.length; start += 250) {
+    const { error } = await admin.rpc('admin_stage_import_rows', { p_job_id: jobId, p_rows: rows.slice(start, start + 250) });
+    if (error) throw new Error(`admin_stage_import_rows: ${error.message}`);
+  }
+  const { error: finalizeError } = await admin.rpc('admin_finalize_import_job', { p_job_id: jobId });
+  if (finalizeError) throw new Error(`admin_finalize_import_job: ${finalizeError.message}`);
+  const { error: publishError } = await admin.rpc('admin_publish_import_job', { p_job_id: jobId, p_note: 'End-to-end test setup' });
+  if (publishError) throw new Error(`admin_publish_import_job: ${publishError.message}`);
+  await admin.auth.signOut();
+}

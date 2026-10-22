@@ -74,6 +74,24 @@ jobs:
         env:
           PSQL: /usr/lib/postgresql/${{ matrix.postgres }}/bin/psql
 
+  pipeline:
+    # The registry data pipeline (EADA and College Scorecard normalization),
+    # tested against raw rows captured from the sources. No network needed.
+    name: registry pipeline tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install the pipeline's one dependency
+        run: python3 -m pip install --quiet --break-system-packages openpyxl==3.1.5
+
+      - name: Pipeline unit tests
+        shell: bash
+        run: |
+          python3 -m unittest discover -s data/pipeline/tests -t . -v 2> "${RUNNER_TEMP}/pipeline.txt" || { tail -n 40 "${RUNNER_TEMP}/pipeline.txt"; echo "::error title=Pipeline tests::$(grep -E '^(FAIL|ERROR):' "${RUNNER_TEMP}/pipeline.txt" | head -n 5 | tr '\n' ' ')"; exit 1; }
+          echo "::notice title=Registry pipeline tests::$(grep -E '^Ran ' "${RUNNER_TEMP}/pipeline.txt") — $(tail -n 1 "${RUNNER_TEMP}/pipeline.txt")"
+
   supabase:
     # The real Supabase stack (Auth, Data API, PostgreSQL 17) from the Supabase
     # CLI, with every migration applied exactly as `supabase db push` would, and

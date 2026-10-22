@@ -39,7 +39,8 @@ type RawParams = Readonly<Record<string, string | readonly string[] | undefined>
 function all(raw: RawParams, key: string): string[] {
   const value = raw[key];
   if (value === undefined) return [];
-  return (Array.isArray(value) ? value : [value]).flatMap((v: string) => v.split(',')).map((v) => v.trim()).filter(Boolean);
+  const list: readonly string[] = typeof value === 'string' ? [value] : value;
+  return list.flatMap((v) => v.split(',')).map((v) => v.trim()).filter(Boolean);
 }
 
 function one(raw: RawParams, key: string): string | undefined {

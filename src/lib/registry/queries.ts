@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { cache } from 'react';
+
 import { createClient } from '@/lib/supabase/server';
 
 import { MAX_COMPARE, toSearchArgs, type ExplorerState } from './search-params';
@@ -20,12 +22,13 @@ export async function searchSchools(state: ExplorerState): Promise<SearchResult>
   return { rows, total: rows[0]?.total_count ?? 0, failed: false };
 }
 
-export async function getSchool(slug: string): Promise<SchoolRecord | null | 'failed'> {
+/** Cached per request, so the page and its metadata share one lookup. */
+export const getSchool = cache(async (slug: string): Promise<SchoolRecord | null | 'failed'> => {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('get_school', { p_slug: slug });
   if (error) return 'failed';
   return (data as SchoolRecord | null) ?? null;
-}
+});
 
 export async function compareSchools(slugs: readonly string[]): Promise<readonly SchoolRecord[] | 'failed'> {
   if (slugs.length === 0) return [];

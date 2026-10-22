@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { getAccount } from '@/lib/auth/account';
 import { userMessageForDatabaseError } from '@/lib/db/errors';
 import { failure, field, success, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
-import { SnapshotError, loadSnapshot, stagingRows } from '@/lib/registry/snapshot';
+import { SnapshotError, loadSnapshot, stagingRows, type SnapshotFile } from '@/lib/registry/snapshot';
 import { createClient } from '@/lib/supabase/server';
 
 const CHUNK = 250;
@@ -32,7 +32,7 @@ function refresh(jobId?: string) {
 export async function stageSnapshotAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   if (!(await isAdmin())) return failure("Your account can't do that.");
   const name = field(formData, 'snapshot');
-  let file;
+  let file: SnapshotFile;
   try {
     file = await loadSnapshot(name);
   } catch (error) {

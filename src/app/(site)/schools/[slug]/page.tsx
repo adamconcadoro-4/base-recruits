@@ -124,11 +124,11 @@ export default async function SchoolPage({ params }: { readonly params: Params }
               ) : null}
               <dl>
                 <Row label="Division">
-                  {program.division.name}
+                  <span>{program.division.name}</span>
                   <span className="block text-sm text-slate">{program.association.name}</span>
                 </Row>
                 <Row label="How it was confirmed">
-                  {VERIFICATION_LABELS[program.verification].short}
+                  <span>{VERIFICATION_LABELS[program.verification].short}</span>
                   <span className="block text-sm text-slate">{VERIFICATION_LABELS[program.verification].long}</span>
                   {program.verification !== 'federal_report' && program.verification_source_url ? (
                     <span className="block text-sm">
