@@ -44,10 +44,16 @@ jobs:
           "${PG_BIN}/postgres" --version
 
       - name: Database security tests
-        run: scripts/db/test.sh
+        shell: bash
+        run: |
+          scripts/db/test.sh 2>&1 | tee "${RUNNER_TEMP}/db-tests.out"
+          echo "::notice title=Database security tests (PostgreSQL ${{ matrix.postgres }})::$(grep -E '^Database tests:' "${RUNNER_TEMP}/db-tests.out")"
 
       - name: Database concurrency tests
-        run: scripts/db/race-test.sh
+        shell: bash
+        run: |
+          scripts/db/race-test.sh 2>&1 | tee "${RUNNER_TEMP}/race-tests.out"
+          echo "::notice title=Concurrency tests (PostgreSQL ${{ matrix.postgres }})::$(grep -E '^Concurrency tests:' "${RUNNER_TEMP}/race-tests.out")"
 
       - uses: actions/setup-node@v5
         with:
@@ -57,7 +63,10 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Contract tests (TypeScript and database catalogs agree)
-        run: npm run test:contract
+        shell: bash
+        run: |
+          npm run test:contract -- --reporter=default --reporter=json --outputFile="${RUNNER_TEMP}/contract.json"
+          node scripts/ci/report-vitest.mjs "${RUNNER_TEMP}/contract.json" "Contract tests (PostgreSQL ${{ matrix.postgres }})" --no-skips
         env:
           PSQL: /usr/lib/postgresql/${{ matrix.postgres }}/bin/psql
 
@@ -78,7 +87,13 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Typecheck
-        run: npm run typecheck
+        shell: bash
+        run: |
+          npm run typecheck
+          echo "::notice title=Typecheck::tsc $(npx tsc --version | cut -d' ' -f2): 0 errors in $(npx tsc --listFilesOnly | grep -c "^${GITHUB_WORKSPACE}/" ) project files"
 
       - name: Unit tests
-        run: npm run test:unit
+        shell: bash
+        run: |
+          npm run test:unit -- --reporter=default --reporter=json --outputFile="${RUNNER_TEMP}/unit.json"
+          node scripts/ci/report-vitest.mjs "${RUNNER_TEMP}/unit.json" "Unit tests (Vitest $(node -p "require('./node_modules/vitest/package.json').version"))" --no-skips

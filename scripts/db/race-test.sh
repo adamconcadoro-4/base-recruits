@@ -75,6 +75,7 @@ values ('race_capability_x', 'premium', 'registered', 'Race test X.'),
 SQL
 
 failures=0
+scenarios=0
 
 # race <name> <session A sql> <session B sql> <check sql returning t/f> [b_must_succeed]
 race() {
@@ -85,6 +86,7 @@ race() {
   sleep 0.4
   printf 'begin;\n%s\ncommit;\n' "${sql_b}" | local_psql "${BR_TEST_DB}" -f - >"${out_b}" 2>&1 || true
   wait "${pid}"
+  scenarios=$((scenarios + 1))
   local b_ok="yes"
   if [[ -n "${b_must_succeed}" ]] && grep -q "ERROR" "${out_b}"; then
     b_ok="no"
@@ -155,7 +157,7 @@ local_psql postgres -c "drop database if exists ${BR_TEST_DB} with (force);" >/d
 
 echo
 if [[ "${failures}" -gt 0 ]]; then
-  echo "Concurrency tests: ${failures} FAILED"
+  echo "Concurrency tests: ${failures} of ${scenarios} scenarios FAILED"
   exit 1
 fi
-echo "Concurrency tests: all passed"
+echo "Concurrency tests: ${scenarios} scenarios, all passed"
