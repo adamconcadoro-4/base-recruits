@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { emailSchema } from '@/app/(auth)/signup/schema';
 import { setPendingVerification } from '@/lib/auth/pending-verification';
-import { failure, field, type ActionState } from '@/lib/forms/action-state';
+import { failure, field, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { createClient } from '@/lib/supabase/server';
 
 /** Sends a sign-in code to an existing account. Unknown addresses get the same answer. */
@@ -15,7 +15,7 @@ export async function requestResetAction(_previous: ActionState, formData: FormD
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({ email: parsed.data, options: { shouldCreateUser: false } });
   if (error && (error.status === 429 || error.code?.startsWith('over_'))) {
-    return failure('Too many attempts. Please wait a few minutes and try again.');
+    return failure(withDiagnostics('Too many attempts. Please wait a few minutes and try again.', error));
   }
 
   await setPendingVerification({ purpose: 'reset', email: parsed.data });

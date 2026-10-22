@@ -3,12 +3,11 @@
 --
 -- From the independent review of the app layer:
 --
--- 1. User-supplied sign-up metadata (raw_user_meta_data) is no longer trusted.
---    Anyone can create an unconfirmed account for someone else's email through
---    the public Auth API and attach a role or name to it. Roles and names now
---    come only from the verified owner (complete_onboarding, after the email
---    code), or from app metadata, which only the server (service role) can set
---    — for example on accounts an administrator creates.
+-- 1. Sign-up metadata is no longer used at all. Anyone can create an
+--    unconfirmed account for someone else's email through the public Auth API
+--    and attach a role or name to it. Roles and names now come only from the
+--    verified owner (complete_onboarding, after the email code) or from an
+--    administrator (admin_grant_role).
 -- 2. Staff-directory links may not carry a user name or password. In
 --    https://school.edu@other.example/ the real site is other.example, which
 --    could mislead a reviewer into verifying a fake coach.
@@ -22,38 +21,16 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
-declare
-  -- Only app metadata is trusted: users cannot set it (the public sign-up API
-  -- writes their data to raw_user_meta_data), only the service role can.
-  v_trusted boolean := not coalesce((to_jsonb(new) ->> 'is_anonymous')::boolean, false);
-  v_type text := case when v_trusted
-                      then nullif(btrim(coalesce(new.raw_app_meta_data ->> 'account_type', '')), '') end;
-  v_name text := case when v_trusted
-                      then nullif(btrim(coalesce(new.raw_app_meta_data ->> 'display_name', '')), '') end;
-  v_role public.app_role;
 begin
-  if v_type in ('athlete', 'parent', 'coach') then
-    v_role := v_type::public.app_role;
-  end if;
-  if v_name is not null then
-    v_name := left(v_name, 80);
-  end if;
-
-  insert into public.profiles (id, display_name, primary_role, role_selected_at)
-  values (new.id, v_name, v_role, case when v_role is not null then now() end);
-
+  -- Every account starts with no role and no name; the verified owner chooses
+  -- them once (complete_onboarding). Metadata sent with the sign-up is ignored.
+  insert into public.profiles (id) values (new.id);
   insert into public.user_settings (user_id) values (new.id);
 
   perform private.log_audit('account.created', 'profile', new.id::text, new.id,
-                            jsonb_build_object('account_type', v_role,
-                                               'confirmed_at_creation', new.email_confirmed_at is not null,
+                            jsonb_build_object('confirmed_at_creation', new.email_confirmed_at is not null,
                                                'anonymous', coalesce((to_jsonb(new) ->> 'is_anonymous')::boolean, false)),
                             new.id);
-
-  if v_role is not null then
-    perform private.provision_role(new.id, v_role, null);
-  end if;
-
   return new;
 end;
 $$;

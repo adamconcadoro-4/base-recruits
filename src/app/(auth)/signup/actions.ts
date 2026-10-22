@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { accountSchema, dateOfBirthSchema, isoDate, type AgeStepState } from '@/app/(auth)/signup/schema';
 import { birthDateMessage, checkBirthDate, todayUtc } from '@/lib/age/age-policy';
 import { blockAgeGate, isAgeGateBlocked } from '@/lib/auth/age-gate';
-import { failure, field, type ActionState } from '@/lib/forms/action-state';
+import { failure, field, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { setPendingVerification } from '@/lib/auth/pending-verification';
 import { createClient } from '@/lib/supabase/server';
 
@@ -87,12 +87,12 @@ export async function signUpAction(_previous: ActionState, formData: FormData): 
   const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
   if (error) {
     if (error.status === 429 || error.code === 'over_email_send_rate_limit' || error.code === 'over_request_rate_limit') {
-      return failure('Too many attempts. Please wait a few minutes and try again.');
+      return failure(withDiagnostics('Too many attempts. Please wait a few minutes and try again.', error));
     }
     if (error.code === 'email_address_invalid') {
       return failure('Enter a valid email address.', { email: 'Enter a valid email address.' });
     }
-    return failure('We couldn’t send a code to that address. Please try again.');
+    return failure(withDiagnostics('We couldn’t send a code to that address. Please try again.', error));
   }
 
   await setPendingVerification({ purpose: 'signup', email, dateOfBirth, accountType, displayName });

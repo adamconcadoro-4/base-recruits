@@ -85,11 +85,10 @@ jobs:
 
       - name: Choose the Supabase CLI version
         id: supabase-cli
-        # Resolved from npm (the CLI's npm package carries the same version), which
-        # avoids GitHub's anonymous API rate limit on "latest".
+        # Pinned (asking GitHub for "latest" hits its anonymous API rate limit).
+        # Override with the SUPABASE_CLI_VERSION repository variable if needed.
         run: |
-          version="${SUPABASE_CLI_VERSION:-$(npm view supabase@2 version | tail -n 1 | awk '{print $2}' | tr -d "'")}"
-          [ -n "$version" ] || version="$(npm view supabase version)"
+          version="${SUPABASE_CLI_VERSION:-2.121.0}"
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "::notice title=Supabase CLI::${version}"
 
@@ -154,11 +153,10 @@ jobs:
 
       - name: Choose the Supabase CLI version
         id: supabase-cli
-        # Resolved from npm (the CLI's npm package carries the same version), which
-        # avoids GitHub's anonymous API rate limit on "latest".
+        # Pinned (asking GitHub for "latest" hits its anonymous API rate limit).
+        # Override with the SUPABASE_CLI_VERSION repository variable if needed.
         run: |
-          version="${SUPABASE_CLI_VERSION:-$(npm view supabase@2 version | tail -n 1 | awk '{print $2}' | tr -d "'")}"
-          [ -n "$version" ] || version="$(npm view supabase version)"
+          version="${SUPABASE_CLI_VERSION:-2.121.0}"
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "::notice title=Supabase CLI::${version}"
 

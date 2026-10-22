@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { verificationSchema } from '@/app/(auth)/signup/schema';
 import { blockAgeGate } from '@/lib/auth/age-gate';
 import { clearPendingVerification, readPendingVerification } from '@/lib/auth/pending-verification';
-import { failure, field, success, type ActionState } from '@/lib/forms/action-state';
+import { failure, field, success, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 
@@ -42,7 +42,7 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
     type: 'email',
   });
   if (verifyError) {
-    return failure('That code is wrong or has expired. Check the latest email, or send a new code.', {
+    return failure(withDiagnostics('That code is wrong or has expired. Check the latest email, or send a new code.', verifyError), {
       code: 'That code is wrong or has expired.',
     });
   }
@@ -55,7 +55,7 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
     if (passwordError.code === 'weak_password') {
       return failure('Choose a stronger password, then enter a new code.', { password: 'Choose a stronger password.' });
     }
-    return failure('We couldn’t set your password. Send a new code and try again.');
+    return failure(withDiagnostics('We couldn’t set your password. Send a new code and try again.', passwordError));
   }
   await supabase.auth.signOut({ scope: 'others' });
 

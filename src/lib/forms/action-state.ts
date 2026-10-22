@@ -20,3 +20,12 @@ export function field(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === 'string' ? value.trim() : '';
 }
+
+/**
+ * In test builds (NEXT_PUBLIC_APP_ENV=test) a message carries the upstream
+ * error code, so end-to-end failures are diagnosable from the page alone.
+ */
+export function withDiagnostics(message: string, error: { code?: string | null; status?: number | null } | null): string {
+  if (process.env.NEXT_PUBLIC_APP_ENV !== 'test' || !error) return message;
+  return `${message} [${error.code ?? 'no-code'}/${error.status ?? 'no-status'}]`;
+}

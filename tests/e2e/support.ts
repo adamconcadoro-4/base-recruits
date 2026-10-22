@@ -55,19 +55,32 @@ export async function createAccount(options: {
   readonly emailConfirmed?: boolean;
 }): Promise<TestAccount> {
   const email = options.email ?? uniqueEmail(options.role ?? 'user', options.role === 'coach' ? 'example.edu' : 'example.test');
-  const { data, error } = await admin().auth.admin.createUser({
-    email,
-    password: PASSWORD,
-    email_confirm: options.emailConfirmed ?? true,
-    // Server-set app metadata, as when an administrator creates an account.
-    app_metadata: options.role ? { account_type: options.role, display_name: options.name } : { display_name: options.name },
-  });
+  const confirmed = options.emailConfirmed ?? true;
+  const { data, error } = await admin().auth.admin.createUser({ email, password: PASSWORD, email_confirm: confirmed });
   if (error || !data.user) throw new Error(`createUser failed: ${error?.message ?? 'no user'}`);
   const { error: birthdateError } = await admin().rpc('admin_record_birthdate', {
     p_user_id: data.user.id,
     p_date_of_birth: options.dateOfBirth,
   });
   if (birthdateError) throw new Error(`admin_record_birthdate failed: ${birthdateError.message}`);
+
+  // The owner's one-time role choice, exactly as onboarding makes it.
+  if (confirmed && (options.role || options.name)) {
+    const owner = publicClient();
+    const { error: signInError } = await owner.auth.signInWithPassword({ email, password: PASSWORD });
+    if (signInError) throw new Error(`sign-in failed: ${signInError.message}`);
+    if (options.role) {
+      const { error: roleError } = await owner.rpc('complete_onboarding', {
+        p_account_type: options.role,
+        p_display_name: options.name,
+      });
+      if (roleError) throw new Error(`complete_onboarding failed: ${roleError.message}`);
+    } else {
+      const { error: nameError } = await owner.from('profiles').update({ display_name: options.name }).eq('id', data.user.id);
+      if (nameError) throw new Error(`name update failed: ${nameError.message}`);
+    }
+    await owner.auth.signOut();
+  }
   return { id: data.user.id, email, name: options.name };
 }
 
@@ -119,12 +132,13 @@ export function publicClient(): SupabaseClient {
   });
 }
 
-/** Waits for the code page; if the form shows an error instead, fails with its text. */
+/** Waits for the code page; if it does not appear, fails with what the page shows instead. */
 export async function reachVerifyPage(page: Page): Promise<void> {
-  const alert = page.getByRole('alert').first();
-  await Promise.race([page.waitForURL('**/verify'), alert.waitFor({ state: 'visible' })]);
-  if (!page.url().endsWith('/verify')) {
-    throw new Error(`Did not reach the code page. The form said: ${(await alert.innerText()).trim()}`);
+  try {
+    await page.waitForURL('**/verify', { timeout: 20_000 });
+  } catch {
+    const shown = (await page.locator('main').innerText().catch(() => '(no main content)')).replace(/\s+/g, ' ');
+    throw new Error(`Did not reach the code page (${page.url()}). The page shows: ${shown.slice(0, 600)}`);
   }
 }
 
