@@ -148,10 +148,8 @@ def normalize(record: dict[str, Any], admissions_year: int | None, cost_year: in
                 else:
                     issues.append(("unmapped_test_policy", f"test requirement code {code!r} for {admissions_year} is not mapped; left blank"))
             scores = {k: _int(v) for k, v in raw.items() if k != "admission_rate"}
-            for low, high in (("sat_erw_25", "sat_erw_75"), ("sat_math_25", "sat_math_75"), ("act_composite_25", "act_composite_75")):
-                if (scores[low] is None) != (scores[high] is None) or (scores[low] is not None and scores[low] > scores[high]):
-                    issues.append(("inconsistent_scores", f"{low}/{high} = {scores[low]}/{scores[high]}; both dropped"))
-                    scores[low] = scores[high] = None
+            # Out-of-range values first, then pairs: a percentile without its
+            # partner is dropped too, so the record always stays publishable.
             for key in ("sat_erw_25", "sat_erw_75", "sat_math_25", "sat_math_75"):
                 if scores[key] is not None and not 200 <= scores[key] <= 800:
                     issues.append(("score_out_of_range", f"{key} = {scores[key]}; dropped"))
@@ -160,6 +158,10 @@ def normalize(record: dict[str, Any], admissions_year: int | None, cost_year: in
                 if scores[key] is not None and not 1 <= scores[key] <= 36:
                     issues.append(("score_out_of_range", f"{key} = {scores[key]}; dropped"))
                     scores[key] = None
+            for low, high in (("sat_erw_25", "sat_erw_75"), ("sat_math_25", "sat_math_75"), ("act_composite_25", "act_composite_75")):
+                if (scores[low] is None) != (scores[high] is None) or (scores[low] is not None and scores[low] > scores[high]):
+                    issues.append(("inconsistent_scores", f"{low}/{high} = {scores[low]}/{scores[high]}; both dropped"))
+                    scores[low] = scores[high] = None
             admissions = {
                 "term": f"Fall {admissions_year}",
                 "scorecard_year": admissions_year,

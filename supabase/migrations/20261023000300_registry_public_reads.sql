@@ -98,9 +98,12 @@ begin
       join public.baseball_programs p on p.institution_id = i.id and p.status = 'active'
       join public.athletic_divisions d on d.code = p.division_code
       join public.athletic_associations aa on aa.code = p.association_code
-      left join lateral (select s.* from public.admissions_statistics s
+      left join lateral (select s.term, s.admission_rate, s.sat_erw_25, s.sat_erw_75, s.sat_math_25, s.sat_math_75,
+                                s.act_composite_25, s.act_composite_75, s.test_policy
+                           from public.admissions_statistics s
                           where s.institution_id = i.id order by s.term_year desc limit 1) a on true
-      left join lateral (select k.* from public.institution_costs k
+      left join lateral (select k.academic_year, k.cost_of_attendance, k.tuition_in_state, k.tuition_out_of_state
+                           from public.institution_costs k
                           where k.institution_id = i.id order by k.academic_year desc limit 1) c on true
      where i.is_listed
        and (v_query is null

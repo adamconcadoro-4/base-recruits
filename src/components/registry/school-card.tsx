@@ -113,18 +113,18 @@ export function SchoolCard({
       </dl>
 
       <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-        <Link href={`/schools/${school.slug}`} className="font-semibold text-royal-ink underline">
-          Details and sources<span className="sr-only"> for {school.name}</span>
+        <Link href={`/schools/${school.slug}`} aria-label={`Details and sources for ${school.name}`} className="font-semibold text-royal-ink underline">
+          Details and sources
         </Link>
         {inCompare ? (
-          <Link href={compareHref} className="font-semibold text-royal-ink underline" scroll={false}>
-            Remove from compare<span className="sr-only">: {school.name}</span>
+          <Link href={compareHref} aria-label={`Remove from compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false}>
+            Remove from compare
           </Link>
         ) : compareFull ? (
           <span className="text-sm text-slate">Compare holds five schools</span>
         ) : (
-          <Link href={compareHref} className="font-semibold text-royal-ink underline" scroll={false}>
-            Add to compare<span className="sr-only">: {school.name}</span>
+          <Link href={compareHref} aria-label={`Add to compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false}>
+            Add to compare
           </Link>
         )}
       </div>

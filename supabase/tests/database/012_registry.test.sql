@@ -309,3 +309,67 @@ select public.admin_set_institution_listing((select id from public.institutions 
 select tests.authenticate_as_anon();
 select tests.ok(exists (select 1 from public.search_schools('berkeley')), 'listing it again brings it back');
 select tests.clear_authentication();
+
+-- ---------------------------------------------------------------- review regressions
+select tests.clear_authentication();
+create function tests.season_sources(p_season text) returns jsonb language sql immutable as $$
+  select jsonb_agg(case when s ->> 'id' = 'eada' then jsonb_set(s, '{season}', to_jsonb(p_season)) else s end)
+    from jsonb_array_elements(tests.snapshot_sources()) s
+$$;
+select tests.authenticate_as('admin');
+
+-- A confirmed status survives an older season's import and the current one after it.
+select tests.remember_job('older_season', public.admin_create_import_job('registry-2023-24.json', repeat('c', 64), repeat('d', 64),
+  'base-recruits.registry-snapshot/1', now(), tests.season_sources('2023-24'), 13));
+select public.admin_stage_import_rows(tests.job('older_season'),
+  (select jsonb_agg(jsonb_set(r, '{record,baseball,season}', '"2023-24"')) from jsonb_array_elements(tests.snapshot_rows()) r));
+select public.admin_finalize_import_job(tests.job('older_season'));
+select public.admin_publish_import_job(tests.job('older_season'), 'Test: roll back a season');
+select tests.remember_job('current_again', public.admin_restage_import_job(tests.job('first')));
+select public.admin_publish_import_job(tests.job('current_again'));
+select tests.ok(
+  (select p.status = 'inactive' and p.status_source = 'admin' and p.status_season = '2024-25' and p.season = '2024-25'
+     from public.baseball_programs p join public.institutions i on i.id = p.institution_id where i.unitid = 100654),
+  'a confirmed status survives rolling back to an older season and forward again');
+
+-- Only a fully staged and reviewed import can be staged again.
+select tests.remember_job('partial', tests.create_job(13));
+select public.admin_stage_import_rows(tests.job('partial'), tests.rows_between(1, 5));
+select public.admin_discard_import_job(tests.job('partial'));
+select tests.throws(format('select public.admin_restage_import_job(%L)', tests.job('partial')), 'BR004',
+  'an import discarded before it was complete cannot be staged again');
+
+-- Records that would make publishing fail are caught at review instead.
+select tests.remember_job('edge', tests.create_job(8));
+select public.admin_stage_import_rows(tests.job('edge'), (
+  select jsonb_agg(case n
+           when 1 then jsonb_set(r, '{record,admissions,sat_math_25}', '500.5')
+           when 2 then jsonb_set(r, '{record,admissions,sat_math_25}', '"700"')
+           when 3 then jsonb_set(r, '{record,baseball,participants}', '3000000000')
+           when 4 then r #- '{record,unitid}'
+           when 5 then r #- '{record,costs,scorecard_year}'
+           when 6 then jsonb_set(r, '{record,baseball,classification_code}', '1.5')
+           when 7 then jsonb_set(r, '{record,facts,undergraduate_enrollment,value}', '1500.0')
+           else r end order by n)
+    from jsonb_array_elements(tests.snapshot_rows()) with ordinality as x(r, n) where n <= 8));
+select tests.ok(
+  (select public.admin_finalize_import_job(tests.job('edge'))) @> '{"invalid": 6}',
+  'fractional, text, out-of-range and missing values are flagged as invalid at review');
+create temporary table edge_result on commit drop as select public.admin_publish_import_job(tests.job('edge')) as r;
+select tests.ok(
+  (select r ->> 'applied' from edge_result) = '1'
+  and (select undergraduate_enrollment = 1500 from public.institutions
+        where unitid = (select (r ->> 'unitid')::int from jsonb_array_elements(tests.snapshot_rows()) with ordinality as x(r, n) where n = 7)),
+  'publishing then succeeds, and a whole-number decimal is stored as a whole number');
+
+-- A program's reviewer, notes and import ids are not readable outside admin screens.
+select tests.authenticate_as_anon();
+select tests.throws('select verified_by from public.baseball_programs limit 1', '42501', 'visitors cannot read who reviewed a program');
+select tests.ok(
+  (select count(*) from public.baseball_programs) > 0 and (select count(*) from public.search_schools()) > 0,
+  'the public columns stay readable');
+select tests.clear_authentication();
+
+-- The slug never ends in a dash after shortening a long name.
+select tests.ok(private.slugify(repeat('a', 91) || ' b') !~ '-$' and private.slugify(repeat('a', 91) || ' b') ~ '^[a-z0-9]+(-[a-z0-9]+)*$',
+  'shortened page addresses stay well formed');

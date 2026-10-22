@@ -137,9 +137,49 @@ as $$
 $$;
 revoke all on function private.registry_record(uuid, text, text) from public;
 
+-- True when a JSON value is a number within [min, max] (and whole when asked).
+-- A missing value or JSON null counts as valid only when nullable. Never casts
+-- anything that is not a JSON number, so it cannot throw.
+create function private.json_number_ok(p_value jsonb, p_min numeric, p_max numeric, p_whole boolean,
+                                       p_nullable boolean default true) returns boolean
+language plpgsql
+immutable
+set search_path = ''
+as $$
+declare
+  v numeric;
+begin
+  if p_value is null or jsonb_typeof(p_value) = 'null' then
+    return p_nullable;
+  end if;
+  if jsonb_typeof(p_value) <> 'number' then
+    return false;
+  end if;
+  v := (p_value #>> '{}')::numeric;
+  return v between p_min and p_max and (not p_whole or v = trunc(v));
+end;
+$$;
+revoke all on function private.json_number_ok(jsonb, numeric, numeric, boolean, boolean) from public;
+
+-- True when a JSON value is absent/null (if nullable) or a string within a length range.
+create function private.json_text_ok(p_value jsonb, p_min integer, p_max integer, p_nullable boolean default true) returns boolean
+language sql
+immutable
+set search_path = ''
+as $$
+  select case
+           when p_value is null or jsonb_typeof(p_value) = 'null' then p_nullable
+           when jsonb_typeof(p_value) <> 'string' then false
+           else length(p_value #>> '{}') between p_min and p_max
+         end
+$$;
+revoke all on function private.json_text_ok(jsonb, integer, integer, boolean) from public;
+
 -- -----------------------------------------------------------------------------
 -- Validation of one snapshot record against the job it belongs to. Returns the
--- problems found (empty when the record can be applied as is).
+-- problems found (empty when the record can be applied as is). Every value is
+-- type- and range-checked before anything casts it, so a record that passes
+-- here cannot make publishing fail.
 -- -----------------------------------------------------------------------------
 create function private.import_record_problems(p_record jsonb, p_unitid integer, p_job public.data_import_jobs)
 returns text[]
@@ -152,153 +192,163 @@ declare
   v_problems text[] := '{}';
   v_facts jsonb := p_record -> 'facts';
   v_base jsonb := p_record -> 'baseball';
-  v_adm jsonb := p_record -> 'admissions';
-  v_cost jsonb := p_record -> 'costs';
+  v_adm jsonb := nullif(p_record -> 'admissions', 'null'::jsonb);
+  v_cost jsonb := nullif(p_record -> 'costs', 'null'::jsonb);
   v_enrollment jsonb;
   v_key text;
   v_alias jsonb;
+  v_slug text;
 begin
-  if jsonb_typeof(p_record -> 'unitid') <> 'number' or (p_record ->> 'unitid')::numeric <> p_unitid then
-    v_problems := array_append(v_problems, ('unitid does not match the row')::text);
+  if not private.json_number_ok(p_record -> 'unitid', p_unitid, p_unitid, true, false) then
+    v_problems := array_append(v_problems, 'unitid does not match the row');
   end if;
   if coalesce(p_record ->> 'institution_source', '') not in ('college_scorecard', 'eada') then
-    v_problems := array_append(v_problems, ('institution_source must be college_scorecard or eada')::text);
+    v_problems := array_append(v_problems, 'institution_source must be college_scorecard or eada');
   end if;
 
   -- facts
-  if jsonb_typeof(v_facts) is distinct from 'object' then
-    return array_append(v_problems, ('facts are missing')::text);
+  if coalesce(jsonb_typeof(v_facts), '') <> 'object' then
+    return array_append(v_problems, 'facts are missing');
   end if;
-  if jsonb_typeof(v_facts -> 'name') is distinct from 'string' or length(v_facts ->> 'name') not between 2 and 200 then
-    v_problems := array_append(v_problems, ('name must be 2–200 characters')::text);
+  if not private.json_text_ok(v_facts -> 'name', 2, 200, false) then
+    v_problems := array_append(v_problems, 'name must be 2–200 characters');
+  else
+    v_slug := private.slugify(v_facts ->> 'name');
+    if v_slug <> '' and v_slug !~ '^[a-z0-9]+(-[a-z0-9]+)*$' then
+      v_problems := array_append(v_problems, 'name does not produce a usable page address');
+    end if;
   end if;
-  if jsonb_typeof(v_facts -> 'aliases') is distinct from 'array' then
-    v_problems := array_append(v_problems, ('aliases must be a list')::text);
+  if coalesce(jsonb_typeof(v_facts -> 'aliases'), '') <> 'array' then
+    v_problems := array_append(v_problems, 'aliases must be a list');
   else
     for v_alias in select value from jsonb_array_elements(v_facts -> 'aliases') loop
-      if jsonb_typeof(v_alias) <> 'string' or length(v_alias #>> '{}') not between 2 and 120 then
-        v_problems := array_append(v_problems, ('each alias must be 2–120 characters')::text);
+      if not private.json_text_ok(v_alias, 2, 120, false) then
+        v_problems := array_append(v_problems, 'each alias must be 2–120 characters');
       end if;
     end loop;
   end if;
-  if (v_facts ->> 'state') is not null and (v_facts ->> 'state') !~ '^[A-Z]{2}$' then
-    v_problems := array_append(v_problems, ('state must be a two-letter code')::text);
+  if not private.json_text_ok(v_facts -> 'state', 2, 2) or coalesce(v_facts ->> 'state', 'AA') !~ '^[A-Z]{2}$' then
+    v_problems := array_append(v_problems, 'state must be a two-letter code');
   end if;
-  if (v_facts ->> 'zip') is not null and (v_facts ->> 'zip') !~ '^[0-9]{5}(-?[0-9]{4})?$' then
-    v_problems := array_append(v_problems, ('zip is not a U.S. ZIP code')::text);
+  if not private.json_text_ok(v_facts -> 'zip', 5, 10) or coalesce(v_facts ->> 'zip', '00000') !~ '^[0-9]{5}(-?[0-9]{4})?$' then
+    v_problems := array_append(v_problems, 'zip is not a U.S. ZIP code');
   end if;
-  if (v_facts ->> 'ope8_id') is not null and (v_facts ->> 'ope8_id') !~ '^[0-9]{8}$' then
-    v_problems := array_append(v_problems, ('ope8_id must be 8 digits')::text);
+  if not private.json_text_ok(v_facts -> 'ope8_id', 8, 8) or coalesce(v_facts ->> 'ope8_id', '00000000') !~ '^[0-9]{8}$' then
+    v_problems := array_append(v_problems, 'ope8_id must be 8 digits');
   end if;
-  if (v_facts ->> 'city') is not null and length(v_facts ->> 'city') > 100 then
-    v_problems := array_append(v_problems, ('city is too long')::text);
+  if not private.json_text_ok(v_facts -> 'city', 1, 100) then
+    v_problems := array_append(v_problems, 'city must be text of at most 100 characters');
   end if;
   foreach v_key in array array['website_url', 'price_calculator_url'] loop
-    if not private.is_web_url(v_facts ->> v_key) then
-      v_problems := array_append(v_problems, ((v_key || ' is not a web link'))::text);
+    if not private.json_text_ok(v_facts -> v_key, 1, 500) or not private.is_web_url(v_facts ->> v_key) then
+      v_problems := array_append(v_problems, v_key || ' is not a web link');
     end if;
   end loop;
   if (v_facts ->> 'control') is not null and (v_facts ->> 'control') <> all (enum_range(null::public.institution_control)::text[]) then
-    v_problems := array_append(v_problems, ('control is not a known value')::text);
+    v_problems := array_append(v_problems, 'control is not a known value');
   end if;
   if (v_facts ->> 'level') is not null and (v_facts ->> 'level') <> all (enum_range(null::public.institution_level)::text[]) then
-    v_problems := array_append(v_problems, ('level is not a known value')::text);
+    v_problems := array_append(v_problems, 'level is not a known value');
   end if;
   if (v_facts ->> 'setting') is not null and (v_facts ->> 'setting') <> all (enum_range(null::public.campus_setting)::text[]) then
-    v_problems := array_append(v_problems, ('setting is not a known value')::text);
+    v_problems := array_append(v_problems, 'setting is not a known value');
   end if;
   if (v_facts ->> 'predominant_degree') is not null
      and (v_facts ->> 'predominant_degree') not in ('certificate', 'associate', 'bachelors', 'graduate') then
-    v_problems := array_append(v_problems, ('predominant_degree is not a known value')::text);
+    v_problems := array_append(v_problems, 'predominant_degree is not a known value');
   end if;
-  if (v_facts -> 'latitude') is not null and jsonb_typeof(v_facts -> 'latitude') <> 'null'
-     and (jsonb_typeof(v_facts -> 'latitude') <> 'number' or (v_facts ->> 'latitude')::numeric not between -90 and 90) then
-    v_problems := array_append(v_problems, ('latitude is out of range')::text);
+  if not private.json_number_ok(v_facts -> 'latitude', -90, 90, false) then
+    v_problems := array_append(v_problems, 'latitude is out of range');
   end if;
-  if (v_facts -> 'longitude') is not null and jsonb_typeof(v_facts -> 'longitude') <> 'null'
-     and (jsonb_typeof(v_facts -> 'longitude') <> 'number' or (v_facts ->> 'longitude')::numeric not between -180 and 180) then
-    v_problems := array_append(v_problems, ('longitude is out of range')::text);
+  if not private.json_number_ok(v_facts -> 'longitude', -180, 180, false) then
+    v_problems := array_append(v_problems, 'longitude is out of range');
   end if;
-  v_enrollment := v_facts -> 'undergraduate_enrollment';
-  if v_enrollment is not null and jsonb_typeof(v_enrollment) <> 'null' then
-    if jsonb_typeof(v_enrollment) <> 'object' or coalesce(v_enrollment ->> 'term', '') !~ '^Fall [0-9]{4}$'
-       or jsonb_typeof(v_enrollment -> 'value') <> 'number' or (v_enrollment ->> 'value')::numeric < 0
-       or (v_enrollment ->> 'value')::numeric <> trunc((v_enrollment ->> 'value')::numeric) then
-      v_problems := array_append(v_problems, ('undergraduate_enrollment needs a fall term and a whole number')::text);
+  v_enrollment := nullif(v_facts -> 'undergraduate_enrollment', 'null'::jsonb);
+  if v_enrollment is not null then
+    if jsonb_typeof(v_enrollment) <> 'object'
+       or not private.json_text_ok(v_enrollment -> 'term', 9, 9, false) or (v_enrollment ->> 'term') !~ '^Fall [0-9]{4}$'
+       or not private.json_number_ok(v_enrollment -> 'value', 0, 2000000, true, false)
+       or not private.json_number_ok(v_enrollment -> 'scorecard_year', 1990, 2100, true, false) then
+      v_problems := array_append(v_problems, 'undergraduate_enrollment needs a fall term, a data year and a whole number');
     end if;
   end if;
 
   -- baseball
-  if jsonb_typeof(v_base) is distinct from 'object' then
-    return array_append(v_problems, ('baseball program is missing')::text);
+  if coalesce(jsonb_typeof(v_base), '') <> 'object' then
+    return array_append(v_problems, 'baseball program is missing');
   end if;
   if (v_base ->> 'season') is distinct from p_job.season then
-    v_problems := array_append(v_problems, (('baseball season must be ' || p_job.season))::text);
+    v_problems := array_append(v_problems, 'baseball season must be ' || p_job.season);
   end if;
   if not exists (select 1 from public.athletic_divisions d
                   where d.code = v_base ->> 'division' and d.association_code = v_base ->> 'association') then
-    v_problems := array_append(v_problems, ('association and division are not a known pair')::text);
+    v_problems := array_append(v_problems, 'association and division are not a known pair');
   end if;
-  if jsonb_typeof(v_base -> 'participants') is distinct from 'number' or (v_base ->> 'participants')::numeric < 1
-     or (v_base ->> 'participants')::numeric <> trunc((v_base ->> 'participants')::numeric) then
-    v_problems := array_append(v_problems, ('participants must be a whole number of at least 1')::text);
+  if not private.json_number_ok(v_base -> 'participants', 1, 1000, true, false) then
+    v_problems := array_append(v_problems, 'participants must be a whole number from 1 to 1,000');
   end if;
-  if length(v_base ->> 'classification_name') > 100 or length(v_base ->> 'classification_other') > 100 then
-    v_problems := array_append(v_problems, ('classification text is too long')::text);
+  if not private.json_text_ok(v_base -> 'classification_name', 1, 100) or not private.json_text_ok(v_base -> 'classification_other', 1, 100) then
+    v_problems := array_append(v_problems, 'classification text must be at most 100 characters');
   end if;
-  if (v_base -> 'classification_code') is not null and jsonb_typeof(v_base -> 'classification_code') not in ('number', 'null') then
-    v_problems := array_append(v_problems, ('classification_code must be a number')::text);
+  if not private.json_number_ok(v_base -> 'classification_code', 0, 999, true) then
+    v_problems := array_append(v_problems, 'classification_code must be a whole number');
   end if;
 
   -- admissions
-  if v_adm is not null and jsonb_typeof(v_adm) <> 'null' then
+  if v_adm is not null then
     if jsonb_typeof(v_adm) <> 'object' then
-      v_problems := array_append(v_problems, ('admissions must be an object')::text);
+      v_problems := array_append(v_problems, 'admissions must be an object');
     else
-      if (v_adm ->> 'term') is distinct from p_job.admissions_term then
-        v_problems := array_append(v_problems, (('admissions term must be ' || coalesce(p_job.admissions_term, 'absent')))::text);
+      if p_job.admissions_term is null or (v_adm ->> 'term') is distinct from p_job.admissions_term then
+        v_problems := array_append(v_problems, 'admissions term must be ' || coalesce(p_job.admissions_term, 'absent for this import'));
       end if;
-      if (v_adm ->> 'admission_rate') is not null and (jsonb_typeof(v_adm -> 'admission_rate') <> 'number'
-          or (v_adm ->> 'admission_rate')::numeric not between 0 and 1) then
-        v_problems := array_append(v_problems, ('admission_rate must be between 0 and 1')::text);
+      if not private.json_number_ok(v_adm -> 'scorecard_year', 1990, 2100, true, false) then
+        v_problems := array_append(v_problems, 'admissions need their data year');
+      end if;
+      if not private.json_number_ok(v_adm -> 'admission_rate', 0, 1, false) then
+        v_problems := array_append(v_problems, 'admission_rate must be between 0 and 1');
       end if;
       if (v_adm ->> 'test_policy') is not null and (v_adm ->> 'test_policy') <> all (enum_range(null::public.test_policy)::text[]) then
-        v_problems := array_append(v_problems, ('test_policy is not a known value')::text);
+        v_problems := array_append(v_problems, 'test_policy is not a known value');
       end if;
       foreach v_key in array array['sat_erw_25', 'sat_erw_75', 'sat_math_25', 'sat_math_75'] loop
-        if (v_adm ->> v_key) is not null and (jsonb_typeof(v_adm -> v_key) <> 'number' or (v_adm ->> v_key)::numeric not between 200 and 800) then
-          v_problems := array_append(v_problems, ((v_key || ' must be 200–800'))::text);
+        if not private.json_number_ok(v_adm -> v_key, 200, 800, true) then
+          v_problems := array_append(v_problems, v_key || ' must be a whole number from 200 to 800');
         end if;
       end loop;
       foreach v_key in array array['act_composite_25', 'act_composite_75'] loop
-        if (v_adm ->> v_key) is not null and (jsonb_typeof(v_adm -> v_key) <> 'number' or (v_adm ->> v_key)::numeric not between 1 and 36) then
-          v_problems := array_append(v_problems, ((v_key || ' must be 1–36'))::text);
+        if not private.json_number_ok(v_adm -> v_key, 1, 36, true) then
+          v_problems := array_append(v_problems, v_key || ' must be a whole number from 1 to 36');
         end if;
       end loop;
-      if ((v_adm ->> 'sat_erw_25') is null) <> ((v_adm ->> 'sat_erw_75') is null)
-         or ((v_adm ->> 'sat_math_25') is null) <> ((v_adm ->> 'sat_math_75') is null)
-         or ((v_adm ->> 'act_composite_25') is null) <> ((v_adm ->> 'act_composite_75') is null) then
-        v_problems := array_append(v_problems, ('score percentiles must come in 25th/75th pairs')::text);
-      elsif coalesce((v_adm ->> 'sat_erw_25')::numeric > (v_adm ->> 'sat_erw_75')::numeric, false)
-         or coalesce((v_adm ->> 'sat_math_25')::numeric > (v_adm ->> 'sat_math_75')::numeric, false)
-         or coalesce((v_adm ->> 'act_composite_25')::numeric > (v_adm ->> 'act_composite_75')::numeric, false) then
-        v_problems := array_append(v_problems, ('25th percentile is above the 75th')::text);
+      if cardinality(v_problems) = 0 then
+        if ((v_adm ->> 'sat_erw_25') is null) <> ((v_adm ->> 'sat_erw_75') is null)
+           or ((v_adm ->> 'sat_math_25') is null) <> ((v_adm ->> 'sat_math_75') is null)
+           or ((v_adm ->> 'act_composite_25') is null) <> ((v_adm ->> 'act_composite_75') is null) then
+          v_problems := array_append(v_problems, 'score percentiles must come in 25th/75th pairs');
+        elsif coalesce((v_adm ->> 'sat_erw_25')::numeric > (v_adm ->> 'sat_erw_75')::numeric, false)
+           or coalesce((v_adm ->> 'sat_math_25')::numeric > (v_adm ->> 'sat_math_75')::numeric, false)
+           or coalesce((v_adm ->> 'act_composite_25')::numeric > (v_adm ->> 'act_composite_75')::numeric, false) then
+          v_problems := array_append(v_problems, '25th percentile is above the 75th');
+        end if;
       end if;
     end if;
   end if;
 
   -- costs
-  if v_cost is not null and jsonb_typeof(v_cost) <> 'null' then
+  if v_cost is not null then
     if jsonb_typeof(v_cost) <> 'object' then
-      v_problems := array_append(v_problems, ('costs must be an object')::text);
+      v_problems := array_append(v_problems, 'costs must be an object');
     else
-      if (v_cost ->> 'academic_year') is distinct from p_job.cost_year then
-        v_problems := array_append(v_problems, (('cost year must be ' || coalesce(p_job.cost_year, 'absent')))::text);
+      if p_job.cost_year is null or (v_cost ->> 'academic_year') is distinct from p_job.cost_year then
+        v_problems := array_append(v_problems, 'cost year must be ' || coalesce(p_job.cost_year, 'absent for this import'));
+      end if;
+      if not private.json_number_ok(v_cost -> 'scorecard_year', 1990, 2100, true, false) then
+        v_problems := array_append(v_problems, 'costs need their data year');
       end if;
       foreach v_key in array array['cost_of_attendance', 'tuition_in_state', 'tuition_out_of_state'] loop
-        if (v_cost ->> v_key) is not null and (jsonb_typeof(v_cost -> v_key) <> 'number'
-            or (v_cost ->> v_key)::numeric not between 0 and 250000) then
-          v_problems := array_append(v_problems, ((v_key || ' must be 0–250,000'))::text);
+        if not private.json_number_ok(v_cost -> v_key, 0, 250000, true) then
+          v_problems := array_append(v_problems, v_key || ' must be a whole number from 0 to 250,000');
         end if;
       end loop;
     end if;
@@ -333,7 +383,7 @@ begin
   if not found then
     return;
   end if;
-  if v_program.status_source = 'admin' and p_season <= v_program.season then
+  if v_program.status_source = 'admin' and p_season <= coalesce(v_program.status_season, v_program.season) then
     effective := jsonb_set(effective, '{baseball,status}', to_jsonb(v_program.status));
     if v_program.status <> 'active' then
       notes := array_append(notes, format('keeps the administrator''s decision that the program is %s', v_program.status));
@@ -487,6 +537,9 @@ declare
   v_changes jsonb;
   v_counts jsonb;
 begin
+  -- Reviews and publishes take turns, so a review is computed against one
+  -- known registry version.
+  perform pg_advisory_xact_lock(hashtext('base_recruits.registry_publish'));
   select * into v_job from public.data_import_jobs where id = p_job_id for update;
   if not found then
     raise exception 'import not found' using errcode = 'BR003';
@@ -543,7 +596,10 @@ begin
     into v_counts
     from public.data_import_rows where job_id = p_job_id;
 
-  update public.data_import_jobs set status = 'staged', staged_at = clock_timestamp(), counts = v_counts where id = p_job_id;
+  update public.data_import_jobs
+     set status = 'staged', staged_at = clock_timestamp(), counts = v_counts,
+         base_publish_version = (select publish_version from private.registry_state)
+   where id = p_job_id;
   perform private.log_audit('registry.import_staged', 'data_import_job', p_job_id::text, null, v_counts);
   return v_counts;
 end;
@@ -564,7 +620,9 @@ begin
   if p_decision not in ('apply', 'skip') then
     raise exception 'decision must be apply or skip' using errcode = 'BR003';
   end if;
-  if not exists (select 1 from public.data_import_jobs where id = p_job_id and status = 'staged') then
+  -- Shares the row lock publishing takes, so a decision cannot change mid-publish.
+  perform 1 from public.data_import_jobs where id = p_job_id and status = 'staged' for share;
+  if not found then
     raise exception 'decisions can only change while an import is awaiting review' using errcode = 'BR004';
   end if;
   select change into v_change from public.data_import_rows where job_id = p_job_id and unitid = p_unitid;
@@ -622,6 +680,7 @@ declare
   v_program public.baseball_programs;
   v_enrollment jsonb := nullif(v_facts -> 'undergraduate_enrollment', 'null'::jsonb);
   v_aliases text[] := coalesce((select array_agg(distinct a #>> '{}') from jsonb_array_elements(v_facts -> 'aliases') a), '{}');
+  v_keep_admin boolean;
 begin
   select id into v_id from public.institutions where unitid = v_unitid;
   if v_id is null then
@@ -635,7 +694,7 @@ begin
             v_facts ->> 'website_url', v_facts ->> 'price_calculator_url',
             (v_facts ->> 'control')::public.institution_control, (v_facts ->> 'level')::public.institution_level,
             v_facts ->> 'predominant_degree', (v_facts ->> 'setting')::public.campus_setting,
-            (v_enrollment ->> 'value')::integer, v_enrollment ->> 'term', (v_enrollment ->> 'scorecard_year')::smallint,
+            (v_enrollment ->> 'value')::numeric::integer, v_enrollment ->> 'term', (v_enrollment ->> 'scorecard_year')::numeric::smallint,
             v_facts_source, v_facts_meta ->> 'dataset', v_facts_meta ->> 'url',
             (v_facts_meta ->> 'retrieved_at')::timestamptz, p_job.id)
     returning id into v_id;
@@ -648,8 +707,8 @@ begin
            control = (v_facts ->> 'control')::public.institution_control,
            level = (v_facts ->> 'level')::public.institution_level,
            predominant_degree = v_facts ->> 'predominant_degree', setting = (v_facts ->> 'setting')::public.campus_setting,
-           undergraduate_enrollment = (v_enrollment ->> 'value')::integer, enrollment_term = v_enrollment ->> 'term',
-           enrollment_source_year = (v_enrollment ->> 'scorecard_year')::smallint,
+           undergraduate_enrollment = (v_enrollment ->> 'value')::numeric::integer, enrollment_term = v_enrollment ->> 'term',
+           enrollment_source_year = (v_enrollment ->> 'scorecard_year')::numeric::smallint,
            facts_source_id = v_facts_source, facts_dataset = v_facts_meta ->> 'dataset',
            facts_source_url = v_facts_meta ->> 'url', facts_retrieved_at = (v_facts_meta ->> 'retrieved_at')::timestamptz,
            import_job_id = p_job.id
@@ -665,28 +724,31 @@ begin
 
   -- Program
   select * into v_program from public.baseball_programs where institution_id = v_id;
+  v_keep_admin := found and v_program.status_source = 'admin'
+                  and p_job.season <= coalesce(v_program.status_season, v_program.season);
   if not found then
     insert into public.baseball_programs (institution_id, status, season, association_code, division_code,
                                           classification_code, classification_label, classification_other,
                                           reported_participants, verification, verified_at, source_id, source_dataset,
                                           source_url, source_retrieved_at, import_job_id)
     values (v_id, 'active', v_base ->> 'season', v_base ->> 'association', v_base ->> 'division',
-            (v_base ->> 'classification_code')::smallint, v_base ->> 'classification_name', v_base ->> 'classification_other',
-            (v_base ->> 'participants')::integer, 'federal_report', (v_eada ->> 'retrieved_at')::timestamptz,
+            (v_base ->> 'classification_code')::numeric::smallint, v_base ->> 'classification_name', v_base ->> 'classification_other',
+            (v_base ->> 'participants')::numeric::integer, 'federal_report', (v_eada ->> 'retrieved_at')::timestamptz,
             'eada', v_eada ->> 'dataset', v_eada ->> 'url', (v_eada ->> 'retrieved_at')::timestamptz, p_job.id);
   else
     update public.baseball_programs p
-       set status = case when p.status_source = 'admin' and p_job.season <= p.season then p.status else 'active' end,
-           status_source = case when p.status_source = 'admin' and p_job.season <= p.season then 'admin' else 'import' end,
-           status_note = case when p.status_source = 'admin' and p_job.season <= p.season then p.status_note end,
+       set status = case when v_keep_admin then p.status else 'active' end,
+           status_source = case when v_keep_admin then 'admin' else 'import' end,
+           status_note = case when v_keep_admin then p.status_note end,
+           status_season = case when v_keep_admin then p.status_season end,
            season = v_base ->> 'season',
            association_code = case when p.verification = 'federal_report' then v_base ->> 'association' else p.association_code end,
            division_code = case when p.verification = 'federal_report' then v_base ->> 'division' else p.division_code end,
            verified_at = case when p.verification = 'federal_report' then (v_eada ->> 'retrieved_at')::timestamptz else p.verified_at end,
-           classification_code = (v_base ->> 'classification_code')::smallint,
+           classification_code = (v_base ->> 'classification_code')::numeric::smallint,
            classification_label = v_base ->> 'classification_name',
            classification_other = v_base ->> 'classification_other',
-           reported_participants = (v_base ->> 'participants')::integer,
+           reported_participants = (v_base ->> 'participants')::numeric::integer,
            source_id = 'eada', source_dataset = v_eada ->> 'dataset', source_url = v_eada ->> 'url',
            source_retrieved_at = (v_eada ->> 'retrieved_at')::timestamptz,
            import_job_id = p_job.id
@@ -700,11 +762,11 @@ begin
                                                    test_policy, source_id, source_dataset, source_url, source_year,
                                                    retrieved_at, import_job_id)
     values (v_id, v_adm ->> 'term', (v_adm ->> 'admission_rate')::numeric,
-            (v_adm ->> 'sat_erw_25')::smallint, (v_adm ->> 'sat_erw_75')::smallint,
-            (v_adm ->> 'sat_math_25')::smallint, (v_adm ->> 'sat_math_75')::smallint,
-            (v_adm ->> 'act_composite_25')::smallint, (v_adm ->> 'act_composite_75')::smallint,
+            (v_adm ->> 'sat_erw_25')::numeric::smallint, (v_adm ->> 'sat_erw_75')::numeric::smallint,
+            (v_adm ->> 'sat_math_25')::numeric::smallint, (v_adm ->> 'sat_math_75')::numeric::smallint,
+            (v_adm ->> 'act_composite_25')::numeric::smallint, (v_adm ->> 'act_composite_75')::numeric::smallint,
             (v_adm ->> 'test_policy')::public.test_policy, 'college_scorecard', v_scorecard ->> 'dataset',
-            v_scorecard ->> 'url', (v_adm ->> 'scorecard_year')::smallint,
+            v_scorecard ->> 'url', (v_adm ->> 'scorecard_year')::numeric::smallint,
             (v_scorecard ->> 'retrieved_at')::timestamptz, p_job.id)
     on conflict (institution_id, source_id, term) do update
       set admission_rate = excluded.admission_rate, sat_erw_25 = excluded.sat_erw_25, sat_erw_75 = excluded.sat_erw_75,
@@ -722,9 +784,9 @@ begin
     insert into public.institution_costs (institution_id, academic_year, cost_of_attendance, tuition_in_state,
                                           tuition_out_of_state, source_id, source_dataset, source_url, source_year,
                                           retrieved_at, import_job_id)
-    values (v_id, v_cost ->> 'academic_year', (v_cost ->> 'cost_of_attendance')::integer,
-            (v_cost ->> 'tuition_in_state')::integer, (v_cost ->> 'tuition_out_of_state')::integer,
-            'college_scorecard', v_scorecard ->> 'dataset', v_scorecard ->> 'url', (v_cost ->> 'scorecard_year')::smallint,
+    values (v_id, v_cost ->> 'academic_year', (v_cost ->> 'cost_of_attendance')::numeric::integer,
+            (v_cost ->> 'tuition_in_state')::numeric::integer, (v_cost ->> 'tuition_out_of_state')::numeric::integer,
+            'college_scorecard', v_scorecard ->> 'dataset', v_scorecard ->> 'url', (v_cost ->> 'scorecard_year')::numeric::smallint,
             (v_scorecard ->> 'retrieved_at')::timestamptz, p_job.id)
     on conflict (institution_id, source_id, academic_year) do update
       set cost_of_attendance = excluded.cost_of_attendance, tuition_in_state = excluded.tuition_in_state,
@@ -768,10 +830,11 @@ begin
   if length(p_note) > 2000 then
     raise exception 'note is too long (2000 characters max)' using errcode = 'BR003';
   end if;
-  if exists (select 1 from public.data_import_jobs j where j.status = 'published' and j.published_at > v_job.staged_at) then
+  if v_job.base_publish_version is distinct from (select publish_version from private.registry_state) then
     raise exception 'the registry changed after this import was reviewed; stage it again to see current changes'
       using errcode = 'BR004';
   end if;
+  update private.registry_state set publish_version = publish_version + 1;
 
   perform private.set_registry_context(p_job_id, coalesce(p_note, 'import published'));
 
@@ -848,10 +911,14 @@ begin
   if not found then
     raise exception 'import not found' using errcode = 'BR003';
   end if;
-  if v_job.status not in ('published', 'discarded') then
-    raise exception 'only a published or discarded import can be staged again' using errcode = 'BR004';
+  if v_job.status not in ('published', 'discarded') or v_job.staged_at is null then
+    raise exception 'only an import that was fully staged and reviewed can be staged again' using errcode = 'BR004';
   end if;
   select count(*) into v_rows from public.data_import_rows where job_id = p_job_id and record is not null;
+  if v_rows <> v_job.expected_rows then
+    raise exception 'this import is incomplete (% of % records) and cannot be staged again', v_rows, v_job.expected_rows
+      using errcode = 'BR004';
+  end if;
 
   insert into public.data_import_jobs (snapshot_name, snapshot_sha256, content_sha256, snapshot_format, generated_at,
                                        sources, season, admissions_term, cost_year, expected_rows, staged_rows,
@@ -943,6 +1010,7 @@ begin
      set status = p_status,
          status_source = case when p_status is distinct from v_program.status then 'admin' else p.status_source end,
          status_note = case when p_status is distinct from v_program.status then v_note else p.status_note end,
+         status_season = case when p_status is distinct from v_program.status then p.season else p.status_season end,
          association_code = p_association_code, division_code = p_division_code,
          conference = v_conference,
          athletics_url = nullif(btrim(p_athletics_url), ''), roster_url = nullif(btrim(p_roster_url), ''),

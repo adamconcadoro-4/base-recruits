@@ -1,8 +1,9 @@
 'use client';
 
-import { useActionState } from 'react';
+import { startTransition, useActionState, type FormEvent } from 'react';
 
 import { setListingAction, updateProgramAction } from '@/app/(app)/admin/schools/actions';
+import { Button } from '@/components/ui/button';
 import { SelectField, TextAreaField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { SubmitButton } from '@/components/ui/submit-button';
@@ -29,10 +30,17 @@ export function ProgramForm({
   readonly values: ProgramFormValues;
   readonly divisions: readonly { readonly code: string; readonly association: string; readonly name: string }[];
 }) {
-  const [state, action] = useActionState<ActionState, FormData>(updateProgramAction, IDLE);
+  const [state, action, pending] = useActionState<ActionState, FormData>(updateProgramAction, IDLE);
   const errors = state.fieldErrors ?? {};
+  // Submitted through a transition rather than the form action, so a refused
+  // change keeps everything the administrator typed (form actions reset fields).
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    startTransition(() => action(data));
+  }
   return (
-    <form action={action} className="grid gap-5 lg:grid-cols-2" noValidate aria-label="Correct the baseball program">
+    <form action={action} onSubmit={submit} className="grid gap-5 lg:grid-cols-2" noValidate aria-label="Correct the baseball program">
       <input type="hidden" name="institutionId" value={values.institutionId} />
       <input type="hidden" name="slug" value={values.slug} />
       <SelectField id="p-status" name="status" label="Status" defaultValue={values.status} error={errors.status}>
@@ -81,7 +89,9 @@ export function ProgramForm({
             {state.message}
           </Notice>
         ) : null}
-        <SubmitButton pendingLabel="Saving…">Save program</SubmitButton>
+        <Button type="submit" disabled={pending} aria-disabled={pending}>
+          {pending ? 'Saving…' : 'Save program'}
+        </Button>
       </div>
     </form>
   );

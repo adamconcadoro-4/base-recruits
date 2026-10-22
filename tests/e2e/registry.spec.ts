@@ -14,6 +14,17 @@ import { createAccount, logIn, yearsAgo } from './support';
 const ADMIN = process.env.E2E_ADMIN_EMAIL ?? 'e2e-admin@example.test';
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
+/** Waits for the Decide section to report the publish, and fails with whatever it shows instead. */
+async function expectPublished(page: Page, text: RegExp): Promise<void> {
+  const decide = page.getByRole('region', { name: 'Decide' });
+  try {
+    await expect(decide).toContainText(text, { timeout: 45_000 });
+  } catch {
+    const shown = (await decide.innerText().catch(() => '(no Decide section)')).replace(/\s+/g, ' ');
+    throw new Error(`Publishing did not report success. The section shows: ${shown.slice(0, 600)}`);
+  }
+}
+
 async function violations(page: Page): Promise<string[]> {
   const results = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   return results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`);
@@ -146,7 +157,7 @@ test.describe('administrator', () => {
     await expect(page.getByText('Confirm that you reviewed the changes.')).toBeVisible();
     await page.getByLabel('I reviewed the new, changed and missing records above.').check();
     await page.getByRole('button', { name: 'Publish to the public registry' }).click();
-    await expect(page.getByText('Published. 0 records applied, 0 marked not reported, 0 skipped.')).toBeVisible();
+    await expectPublished(page, /Published [A-Z][a-z]{2} \d{1,2}, \d{4}: 0 records applied, 0 marked not reported, 0 skipped\./);
   });
 
   test('correct a program against an official page, then republish without losing it', async ({ page }) => {
@@ -185,7 +196,7 @@ test.describe('administrator', () => {
     await expect(page.getByRole('link', { name: /^Unchanged: 1,670$/ })).toBeVisible();
     await page.getByLabel('I reviewed the new, changed and missing records above.').check();
     await page.getByRole('button', { name: 'Publish to the public registry' }).click();
-    await expect(page.getByText(/^Published\./)).toBeVisible();
+    await expectPublished(page, /Published [A-Z][a-z]{2} \d{1,2}, \d{4}: 0 records applied/);
     await page.goto('/schools/johns-hopkins-university-md');
     await expect(page.getByRole('region', { name: 'Baseball program' }).getByText('NCAA Division III', { exact: true })).toBeVisible();
   });

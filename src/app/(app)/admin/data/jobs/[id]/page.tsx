@@ -28,6 +28,7 @@ interface Job {
   readonly counts: Record<string, unknown>;
   readonly sources: readonly { id: string; dataset: string; retrieved_at: string; sha256?: string }[];
   readonly created_at: string;
+  readonly staged_at: string | null;
   readonly published_at: string | null;
   readonly publish_note: string | null;
   readonly restaged_from: string | null;
@@ -41,6 +42,11 @@ interface Row {
   readonly problems: string[];
   readonly source_issues: { code: string; detail: string }[];
   readonly decision: 'apply' | 'skip';
+}
+
+function publishedSummary(counts: Record<string, unknown>): string {
+  const p = (counts.published ?? {}) as { applied?: number; marked_not_reported?: number; skipped?: number };
+  return `${formatCount(p.applied ?? 0)} records applied, ${formatCount(p.marked_not_reported ?? 0)} marked not reported, ${formatCount(p.skipped ?? 0)} skipped.`;
 }
 
 function show(value: unknown): string {
@@ -63,7 +69,7 @@ export default async function ImportJobPage({
   const supabase = await createClient();
   const { data: jobData } = await supabase
     .from('data_import_jobs')
-    .select('id, snapshot_name, snapshot_sha256, season, admissions_term, cost_year, status, counts, sources, created_at, published_at, publish_note, restaged_from')
+    .select('id, snapshot_name, snapshot_sha256, season, admissions_term, cost_year, status, counts, sources, created_at, staged_at, published_at, publish_note, restaged_from')
     .eq('id', id)
     .maybeSingle();
   if (!jobData) notFound();
@@ -236,12 +242,13 @@ export default async function ImportJobPage({
             <div className="space-y-4">
               <p>
                 {job.status === 'published'
-                  ? `Published ${formatRetrieved(job.published_at)}${job.publish_note ? `: “${job.publish_note}”` : '.'}`
+                  ? `Published ${formatRetrieved(job.published_at)}: ${publishedSummary(job.counts)}${job.publish_note ? ` Note: “${job.publish_note}”` : ''}`
                   : 'This import was discarded; nothing from it was published.'}{' '}
-                Staging it again compares its records with the registry as it is now, so it can be republished (for
-                example, to roll back a later import).
+                {job.staged_at
+                  ? 'Staging it again compares its records with the registry as it is now, so it can be republished (for example, to roll back a later import).'
+                  : 'It was discarded before staging finished, so it cannot be staged again; stage the snapshot instead.'}
               </p>
-              <JobButton jobId={job.id} kind="restage" />
+              {job.staged_at ? <JobButton jobId={job.id} kind="restage" /> : null}
             </div>
           )}
         </DashboardSection>

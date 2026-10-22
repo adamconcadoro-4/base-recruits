@@ -150,6 +150,15 @@ class ScorecardTests(unittest.TestCase):
         self.assertIsNone(result["admissions"]["sat_math_75"])
         self.assertEqual(sorted(code for code, _ in issues), ["inconsistent_scores", "unmapped_test_policy"])
 
+    def test_one_out_of_range_score_drops_its_pair(self):
+        record = copy.deepcopy(SCORECARD[199120])
+        record["2024.admissions.sat_scores.75th_percentile.math"] = 900
+        result, issues = scorecard.normalize(record, 2024, 2025, 2024)
+        self.assertIsNone(result["admissions"]["sat_math_25"])
+        self.assertIsNone(result["admissions"]["sat_math_75"])
+        self.assertIsNotNone(result["admissions"]["sat_erw_25"])
+        self.assertEqual(sorted(code for code, _ in issues), ["inconsistent_scores", "score_out_of_range"])
+
     def test_fetches_in_batches_of_one_hundred(self):
         calls = []
 

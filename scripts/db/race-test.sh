@@ -75,19 +75,6 @@ values ('race_capability_x', 'premium', 'registered', 'Race test X.'),
        ('race_capability_y', 'premium', 'registered', 'Race test Y.');
 SQL
 
-# Registry: one published import, then two reviews of it waiting to be published.
-local_psql "${BR_TEST_DB}" >/dev/null <<'SQL'
-begin;
-select tests.authenticate_as('adm1');
-select tests.remember_job('base', tests.create_job(13));
-select public.admin_stage_import_rows(tests.job('base'), tests.snapshot_rows());
-select public.admin_finalize_import_job(tests.job('base'));
-select public.admin_publish_import_job(tests.job('base'));
-select tests.remember_job('review_1', public.admin_restage_import_job(tests.job('base')));
-select tests.remember_job('review_2', public.admin_restage_import_job(tests.job('base')));
-commit;
-SQL
-
 failures=0
 scenarios=0
 
@@ -167,17 +154,53 @@ race "re-labelling a capability as core while a plan adds it cannot put core ins
   "update public.capabilities set tier = 'core_free', invariant_ref = 4 where key = 'race_capability_y';" \
   "${NO_CORE_IN_PLANS}"
 
+# Registry: two dedicated administrators (the role-removal scenario above
+# changes adm1/adm2), one published import, and two reviews of it waiting.
+local_psql "${BR_TEST_DB}" >/dev/null <<'SQL'
+select tests.create_user('reg' || g, 'parent', 'reg' || g || '@example.test', p_date_of_birth => date '1980-01-01') from generate_series(1, 2) g;
+select tests.make_admin('reg1');
+select tests.make_admin('reg2');
+begin;
+select tests.authenticate_as('reg1');
+select tests.remember_job('base', tests.create_job(13));
+select public.admin_stage_import_rows(tests.job('base'), tests.snapshot_rows());
+select public.admin_finalize_import_job(tests.job('base'));
+select public.admin_publish_import_job(tests.job('base'));
+select tests.remember_job('review_1', public.admin_restage_import_job(tests.job('base')));
+select tests.remember_job('review_2', public.admin_restage_import_job(tests.job('base')));
+commit;
+SQL
+
 race "two administrators starting imports at once leave at most one being staged" \
-  "select tests.authenticate_as('adm1'); select tests.create_job(13);" \
-  "select tests.authenticate_as('adm2'); select tests.create_job(13);" \
+  "select tests.authenticate_as('reg1'); select tests.create_job(13);" \
+  "select tests.authenticate_as('reg2'); select tests.create_job(13);" \
   "select count(*) = 1 from public.data_import_jobs where status = 'staging'"
 local_psql "${BR_TEST_DB}" -c "update public.data_import_jobs set status = 'discarded' where status = 'staging';" >/dev/null
 
 race "two reviews published at once: the second is refused as out of date" \
-  "select tests.authenticate_as('adm1'); select public.admin_publish_import_job(tests.job('review_1'));" \
-  "select tests.authenticate_as('adm2'); select public.admin_publish_import_job(tests.job('review_2'));" \
+  "select tests.authenticate_as('reg1'); select public.admin_publish_import_job(tests.job('review_1'));" \
+  "select tests.authenticate_as('reg2'); select public.admin_publish_import_job(tests.job('review_2'));" \
   "select (select status from public.data_import_jobs where id = tests.job('review_1')) = 'published'
       and (select status from public.data_import_jobs where id = tests.job('review_2')) = 'staged'"
+
+# A review computed while another import is publishing waits for it, so it is
+# computed against the published result and stays publishable.
+local_psql "${BR_TEST_DB}" >/dev/null <<'SQL'
+begin;
+select tests.authenticate_as('reg1');
+select tests.remember_job('review_3', public.admin_restage_import_job(tests.job('base')));
+select tests.remember_job('pending', tests.create_job(13));
+select public.admin_stage_import_rows(tests.job('pending'), tests.snapshot_rows());
+commit;
+SQL
+
+race "a review prepared during a publish is computed after it" \
+  "select tests.authenticate_as('reg1'); select public.admin_publish_import_job(tests.job('review_3'));" \
+  "select tests.authenticate_as('reg2'); select public.admin_finalize_import_job(tests.job('pending'));" \
+  "select (select status from public.data_import_jobs where id = tests.job('review_3')) = 'published'
+      and (select base_publish_version from public.data_import_jobs where id = tests.job('pending'))
+          = (select publish_version from private.registry_state)" \
+  b_must_succeed
 
 local_psql postgres -c "drop database if exists ${BR_TEST_DB} with (force);" >/dev/null
 

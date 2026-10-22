@@ -68,9 +68,9 @@ language sql
 stable
 set search_path = ''
 as $$
-  select left(trim(both '-' from regexp_replace(
+  select trim(both '-' from left(regexp_replace(
            lower(extensions.unaccent(replace(coalesce(p_text, ''), '&', ' and '))),
-           '[^a-z0-9]+', '-', 'g')), 90)
+           '[^a-z0-9]+', '-', 'g'), 92))
 $$;
 
 -- -----------------------------------------------------------------------------
@@ -168,6 +168,9 @@ create table public.data_import_jobs (
   staged_rows integer not null default 0,
   counts jsonb not null default '{}'::jsonb,
   restaged_from uuid references public.data_import_jobs (id),
+  -- The registry publish version this review was computed against; publishing
+  -- requires it to be current, so a review can never go stale silently.
+  base_publish_version bigint,
   created_by uuid not null,
   created_at timestamptz not null default now(),
   staged_at timestamptz,
@@ -196,6 +199,14 @@ create table public.data_import_rows (
 comment on table public.data_import_rows is
   'Snapshot rows staged for review: the normalized record, what would change, and the administrator''s apply/skip decision.';
 create index data_import_rows_change_idx on public.data_import_rows (job_id, change);
+
+-- One row: a counter that every publish increments (see admin_publish_import_job).
+create table private.registry_state (
+  singleton boolean primary key default true constraint registry_state_singleton check (singleton),
+  publish_version bigint not null default 0
+);
+insert into private.registry_state default values;
+revoke all on private.registry_state from public;
 
 -- -----------------------------------------------------------------------------
 -- Institutions
@@ -260,6 +271,10 @@ create table public.baseball_programs (
   status public.program_status not null,
   status_source text not null default 'import' constraint baseball_programs_status_source check (status_source in ('import', 'admin')),
   status_note text constraint baseball_programs_status_note check (status_note is null or length(status_note) <= 1000),
+  -- The season an administrator's status decision was made for; imports for
+  -- that season or older keep the decision, a newer season replaces it.
+  status_season text constraint baseball_programs_status_season check (status_season ~ '^[0-9]{4}-[0-9]{2}$'),
+  constraint baseball_programs_admin_status_has_season check (status_source = 'import' or status_season is not null),
   season text not null constraint baseball_programs_season check (season ~ '^[0-9]{4}-[0-9]{2}$'),
   association_code text not null,
   division_code text not null,
@@ -466,9 +481,27 @@ revoke all on public.data_sources, public.athletic_associations, public.athletic
   from anon, authenticated, service_role;
 
 grant select on public.data_sources, public.athletic_associations, public.athletic_divisions,
-                public.institutions, public.institution_aliases, public.baseball_programs,
-                public.admissions_statistics, public.institution_costs
+                public.institution_aliases
   to anon, authenticated;
+-- Registry rows are public, except who reviewed them and their internal notes
+-- and import ids (column grants; admins read those through the review screens' functions).
+grant select (id, unitid, ope8_id, slug, name, city, state, zip, latitude, longitude, website_url, price_calculator_url,
+              control, level, predominant_degree, setting, undergraduate_enrollment, enrollment_term, enrollment_source_year,
+              facts_source_id, facts_dataset, facts_source_url, facts_retrieved_at, is_listed, unlisted_reason,
+              search_text, created_at, updated_at)
+  on public.institutions to anon, authenticated;
+grant select (id, institution_id, status, status_source, status_note, status_season, season, association_code, division_code,
+              classification_code, classification_label, classification_other, reported_participants, conference,
+              athletics_url, roster_url, questionnaire_url, verification, verification_source_url, verified_at,
+              source_id, source_dataset, source_url, source_retrieved_at, created_at, updated_at)
+  on public.baseball_programs to anon, authenticated;
+grant select (id, institution_id, term, term_year, admission_rate, sat_erw_25, sat_erw_75, sat_math_25, sat_math_75,
+              act_composite_25, act_composite_75, test_policy, score_cohort, source_id, source_dataset, source_url,
+              source_year, retrieved_at, created_at, updated_at)
+  on public.admissions_statistics to anon, authenticated;
+grant select (id, institution_id, academic_year, cost_of_attendance, tuition_in_state, tuition_out_of_state, source_id,
+              source_dataset, source_url, source_year, retrieved_at, created_at, updated_at)
+  on public.institution_costs to anon, authenticated;
 grant select on public.data_import_jobs, public.data_import_rows, public.registry_revisions to authenticated;
 
 create policy data_sources_public on public.data_sources for select to anon, authenticated using (true);

@@ -8,10 +8,18 @@ select tests.ok(
 -- ---------------------------------------------------------------- table privileges
 select tests.ok(
   (select array_agg(t.tablename::text order by t.tablename) from pg_tables t
-    where t.schemaname = 'public' and has_table_privilege('anon', format('%I.%I', t.schemaname, t.tablename), 'SELECT'))
+    where t.schemaname = 'public' and has_any_column_privilege('anon', format('%I.%I', t.schemaname, t.tablename), 'SELECT'))
   = array['admissions_statistics', 'athletic_associations', 'athletic_divisions', 'baseball_programs', 'capabilities',
           'data_sources', 'institution_aliases', 'institution_costs', 'institutions', 'plan_capabilities'],
   'anonymous visitors can read only the capability catalog and the public school registry');
+select tests.ok(
+  not exists (
+    select 1 from (values ('baseball_programs', 'verified_by'), ('baseball_programs', 'verification_note'),
+                          ('baseball_programs', 'import_job_id'), ('institutions', 'import_job_id'),
+                          ('admissions_statistics', 'import_job_id'), ('institution_costs', 'import_job_id')) c(t, col),
+                  unnest(array['anon', 'authenticated']) as r(role_name)
+     where has_column_privilege(r.role_name, format('public.%I', c.t), c.col, 'SELECT')),
+  'who reviewed a program, their notes and import ids are not readable through the Data API');
 select tests.ok(
   not exists (
     select 1 from pg_tables t

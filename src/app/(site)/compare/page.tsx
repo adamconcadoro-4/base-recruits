@@ -130,8 +130,8 @@ function Links({ school }: { readonly school: SchoolRecord }): ReactNode {
   return (
     <ul className="space-y-1 text-sm">
       <li>
-        <Link href={`/schools/${school.institution.slug}`} className="font-semibold text-royal-ink underline">
-          Details and sources<span className="sr-only"> for {school.institution.name}</span>
+        <Link href={`/schools/${school.institution.slug}`} aria-label={`Details and sources for ${school.institution.name}`} className="font-semibold text-royal-ink underline">
+          Details and sources
         </Link>
       </li>
       {program?.questionnaire_url ? (
@@ -203,9 +203,10 @@ export default async function ComparePage({
                         <span className="block text-xl text-navy">{s.institution.name}</span>
                         <Link
                           href={without(slugs, s.institution.slug)}
+                          aria-label={`Remove ${s.institution.name}`}
                           className="mt-1 inline-block text-sm font-semibold text-royal-ink underline"
                         >
-                          Remove<span className="sr-only"> {s.institution.name}</span>
+                          Remove
                         </Link>
                       </th>
                     ))}
@@ -252,8 +253,8 @@ export default async function ComparePage({
               {schools.map((s) => (
                 <li key={s.institution.slug} className="border-2 border-rule p-4">
                   <h2 className="text-2xl text-navy">{s.institution.name}</h2>
-                  <Link href={without(slugs, s.institution.slug)} className="text-sm font-semibold text-royal-ink underline">
-                    Remove<span className="sr-only"> {s.institution.name}</span>
+                  <Link href={without(slugs, s.institution.slug)} aria-label={`Remove ${s.institution.name}`} className="text-sm font-semibold text-royal-ink underline">
+                    Remove
                   </Link>
                   {LINES.map((group) => (
                     <div key={group.heading} className="mt-4">
