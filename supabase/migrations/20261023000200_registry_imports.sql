@@ -159,130 +159,130 @@ declare
   v_alias jsonb;
 begin
   if jsonb_typeof(p_record -> 'unitid') <> 'number' or (p_record ->> 'unitid')::numeric <> p_unitid then
-    v_problems := v_problems || 'unitid does not match the row';
+    v_problems := array_append(v_problems, ('unitid does not match the row')::text);
   end if;
   if coalesce(p_record ->> 'institution_source', '') not in ('college_scorecard', 'eada') then
-    v_problems := v_problems || 'institution_source must be college_scorecard or eada';
+    v_problems := array_append(v_problems, ('institution_source must be college_scorecard or eada')::text);
   end if;
 
   -- facts
   if jsonb_typeof(v_facts) is distinct from 'object' then
-    return v_problems || 'facts are missing';
+    return array_append(v_problems, ('facts are missing')::text);
   end if;
   if jsonb_typeof(v_facts -> 'name') is distinct from 'string' or length(v_facts ->> 'name') not between 2 and 200 then
-    v_problems := v_problems || 'name must be 2–200 characters';
+    v_problems := array_append(v_problems, ('name must be 2–200 characters')::text);
   end if;
   if jsonb_typeof(v_facts -> 'aliases') is distinct from 'array' then
-    v_problems := v_problems || 'aliases must be a list';
+    v_problems := array_append(v_problems, ('aliases must be a list')::text);
   else
     for v_alias in select value from jsonb_array_elements(v_facts -> 'aliases') loop
       if jsonb_typeof(v_alias) <> 'string' or length(v_alias #>> '{}') not between 2 and 120 then
-        v_problems := v_problems || 'each alias must be 2–120 characters';
+        v_problems := array_append(v_problems, ('each alias must be 2–120 characters')::text);
       end if;
     end loop;
   end if;
   if (v_facts ->> 'state') is not null and (v_facts ->> 'state') !~ '^[A-Z]{2}$' then
-    v_problems := v_problems || 'state must be a two-letter code';
+    v_problems := array_append(v_problems, ('state must be a two-letter code')::text);
   end if;
   if (v_facts ->> 'zip') is not null and (v_facts ->> 'zip') !~ '^[0-9]{5}(-?[0-9]{4})?$' then
-    v_problems := v_problems || 'zip is not a U.S. ZIP code';
+    v_problems := array_append(v_problems, ('zip is not a U.S. ZIP code')::text);
   end if;
   if (v_facts ->> 'ope8_id') is not null and (v_facts ->> 'ope8_id') !~ '^[0-9]{8}$' then
-    v_problems := v_problems || 'ope8_id must be 8 digits';
+    v_problems := array_append(v_problems, ('ope8_id must be 8 digits')::text);
   end if;
   if (v_facts ->> 'city') is not null and length(v_facts ->> 'city') > 100 then
-    v_problems := v_problems || 'city is too long';
+    v_problems := array_append(v_problems, ('city is too long')::text);
   end if;
   foreach v_key in array array['website_url', 'price_calculator_url'] loop
     if not private.is_web_url(v_facts ->> v_key) then
-      v_problems := v_problems || (v_key || ' is not a web link');
+      v_problems := array_append(v_problems, ((v_key || ' is not a web link'))::text);
     end if;
   end loop;
   if (v_facts ->> 'control') is not null and (v_facts ->> 'control') <> all (enum_range(null::public.institution_control)::text[]) then
-    v_problems := v_problems || 'control is not a known value';
+    v_problems := array_append(v_problems, ('control is not a known value')::text);
   end if;
   if (v_facts ->> 'level') is not null and (v_facts ->> 'level') <> all (enum_range(null::public.institution_level)::text[]) then
-    v_problems := v_problems || 'level is not a known value';
+    v_problems := array_append(v_problems, ('level is not a known value')::text);
   end if;
   if (v_facts ->> 'setting') is not null and (v_facts ->> 'setting') <> all (enum_range(null::public.campus_setting)::text[]) then
-    v_problems := v_problems || 'setting is not a known value';
+    v_problems := array_append(v_problems, ('setting is not a known value')::text);
   end if;
   if (v_facts ->> 'predominant_degree') is not null
      and (v_facts ->> 'predominant_degree') not in ('certificate', 'associate', 'bachelors', 'graduate') then
-    v_problems := v_problems || 'predominant_degree is not a known value';
+    v_problems := array_append(v_problems, ('predominant_degree is not a known value')::text);
   end if;
   if (v_facts -> 'latitude') is not null and jsonb_typeof(v_facts -> 'latitude') <> 'null'
      and (jsonb_typeof(v_facts -> 'latitude') <> 'number' or (v_facts ->> 'latitude')::numeric not between -90 and 90) then
-    v_problems := v_problems || 'latitude is out of range';
+    v_problems := array_append(v_problems, ('latitude is out of range')::text);
   end if;
   if (v_facts -> 'longitude') is not null and jsonb_typeof(v_facts -> 'longitude') <> 'null'
      and (jsonb_typeof(v_facts -> 'longitude') <> 'number' or (v_facts ->> 'longitude')::numeric not between -180 and 180) then
-    v_problems := v_problems || 'longitude is out of range';
+    v_problems := array_append(v_problems, ('longitude is out of range')::text);
   end if;
   v_enrollment := v_facts -> 'undergraduate_enrollment';
   if v_enrollment is not null and jsonb_typeof(v_enrollment) <> 'null' then
     if jsonb_typeof(v_enrollment) <> 'object' or coalesce(v_enrollment ->> 'term', '') !~ '^Fall [0-9]{4}$'
        or jsonb_typeof(v_enrollment -> 'value') <> 'number' or (v_enrollment ->> 'value')::numeric < 0
        or (v_enrollment ->> 'value')::numeric <> trunc((v_enrollment ->> 'value')::numeric) then
-      v_problems := v_problems || 'undergraduate_enrollment needs a fall term and a whole number';
+      v_problems := array_append(v_problems, ('undergraduate_enrollment needs a fall term and a whole number')::text);
     end if;
   end if;
 
   -- baseball
   if jsonb_typeof(v_base) is distinct from 'object' then
-    return v_problems || 'baseball program is missing';
+    return array_append(v_problems, ('baseball program is missing')::text);
   end if;
   if (v_base ->> 'season') is distinct from p_job.season then
-    v_problems := v_problems || ('baseball season must be ' || p_job.season);
+    v_problems := array_append(v_problems, (('baseball season must be ' || p_job.season))::text);
   end if;
   if not exists (select 1 from public.athletic_divisions d
                   where d.code = v_base ->> 'division' and d.association_code = v_base ->> 'association') then
-    v_problems := v_problems || 'association and division are not a known pair';
+    v_problems := array_append(v_problems, ('association and division are not a known pair')::text);
   end if;
   if jsonb_typeof(v_base -> 'participants') is distinct from 'number' or (v_base ->> 'participants')::numeric < 1
      or (v_base ->> 'participants')::numeric <> trunc((v_base ->> 'participants')::numeric) then
-    v_problems := v_problems || 'participants must be a whole number of at least 1';
+    v_problems := array_append(v_problems, ('participants must be a whole number of at least 1')::text);
   end if;
   if length(v_base ->> 'classification_name') > 100 or length(v_base ->> 'classification_other') > 100 then
-    v_problems := v_problems || 'classification text is too long';
+    v_problems := array_append(v_problems, ('classification text is too long')::text);
   end if;
   if (v_base -> 'classification_code') is not null and jsonb_typeof(v_base -> 'classification_code') not in ('number', 'null') then
-    v_problems := v_problems || 'classification_code must be a number';
+    v_problems := array_append(v_problems, ('classification_code must be a number')::text);
   end if;
 
   -- admissions
   if v_adm is not null and jsonb_typeof(v_adm) <> 'null' then
     if jsonb_typeof(v_adm) <> 'object' then
-      v_problems := v_problems || 'admissions must be an object';
+      v_problems := array_append(v_problems, ('admissions must be an object')::text);
     else
       if (v_adm ->> 'term') is distinct from p_job.admissions_term then
-        v_problems := v_problems || ('admissions term must be ' || coalesce(p_job.admissions_term, 'absent'));
+        v_problems := array_append(v_problems, (('admissions term must be ' || coalesce(p_job.admissions_term, 'absent')))::text);
       end if;
       if (v_adm ->> 'admission_rate') is not null and (jsonb_typeof(v_adm -> 'admission_rate') <> 'number'
           or (v_adm ->> 'admission_rate')::numeric not between 0 and 1) then
-        v_problems := v_problems || 'admission_rate must be between 0 and 1';
+        v_problems := array_append(v_problems, ('admission_rate must be between 0 and 1')::text);
       end if;
       if (v_adm ->> 'test_policy') is not null and (v_adm ->> 'test_policy') <> all (enum_range(null::public.test_policy)::text[]) then
-        v_problems := v_problems || 'test_policy is not a known value';
+        v_problems := array_append(v_problems, ('test_policy is not a known value')::text);
       end if;
       foreach v_key in array array['sat_erw_25', 'sat_erw_75', 'sat_math_25', 'sat_math_75'] loop
         if (v_adm ->> v_key) is not null and (jsonb_typeof(v_adm -> v_key) <> 'number' or (v_adm ->> v_key)::numeric not between 200 and 800) then
-          v_problems := v_problems || (v_key || ' must be 200–800');
+          v_problems := array_append(v_problems, ((v_key || ' must be 200–800'))::text);
         end if;
       end loop;
       foreach v_key in array array['act_composite_25', 'act_composite_75'] loop
         if (v_adm ->> v_key) is not null and (jsonb_typeof(v_adm -> v_key) <> 'number' or (v_adm ->> v_key)::numeric not between 1 and 36) then
-          v_problems := v_problems || (v_key || ' must be 1–36');
+          v_problems := array_append(v_problems, ((v_key || ' must be 1–36'))::text);
         end if;
       end loop;
       if ((v_adm ->> 'sat_erw_25') is null) <> ((v_adm ->> 'sat_erw_75') is null)
          or ((v_adm ->> 'sat_math_25') is null) <> ((v_adm ->> 'sat_math_75') is null)
          or ((v_adm ->> 'act_composite_25') is null) <> ((v_adm ->> 'act_composite_75') is null) then
-        v_problems := v_problems || 'score percentiles must come in 25th/75th pairs';
+        v_problems := array_append(v_problems, ('score percentiles must come in 25th/75th pairs')::text);
       elsif coalesce((v_adm ->> 'sat_erw_25')::numeric > (v_adm ->> 'sat_erw_75')::numeric, false)
          or coalesce((v_adm ->> 'sat_math_25')::numeric > (v_adm ->> 'sat_math_75')::numeric, false)
          or coalesce((v_adm ->> 'act_composite_25')::numeric > (v_adm ->> 'act_composite_75')::numeric, false) then
-        v_problems := v_problems || '25th percentile is above the 75th';
+        v_problems := array_append(v_problems, ('25th percentile is above the 75th')::text);
       end if;
     end if;
   end if;
@@ -290,15 +290,15 @@ begin
   -- costs
   if v_cost is not null and jsonb_typeof(v_cost) <> 'null' then
     if jsonb_typeof(v_cost) <> 'object' then
-      v_problems := v_problems || 'costs must be an object';
+      v_problems := array_append(v_problems, ('costs must be an object')::text);
     else
       if (v_cost ->> 'academic_year') is distinct from p_job.cost_year then
-        v_problems := v_problems || ('cost year must be ' || coalesce(p_job.cost_year, 'absent'));
+        v_problems := array_append(v_problems, (('cost year must be ' || coalesce(p_job.cost_year, 'absent')))::text);
       end if;
       foreach v_key in array array['cost_of_attendance', 'tuition_in_state', 'tuition_out_of_state'] loop
         if (v_cost ->> v_key) is not null and (jsonb_typeof(v_cost -> v_key) <> 'number'
             or (v_cost ->> v_key)::numeric not between 0 and 250000) then
-          v_problems := v_problems || (v_key || ' must be 0–250,000');
+          v_problems := array_append(v_problems, ((v_key || ' must be 0–250,000'))::text);
         end if;
       end loop;
     end if;
@@ -336,14 +336,14 @@ begin
   if v_program.status_source = 'admin' and p_season <= v_program.season then
     effective := jsonb_set(effective, '{baseball,status}', to_jsonb(v_program.status));
     if v_program.status <> 'active' then
-      notes := notes || format('keeps the administrator''s decision that the program is %s', v_program.status);
+      notes := array_append(notes, format('keeps the administrator''s decision that the program is %s', v_program.status));
     end if;
   end if;
   if v_program.verification <> 'federal_report' then
     if (effective -> 'baseball' ->> 'association') is distinct from v_program.association_code
        or (effective -> 'baseball' ->> 'division') is distinct from v_program.division_code then
-      notes := notes || format('EADA classification differs (%s); the administrator-verified division is kept — recheck it',
-                               effective -> 'baseball' ->> 'classification_name');
+      notes := array_append(notes, format('EADA classification differs (%s); the administrator-verified division is kept — recheck it',
+                               effective -> 'baseball' ->> 'classification_name'));
     end if;
     effective := jsonb_set(jsonb_set(effective, '{baseball,association}', to_jsonb(v_program.association_code)),
                         '{baseball,division}', to_jsonb(v_program.division_code));
@@ -543,7 +543,7 @@ begin
     into v_counts
     from public.data_import_rows where job_id = p_job_id;
 
-  update public.data_import_jobs set status = 'staged', staged_at = now(), counts = v_counts where id = p_job_id;
+  update public.data_import_jobs set status = 'staged', staged_at = clock_timestamp(), counts = v_counts where id = p_job_id;
   perform private.log_audit('registry.import_staged', 'data_import_job', p_job_id::text, null, v_counts);
   return v_counts;
 end;

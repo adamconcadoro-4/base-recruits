@@ -108,11 +108,11 @@ def build(api_key: str, eada_year: int | None = None, capture: set[int] | None =
             "years": candidate_years,
         }
 
-    records_json = json.dumps(out_records, sort_keys=True, separators=(",", ":")).encode()
+    out_records = plain_numbers(out_records)
     return {
         "format": FORMAT,
         "generated_at": _now(),
-        "content_sha256": hashlib.sha256(records_json).hexdigest(),
+        "content_sha256": content_sha256(out_records),
         "sources": [
             {
                 "id": "eada",
@@ -151,6 +151,24 @@ def build(api_key: str, eada_year: int | None = None, capture: set[int] | None =
         "records": out_records,
         **({"_captured": captured} if captured else {}),
     }
+
+
+def plain_numbers(value: Any) -> Any:
+    """Whole-number floats (an admission rate of 1.0) become ints, so every
+    JSON reader serializes the records identically and the checksum can be
+    verified outside Python (JavaScript has no separate float type)."""
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, list):
+        return [plain_numbers(v) for v in value]
+    if isinstance(value, dict):
+        return {k: plain_numbers(v) for k, v in value.items()}
+    return value
+
+
+def content_sha256(records: list[dict[str, Any]]) -> str:
+    """SHA-256 of the records as sorted-key, compact, ASCII-only JSON."""
+    return hashlib.sha256(json.dumps(records, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
 def dump(snapshot: dict[str, Any]) -> str:

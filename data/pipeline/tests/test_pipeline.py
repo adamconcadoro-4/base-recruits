@@ -164,6 +164,15 @@ class ScorecardTests(unittest.TestCase):
 
 
 class SnapshotFormatTests(unittest.TestCase):
+    def test_checksum_is_reproducible_outside_python(self):
+        records = build.plain_numbers([{"unitid": 1, "admissions": {"admission_rate": 1.0, "x": 0.5}, "name": "Café"}])
+        self.assertEqual(records[0]["admissions"]["admission_rate"], 1)
+        self.assertIsInstance(records[0]["admissions"]["admission_rate"], int)
+        # The same bytes JavaScript's JSON.stringify produces after sorting keys and escaping non-ASCII.
+        expected = '[{"admissions":{"admission_rate":1,"x":0.5},"name":"Caf\\u00e9","unitid":1}]'
+        import hashlib
+        self.assertEqual(build.content_sha256(records), hashlib.sha256(expected.encode()).hexdigest())
+
     def test_dump_is_valid_json_with_one_record_per_line(self):
         snapshot = {"format": build.FORMAT, "summary": {"programs": 2}, "issues": [],
                     "records": [{"unitid": 1, "b": [1]}, {"unitid": 2}]}
