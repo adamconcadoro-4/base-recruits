@@ -109,6 +109,39 @@ jobs:
           scripts/ci/run.sh "database tests on Supabase" scripts/db/test.sh | tee "${RUNNER_TEMP}/db-tests.out"
           echo "::notice title=Database security tests (real Supabase stack)::$(grep -E '^Database tests:' "${RUNNER_TEMP}/db-tests.out")"
 
+  lockfile:
+    # One-time: the build workspace cannot reach npm, so CI generates
+    # package-lock.json and commits it to the pull request branch. Skipped once
+    # the lockfile is committed; commits made with GITHUB_TOKEN do not re-trigger CI.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    name: lockfile
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Generate and commit package-lock.json if missing
+        run: |
+          if [ -f package-lock.json ]; then
+            echo "::notice title=Lockfile::package-lock.json is committed"
+            exit 0
+          fi
+          npm install --package-lock-only --no-audit --no-fund
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore: add package-lock.json generated in CI"
+          git push
+          echo "::notice title=Lockfile::committed package-lock.json ($(wc -c < package-lock.json) bytes)"
+
   app:
     # Typecheck (app, tests and config) and unit tests. Fast feedback without
     # starting Supabase.

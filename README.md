@@ -6,15 +6,16 @@ visibility, admission or opportunity.
 
 ## Status
 
-Stage 1 of 7 (foundation) — **in progress**. See `docs/reports/stage-1.md`.
+Stage 1 of 7 (project, design system, security baseline): **built and passing in CI** against a real local Supabase
+stack. See `docs/reports/stage-1.md`.
 
 | Stage 1 item | Status |
 | --- | --- |
-| Database: roles, profiles, athletes, coach verification, family links, consent, audit log, capability catalog | Done — 6 migrations |
-| Row-level security and free-access guards, through two independent security reviews | Done — 309 database assertions and 9 concurrency scenarios passing, locally and on GitHub Actions (PostgreSQL 16 and 17) |
-| Access-policy domain logic (age rules, route access, coach verification, entitlements) | Done — 52 unit tests + 5 contract tests passing |
-| Architecture and dependency plan, conventions, open decisions | Done — `docs/` |
-| Next.js app: design system, public pages, Supabase Auth flows, role dashboards, end-to-end and accessibility tests | Not started — the build environment could not reach the npm registry |
+| Database: roles, profiles, athletes, coach verification, family links, consent, audit log, capability catalog | Done, 8 migrations |
+| Row-level security and free-access guards (three independent security reviews across database and app) | 334 database assertions and 9 concurrency scenarios pass on PostgreSQL 16, 17 and the real Supabase stack |
+| Next.js app: design system, public pages, sign-up by emailed code, log in/out, password reset, role dashboards | Done |
+| End-to-end and accessibility (axe, WCAG 2.2 AA) tests at desktop and phone sizes | 103 pass in CI |
+| Hosted Supabase project | Not created yet (decision F1) |
 
 ## Requirements
 
