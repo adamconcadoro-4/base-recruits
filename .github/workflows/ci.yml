@@ -8,17 +8,77 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  database-security:
-    # Runs migrations and the database security suite on the runner's
-    # preinstalled PostgreSQL (no Docker, no secrets).
+  database:
+    # Migrations, the database security suite, the concurrency scenarios and the
+    # TypeScript/database catalog contract, on plain PostgreSQL with Supabase's
+    # roles and auth functions emulated (no Docker, no secrets). PostgreSQL 17 is
+    # the version hosted Supabase runs.
+    name: database (PostgreSQL ${{ matrix.postgres }})
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres: ['16', '17']
+    env:
+      PG_BIN: /usr/lib/postgresql/${{ matrix.postgres }}/bin
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
+      - name: Install PostgreSQL ${{ matrix.postgres }}
+        run: |
+          if [ ! -x "${PG_BIN}/pg_ctl" ]; then
+            sudo install -d /usr/share/postgresql-common/pgdg
+            sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+              https://www.postgresql.org/media/keys/ACCC4CF8.asc
+            echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+              | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq "postgresql-${{ matrix.postgres }}"
+          fi
+          "${PG_BIN}/postgres" --version
+
       - name: Database security tests
         run: scripts/db/test.sh
+
       - name: Database concurrency tests
         run: scripts/db/race-test.sh
 
-  # The application job (install, typecheck, unit, contract and end-to-end tests)
-  # is added when the Next.js app and its dependencies land.
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Install dev tools
+        run: npm install --no-audit --no-fund
+
+      - name: Contract tests (TypeScript and database catalogs agree)
+        run: npm run test:contract
+        env:
+          PSQL: /usr/lib/postgresql/${{ matrix.postgres }}/bin/psql
+
+  app:
+    # Typecheck and unit tests for the access-policy code. The Next.js build and
+    # end-to-end tests join this job when the app lands.
+    name: typecheck and unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Install dev tools
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:unit

@@ -18,5 +18,10 @@
     "test:contract": "scripts/db/local.sh reset && DATABASE_URL=\"postgresql://postgres@/base_recruits_test?host=$PWD/.local/run&port=54329\" vitest run tests/contract",
     "test": "npm run test:unit && npm run test:db && npm run test:race && npm run test:contract",
     "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "6.0.3",
+    "vitest": "5.0.0"
   }
 }

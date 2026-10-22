@@ -43,6 +43,12 @@ To run the same tests against a real Supabase database where the migrations are 
 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres scripts/db/test.sh
 ```
 
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push to `main` and on every pull request. It runs the database security suite,
+the concurrency scenarios and the catalog contract test on PostgreSQL 16 and 17 (the version hosted Supabase runs),
+plus the TypeScript typecheck and the unit tests under Vitest.
+
 ## Apply the migrations to a Supabase project
 
 Use a project dedicated to Base Recruits.
