@@ -1,0 +1,67 @@
+name: data-refresh
+
+# Builds the registry snapshot from the official sources (EADA and College
+# Scorecard) on GitHub's runners and commits it back to the data/* branch it
+# ran on, for review in a pull request. Publishing is a separate, manual step
+# an administrator takes in the app after reviewing the staged changes.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['data/**']
+    paths-ignore: ['data/snapshots/**', 'data/pipeline/tests/fixtures/source_capture.json']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-refresh-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: startsWith(github.ref, 'refs/heads/data/')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install the pipeline's one dependency
+        run: python3 -m pip install --quiet --break-system-packages openpyxl==3.1.5
+
+      - name: Build snapshot
+        env:
+          COLLEGE_SCORECARD_API_KEY: ${{ secrets.COLLEGE_SCORECARD_API_KEY }}
+        run: |
+          mkdir -p data/snapshots
+          python3 -m data.pipeline.build \
+            --out data/snapshots/registry.json \
+            --capture 100654,100706,110635,117645,166027,199120,243744 \
+            --capture-out data/pipeline/tests/fixtures/source_capture.json | tee "${RUNNER_TEMP}/summary.json"
+          season=$(python3 -c "import json;print(json.load(open('data/snapshots/registry.json'))['sources'][0]['season'])")
+          mv data/snapshots/registry.json "data/snapshots/registry-${season}.json"
+          echo "::notice title=Registry snapshot ${season}::$(python3 -c "import json;s=json.load(open('data/snapshots/registry-${season}.json'))['summary'];print(', '.join(f'{k}={v}' for k,v in s.items() if not isinstance(v, dict)))")"
+
+      - name: Pipeline unit tests (against the rows just captured)
+        # Reported, but the snapshot is still committed for review: the main CI
+        # workflow runs these tests again and blocks merging on failure.
+        continue-on-error: true
+        run: |
+          python3 -m unittest discover -s data/pipeline/tests -t . 2> "${RUNNER_TEMP}/unit.txt" && status=passed || status=failed
+          echo "::notice title=Pipeline unit tests ${status}::$(tail -n 1 "${RUNNER_TEMP}/unit.txt")"
+          if [ "$status" = failed ]; then echo "::error title=Pipeline unit tests::$(grep -E '^(FAIL|ERROR):|Error' "${RUNNER_TEMP}/unit.txt" | head -n 8 | tr '\n' ' ')"; exit 1; fi
+
+      - name: Refuse to commit the API key
+        env:
+          COLLEGE_SCORECARD_API_KEY: ${{ secrets.COLLEGE_SCORECARD_API_KEY }}
+        run: |
+          if [ -n "${COLLEGE_SCORECARD_API_KEY}" ] && grep -rqF "${COLLEGE_SCORECARD_API_KEY}" data; then
+            echo "::error::the API key appeared in the output; nothing was committed"; exit 1
+          fi
+
+      - name: Commit snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/snapshots data/pipeline/tests/fixtures/source_capture.json
+          git commit -m "data: registry snapshot from run ${GITHUB_RUN_ID}" || exit 0
+          git push
