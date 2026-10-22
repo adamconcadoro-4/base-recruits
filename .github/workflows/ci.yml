@@ -70,6 +70,55 @@ jobs:
         env:
           PSQL: /usr/lib/postgresql/${{ matrix.postgres }}/bin/psql
 
+  supabase:
+    # The real Supabase stack (Auth, Data API, PostgreSQL 17) from the Supabase
+    # CLI, with every migration applied exactly as `supabase db push` would, and
+    # the database security suite run against it (no emulation).
+    name: database on the real Supabase stack
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase with the migrations
+        run: >-
+          scripts/ci/run.sh "supabase start"
+          supabase start -x realtime,storage-api,imgproxy,studio,postgres-meta,edge-runtime,logflare,vector,supavisor
+
+      - name: Database security tests against the real stack
+        shell: bash
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          scripts/ci/run.sh "database tests on Supabase" scripts/db/test.sh | tee "${RUNNER_TEMP}/db-tests.out"
+          echo "::notice title=Database security tests (real Supabase stack)::$(grep -E '^Database tests:' "${RUNNER_TEMP}/db-tests.out")"
+
+  versions:
+    # TEMPORARY: report current npm versions so dependencies can be pinned exactly.
+    name: current package versions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Look up versions
+        shell: bash
+        run: |
+          out=""
+          for p in next react react-dom @types/react @types/react-dom @supabase/ssr @supabase/supabase-js tailwindcss @tailwindcss/postcss zod lucide-react clsx tailwind-merge class-variance-authority @playwright/test @axe-core/playwright eslint eslint-config-next @types/node vitest typescript sharp; do
+            v=$(npm view "$p" version 2>/dev/null || echo "?")
+            out="${out}${p}=${v} "
+          done
+          echo "::notice title=npm latest::${out}"
+          echo "::notice title=next peer deps::$(npm view next@16.4.1 peerDependencies --json | tr -d '\n ')"
+          echo "::notice title=supabase ssr peer deps::$(npm view @supabase/ssr peerDependencies --json | tr -d '\n ')"
+          echo "::notice title=node::$(node --version) npm $(npm --version)"
+
   app:
     # Typecheck and unit tests for the access-policy code. The Next.js build and
     # end-to-end tests join this job when the app lands.
