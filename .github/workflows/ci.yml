@@ -70,6 +70,33 @@ jobs:
         env:
           PSQL: /usr/lib/postgresql/${{ matrix.postgres }}/bin/psql
 
+  supabase:
+    # The real Supabase stack (Auth, Data API, PostgreSQL 17) from the Supabase
+    # CLI, with every migration applied exactly as `supabase db push` would, and
+    # the database security suite run against it (no emulation).
+    name: database on the real Supabase stack
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase with the migrations
+        run: >-
+          scripts/ci/run.sh "supabase start"
+          supabase start -x realtime,storage-api,imgproxy,studio,postgres-meta,edge-runtime,logflare,vector,supavisor
+
+      - name: Database security tests against the real stack
+        shell: bash
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: |
+          scripts/ci/run.sh "database tests on Supabase" scripts/db/test.sh | tee "${RUNNER_TEMP}/db-tests.out"
+          echo "::notice title=Database security tests (real Supabase stack)::$(grep -E '^Database tests:' "${RUNNER_TEMP}/db-tests.out")"
+
   app:
     # Typecheck and unit tests for the access-policy code. The Next.js build and
     # end-to-end tests join this job when the app lands.
