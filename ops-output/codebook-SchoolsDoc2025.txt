@@ -1,0 +1,254 @@
+#	 tc "Print " \f C \l 1  tc "Data Set WORK.B " \f C \l 2 Variable	Type	Len	Format	Informat.	LABEL
+1	unitid	Num	8
+	unitid
+2	OPEID	Char	8	$8.	$8.	OPE ID
+3	institution_name	Char	65	$65.	$65.	institution_name
+4	addr1_txt	Char	57	$57.	$57.	addr1_txt
+5	addr2_txt	Char	35	$35.	$35.	addr2_txt
+6	city_txt	Char	25	$25.	$25.	city_txt
+7	state_cd	Char	2	$2.	$2.	state_cd
+8	zip_text	Char	9	$9.	$9.	zip_text
+9	ClassificationCode	Num	8
+	Classification Code
+10	classification_name	Char	34	$34.	$34.	Classification Name
+11	ClassificationOther	Char	50	$50.	$50.	Other Classification
+12	EFMaleCount	Num	8
+	Total Men
+13	EFFemaleCount	Num	8
+	Total Women
+14	EFTotalCount	Num	8
+	Grand Total
+15	sector_cd	Num	8
+	Sector Code
+16	sector_name	Char	35	$35.	$35.	Sector Name
+17	SPORTSCODE	Num	8
+	SPORTSCODE
+18	PARTIC_MEN	Num	8
+	# Participants Men
+19	PARTIC_WOMEN	Num	8
+	# Participants Women
+20	PARTIC_COED_MEN	Num	8
+	# Participants Men Coed
+21	PARTIC_COED_WOMEN	Num	8
+	# Participants Women Coed
+22	SUM_PARTIC_MEN	Num	8
+	Total # Participants Men/Men Coed
+23	SUM_PARTIC_WOMEN	Num	8
+	Total # Participants Women/Women Coed
+24	OPEXPPERPART_MEN	Num	8
+	OPEXP. Per Participant/Men
+25	OPEXPPERTEAM_MEN	Num	8
+	OPEXP. Per Team/Men
+26	OPEXPPERPART_WOMEN	Num	8
+	OPEXP. Per Participant/Women
+27	OPEXPPERTEAM_WOMEN	Num	8
+	OPEXP. Per Team/Women
+28	TOTAL_OPEXP_MENWOMEN	Num	8
+	Total OPEXP. Men and Women
+29	OPEXPPERPART_COED_MEN	Num	8
+	OPEXP. Per Participant/Coed Men
+30	OPEXPPERTEAM_COED_MEN	Num	8
+	OPEXP. Per Team/Coed Men
+31	OPEXP_PART_COED_WOMEN	Num	8
+	OPEXP. Per Participant Women/Coed
+32	OPEXP_TEAM_COED_WOMEN	Num	8
+	OPEXP. Per Team Women/Coed
+33	TOTAL_OPEXP_COEDTEAM	Num	8
+	Total OPEXP. Coed Men/Coed Women
+34	SUM_OPEXPPERPART_MEN	Num	8
+	Total OPEXP. Per Participant/Men/Coed Men
+35	SUM_OPEXPPERTEAM_MEN	Num	8
+	Total OPEXP. Per Team/Men/Coed Men
+36	SUM_OPEXPPERPART_WOMEN	Num	8
+	Total OPEXP. Per Participant/Women/Coed Women
+37	SUM_OPEXPPERTEAM_WOMEN	Num	8
+	Total OPEXP. Per Team/Women/Coed Women
+38	TOTAL_OPEXP_INCLCOED	Num	8
+	Total OPEXP.Men/Women/Coed Men/Women
+39	MEN_FTHEADCOACH_MALE	Num	8
+	# Men's HD Coach/Male/Full-Time
+40	MEN_PTHEADCOACH_MALE	Num	8
+	# Men's HD Coach/Male/Part-Time
+41	MEN_FTUNIVEMPLOY_MALE	Num	8
+	# Men's HD Coach/Male/FTEmp
+42	MEN_PTUNIVEMPLOY_MALE	Num	8
+	# Men's HD Coach/Male/PTEmp
+43	MEN_FTHEADCOACH_FEM	Num	8
+	# Men's HD Coach/Female/Full-Time
+44	MEN_PTHEADCOACH_FEM	Num	8
+	# Men's HD Coach/Female/Part-Time
+45	MEN_FTUNIVEMPLOY_FEM	Num	8
+	# Men's HD Coach/Female/FTEmp
+46	MEN_PTUNIVEMPLOY_FEM	Num	8
+	# Men's HD Coach/Female/PTEmp
+47	MEN_TOTAL_HEADCOACH	Num	8
+	Total # HD Coach/Men's Team
+48	WOMEN_FTHDCOACH_MALE	Num	8
+	# Women's HD Coach/Male/Full-Time
+49	WOMEN_PTHDCOACH_MALE	Num	8
+	# Women's HD Coach/Male/Part-Time
+50	WOMEN_FTUNIVEMP_MALE	Num	8
+	# Women's HD Coach/Male/FTEmp
+51	WOMEN_PTUNIVEMP_MALE	Num	8
+	# Women's HD Coach/Male/PTEmp
+52	WOMEN_FTHDCOACH_FEM	Num	8
+	# Women's HD Coach/Female/Full-Time
+53	WOMEN_PTHDCOACH_FEM	Num	8
+	# Women's HD Coach/Female/Part-Time
+54	WOMEN_FTUNIVEMP_FEM	Num	8
+	# Women's HD Coach/Female/FTEmp
+55	WOMEN_PTUNIVEMP_FEM	Num	8
+	# Women's HD Coach/Female/PTEmp
+56	WOMEN_TOTAL_HDCOACH	Num	8
+	Total # HD Coach/Women's Team
+57	COED_FTHDCOACH_MALE	Num	8
+	# Coed HD Coach/Male/Full-Time
+58	COED_PTHDCOACH_MALE	Num	8
+	# Coed HD Coach/Male/Part-Time
+59	COED_FTUNIVEMP_MALE	Num	8
+	# Coed HD Coach/Male/FTEmp
+60	COED_PTUNIVEMP_MALE	Num	8
+	# Coed HD Coach/Male/PTEmp
+61	COED_FTHDCOACH_FEM	Num	8
+	# Coed HD Coach/Female/Full-Time
+62	COED_PTHDCOACH_FEM	Num	8
+	# Coed HD Coach/Female/Part-Time
+63	COED_FTUNIVEMP_FEM	Num	8
+	# Coed HD Coach/Female/FTEmp
+64	COED_PTUNIVEMP_FEM	Num	8
+	# Coed HD Coach/Female/PTEmp
+65	COED_TOTAL_HDCOACH	Num	8
+	Total # Coed Team HD Coaches
+66	SUM_FTHDCOACH_MALE	Num	8
+	Total # Male HD Coaches/Men/Women/Coed/Full-Time
+67	SUM_PTHDCOACH_MALE	Num	8
+	Total # Male HD Coaches/Men/Women/Coed/Part-Time
+68	SUM_FTUNIVEMP_MALE	Num	8
+	Total # Male HDCoaches/Men/Women/Coed/FTEmp
+69	SUM_PTUNIVEMP_MALE	Num	8
+	Total # Male HD Coaches/Men/Women/Coed/PTEmp
+70	SUM_FTHDCOACH_FEM	Num	8
+	Total # Female HD Coaches/Men/Women/Coed/Full-Time
+71	SUM_PTHDCOACH_FEM	Num	8
+	Total # Female HD Coaches/Men/Women/Coed/Part-Time
+72	SUM_FTUNIVEMP_FEM	Num	8
+	Total # Female HD Coaches/Men/Women/Coed/FTEmp
+73	SUM_PTUNIVEMP_FEM	Num	8
+	Total # Female HD Coaches/Men/Women/Coed/PTEmp
+74	SUM_TOTAL_HDCOACH	Num	8
+	Total # HD Coaches/Men/Women/Coed Teams
+75	MEN_FTASCOACH_MALE	Num	8
+	# Men's Assist. Coach/Male/Full-Time
+76	MEN_PTASCOACH_MALE	Num	8
+	# Men's Assist. Coach/Male/Part-Time
+77	MEN_FTACUNIVEMP_MALE	Num	8
+	# Men's Assist. Coach/Male/FTEmp
+78	MEN_PTACUNIVEMP_MALE	Num	8
+	# Men's Assist. Coach/Male/PTEmp
+79	MEN_FTASSTCOACH_FEM	Num	8
+	# Men's Assist. Coach/Female/Full-Time
+80	MEN_PTASSTCOACH_FEM	Num	8
+	# Men's Assist. Coach/Female/Part-Time
+81	MEN_FTACUNIVEMP_FEM	Num	8
+	# Men's Assist. Coach/Female/FTEmp
+82	MEN_PTACUNIVEMP_FEM	Num	8
+	# Men's Assist. Coach/Female/PTEmp
+83	MEN_TOTAL_ASSTCOACH	Num	8
+	Number of Total Assist. Coaches in Men's Team
+84	WOMEN_FTASCOACH_MALE	Num	8
+	# Women's Assist. Coach/Male/Full-Time
+85	WOMEN_PTASCOACH_MALE	Num	8
+	# Women's Assist. Coach/Male/Part-Time
+86	WOMEN_FTACUNEMP_MALE	Num	8
+	# Women's Assist. Coach/Male/FTEmp
+87	WOMEN_PTACUNEMP_MALE	Num	8
+	# Women's Assist. Coach/Male/PTEmp
+88	WOMEN_FTASTCOACH_FEM	Num	8
+	# Women's Assist. Coach/Female/Full-Time
+89	WOMEN_PTASTCOACH_FEM	Num	8
+	# Women's Assist. Coach/Female/Part-Time
+90	WOMN_FTACUNIVEMP_FEM	Num	8
+	# Women's Assist. Coach/Female/FTEmp
+91	WOMN_PTACUNIVEMP_FEM	Num	8
+	# Women's Assist. Coach/Female/PTEmp
+92	WOMEN_TOTAL_ASTCOACH	Num	8
+	Number of Total Assist. Coaches in Women's Team
+93	COED_FTASCOACH_MALE	Num	8
+	# Coed Assist. Coach/Male/Full-Time
+94	COED_PTASCOACH_MALE	Num	8
+	# Coed Assist. Coach/Male/Part-Time
+95	COED_FTACUNEMP_MALE	Num	8
+	# Coed Assist. Coach/Male/FTEmp
+96	COED_PTACUNEMP_MALE	Num	8
+	# Coed Assist. Coach/Male/PTEmp
+97	COED_FTASTCOACH_FEM	Num	8
+	# Coed Assist. Coach/Female/Full-Time
+98	COED_PTASTCOACH_FEM	Num	8
+	# Coed Assist. Coach/Female/Part-Time
+99	COED_FTACUNIVEMP_FEM	Num	8
+	# Coed Assist. Coach/Female/FTEmp
+100	COED_PTACUNIVEMP_FEM	Num	8
+	# Coed Assist. Coach/Female/PTEmp
+101	COED_TOTAL_ASTCOACH	Num	8
+	Number of Total Assist. Coaches in Coed Team
+102	SUM_FTASCOACH_MALE	Num	8
+	Total # Assist. Coach/Men/Women/Coed/Male/Full-Time
+103	SUM_PTASCOACH_MALE	Num	8
+	Total # Assist. Coach/Men/Women/Coed/Male/Part-Time
+104	SUM_FTACUNIVEMP_MALE	Num	8
+	Total # Assist. Coach/Men/Women/Coed/Male/FTEmp
+105	SUM_PTACUNIVEMP_MALE	Num	8
+	Total # Assist. Coach/Men/Women/Coed/Male/PTEmp
+106	SUM_FTASCOACH_FEM	Num	8
+	Total # Assist. Coach/Men/Women/Coed/Female/Full-Time
+107	SUM_PTASCOACH_FEM	Num	8
+	Total # Assist. Coach/Men/Women/Coed/Female/Part-Time
+108	SUM_FTACUNIVEMP_FEM	Num	8
+	Total # Assist. Coach/Men/Women/Coed/Female/FTEmp
+109	SUM_PTACUNIVEMP_FEM	Num	8
+	Total # Assist. Coach/Men/Women/Coed/Female/PTEmp
+110	SUM_TOTAL_ASSTCOACH	Num	8
+	Total # Assist. Coaches/Men/Women/Coed Teams
+111	REV_MEN	Num	8
+	Revenues per Team for Men
+112	REV_WOMEN	Num	8
+	Revenues per Team for Women
+113	TOTAL_REV_MENWOMEN	Num	8
+	Total Revenues per Team for Men and Women
+114	REV_COED_MEN	Num	8
+	Revenues per Team for Coed Men
+115	REV_COED_WOMEN	Num	8
+	Revenues per Team for Coed Women
+116	TOTAL_REV_COED	Num	8
+	Total Revenues per Team/ Coed Men/Coed Women
+117	REVENUE_MENALL	Num	8
+	Total Revenues per Team for Men's and Coed Men
+118	REVENUE_WOMENALL	Num	8
+	Total Revenues per Team for Women's and Coed Women
+119	TOTAL_REVENUE_ALL	Num	8
+	Total Revenues per Team and Total Coed Revenues
+120	EXP_MEN	Num	8
+	Expenses per Team for Men
+121	EXP_WOMEN	Num	8
+	Expenses per Team for Women
+122	TOTAL_EXP_MENWOMEN	Num	8
+	Total Expenses per Team for Men and Women
+123	EXP_COED_MEN	Num	8
+	Expenses per Team for Coed Men
+124	EXP_COED_WOMEN	Num	8
+	Expenses per Team for Coed Women
+125	TOTAL_EXP_COED	Num	8
+	Total Expenses per Team/Coed Men and Coed Women
+126	EXPENSE_MENALL	Num	8
+	Total Expenses per Team for Men's and Coed Men
+127	EXPENSE_WOMENALL	Num	8
+	Total Expenses per Team for Women's and Coed Women
+128	TOTAL_EXPENSE_ALL	Num	8
+	Sum of Expenses per Team and Total Coed Expenses
+129	Sports	Char	44	$44.	$44.	Sports code
+
+  PAGE  2 
+Equity in Athletics 2025
+
+The CONTENTS Procedure
+

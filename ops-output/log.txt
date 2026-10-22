@@ -1,0 +1,226 @@
+== EADA per-sport zip ==
+bytes 12034717 sha256 f510439ffa7625a4065690bbd8c77bd8990618ef58d5aba65ef360b8b4d31264
+x/schools.xlsx 5987909
+x/instlevel.sas7bdat 1835008
+x/schools.sav 24703287
+x/instLevel.sav 3364251
+x/SchoolsDoc2025.doc 232448
+x/schools.sas7bdat 12255232
+x/instLevel.xlsx 1511956
+x/InstlevelDataDoc2025.doc 533407
+### codebook /tmp/eada/x/InstlevelDataDoc2025.doc
+10335 ops-output/codebook-InstlevelDataDoc2025.txt
+### codebook /tmp/eada/x/SchoolsDoc2025.doc
+8189 ops-output/codebook-SchoolsDoc2025.txt
+### schools.xlsx / schools
+COLUMNS: ['unitid', 'OPEID', 'institution_name', 'addr1_txt', 'addr2_txt', 'city_txt', 'state_cd', 'zip_text', 'ClassificationCode', 'classification_name', 'ClassificationOther', 'EFMaleCount', 'EFFemaleCount', 'EFTotalCount', 'sector_cd', 'sector_name', 'SPORTSCODE', 'PARTIC_MEN', 'PARTIC_WOMEN', 'PARTIC_COED_MEN', 'PARTIC_COED_WOMEN', 'SUM_PARTIC_MEN', 'SUM_PARTIC_WOMEN', 'OPEXPPERPART_MEN', 'OPEXPPERTEAM_MEN', 'OPEXPPERPART_WOMEN', 'OPEXPPERTEAM_WOMEN', 'TOTAL_OPEXP_MENWOMEN', 'OPEXPPERPART_COED_MEN', 'OPEXPPERTEAM_COED_MEN', 'OPEXP_PART_COED_WOMEN', 'OPEXP_TEAM_COED_WOMEN', 'TOTAL_OPEXP_COEDTEAM', 'SUM_OPEXPPERPART_MEN', 'SUM_OPEXPPERTEAM_MEN', 'SUM_OPEXPPERPART_WOMEN', 'SUM_OPEXPPERTEAM_WOMEN', 'TOTAL_OPEXP_INCLCOED', 'MEN_FTHEADCOACH_MALE', 'MEN_PTHEADCOACH_MALE', 'MEN_FTUNIVEMPLOY_MALE', 'MEN_PTUNIVEMPLOY_MALE', 'MEN_FTHEADCOACH_FEM', 'MEN_PTHEADCOACH_FEM', 'MEN_FTUNIVEMPLOY_FEM', 'MEN_PTUNIVEMPLOY_FEM', 'MEN_TOTAL_HEADCOACH', 'WOMEN_FTHDCOACH_MALE', 'WOMEN_PTHDCOACH_MALE', 'WOMEN_FTUNIVEMP_MALE', 'WOMEN_PTUNIVEMP_MALE', 'WOMEN_FTHDCOACH_FEM', 'WOMEN_PTHDCOACH_FEM', 'WOMEN_FTUNIVEMP_FEM', 'WOMEN_PTUNIVEMP_FEM', 'WOMEN_TOTAL_HDCOACH', 'COED_FTHDCOACH_MALE', 'COED_PTHDCOACH_MALE', 'COED_FTUNIVEMP_MALE', 'COED_PTUNIVEMP_MALE', 'COED_FTHDCOACH_FEM', 'COED_PTHDCOACH_FEM', 'COED_FTUNIVEMP_FEM', 'COED_PTUNIVEMP_FEM', 'COED_TOTAL_HDCOACH', 'SUM_FTHDCOACH_MALE', 'SUM_PTHDCOACH_MALE', 'SUM_FTUNIVEMP_MALE', 'SUM_PTUNIVEMP_MALE', 'SUM_FTHDCOACH_FEM', 'SUM_PTHDCOACH_FEM', 'SUM_FTUNIVEMP_FEM', 'SUM_PTUNIVEMP_FEM', 'SUM_TOTAL_HDCOACH', 'MEN_FTASCOACH_MALE', 'MEN_PTASCOACH_MALE', 'MEN_FTACUNIVEMP_MALE', 'MEN_PTACUNIVEMP_MALE', 'MEN_FTASSTCOACH_FEM', 'MEN_PTASSTCOACH_FEM', 'MEN_FTACUNIVEMP_FEM', 'MEN_PTACUNIVEMP_FEM', 'MEN_TOTAL_ASSTCOACH', 'WOMEN_FTASCOACH_MALE', 'WOMEN_PTASCOACH_MALE', 'WOMEN_FTACUNEMP_MALE', 'WOMEN_PTACUNEMP_MALE', 'WOMEN_FTASTCOACH_FEM', 'WOMEN_PTASTCOACH_FEM', 'WOMN_FTACUNIVEMP_FEM', 'WOMN_PTACUNIVEMP_FEM', 'WOMEN_TOTAL_ASTCOACH', 'COED_FTASCOACH_MALE', 'COED_PTASCOACH_MALE', 'COED_FTACUNEMP_MALE', 'COED_PTACUNEMP_MALE', 'COED_FTASTCOACH_FEM', 'COED_PTASTCOACH_FEM', 'COED_FTACUNIVEMP_FEM', 'COED_PTACUNIVEMP_FEM', 'COED_TOTAL_ASTCOACH', 'SUM_FTASCOACH_MALE', 'SUM_PTASCOACH_MALE', 'SUM_FTACUNIVEMP_MALE', 'SUM_PTACUNIVEMP_MALE', 'SUM_FTASCOACH_FEM', 'SUM_PTASCOACH_FEM', 'SUM_FTACUNIVEMP_FEM', 'SUM_PTACUNIVEMP_FEM', 'SUM_TOTAL_ASSTCOACH', 'REV_MEN', 'REV_WOMEN', 'TOTAL_REV_MENWOMEN', 'REV_COED_MEN', 'REV_COED_WOMEN', 'TOTAL_REV_COED', 'REVENUE_MENALL', 'REVENUE_WOMENALL', 'TOTAL_REVENUE_ALL', 'EXP_MEN', 'EXP_WOMEN', 'TOTAL_EXP_MENWOMEN', 'EXP_COED_MEN', 'EXP_COED_WOMEN', 'TOTAL_EXP_COED', 'EXPENSE_MENALL', 'EXPENSE_WOMENALL', 'TOTAL_EXPENSE_ALL', 'Sports']
+ROWS: 18045
+SPORTS: [('Basketball', 1942), ('Volleyball', 1766), ('Soccer', 1680), ('Baseball', 1670), ('Softball', 1619), ('Golf', 1271), ('Tennis', 1040), ('Football', 876), ('Track and Field and Cross Country (combined)', 802), ('Cross Country', 771), ('Lacrosse', 594), ('Track and Field (Outdoor)', 540), ('Wrestling', 441), ('Other Sports', 432), ('Swimming and Diving (combined)', 355), ('Swimming', 317), ('Track and Field (Indoor)', 313), ('Field Hockey', 273), ('Beach Volleyball', 202), ('Bowling', 201), ('Ice Hockey', 172), ('Rowing', 145), ('Water Polo', 114), ('Gymnastics', 101), ('Rodeo', 77), ('Equestrian', 61), ('Fencing', 45), ('Rifle', 39), ('Skiing', 39), ('Squash', 34), ('Sailing', 29), ('Weight Lifting', 28), ('Archery', 24), ('Badminton', 13), ('Table Tennis', 9), ('Diving', 5), ('Synchronized Swimming', 5)]
+BASEBALL ROWS: 1670
+BASEBALL ROW: {'unitid': 100654, 'OPEID': '00100200', 'institution_name': 'Alabama A & M University', 'addr1_txt': '4900 Meridian Street', 'addr2_txt': None, 'city_txt': 'Normal', 'state_cd': 'AL', 'zip_text': '35762', 'ClassificationCode': 2, 'classification_name': 'NCAA Division I-FCS', 'ClassificationOther': None, 'EFMaleCount': 2375, 'EFFemaleCount': 3293, 'EFTotalCount': 5668, 'sector_cd': 1, 'sector_name': 'Public, 4-year or above', 'SPORTSCODE': 1, 'PARTIC_MEN': 47, 'PARTIC_WOMEN': None, 'PARTIC_COED_MEN': None, 'PARTIC_COED_WOMEN': None, 'SUM_PARTIC_MEN': 47, 'SUM_PARTIC_WOMEN': 0, 'OPEXPPERPART_MEN': 3093, 'OPEXPPERTEAM_MEN': 145352, 'OPEXPPERPART_WOMEN': 0, 'OPEXPPERTEAM_WOMEN': 0, 'TOTAL_OPEXP_MENWOMEN': 145352, 'OPEXPPERPART_COED_MEN': None, 'OPEXPPERTEAM_COED_MEN': None, 'OPEXP_PART_COED_WOMEN': None, 'OPEXP_TEAM_COED_WOMEN': None, 'TOTAL_OPEXP_COEDTEAM': None, 'SUM_OPEXPPERPART_MEN': 3093, 'SUM_OPEXPPERTEAM_MEN': 145352, 'SUM_OPEXPPERPART_WOMEN': 0, 'SUM_OPEXPPERTEAM_WOMEN': 0, 'TOTAL_OPEXP_INCLCOED': 145352, 'MEN_FTHEADCOACH_MALE': 1, 'MEN_PTHEADCOACH_MALE': None, 'MEN_FTUNIVEMPLOY_MALE': 1, 'MEN_PTUNIVEMPLOY_MALE': None, 'MEN_FTHEADCOACH_FEM': None, 'MEN_PTHEADCOACH_FEM': None, 'MEN_FTUNIVEMPLOY_FEM': None, 'MEN_PTUNIVEMPLOY_FEM': None, 'MEN_TOTAL_HEADCOACH': 1, 'WOMEN_FTHDCOACH_MALE': None, 'WOMEN_PTHDCOACH_MALE': None, 'WOMEN_FTUNIVEMP_MALE': None, 'WOMEN_PTUNIVEMP_MALE': None, 'WOMEN_FTHDCOACH_FEM': None, 'WOMEN_PTHDCOACH_FEM': None, 'WOMEN_FTUNIVEMP_FEM': None, 'WOMEN_PTUNIVEMP_FEM': None, 'WOMEN_TOTAL_HDCOACH': None, 'COED_FTHDCOACH_MALE': None, 'COED_PTHDCOACH_MALE': None, 'COED_FTUNIVEMP_MALE': None, 'COED_PTUNIVEMP_MALE': None, 'COED_FTHDCOACH_FEM': None, 'COED_PTHDCOACH_FEM': None, 'COED_FTUNIVEMP_FEM': None, 'COED_PTUNIVEMP_FEM': None, 'COED_TOTAL_HDCOACH': None, 'SUM_FTHDCOACH_MALE': 1, 'SUM_PTHDCOACH_MALE': 0, 'SUM_FTUNIVEMP_MALE': 1, 'SUM_PTUNIVEMP_MALE': 0, 'SUM_FTHDCOACH_FEM': 0, 'SUM_PTHDCOACH_FEM': 0, 'SUM_FTUNIVEMP_FEM': 0, 'SUM_PTUNIVEMP_FEM': 0, 'SUM_TOTAL_HDCOACH': 1, 'MEN_FTASCOACH_MALE': 1, 'MEN_PTASCOACH_MALE': 1, 'MEN_FTACUNIVEMP_MALE': 1, 'MEN_PTACUNIVEMP_MALE': 1, 'MEN_FTASSTCOACH_FEM': None, 'MEN_PTASSTCOACH_FEM': None, 'MEN_FTACUNIVEMP_FEM': None, 'MEN_PTACUNIVEMP_FEM': None, 'MEN_TOTAL_ASSTCOACH': 2, 'WOMEN_FTASCOACH_MALE': None, 'WOMEN_PTASCOACH_MALE': None, 'WOMEN_FTACUNEMP_MALE': None, 'WOMEN_PTACUNEMP_MALE': None, 'WOMEN_FTASTCOACH_FEM': None, 'WOMEN_PTASTCOACH_FEM': None, 'WOMN_FTACUNIVEMP_FEM': None, 'WOMN_PTACUNIVEMP_FEM': None, 'WOMEN_TOTAL_ASTCOACH': None, 'COED_FTASCOACH_MALE': None, 'COED_PTASCOACH_MALE': None, 'COED_FTACUNEMP_MALE': None, 'COED_PTACUNEMP_MALE': None, 'COED_FTASTCOACH_FEM': None, 'COED_PTASTCOACH_FEM': None, 'COED_FTACUNIVEMP_FEM': None, 'COED_PTACUNIVEMP_FEM': None, 'COED_TOTAL_ASTCOACH': None, 'SUM_FTASCOACH_MALE': 1, 'SUM_PTASCOACH_MALE': 1, 'SUM_FTACUNIVEMP_MALE': 1, 'SUM_PTACUNIVEMP_MALE': 1, 'SUM_FTASCOACH_FEM': 0, 'SUM_PTASCOACH_FEM': 0, 'SUM_FTACUNIVEMP_FEM': 0, 'SUM_PTACUNIVEMP_FEM': 0, 'SUM_TOTAL_ASSTCOACH': 2, 'REV_MEN': 370282, 'REV_WOMEN': None, 'TOTAL_REV_MENWOMEN': 370282, 'REV_COED_MEN': None, 'REV_COED_WOMEN': None, 'TOTAL_REV_COED': None, 'REVENUE_MENALL': 370282, 'REVENUE_WOMENALL': 0, 'TOTAL_REVENUE_ALL': 370282, 'EXP_MEN': 674499, 'EXP_WOMEN': None, 'TOTAL_EXP_MENWOMEN': 674499, 'EXP_COED_MEN': None, 'EXP_COED_WOMEN': None, 'TOTAL_EXP_COED': None, 'EXPENSE_MENALL': 674499, 'EXPENSE_WOMENALL': 0, 'TOTAL_EXPENSE_ALL': 674499, 'Sports': 'Baseball'}
+BASEBALL ROW: {'unitid': 100663, 'OPEID': '00105200', 'institution_name': 'University of Alabama at Birmingham', 'addr1_txt': 'Administration Bldg Suite 1070', 'addr2_txt': None, 'city_txt': 'Birmingham', 'state_cd': 'AL', 'zip_text': '352940110', 'ClassificationCode': 1, 'classification_name': 'NCAA Division I-FBS', 'ClassificationOther': None, 'EFMaleCount': 3484, 'EFFemaleCount': 6051, 'EFTotalCount': 9535, 'sector_cd': 1, 'sector_name': 'Public, 4-year or above', 'SPORTSCODE': 1, 'PARTIC_MEN': 45, 'PARTIC_WOMEN': None, 'PARTIC_COED_MEN': None, 'PARTIC_COED_WOMEN': None, 'SUM_PARTIC_MEN': 45, 'SUM_PARTIC_WOMEN': 0, 'OPEXPPERPART_MEN': 9275, 'OPEXPPERTEAM_MEN': 417357, 'OPEXPPERPART_WOMEN': 0, 'OPEXPPERTEAM_WOMEN': 0, 'TOTAL_OPEXP_MENWOMEN': 417357, 'OPEXPPERPART_COED_MEN': None, 'OPEXPPERTEAM_COED_MEN': None, 'OPEXP_PART_COED_WOMEN': None, 'OPEXP_TEAM_COED_WOMEN': None, 'TOTAL_OPEXP_COEDTEAM': None, 'SUM_OPEXPPERPART_MEN': 9275, 'SUM_OPEXPPERTEAM_MEN': 417357, 'SUM_OPEXPPERPART_WOMEN': 0, 'SUM_OPEXPPERTEAM_WOMEN': 0, 'TOTAL_OPEXP_INCLCOED': 417357, 'MEN_FTHEADCOACH_MALE': 1, 'MEN_PTHEADCOACH_MALE': None, 'MEN_FTUNIVEMPLOY_MALE': 1, 'MEN_PTUNIVEMPLOY_MALE': None, 'MEN_FTHEADCOACH_FEM': None, 'MEN_PTHEADCOACH_FEM': None, 'MEN_FTUNIVEMPLOY_FEM': None, 'MEN_PTUNIVEMPLOY_FEM': None, 'MEN_TOTAL_HEADCOACH': 1, 'WOMEN_FTHDCOACH_MALE': None, 'WOMEN_PTHDCOACH_MALE': None, 'WOMEN_FTUNIVEMP_MALE': None, 'WOMEN_PTUNIVEMP_MALE': None, 'WOMEN_FTHDCOACH_FEM': None, 'WOMEN_PTHDCOACH_FEM': None, 'WOMEN_FTUNIVEMP_FEM': None, 'WOMEN_PTUNIVEMP_FEM': None, 'WOMEN_TOTAL_HDCOACH': None, 'COED_FTHDCOACH_MALE': None, 'COED_PTHDCOACH_MALE': None, 'COED_FTUNIVEMP_MALE': None, 'COED_PTUNIVEMP_MALE': None, 'COED_FTHDCOACH_FEM': None, 'COED_PTHDCOACH_FEM': None, 'COED_FTUNIVEMP_FEM': None, 'COED_PTUNIVEMP_FEM': None, 'COED_TOTAL_HDCOACH': None, 'SUM_FTHDCOACH_MALE': 1, 'SUM_PTHDCOACH_MALE': 0, 'SUM_FTUNIVEMP_MALE': 1, 'SUM_PTUNIVEMP_MALE': 0, 'SUM_FTHDCOACH_FEM': 0, 'SUM_PTHDCOACH_FEM': 0, 'SUM_FTUNIVEMP_FEM': 0, 'SUM_PTUNIVEMP_FEM': 0, 'SUM_TOTAL_HDCOACH': 1, 'MEN_FTASCOACH_MALE': 3, 'MEN_PTASCOACH_MALE': None, 'MEN_FTACUNIVEMP_MALE': 3, 'MEN_PTACUNIVEMP_MALE': None, 'MEN_FTASSTCOACH_FEM': None, 'MEN_PTASSTCOACH_FEM': None, 'MEN_FTACUNIVEMP_FEM': None, 'MEN_PTACUNIVEMP_FEM': None, 'MEN_TOTAL_ASSTCOACH': 3, 'WOMEN_FTASCOACH_MALE': None, 'WOMEN_PTASCOACH_MALE': None, 'WOMEN_FTACUNEMP_MALE': None, 'WOMEN_PTACUNEMP_MALE': None, 'WOMEN_FTASTCOACH_FEM': None, 'WOMEN_PTASTCOACH_FEM': None, 'WOMN_FTACUNIVEMP_FEM': None, 'WOMN_PTACUNIVEMP_FEM': None, 'WOMEN_TOTAL_ASTCOACH': None, 'COED_FTASCOACH_MALE': None, 'COED_PTASCOACH_MALE': None, 'COED_FTACUNEMP_MALE': None, 'COED_PTACUNEMP_MALE': None, 'COED_FTASTCOACH_FEM': None, 'COED_PTASTCOACH_FEM': None, 'COED_FTACUNIVEMP_FEM': None, 'COED_PTACUNIVEMP_FEM': None, 'COED_TOTAL_ASTCOACH': None, 'SUM_FTASCOACH_MALE': 3, 'SUM_PTASCOACH_MALE': 0, 'SUM_FTACUNIVEMP_MALE': 3, 'SUM_PTACUNIVEMP_MALE': 0, 'SUM_FTASCOACH_FEM': 0, 'SUM_PTASCOACH_FEM': 0, 'SUM_FTACUNIVEMP_FEM': 0, 'SUM_PTACUNIVEMP_FEM': 0, 'SUM_TOTAL_ASSTCOACH': 3, 'REV_MEN': 1695128, 'REV_WOMEN': None, 'TOTAL_REV_MENWOMEN': 1695128, 'REV_COED_MEN': None, 'REV_COED_WOMEN': None, 'TOTAL_REV_COED': None, 'REVENUE_MENALL': 1695128, 'REVENUE_WOMENALL': 0, 'TOTAL_REVENUE_ALL': 1695128, 'EXP_MEN': 1612864, 'EXP_WOMEN': None, 'TOTAL_EXP_MENWOMEN': 1612864, 'EXP_COED_MEN': None, 'EXP_COED_WOMEN': None, 'TOTAL_EXP_COED': None, 'EXPENSE_MENALL': 1612864, 'EXPENSE_WOMENALL': 0, 'TOTAL_EXPENSE_ALL': 1612864, 'Sports': 'Baseball'}
+BASEBALL ROW: {'unitid': 100706, 'OPEID': '00105500', 'institution_name': 'University of Alabama in Huntsville', 'addr1_txt': '301 Sparkman Dr', 'addr2_txt': None, 'city_txt': 'Huntsville', 'state_cd': 'AL', 'zip_text': '35899', 'ClassificationCode': 5, 'classification_name': 'NCAA Division II without football', 'ClassificationOther': None, 'EFMaleCount': 3460, 'EFFemaleCount': 2210, 'EFTotalCount': 5670, 'sector_cd': 1, 'sector_name': 'Public, 4-year or above', 'SPORTSCODE': 1, 'PARTIC_MEN': 44, 'PARTIC_WOMEN': None, 'PARTIC_COED_MEN': None, 'PARTIC_COED_WOMEN': None, 'SUM_PARTIC_MEN': 44, 'SUM_PARTIC_WOMEN': 0, 'OPEXPPERPART_MEN': 4013, 'OPEXPPERTEAM_MEN': 176573, 'OPEXPPERPART_WOMEN': 0, 'OPEXPPERTEAM_WOMEN': 0, 'TOTAL_OPEXP_MENWOMEN': 176573, 'OPEXPPERPART_COED_MEN': None, 'OPEXPPERTEAM_COED_MEN': None, 'OPEXP_PART_COED_WOMEN': None, 'OPEXP_TEAM_COED_WOMEN': None, 'TOTAL_OPEXP_COEDTEAM': None, 'SUM_OPEXPPERPART_MEN': 4013, 'SUM_OPEXPPERTEAM_MEN': 176573, 'SUM_OPEXPPERPART_WOMEN': 0, 'SUM_OPEXPPERTEAM_WOMEN': 0, 'TOTAL_OPEXP_INCLCOED': 176573, 'MEN_FTHEADCOACH_MALE': 1, 'MEN_PTHEADCOACH_MALE': None, 'MEN_FTUNIVEMPLOY_MALE': 1, 'MEN_PTUNIVEMPLOY_MALE': None, 'MEN_FTHEADCOACH_FEM': None, 'MEN_PTHEADCOACH_FEM': None, 'MEN_FTUNIVEMPLOY_FEM': None, 'MEN_PTUNIVEMPLOY_FEM': None, 'MEN_TOTAL_HEADCOACH': 1, 'WOMEN_FTHDCOACH_MALE': None, 'WOMEN_PTHDCOACH_MALE': None, 'WOMEN_FTUNIVEMP_MALE': None, 'WOMEN_PTUNIVEMP_MALE': None, 'WOMEN_FTHDCOACH_FEM': None, 'WOMEN_PTHDCOACH_FEM': None, 'WOMEN_FTUNIVEMP_FEM': None, 'WOMEN_PTUNIVEMP_FEM': None, 'WOMEN_TOTAL_HDCOACH': None, 'COED_FTHDCOACH_MALE': None, 'COED_PTHDCOACH_MALE': None, 'COED_FTUNIVEMP_MALE': None, 'COED_PTUNIVEMP_MALE': None, 'COED_FTHDCOACH_FEM': None, 'COED_PTHDCOACH_FEM': None, 'COED_FTUNIVEMP_FEM': None, 'COED_PTUNIVEMP_FEM': None, 'COED_TOTAL_HDCOACH': None, 'SUM_FTHDCOACH_MALE': 1, 'SUM_PTHDCOACH_MALE': 0, 'SUM_FTUNIVEMP_MALE': 1, 'SUM_PTUNIVEMP_MALE': 0, 'SUM_FTHDCOACH_FEM': 0, 'SUM_PTHDCOACH_FEM': 0, 'SUM_FTUNIVEMP_FEM': 0, 'SUM_PTUNIVEMP_FEM': 0, 'SUM_TOTAL_HDCOACH': 1, 'MEN_FTASCOACH_MALE': 1, 'MEN_PTASCOACH_MALE': None, 'MEN_FTACUNIVEMP_MALE': 1, 'MEN_PTACUNIVEMP_MALE': None, 'MEN_FTASSTCOACH_FEM': None, 'MEN_PTASSTCOACH_FEM': None, 'MEN_FTACUNIVEMP_FEM': None, 'MEN_PTACUNIVEMP_FEM': None, 'MEN_TOTAL_ASSTCOACH': 1, 'WOMEN_FTASCOACH_MALE': None, 'WOMEN_PTASCOACH_MALE': None, 'WOMEN_FTACUNEMP_MALE': None, 'WOMEN_PTACUNEMP_MALE': None, 'WOMEN_FTASTCOACH_FEM': None, 'WOMEN_PTASTCOACH_FEM': None, 'WOMN_FTACUNIVEMP_FEM': None, 'WOMN_PTACUNIVEMP_FEM': None, 'WOMEN_TOTAL_ASTCOACH': None, 'COED_FTASCOACH_MALE': None, 'COED_PTASCOACH_MALE': None, 'COED_FTACUNEMP_MALE': None, 'COED_PTACUNEMP_MALE': None, 'COED_FTASTCOACH_FEM': None, 'COED_PTASTCOACH_FEM': None, 'COED_FTACUNIVEMP_FEM': None, 'COED_PTACUNIVEMP_FEM': None, 'COED_TOTAL_ASTCOACH': None, 'SUM_FTASCOACH_MALE': 1, 'SUM_PTASCOACH_MALE': 0, 'SUM_FTACUNIVEMP_MALE': 1, 'SUM_PTACUNIVEMP_MALE': 0, 'SUM_FTASCOACH_FEM': 0, 'SUM_PTASCOACH_FEM': 0, 'SUM_FTACUNIVEMP_FEM': 0, 'SUM_PTACUNIVEMP_FEM': 0, 'SUM_TOTAL_ASSTCOACH': 1, 'REV_MEN': 684809, 'REV_WOMEN': None, 'TOTAL_REV_MENWOMEN': 684809, 'REV_COED_MEN': None, 'REV_COED_WOMEN': None, 'TOTAL_REV_COED': None, 'REVENUE_MENALL': 684809, 'REVENUE_WOMENALL': 0, 'TOTAL_REVENUE_ALL': 684809, 'EXP_MEN': 684809, 'EXP_WOMEN': None, 'TOTAL_EXP_MENWOMEN': 684809, 'EXP_COED_MEN': None, 'EXP_COED_WOMEN': None, 'TOTAL_EXP_COED': None, 'EXPENSE_MENALL': 684809, 'EXPENSE_WOMENALL': 0, 'TOTAL_EXPENSE_ALL': 684809, 'Sports': 'Baseball'}
+BASEBALL ROW: {'unitid': 100724, 'OPEID': '00100500', 'institution_name': 'Alabama State University', 'addr1_txt': '915 S Jackson Street', 'addr2_txt': None, 'city_txt': 'Montgomery', 'state_cd': 'AL', 'zip_text': '361040271', 'ClassificationCode': 2, 'classification_name': 'NCAA Division I-FCS', 'ClassificationOther': None, 'EFMaleCount': 1177, 'EFFemaleCount': 2066, 'EFTotalCount': 3243, 'sector_cd': 1, 'sector_name': 'Public, 4-year or above', 'SPORTSCODE': 1, 'PARTIC_MEN': 35, 'PARTIC_WOMEN': None, 'PARTIC_COED_MEN': None, 'PARTIC_COED_WOMEN': None, 'SUM_PARTIC_MEN': 35, 'SUM_PARTIC_WOMEN': 0, 'OPEXPPERPART_MEN': 3675, 'OPEXPPERTEAM_MEN': 128626, 'OPEXPPERPART_WOMEN': 0, 'OPEXPPERTEAM_WOMEN': 0, 'TOTAL_OPEXP_MENWOMEN': 128626, 'OPEXPPERPART_COED_MEN': None, 'OPEXPPERTEAM_COED_MEN': None, 'OPEXP_PART_COED_WOMEN': None, 'OPEXP_TEAM_COED_WOMEN': None, 'TOTAL_OPEXP_COEDTEAM': None, 'SUM_OPEXPPERPART_MEN': 3675, 'SUM_OPEXPPERTEAM_MEN': 128626, 'SUM_OPEXPPERPART_WOMEN': 0, 'SUM_OPEXPPERTEAM_WOMEN': 0, 'TOTAL_OPEXP_INCLCOED': 128626, 'MEN_FTHEADCOACH_MALE': 1, 'MEN_PTHEADCOACH_MALE': 0, 'MEN_FTUNIVEMPLOY_MALE': 1, 'MEN_PTUNIVEMPLOY_MALE': None, 'MEN_FTHEADCOACH_FEM': 0, 'MEN_PTHEADCOACH_FEM': 0, 'MEN_FTUNIVEMPLOY_FEM': 0, 'MEN_PTUNIVEMPLOY_FEM': 0, 'MEN_TOTAL_HEADCOACH': 1, 'WOMEN_FTHDCOACH_MALE': None, 'WOMEN_PTHDCOACH_MALE': None, 'WOMEN_FTUNIVEMP_MALE': None, 'WOMEN_PTUNIVEMP_MALE': None, 'WOMEN_FTHDCOACH_FEM': None, 'WOMEN_PTHDCOACH_FEM': None, 'WOMEN_FTUNIVEMP_FEM': None, 'WOMEN_PTUNIVEMP_FEM': None, 'WOMEN_TOTAL_HDCOACH': None, 'COED_FTHDCOACH_MALE': None, 'COED_PTHDCOACH_MALE': None, 'COED_FTUNIVEMP_MALE': None, 'COED_PTUNIVEMP_MALE': None, 'COED_FTHDCOACH_FEM': None, 'COED_PTHDCOACH_FEM': None, 'COED_FTUNIVEMP_FEM': None, 'COED_PTUNIVEMP_FEM': None, 'COED_TOTAL_HDCOACH': None, 'SUM_FTHDCOACH_MALE': 1, 'SUM_PTHDCOACH_MALE': 0, 'SUM_FTUNIVEMP_MALE': 1, 'SUM_PTUNIVEMP_MALE': 0, 'SUM_FTHDCOACH_FEM': 0, 'SUM_PTHDCOACH_FEM': 0, 'SUM_FTUNIVEMP_FEM': 0, 'SUM_PTUNIVEMP_FEM': 0, 'SUM_TOTAL_HDCOACH': 1, 'MEN_FTASCOACH_MALE': 2, 'MEN_PTASCOACH_MALE': 0, 'MEN_FTACUNIVEMP_MALE': 2, 'MEN_PTACUNIVEMP_MALE': 0, 'MEN_FTASSTCOACH_FEM': 0, 'MEN_PTASSTCOACH_FEM': 0, 'MEN_FTACUNIVEMP_FEM': 0, 'MEN_PTACUNIVEMP_FEM': 0, 'MEN_TOTAL_ASSTCOACH': 2, 'WOMEN_FTASCOACH_MALE': None, 'WOMEN_PTASCOACH_MALE': None, 'WOMEN_FTACUNEMP_MALE': None, 'WOMEN_PTACUNEMP_MALE': None, 'WOMEN_FTASTCOACH_FEM': None, 'WOMEN_PTASTCOACH_FEM': None, 'WOMN_FTACUNIVEMP_FEM': None, 'WOMN_PTACUNIVEMP_FEM': None, 'WOMEN_TOTAL_ASTCOACH': None, 'COED_FTASCOACH_MALE': None, 'COED_PTASCOACH_MALE': None, 'COED_FTACUNEMP_MALE': None, 'COED_PTACUNEMP_MALE': None, 'COED_FTASTCOACH_FEM': None, 'COED_PTASTCOACH_FEM': None, 'COED_FTACUNIVEMP_FEM': None, 'COED_PTACUNIVEMP_FEM': None, 'COED_TOTAL_ASTCOACH': None, 'SUM_FTASCOACH_MALE': 2, 'SUM_PTASCOACH_MALE': 0, 'SUM_FTACUNIVEMP_MALE': 2, 'SUM_PTACUNIVEMP_MALE': 0, 'SUM_FTASCOACH_FEM': 0, 'SUM_PTASCOACH_FEM': 0, 'SUM_FTACUNIVEMP_FEM': 0, 'SUM_PTACUNIVEMP_FEM': 0, 'SUM_TOTAL_ASSTCOACH': 2, 'REV_MEN': 711717, 'REV_WOMEN': None, 'TOTAL_REV_MENWOMEN': 711717, 'REV_COED_MEN': None, 'REV_COED_WOMEN': None, 'TOTAL_REV_COED': None, 'REVENUE_MENALL': 711717, 'REVENUE_WOMENALL': 0, 'TOTAL_REVENUE_ALL': 711717, 'EXP_MEN': 711717, 'EXP_WOMEN': None, 'TOTAL_EXP_MENWOMEN': 711717, 'EXP_COED_MEN': None, 'EXP_COED_WOMEN': None, 'TOTAL_EXP_COED': None, 'EXPENSE_MENALL': 711717, 'EXPENSE_WOMENALL': 0, 'TOTAL_EXPENSE_ALL': 711717, 'Sports': 'Baseball'}
+BASEBALL CLASSIFICATIONS: [((6, 'NCAA Division III with football'), 227), ((12, 'NJCAA Division I '), 169), ((7, 'NCAA Division III without football'), 144), ((9, 'NAIA Division I '), 140), ((4, 'NCAA Division II with football'), 134), ((13, 'NJCAA Division II '), 126), ((5, 'NCAA Division II without football'), 120), ((1, 'NCAA Division I-FBS'), 114), ((2, 'NCAA Division I-FCS'), 104), ((17, 'CCCAA'), 88), ((3, 'NCAA Division I without football'), 82), ((14, 'NJCAA Division III '), 70), ((10, 'NAIA Division II '), 45), ((8, 'Other '), 37), ((20, 'USCAA'), 28), ((19, 'NWAC'), 25), ((16, 'NCCAA Division II '), 11), ((15, 'NCCAA Division I '), 5), ((18, 'Independent'), 1)]
+  PARTIC_MEN: nonzero 1670/1670 sample [47, 45, 44, 35, 49, 40]
+  PARTIC_WOMEN: nonzero 0/1670 sample [None, None, None, None, None, None]
+  PARTIC_COED_MEN: nonzero 0/1670 sample [None, None, None, None, None, None]
+  PARTIC_COED_WOMEN: nonzero 0/1670 sample [None, None, None, None, None, None]
+  SUM_PARTIC_MEN: nonzero 1670/1670 sample [47, 45, 44, 35, 49, 40]
+  SUM_PARTIC_WOMEN: nonzero 0/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_OPEXPPERPART_MEN: nonzero 1670/1670 sample [3093, 9275, 4013, 3675, 40503, 2603]
+  SUM_OPEXPPERTEAM_MEN: nonzero 1670/1670 sample [145352, 417357, 176573, 128626, 1984635, 104108]
+  SUM_OPEXPPERPART_WOMEN: nonzero 0/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_OPEXPPERTEAM_WOMEN: nonzero 0/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_FTHDCOACH_MALE: nonzero 1019/1670 sample [1, 1, 1, 1, 1, 0]
+  SUM_PTHDCOACH_MALE: nonzero 651/1670 sample [0, 0, 0, 0, 0, 1]
+  SUM_FTUNIVEMP_MALE: nonzero 1433/1670 sample [1, 1, 1, 1, 1, 1]
+  SUM_PTUNIVEMP_MALE: nonzero 239/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_FTHDCOACH_FEM: nonzero 0/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_PTHDCOACH_FEM: nonzero 0/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_FTUNIVEMP_FEM: nonzero 0/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_PTUNIVEMP_FEM: nonzero 0/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_TOTAL_HDCOACH: nonzero 1670/1670 sample [1, 1, 1, 1, 1, 1]
+  SUM_FTASCOACH_MALE: nonzero 748/1670 sample [1, 3, 1, 2, 2, 1]
+  SUM_PTASCOACH_MALE: nonzero 1350/1670 sample [1, 0, 0, 0, 0, 0]
+  SUM_FTACUNIVEMP_MALE: nonzero 940/1670 sample [1, 3, 1, 2, 2, 1]
+  SUM_PTACUNIVEMP_MALE: nonzero 1285/1670 sample [1, 0, 0, 0, 0, 0]
+  SUM_FTASCOACH_FEM: nonzero 1/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_PTASCOACH_FEM: nonzero 11/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_FTACUNIVEMP_FEM: nonzero 2/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_PTACUNIVEMP_FEM: nonzero 10/1670 sample [0, 0, 0, 0, 0, 0]
+  SUM_TOTAL_ASSTCOACH: nonzero 1645/1670 sample [2, 3, 1, 2, 2, 1]
+### instLevel.xlsx / instLevel
+COLUMNS: ['unitid', 'OPEID', 'institution_name', 'addr1_txt', 'addr2_txt', 'city_txt', 'state_cd', 'zip_text', 'ClassificationCode', 'classification_name', 'ClassificationOther', 'EFMaleCount', 'EFFemaleCount', 'EFTotalCount', 'sector_cd', 'sector_name', 'STUDENTAID_MEN', 'STUDENTAID_WOMEN', 'STUDENTAID_COED', 'STUDENTAID_TOTAL', 'STUAID_MEN_RATIO', 'STUAID_WOMEN_RATIO', 'STUAID_COED_RATIO', 'RECRUITEXP_MEN', 'RECRUITEXP_WOMEN', 'RECRUITEXP_COED', 'RECRUITEXP_TOTAL', 'HDCOACH_SALARY_MEN', 'HDCOACH_SALARY_WOMEN', 'HDCOACH_SALARY_COED', 'NUM_HDCOACH_MEN', 'NUM_HDCOACH_WOMEN', 'NUM_HDCOACH_COED', 'HDCOACH_SAL_FTE_MEN', 'HDCOACH_SAL_FTE_WOMN', 'HDCOACH_SAL_FTE_COED', 'FTE_HDCOACH_MEN', 'FTE_HDCOACH_WOMEN', 'FTE_HDCOACH_COED', 'ASCOACH_SALARY_MEN', 'ASCOACH_SALARY_WOMEN', 'ASCOACH_SALARY_COED', 'NUM_ASCOACH_MEN', 'NUM_ASCOACH_WOMEN', 'NUM_ASCOACH_COED', 'ASCOACH_SAL_FTE_MEN', 'ASCOACH_SAL_FTE_WOMN', 'ASCOACH_SAL_FTE_COED', 'FTE_ASCOACH_MEN', 'FTE_ASCOACH_WOMEN', 'FTE_ASCOACH_COED', 'IL_PARTIC_MEN', 'IL_PARTIC_WOMEN', 'IL_PARTIC_COED_MEN', 'IL_PARTIC_COED_WOMEN', 'IL_SUM_PARTIC_MEN', 'IL_SUM_PARTIC_WOMEN', 'IL_OPEXPPERPART_MEN', 'IL_OPEXPPERTEAM_MEN', 'IL_OPEXPPERPART_WOMEN', 'IL_OPEXPPERTEAM_WOMEN', 'IL_TOTAL_OPEXP_MENWOMEN', 'IL_OPEXPPERPART_COED_MEN', 'IL_OPEXPPERTEAM_COED_MEN', 'IL_OPEXP_PART_COED_WOMEN', 'IL_OPEXP_TEAM_COED_WOMEN', 'IL_TOTAL_OPEXP_COEDTEAM', 'IL_SUM_OPEXPPERPART_MEN', 'IL_SUM_OPEXPPERTEAM_MEN', 'IL_SUM_OPEXPPERPART_WOMEN', 'IL_SUM_OPEXPPERTEAM_WOMEN', 'IL_TOTAL_OPEXP_INCLCOED', 'IL_MEN_FTHEADCOACH_MALE', 'IL_MEN_PTHEADCOACH_MALE', 'IL_MEN_FTUNIVEMPLOY_MALE', 'IL_MEN_PTUNIVEMPLOY_MALE', 'IL_MEN_FTHEADCOACH_FEM', 'IL_MEN_PTHEADCOACH_FEM', 'IL_MEN_FTUNIVEMPLOY_FEM', 'IL_MEN_PTUNIVEMPLOY_FEM', 'IL_MEN_TOTAL_HEADCOACH', 'IL_WOMEN_FTHDCOACH_MALE', 'IL_WOMEN_PTHDCOACH_MALE', 'IL_WOMEN_FTUNIVEMP_MALE', 'IL_WOMEN_PTUNIVEMP_MALE', 'IL_WOMEN_FTHDCOACH_FEM', 'IL_WOMEN_PTHDCOACH_FEM', 'IL_WOMEN_FTUNIVEMP_FEM', 'IL_WOMEN_PTUNIVEMP_FEM', 'IL_WOMEN_TOTAL_HDCOACH', 'IL_COED_FTHDCOACH_MALE', 'IL_COED_PTHDCOACH_MALE', 'IL_COED_FTUNIVEMP_MALE', 'IL_COED_PTUNIVEMP_MALE', 'IL_COED_FTHDCOACH_FEM', 'IL_COED_PTHDCOACH_FEM', 'IL_COED_FTUNIVEMP_FEM', 'IL_COED_PTUNIVEMP_FEM', 'IL_COED_TOTAL_HDCOACH', 'IL_SUM_FTHDCOACH_MALE', 'IL_SUM_PTHDCOACH_MALE', 'IL_SUM_FTUNIVEMP_MALE', 'IL_SUM_PTUNIVEMP_MALE', 'IL_SUM_FTHDCOACH_FEM', 'IL_SUM_PTHDCOACH_FEM', 'IL_SUM_FTUNIVEMP_FEM', 'IL_SUM_PTUNIVEMP_FEM', 'IL_SUM_TOTAL_HDCOACH', 'IL_MEN_FTASCOACH_MALE', 'IL_MEN_PTASCOACH_MALE', 'IL_MEN_FTACUNIVEMP_MALE', 'IL_MEN_PTACUNIVEMP_MALE', 'IL_MEN_FTASSTCOACH_FEM', 'IL_MEN_PTASSTCOACH_FEM', 'IL_MEN_FTACUNIVEMP_FEM', 'IL_MEN_PTACUNIVEMP_FEM', 'IL_MEN_TOTAL_ASSTCOACH', 'IL_WOMEN_FTASCOACH_MALE', 'IL_WOMEN_PTASCOACH_MALE', 'IL_WOMEN_FTACUNEMP_MALE', 'IL_WOMEN_PTACUNEMP_MALE', 'IL_WOMEN_FTASTCOACH_FEM', 'IL_WOMEN_PTASTCOACH_FEM', 'IL_WOMN_FTACUNIVEMP_FEM', 'IL_WOMN_PTACUNIVEMP_FEM', 'IL_WOMEN_TOTAL_ASTCOACH', 'IL_COED_FTASCOACH_MALE', 'IL_COED_PTASCOACH_MALE', 'IL_COED_FTACUNEMP_MALE', 'IL_COED_PTACUNEMP_MALE', 'IL_COED_FTASTCOACH_FEM', 'IL_COED_PTASTCOACH_FEM', 'IL_COED_FTACUNIVEMP_FEM', 'IL_COED_PTACUNIVEMP_FEM', 'IL_COED_TOTAL_ASTCOACH', 'IL_SUM_FTASCOACH_MALE', 'IL_SUM_PTASCOACH_MALE', 'IL_SUM_FTACUNIVEMP_MALE', 'IL_SUM_PTACUNIVEMP_MALE', 'IL_SUM_FTASCOACH_FEM', 'IL_SUM_PTASCOACH_FEM', 'IL_SUM_FTACUNIVEMP_FEM', 'IL_SUM_PTACUNIVEMP_FEM', 'IL_SUM_TOTAL_ASSTCOACH', 'IL_REV_MEN', 'IL_REV_WOMEN', 'IL_TOTAL_REV_MENWOMEN', 'IL_REV_COED_MEN', 'IL_REV_COED_WOMEN', 'IL_TOTAL_REV_COED', 'IL_REVENUE_MENALL', 'IL_REVENUE_WOMENALL', 'IL_TOTAL_REVENUE_ALL', 'IL_EXP_MEN', 'IL_EXP_WOMEN', 'IL_TOTAL_EXP_MENWOMEN', 'IL_EXP_COED_MEN', 'IL_EXP_COED_WOMEN', 'IL_TOTAL_EXP_COED', 'IL_EXPENSE_MENALL', 'IL_EXPENSE_WOMENALL', 'IL_TOTAL_EXPENSE_ALL', 'UNDUP_CT_PARTIC_MEN', 'UNDUP_CT_PARTIC_WOMEN', 'TOT_REVENUE_ALL_NOTALLOC', 'TOT_EXPENSE_ALL_NOTALLOC', 'GRND_TOTAL_REVENUE', 'GRND_TOTAL_EXPENSE']
+ROWS: 2037
+ALL CLASSIFICATIONS: [((1, 'NCAA Division I-FBS'), 128), ((2, 'NCAA Division I-FCS'), 131), ((3, 'NCAA Division I without football'), 99), ((4, 'NCAA Division II with football'), 156), ((5, 'NCAA Division II without football'), 138), ((6, 'NCAA Division III with football'), 235), ((7, 'NCAA Division III without football'), 169), ((8, 'Other '), 62), ((9, 'NAIA Division I '), 166), ((10, 'NAIA Division II '), 59), ((12, 'NJCAA Division I '), 206), ((13, 'NJCAA Division II '), 157), ((14, 'NJCAA Division III '), 92), ((15, 'NCCAA Division I '), 9), ((16, 'NCCAA Division II '), 29), ((17, 'CCCAA'), 113), ((18, 'Independent'), 9), ((19, 'NWAC'), 32), ((20, 'USCAA'), 47)]
+### ops-output/codebook-InstlevelDataDoc2025.txt
+8:#VariableTypeLenFormatInormat.LABEL1unitidNum8unitid2OPEIDChar8$8.$8.OPE ID3institution_nameChar65$65.$65.institution_name4addr1_txtChar57$57.$57.addr1_txt5addr2_txtChar35$35.$35.addr2_txt6city_txtChar25$25.$25.city_txt7state_cdChar2$2.$2.state_cd8zip_textChar9$9.$9.zip_text9ClassificationCodeNum8Classification Code10classification_nameChar34$34.$34.Classification Name11ClassificationOtherChar50$50.$50.Other Classification12EFMaleCountNum8Total Men13EFFemaleCountNum8Total Women14EFTotalCountNum8Grand Total15sector_cdNum8Sector Code16sector_nameChar35$35.$35.Sector Name17STUDENTAID_MENNum8Athletic Student Aid/Men's Team18STUDENTAID_WOMENNum8Athletic Student Aid/Women's Team19STUDENTAID_COEDNum8Athletic Student Aid/Coed Team20STUDENTAID_TOTALNum8Total Student Aid/ Men's/Women's/Coed Team21STUAID_MEN_RATIONum8Ratio Athletic Student Aid/Men's Team22STUAID_WOMEN_RATIONum8Ratio Athletic Student Aid/Women's Team23STUAID_COED_RATIONum8Ratio Athletic Student Aid/Coed Team24RECRUITEXP_MENNum8Recruiting Expenses for Men's Team25RECRUITEXP_WOMENNum8Recruiting Expenses for Women's Team26RECRUITEXP_COEDNum8Recruiting Expenses for Coed Team27RECRUITEXP_TOTALNum8Total Recruiting Exp./Men and Women's Team28HDCOACH_SALARY_MENNum8Annual salary per HD Coach/Men's29HDCOACH_SALARY_WOMENNum8Annual Salary per HD Coach/Women's30HDCOACH_SALARY_COEDNum8Annual Salary per HD Coach/Coed31NUM_HDCOACH_MENNum8# HD Coaches Men's Team32NUM_HDCOACH_WOMENNum8# HD Coaches Women's Team33NUM_HDCOACH_COEDNum8# HD Coaches Coed Team34HDCOACH_SAL_FTE_MENNum8Ave. salary per FTE HD Coach/ Men's35HDCOACH_SAL_FTE_WOMNNum8Ave. salary per FTE HD Coach/ Women's36HDCOACH_SAL_FTE_COEDNum8Ave. salary per FTE HD Coach/Coed37FTE_HDCOACH_MENNum8# FTE HD Coach/Men's Team38FTE_HDCOACH_WOMENNum8# FTE HD Coach/Women's Team39FTE_HDCOACH_COEDNum8# FTE HD Coach/Coed Team40ASCOACH_SALARY_MENNum8Annual Salary/Assist. Coach/Men's41ASCOACH_SALARY_WOMENNum8Annual Salary/Assist. Coach/Women's42ASCOACH_SALARY_COEDNum8Annual Salary/Assist. Coach/Coed43NUM_ASCOACH_MENNum8# Assist. Coach/Men's44NUM_ASCOACH_WOMENNum8# Assist. Coach/Women's45NUM_ASCOACH_COEDNum8# Assist. Coach/Coed46ASCOACH_SAL_FTE_MENNum8Ave. salary per FTE/Men's47ASCOACH_SAL_FTE_WOMNNum8Ave. salary per FTE/Women's48ASCOACH_SAL_FTE_COEDNum8Ave. salary per FTE/Coed49FTE_ASCOACH_MENNum8# FTEs Assist. Coach/Men's50FTE_ASCOACH_WOMENNum8# FTEs Assist. Coach/Women's51FTE_ASCOACH_COEDNum8# FTEs Assist. Coach/Coed52IL_PARTIC_MENNum8Total # Participants Men53IL_PARTIC_WOMENNum8Total # Participants Women54IL_PARTIC_COED_MENNum8Total # Participants Men Coed55IL_PARTIC_COED_WOMENNum8Total # Participants Women Coed56IL_SUM_PARTIC_MENNum8Total # Participants Men/Men Coed57IL_SUM_PARTIC_WOMENNum8Total # Participants Women/Women Coed58IL_OPEXPPERPART_MENNum8Total Exp. Per Participant/Men59IL_OPEXPPERTEAM_MENNum8Total Exp. Per Team/Men60IL_OPEXPPERPART_WOMENNum8Total Exp. Per Participant/Women61IL_OPEXPPERTEAM_WOMENNum8Total Exp. Per Team/Women62IL_TOTAL_OPEXP_MENWOMENNum8Total Exp. Men and Women63IL_OPEXPPERPART_COED_MENNum8Total Exp. Per Participant/Coed Men64IL_OPEXPPERTEAM_COED_MENNum8Total Exp. Per Team/Coed Men65IL_OPEXP_PART_COED_WOMENNum8Total Exp. Per Participant Women/Coed66IL_OPEXP_TEAM_COED_WOMENNum8Total Exp. Per Team Women/Coed67IL_TOTAL_OPEXP_COEDTEAMNum8Total Exp. Coed Men/Coed Women68IL_SUM_OPEXPPERPART_MENNum8Total Exp. Per Participant/Men/Coed Men69IL_SUM_OPEXPPERTEAM_MENNum8Total Exp. Per Team/Men/Coed Men70IL_SUM_OPEXPPERPART_WOMENNum8Total Exp. Per Participant/Women/Coed Women71IL_SUM_OPEXPPERTEAM_WOMENNum8Total Exp. Per Team/Women/Coed Women72IL_TOTAL_OPEXP_INCLCOEDNum8Total Exp. Men/Women/Coed Men/Women73IL_MEN_FTHEADCOACH_MALENum8Total # Men's HD Coach/Male/Full-Time74IL_MEN_PTHEADCOACH_MALENum8Total # Men's HD Coach/Male/Part-Time75IL_MEN_FTUNIVEMPLOY_MALENum8Total # Men's HD Coach/Male/FTEmp76IL_MEN_PTUNIVEMPLOY_MALENum8Total # Men's HD Coach/Male/PTEmp77IL_MEN_FTHEADCOACH_FEMNum8Total # Men's HD Coach/Female/Full-Time78IL_MEN_PTHEADCOACH_FEMNum8Total # Men's HD Coach/Female/Part-Time79IL_MEN_FTUNIVEMPLOY_FEMNum8Total # Men's HD Coach/Female/FTEmp80IL_MEN_PTUNIVEMPLOY_FEMNum8Total # Men's HD Coach/Female/PTEmp81IL_MEN_TOTAL_HEADCOACHNum8Total # HD Coach/Men's Team82IL_WOMEN_FTHDCOACH_MALENum8Total # Women's HD Coach/Male/Full-Time83IL_WOMEN_PTHDCOACH_MALENum8Total # Women's HD Coach/Male/Part-Time84IL_WOMEN_FTUNIVEMP_MALENum8Total # Women's HD Coach/Male/FTEmp85IL_WOMEN_PTUNIVEMP_MALENum8Total # Women's HD Coach/Male/PTEmp86IL_WOMEN_FTHDCOACH_FEMNum8Total # Women's HD Coach/Female/Full-Time87IL_WOMEN_PTHDCOACH_FEMNum8Total # Women's HDCoach/Female/Part-Time88IL_WOMEN_FTUNIVEMP_FEMNum8Total # Women's HDCoach/Female/FTEmp89IL_WOMEN_PTUNIVEMP_FEMNum8Total # Women's HD Coach/Female/PTEmp90IL_WOMEN_TOTAL_HDCOACHNum8Total # HDCoach/Women's Team91IL_COED_FTHDCOACH_MALENum8Total # Coed HD Coach//Male/Full-Time92IL_COED_PTHDCOACH_MALENum8Total # Coed HD Coach/Male/Part-Time93IL_COED_FTUNIVEMP_MALENum8Total # Coed HD Coach/Male/FTEmp94IL_COED_PTUNIVEMP_MALENum8Total # Coed HD Coach/Male/PTEmp95IL_COED_FTHDCOACH_FEMNum8Total # Coed HD Coach/Female/Full-Time96IL_COED_PTHDCOACH_FEMNum8Total # Coed HD Coach/Female/Part-Time97IL_COED_FTUNIVEMP_FEMNum8Total # Coed HD Coach/Female/FTEmp98IL_COED_PTUNIVEMP_FEMNum8Total # Coed HD Coach/Female/PTEmp99IL_COED_TOTAL_HDCOACHNum8Total # Coed Team HD Coaches100IL_SUM_FTHDCOACH_MALENum8Total # Male HD Coaches/Men/Women/Coed/Full-Time101IL_SUM_PTHDCOACH_MALENum8Total # Male HD Coaches/Men/Women/Coed/Part-Time102IL_SUM_FTUNIVEMP_MALENum8Total # Male HD Coaches/Men/Women/Coed/FTEmp103IL_SUM_PTUNIVEMP_MALENum8Total # Male HD Coaches/Men/Women/Coed/PTEmp104IL_SUM_FTHDCOACH_FEMNum8Total # Female HD Coaches/Men/Women/Coed/Full-Time105IL_SUM_PTHDCOACH_FEMNum8Total # Female HD Coaches/Men/Women/Coed/Part-Time106IL_SUM_FTUNIVEMP_FEMNum8Total # Female HD Coaches/Men/Women/Coed/FTEmp107IL_SUM_PTUNIVEMP_FEMNum8Total # Female HD Coaches/Men/Women/Coed/PTEmp108IL_SUM_TOTAL_HDCOACHNum8Total # HD Coaches/Men/Women/Coed Teams109IL_MEN_FTASCOACH_MALENum8Total # Men's Assist. Coach/Male/Full-Time110IL_MEN_PTASCOACH_MALENum8Total # Men's Assist. Coach/Male/Part-Time111IL_MEN_FTACUNIVEMP_MALENum8Total # Men's Assist. Coach/Male/FTEmp112IL_MEN_PTACUNIVEMP_MALENum8Total # Men's Assist. Coach/Male/PTEmp113IL_MEN_FTASSTCOACH_FEMNum8Total # Men's Assist. Coach/Female/Full-Time114IL_MEN_PTASSTCOACH_FEMNum8Total # Men's Assist. Coach/Female/Part-Time115IL_MEN_FTACUNIVEMP_FEMNum8Total # Men's Assist. Coach/Female/FTEmp116IL_MEN_PTACUNIVEMP_FEMNum8Total # Men's Assist. Coach/Female/PTEmp117IL_MEN_TOTAL_ASSTCOACHNum8Total Number of Total Assist. Coaches in Men's Team118IL_WOMEN_FTASCOACH_MALENum8Total # Women's Assist. Coach/Male/Full-Time119IL_WOMEN_PTASCOACH_MALENum8Total # Women's Assist. Coach/Male/Part-Time120IL_WOMEN_FTACUNEMP_MALENum8Total # Women's Assist. Coach/Male/FTEmp121IL_WOMEN_PTACUNEMP_MALENum8Total # Women's Assist. Coach/Male/PTEmp122IL_WOMEN_FTASTCOACH_FEMNum8Total # Women's Assist. Coach/Female/Full-Time123IL_WOMEN_PTASTCOACH_FEMNum8Total # Women's Assist. Coach/Female/Part-Time124IL_WOMN_FTACUNIVEMP_FEMNum8Total # Women's Assist. Coach/Female/FTEmp125IL_WOMN_PTACUNIVEMP_FEMNum8Total # Women's Assist. Coach Female/PTEmp126IL_WOMEN_TOTAL_ASTCOACHNum8Total Number of Total Assist. Coaches in Women's Team127IL_COED_FTASCOACH_MALENum8Total # Coed Assist. Coach/Male/Full-Time128IL_COED_PTASCOACH_MALENum8Total # Coed Assist. Coach/Male/Part-Time129IL_COED_FTACUNEMP_MALENum8Total # Coed Assist. Coach/Male/FTEmp130IL_COED_PTACUNEMP_MALENum8Total # Coed Assist. Coach/Male/PTEmp131IL_COED_FTASTCOACH_FEMNum8Total # Coed Assist. Coach/Female/Full-Time132IL_COED_PTASTCOACH_FEMNum8Total # Coed Assist. Coach/Female/Part-Time133IL_COED_FTACUNIVEMP_FEMNum8Total # Coed Assist. Coach/Female/FTEmp134IL_COED_PTACUNIVEMP_FEMNum8Total # Coed Assist. Coach/Female/PTEmp135IL_COED_TOTAL_ASTCOACHNum8Total # of Total Assist. Coaches in Coed Team136IL_SUM_FTASCOACH_MALENum8Total # Assist. Coach/Men/Women/Coed/Male/Full-Time137IL_SUM_PTASCOACH_MALENum8Total # Assist. Coach/Men/Women/Coed/Male/Part-Time138IL_SUM_FTACUNIVEMP_MALENum8Total # Assist. Coach/Men/Women/Coed/Male/FTEmp139IL_SUM_PTACUNIVEMP_MALENum8Total # Assist. Coach/Men/Women/Coed/Male/PTEmp140IL_SUM_FTASCOACH_FEMNum8Total # Assist. Coach/Men/Women/Coed/Female/Full-Time141IL_SUM_PTASCOACH_FEMNum8Total # Assist. Coach/Men/Women/Coed/Female/Part-Time142IL_SUM_FTACUNIVEMP_FEMNum8Total # Assist. Coach/Men/Women/Coed/Female/FTEmp143IL_SUM_PTACUNIVEMP_FEMNum8Total # Assist. Coach/Men/Women/Coed/Female/PTEmp144IL_SUM_TOTAL_ASSTCOACHNum8Total # Assist. Coaches/Men/Women/Coed Teams145IL_REV_MENNum8Total Revenues per Team for Men146IL_REV_WOMENNum8Total Revenues per Team for Women147IL_TOTAL_REV_MENWOMENNum8Total Revenues per Team for Men and Women148IL_REV_COED_MENNum8Total Revenues per Team for Coed Men149IL_REV_COED_WOMENNum8Total Revenues per Team for Coed Women150IL_TOTAL_REV_COEDNum8Total Revenues per Team/ Coed Men/Coed Women151IL_REVENUE_MENALLNum8Total Revenues per Team for Men's and Coed Men152IL_REVENUE_WOMENALLNum8Total Revenues per Team for Women's and Coed Women153IL_TOTAL_REVENUE_ALLNum8Total Revenues per Team and Total Coed Revenues154IL_EXP_MENNum8Total Expenses per Team for Men155IL_EXP_WOMENNum8Total Expenses per Team for Women156IL_TOTAL_EXP_MENWOMENNum8Total Expenses per Team for Men and Women157IL_EXP_COED_MENNum8Total Expenses per Team for Coed Men158IL_EXP_COED_WOMENNum8Total Expenses per Team for Coed Women159IL_TOTAL_EXP_COEDNum8Total Expenses per Team/Coed Men and Coed Women160IL_EXPENSE_MENALLNum8Total Expenses per Team for Men's and Coed Men161IL_EXPENSE_WOMENALLNum8Total Expenses per Team for Women's and Coed Women162IL_TOTAL_EXPENSE_ALLNum8Total Sum of Expenses per Team and Total Coed Expenses163UNDUP_CT_PARTIC_MENNum8Unduplicated Counts of Participants in Men's Team and Men's Coed Team164UNDUP_CT_PARTIC_WOMENNum8Unduplicated Counts of Participants in Women's Team and Women's Coed Team.165TOT_REVENUE_ALL_NOTALLOCNum8Total Revenues Not Allocated by Sex/Sport166TOT_EXPENSE_ALL_NOTALLOCNum8Total Expenses Not Allocated by Sex/Sport167GRND_TOTAL_REVENUENum8Grand Total Revenues168GRND_TOTAL_EXPENSENum8Grand Total Expenses
+### ops-output/codebook-SchoolsDoc2025.txt
+2:1	unitid	Num	8
+3:	unitid
+11:9	ClassificationCode	Num	8
+12:	Classification Code
+13:10	classification_name	Char	34	$34.	$34.	Classification Name
+14:11	ClassificationOther	Char	50	$50.	$50.	Other Classification
+26:18	PARTIC_MEN	Num	8
+27:	# Participants Men
+28:19	PARTIC_WOMEN	Num	8
+29:	# Participants Women
+30:20	PARTIC_COED_MEN	Num	8
+31:	# Participants Men Coed
+32:21	PARTIC_COED_WOMEN	Num	8
+33:	# Participants Women Coed
+34:22	SUM_PARTIC_MEN	Num	8
+35:	Total # Participants Men/Men Coed
+36:23	SUM_PARTIC_WOMEN	Num	8
+37:	Total # Participants Women/Women Coed
+39:	OPEXP. Per Participant/Men
+43:	OPEXP. Per Participant/Women
+49:	OPEXP. Per Participant/Coed Men
+53:	OPEXP. Per Participant Women/Coed
+59:	Total OPEXP. Per Participant/Men/Coed Men
+63:	Total OPEXP. Per Participant/Women/Coed Women
+== Scorecard documentation ==
+https://collegescorecard.ed.gov/files/CollegeScorecardDataDictionary.xlsx -> 403 919
+https://collegescorecard.ed.gov/files/InstitutionDataDocumentation.pdf -> 403 919
+https://collegescorecard.ed.gov/data/documentation/ -> 403 919
+cannot open dictionary: [Errno 2] No such file or directory: '/tmp/CollegeScorecardDataDictionary.xlsx'
+== Scorecard latest vs year keys ==
+{
+    "metadata": {
+        "page": 0,
+        "total": 4,
+        "per_page": 20
+    },
+    "results": [
+        {
+            "2023.admissions.admission_rate.overall": 0.6622,
+            "2023.cost.avg_net_price.overall": 14559,
+            "2023.student.size": 5726,
+            "2024.admissions.admission_rate.overall": 0.5795,
+            "2024.cost.attendance.academic_year": 27153,
+            "2024.cost.avg_net_price.overall": 17621,
+            "2024.student.size": 6124,
+            "2025.cost.attendance.academic_year": 27732,
+            "latest.admissions.admission_rate.overall": 0.5795,
+            "latest.cost.attendance.academic_year": 27732,
+            "latest.cost.avg_net_price.overall": 18255,
+            "latest.student.size": 6124,
+            "latest.admissions.sat_scores.25th_percentile.critical_reading": 420,
+            "latest.admissions.sat_scores.75th_percentile.math": 510,
+            "latest.admissions.act_scores.75th_percentile.cumulative": 19,
+            "latest.admissions.test_requirements": 5,
+            "latest.cost.tuition.in_state": 10558,
+            "latest.cost.tuition.out_of_state": 19318,
+            "latest.cost.attendance.program_year": null,
+            "school.name": "Alabama A & M University",
+            "school.alias": "AAMU",
+            "school.school_url": "www.aamu.edu/",
+            "school.price_calculator_url": "www.aamu.edu/admissions-aid/tuition-fees/net-price-calculator.html",
+            "school.locale": 12,
+            "school.ownership": 1,
+            "school.institutional_characteristics.level": 1,
+            "school.degrees_awarded.predominant": 3,
+            "id": 100654,
+            "location.lat": 34.783368,
+            "location.lon": -86.568502
+        },
+        {
+            "2023.admissions.admission_rate.overall": 0.1166,
+            "2023.cost.avg_net_price.overall": 14979,
+            "2023.student.size": 33073,
+            "2024.admissions.admission_rate.overall": 0.1098,
+            "2024.cost.attendance.academic_year": 45619,
+            "2024.cost.avg_net_price.overall": 13481,
+            "2024.student.size": 33068,
+            "2025.cost.attendance.academic_year": 47842,
+            "latest.admissions.admission_rate.overall": 0.1098,
+            "latest.cost.attendance.academic_year": 47842,
+            "latest.cost.avg_net_price.overall": 14538,
+            "latest.student.size": 33068,
+            "latest.admissions.sat_scores.25th_percentile.critical_reading": null,
+            "latest.admissions.sat_scores.75th_percentile.math": null,
+            "latest.admissions.act_scores.75th_percentile.cumulative": null,
+            "latest.admissions.test_requirements": 3,
+            "latest.cost.tuition.in_state": 17198,
+            "latest.cost.tuition.out_of_state": 54800,
+            "latest.cost.attendance.program_year": null,
+            "school.name": "University of California-Berkeley",
+            "school.alias": "UC Berkeley",
+            "school.school_url": "www.berkeley.edu/",
+            "school.price_calculator_url": "https://financialaid.berkeley.edu/how-aid-works/estimate-your-financial-aid/",
+            "school.locale": 12,
+            "school.ownership": 1,
+            "school.institutional_characteristics.level": 1,
+            "school.degrees_awarded.predominant": 3,
+            "id": 110635,
+            "location.lat": 37.871918,
+            "location.lon": -122.260463
+        },
+        {
+            "2023.admissions.admission_rate.overall": null,
+            "2023.cost.avg_net_price.overall": 5001,
+            "2023.student.size": 21899,
+            "2024.admissions.admission_rate.overall": null,
+            "2024.cost.attendance.academic_year": 14503,
+            "2024.cost.avg_net_price.overall": 6202,
+            "2024.student.size": 22427,
+            "2025.cost.attendance.academic_year": 11020,
+            "latest.admissions.admission_rate.overall": null,
+            "latest.cost.attendance.academic_year": 11020,
+            "latest.cost.avg_net_price.overall": 1192,
+            "latest.student.size": 22427,
+            "latest.admissions.sat_scores.25th_percentile.critical_reading": null,
+            "latest.admissions.sat_scores.75th_percentile.math": null,
+            "latest.admissions.act_scores.75th_percentile.cumulative": null,
+            "latest.admissions.test_requirements": null,
+            "latest.cost.tuition.in_state": 1560,
+            "latest.cost.tuition.out_of_state": 13336,
+            "latest.cost.attendance.program_year": null,
+            "school.name": "Long Beach City College",
+            "school.alias": null,
+            "school.school_url": "www.lbcc.edu/",
+            "school.price_calculator_url": "https://npc.cccco.edu/841/npcalc.htm",
+            "school.locale": 11,
+            "school.ownership": 1,
+            "school.institutional_characteristics.level": 2,
+            "school.degrees_awarded.predominant": 1,
+            "id": 117645,
+            "location.lat": 33.833593,
+            "location.lon": -118.135633
+        },
+        {
+            "2023.admissions.admission_rate.overall": 0.0391,
+            "2023.cost.avg_net_price.overall": 12136,
+            "2023.student.size": 7841,
+            "2024.admissions.admission_rate.overall": 0.0361,
+            "2024.cost.attendance.academic_year": 87833,
+            "2024.cost.avg_net_price.overall": 13807,
+            "2024.student.size": 7554,
+            "2025.cost.attendance.academic_year": 92892,
+            "latest.admissions.admission_rate.overall": 0.0361,
+            "latest.cost.attendance.academic_year": 92892,
+            "latest.cost.avg_net_price.overall": 12307,
+            "latest.student.size": 7554,
+            "latest.admissions.sat_scores.25th_percentile.critical_reading": 740,
+            "latest.admissions.sat_scores.75th_percentile.math": 800,
+            "latest.admissions.act_scores.75th_percentile.cumulative": 35,
+            "latest.admissions.test_requirements": 5,
+            "latest.cost.tuition.in_state": 68544,
+            "latest.cost.tuition.out_of_state": 68544,
+            "latest.cost.attendance.program_year": null,
+            "school.name": "Stanford University",
+            "school.alias": null,
+            "school.school_url": "www.stanford.edu/",
+            "school.price_calculator_url": "financialaid.stanford.edu/undergrad/how/calculator/index.html?tab=net-price-calculator",
+            "school.locale": 21,
+            "school.ownership": 2,
+            "school.institutional_characteristics.level": 1,
+            "school.degrees_awarded.predominant": 3,
+            "id": 243744,
+            "location.lat": 37.429434,
+            "location.lon": -122.167359
+        }
+    ]
+}
