@@ -77,14 +77,14 @@ flowchart TD
 
 Each stage stops at its exit gate with a report (`docs/reports/`). External dependencies that block a gate:
 
-| Gate | Needs from outside engineering | Owner (to confirm) |
+| Gate | Needs from outside engineering | Owner |
 | --- | --- | --- |
-| Stage 1 | npm registry access in the build environment; a Supabase project for Base Recruits (dev) | Founder |
-| Stage 2 | College Scorecard API key (api.data.gov); review of NCAA / NAIA / NJCAA directory terms before automated import; a named data steward who approves imports | Founder + counsel |
-| Stage 3 | Usability test participants (five-school shortlist in ~3 minutes target) | Founder |
-| Stage 4 | Coach-verification reviewer(s) and turnaround standard; legal review of messaging with minors and recruiting-contact rules | Founder + counsel |
-| Stage 6 | Stripe account; pricing decision; terms of sale | Founder |
-| Stage 7 | Data-sharing agreements for applicant outcomes; privacy thresholds sign-off | Founder + counsel |
+| Stage 1 | npm registry access in the build environment; a Supabase project for Base Recruits (dev) | Founder / Jonathan Caceres |
+| Stage 2 | College Scorecard API key (api.data.gov); review of NCAA / NAIA / NJCAA directory terms before automated import; a named data steward who approves imports | Founder / Jonathan Caceres + counsel |
+| Stage 3 | Usability test participants (five-school shortlist in ~3 minutes target) | Founder / Jonathan Caceres |
+| Stage 4 | Coach-verification reviewer(s) and turnaround standard; legal review of messaging with minors and recruiting-contact rules | Founder / Jonathan Caceres + counsel |
+| Stage 6 | Stripe account; pricing decision; terms of sale | Founder / Jonathan Caceres |
+| Stage 7 | Data-sharing agreements for applicant outcomes; privacy thresholds sign-off | Founder / Jonathan Caceres + counsel |
 | Production | FERPA / COPPA / state student-privacy review; final privacy policy and terms | Counsel |
 
 ## 4. Security model (Stage 1)

@@ -1,6 +1,7 @@
 # Open Decisions
 
-Decisions the build has defaulted conservatively and that need an owner. Each default is implemented, tested and
+Decisions the build has defaulted conservatively. Base Recruits is owned by the founder and Jonathan Caceres; it is a
+separate company from any other venture. Each default is implemented, tested and
 changeable with one migration or config edit. Recommended answers are engineering recommendations, not legal advice.
 
 ## Founder decisions
@@ -8,7 +9,7 @@ changeable with one migration or config edit. Recommended answers are engineerin
 | # | Decision | Current default | Trade-off | Recommendation |
 | --- | --- | --- | --- | --- |
 | F1 | Supabase project for Base Recruits development | None yet | Must be separate from any other product's project so data, keys and auth users never mix | Use a dedicated project (an empty existing one is fine for development); separate production project at launch |
-| F2 | Who reviews coach verifications, and how fast | Admin role exists; reviewer unnamed | Every verified coach is a manual review; slow reviews stall Pillar C's network value | Name a reviewer and a 2-business-day target before Stage 4 |
+| F2 | Who reviews coach verifications, and how fast | Base Recruits is owned by the founder and Jonathan Caceres; the day-to-day reviewer is not yet assigned | Every verified coach is a manual review; slow reviews stall Pillar C's network value | Assign one of the two as the named reviewer, with the other as backup, and a 2-business-day target before Stage 4 |
 | F3 | Coach verification evidence standard | Official staff-directory page on an https athletics site listing the person in a baseball role; valid 365 days | Stricter evidence slows onboarding; looser evidence lets non-coaches reach minors' profiles | Keep; add "institution email domain matches the program's official domain" as a reviewer checklist item in Stage 2 |
 | F4 | Minors' coach-facing sharing needs a linked guardian's approval | On for discovery, academic summary, metrics, contact info, messaging and documents | Strong protection for 13–17-year-olds; adds friction that may slow early athlete discoverability | Keep on for launch; revisit with counsel and real funnel data (`consent_scope_rules.requires_guardian_approval_for_minor`) |
 | F5 | What a linked parent/guardian sees by default | Only the basic athlete record; everything else needs the athlete's explicit grant | Respects athlete control; parents of minors may expect more | Keep explicit grants; at link approval, ask the athlete which items to share (no pre-checked boxes) |

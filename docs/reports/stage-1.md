@@ -129,9 +129,9 @@ None — school and program data are Stage 2. No school, program or admissions r
 | Dependency | Needed for | Owner |
 | --- | --- | --- |
 | npm registry access in the build environment | Everything in "Not done" | Founder (claude.ai Settings → Capabilities) |
-| A Supabase project dedicated to Base Recruits, and permission to apply migrations | Real Auth, end-to-end tests, running this suite on PostgreSQL 17 | Founder |
-| Network access from the build environment to that Supabase project | End-to-end tests | Founder |
-| Open decisions F1–F9 and legal review L1–L8 | See `docs/decisions.md` | Founder + counsel |
+| A Supabase project dedicated to Base Recruits, and permission to apply migrations | Real Auth, end-to-end tests, running this suite on PostgreSQL 17 | Founder / Jonathan Caceres |
+| Network access from the build environment to that Supabase project | End-to-end tests | Founder / Jonathan Caceres |
+| Open decisions F1–F9 and legal review L1–L8 | See `docs/decisions.md` | Founder / Jonathan Caceres + counsel |
 
 ## Next exact step
 
