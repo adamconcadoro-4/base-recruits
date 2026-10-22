@@ -6,15 +6,15 @@ visibility, admission or opportunity.
 
 ## Status
 
-Stage 1 of 7 (project, design system, security baseline): **built and passing in CI** against a real local Supabase
-stack. See `docs/reports/stage-1.md`.
+Stage 2 of 7 (national college baseball registry): **built and passing in CI**; see `docs/reports/stage-2.md`.
+Stage 1 (accounts, roles, consent, coach verification): `docs/reports/stage-1.md`.
 
-| Stage 1 item | Status |
+| Stage 2 item | Status |
 | --- | --- |
-| Database: roles, profiles, athletes, coach verification, family links, consent, audit log, capability catalog | Done, 8 migrations |
-| Row-level security and free-access guards (three independent security reviews across database and app) | 334 database assertions and 9 concurrency scenarios pass on PostgreSQL 16, 17 and the real Supabase stack |
-| Next.js app: design system, public pages, sign-up by emailed code, log in/out, password reset, role dashboards | Done |
-| End-to-end and accessibility (axe, WCAG 2.2 AA) tests at desktop and phone sizes | 103 pass in CI |
+| Registry pipeline: EADA 2024-25 + College Scorecard, 1,670 real programs, reviewed snapshot in `data/snapshots/` | Done (`data/README.md`) |
+| Registry schema, import → review → publish → restage, corrections against official pages, revision log | Done, 3 migrations |
+| Free explorer, school pages, compare (up to five), live coverage on the data methodology page | Done |
+| Admin screens: stage and review imports, publish or roll back, correct programs, hide records | Done |
 | Hosted Supabase project | Not created yet (decision F1) |
 
 ## Requirements
@@ -108,6 +108,19 @@ Required Supabase Auth settings for every hosted project (security depends on th
   configure client-IP forwarding for Auth rate limits (or raise them deliberately) and add per-person limits in the app.
 - A custom SMTP sender for production, and the site URL of each environment.
 - The daily maintenance job above; it also deletes sign-ups left unconfirmed for more than a day.
+
+## School registry data
+
+The registry is built only from public U.S. Department of Education data (EADA and College Scorecard); see
+`data/README.md` for sources, year labels and how a refresh works. In short:
+
+1. Push a branch named `data/<anything>`; the **data-refresh** workflow builds `data/snapshots/registry-<season>.json`
+   on GitHub's runners (it needs the `COLLEGE_SCORECARD_API_KEY` repository secret) and commits it to that branch.
+2. Review and merge the snapshot pull request.
+3. In the app, as an administrator: **Admin → School data → Stage**, review the changes, then **Publish**. Restaging an
+   earlier import rolls back to it. Corrections against an official page are made under **Schools and programs**.
+
+On a fresh database (including a new hosted project) nothing is public until step 3 has been done once.
 
 ## Documentation
 
