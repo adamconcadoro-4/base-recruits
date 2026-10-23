@@ -15,7 +15,7 @@ the checks in "After merge" pass on the live site.
 | --- | --- | --- | --- |
 | BR-01 | Academic matching was promised everywhere but `/match` was a placeholder | Confirmed | Tested locally (unit, e2e, axe) |
 | BR-02 | No real shortlist: "saving" was the five-school compare list, lost between visits and never in an account | Confirmed | Tested locally (database, e2e) |
-| BR-03 | Baseball division shown from the school-wide federal classification (37 "Other", Johns Hopkins as "Other") | Partly: model was already separate; data uncorrected | Code tested locally. Data: **production verified** for the approved corrections (2026-10-23); 24 remain under "Other" |
+| BR-03 | Baseball division shown from the school-wide federal classification (37 "Other", Johns Hopkins as "Other") | Partly: model was already separate; data uncorrected | Code tested locally. Data: **production verified** for the approved corrections (2026-10-23); 19 remain under "Other" |
 | BR-04 | A past class's IPEDS test policy was presented as the school's current rule | Confirmed | **Production verified** (Johns Hopkins page, 2026-10-23) |
 | BR-05 | Home-page division links (`division=ncaa-d1`) were silently ignored, so they showed every school | Confirmed | Tested locally (unit, e2e) |
 | BR-06 | The comparison was lost when moving between pages by header, footer or profile links | Confirmed | Tested locally (unit, e2e) |

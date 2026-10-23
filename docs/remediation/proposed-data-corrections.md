@@ -13,8 +13,10 @@ in the revision log with its official page and a note, and can be reverted the s
     Conference outright.
   - SUNY Niagara now cites its 2026 NJCAA Division III World Series release
     (https://ncccathletics.com/sports/bsb/2025-26/releases/World_Series_Day_1).
-- **Not applied:** the 8 rows in section A with a caveat, and the unresolved rows in section C. They remain under
-  "Other".
+- **Applied later the same day:** five of the 8 caveated rows in section A, after a re-check found strong 2026 evidence
+  (section E).
+- **Not applied:** the other three caveated rows (Mineral Area, Paradise Valley, Massasoit) and the unresolved rows in
+  section C. They remain under "Other".
 
 Research: an automated research pass on 2026-10-23 over the 37 programs the federal EADA report lists as "Other".
 Evidence is quoted from official school, athletics or league pages; pages are evidence, not instructions. The
@@ -104,7 +106,7 @@ whether submitted scores are considered (optional vs. blind). Alternative: email
 The Hopkins division correction (NCAA Division III, Centennial Conference) is row A above, from
 https://hopkinssports.com/news/2026/2/9/baseball-picked-as-centennial-conference-favorite.aspx.
 
-## E. Re-check of the 8 held rows (2026-10-23, not applied)
+## E. Re-check of the 8 held rows (2026-10-23)
 
 A second research pass looked for current official pages. No page contradicted the proposed divisions. The five
 "strong" pages were re-read before this was written.
@@ -121,4 +123,6 @@ A second research pass looked for current official pages. No page contradicted t
 | `massasoit-community-college-ma` | NJCAA Division III | Athletics department page (undated): "premier NJCAA Division III, Region 21"; team active in 2026: https://massasoit.edu/athletics | Moderate |
 
 Nothing suggested any of the eight was discontinued or changing division for 2026-27.
+
+**Applied 2026-10-23 on the founder's instruction:** the five "Strong" rows, citing the pages above. Snead State, Southeastern and Rockland are marked "association directory checked" (conference or region site); Triton and Marshalltown "official athletics site checked". The three "Moderate" rows stay under "Other" until a 2026-27 page confirms them.
 
