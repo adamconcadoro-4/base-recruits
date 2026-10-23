@@ -1,6 +1,5 @@
 import Link from 'next/link';
 
-import { buttonStyles } from '@/components/ui/button';
 import { Logo } from '@/components/site/logo';
 import { MobileNav } from '@/components/site/mobile-nav';
 import { PRIMARY_NAV } from '@/components/site/navigation';
@@ -20,11 +19,8 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <Link href="/login" className="rounded-md px-3 py-2 font-semibold text-white no-underline hover:bg-white/10">
+          <Link href="/login" className="ml-1 rounded-md border-2 border-white/60 px-3 py-1.5 font-semibold text-white no-underline hover:bg-white/10">
             Log in
-          </Link>
-          <Link href="/match" className={buttonStyles({ variant: 'primary', className: 'ml-2 no-underline' })}>
-            Find my matches
           </Link>
         </nav>
         <MobileNav items={PRIMARY_NAV} />

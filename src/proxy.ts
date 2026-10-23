@@ -2,12 +2,32 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { findProtectedRoute, loginRedirectFor } from '@/lib/auth/route-access';
+import { COMPARE_COOKIE, COMPARE_COOKIE_MAX_AGE, decideCompare } from '@/lib/registry/compare-selection';
 import { sessionCookieOptions } from '@/lib/supabase/cookie-options';
+
+/** Stores (or clears) the comparison selection on the outgoing response. */
+function storeCompare(response: NextResponse, value: string | undefined, secure: boolean): NextResponse {
+  if (value === undefined) return response;
+  if (value === '') {
+    response.cookies.delete(COMPARE_COOKIE);
+  } else {
+    response.cookies.set(COMPARE_COOKIE, value, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure,
+      path: '/',
+      maxAge: COMPARE_COOKIE_MAX_AGE,
+    });
+  }
+  return response;
+}
 
 /**
  * Runs before every page request:
- *  1. refreshes the Supabase session cookie, and
- *  2. sends anonymous visitors on protected prefixes to sign in.
+ *  1. keeps the comparison selection across navigation (see
+ *     src/lib/registry/compare-selection.ts),
+ *  2. refreshes the Supabase session cookie, and
+ *  3. sends anonymous visitors on protected prefixes to sign in.
  * Role, onboarding and coach-verification gates run in the protected layouts
  * (src/lib/auth/guard.ts), and the database enforces everything again with RLS.
  * Public discovery pages never require an account.
@@ -16,13 +36,17 @@ export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const isProtected = findProtectedRoute(request.nextUrl.pathname) !== null;
+  const secure = request.nextUrl.protocol === 'https:';
+
+  const compare = decideCompare(new URL(request.url), request.method, request.cookies.get(COMPARE_COOKIE)?.value);
+  if (compare.redirectTo) return NextResponse.redirect(compare.redirectTo);
 
   if (!url || !key) {
     // Supabase is not configured (e.g. a marketing-only preview): public pages
     // still work; protected pages cannot.
     return isProtected
       ? NextResponse.redirect(new URL(loginRedirectFor(request.nextUrl.pathname), request.url))
-      : NextResponse.next({ request });
+      : storeCompare(NextResponse.next({ request }), compare.store, secure);
   }
 
   let response = NextResponse.next({ request });
@@ -54,7 +78,7 @@ export async function proxy(request: NextRequest) {
     for (const [name, value] of Object.entries(refreshHeaders)) redirect.headers.set(name, value);
     return redirect;
   }
-  return response;
+  return storeCompare(response, compare.store, secure);
 }
 
 export const config = {

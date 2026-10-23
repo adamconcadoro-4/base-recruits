@@ -1,36 +1,40 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { BasePath } from '@/components/site/base-path';
-import { ButtonLink } from '@/components/ui/button';
+import { ButtonLink, buttonStyles } from '@/components/ui/button';
+import { SelectField, TextField } from '@/components/ui/field';
+import { FEATURES, availabilityLabel } from '@/config/availability';
+import { DIVISION_SHORTCUTS, shortcutHref, type DivisionShortcut } from '@/lib/registry/divisions';
 
-const DIVISIONS = [
-  { key: 'ncaa-d1', label: 'NCAA Division I' },
-  { key: 'ncaa-d2', label: 'NCAA Division II' },
-  { key: 'ncaa-d3', label: 'NCAA Division III' },
-  { key: 'naia', label: 'NAIA' },
-  { key: 'juco', label: 'Junior college (NJCAA and others)' },
-] as const;
+export const metadata: Metadata = {
+  description:
+    'Search real college baseball programs, see each school’s published admissions figures and costs with their sources, compare schools and save your shortlist. Free.',
+  alternates: { canonical: '/' },
+};
+
+const SHORTCUTS = Object.keys(DIVISION_SHORTCUTS) as DivisionShortcut[];
 
 const FAQ = [
   {
     question: 'Is Base Recruits really free?',
     answer:
-      'Yes. School search, academic matching, comparisons, unlimited saved schools, a basic recruiting profile and choosing to be visible to verified coaches are free for good. Optional paid plans will only add organizing tools.',
+      'Yes. School search, school pages, comparing schools and saving as many schools as you like are free now and stay free. The score comparison is an early version and is free too. Recruiting profiles and coach tools are not open yet; when they open, their basic versions will be free.',
   },
   {
     question: 'Can paying make coaches see me?',
     answer:
-      'No. Whether coaches can find you depends only on what you choose to share. No plan sells visibility, admission, eligibility, roster spots or scholarships.',
+      'No. No plan will ever sell visibility, admission, eligibility, roster spots or scholarships. Paid plans are not on sale, and nothing is billed.',
   },
   {
     question: 'Where does the school information come from?',
     answer:
-      'From official sources such as the College Scorecard, IPEDS, the Common Data Set and athletic association directories. Every figure shows its source and year, and anything a school does not publish is marked as not reported.',
+      'From U.S. Department of Education data: the EADA athletics report for baseball programs and the College Scorecard for admissions, cost and enrollment. Every figure shows its year. When we check a fact against a school’s own athletics or admissions page, the page says so and links to it. Anything not reported stays marked as not reported.',
   },
   {
     question: 'Who can see my information?',
     answer:
-      'Only the people you choose. Your profile is private until you turn on visibility to verified college coaches, and you can turn it off at any time. Athletes under 18 need a parent or guardian to approve coach visibility.',
+      'Schools you save in this browser stay in this browser. Schools you save to a free account are visible only to you. Recruiting profiles are not open yet; when they open, they will be private until you choose to share them.',
   },
 ] as const;
 
@@ -42,43 +46,47 @@ export default function HomePage() {
           <div>
             <h1 className="text-6xl text-white sm:text-7xl lg:text-8xl">Your Next Level Starts Here.</h1>
             <p className="mt-6 max-w-xl text-xl text-white/90">
-              Discover real college baseball programs, understand your academic fit, and build your recruiting
-              shortlist. Free.
+              Search real college baseball programs, see each school&apos;s published admissions figures and costs with
+              their sources, and save your shortlist. Free.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <ButtonLink href="/match" size="lg">
-                Find my college matches
-              </ButtonLink>
-              <ButtonLink href="/schools" size="lg" variant="outlineOnNavy">
+              <ButtonLink href="/schools" size="lg">
                 Search schools
+              </ButtonLink>
+              <ButtonLink href="/match" size="lg" variant="outlineOnNavy">
+                Compare your scores
               </ButtonLink>
             </div>
           </div>
 
-          <aside aria-labelledby="quick-match-title" className="self-start border-t-8 border-royal bg-white p-6 text-graphite sm:p-8">
-            <h2 id="quick-match-title" className="text-4xl text-navy">
-              Quick Match
+          <aside aria-labelledby="quick-search-title" className="self-start border-t-8 border-royal bg-white p-6 text-graphite sm:p-8">
+            <h2 id="quick-search-title" className="text-4xl text-navy">
+              Quick search
             </h2>
-            <p className="mt-3">
-              Quick Match opens when our national program registry is published. It will compare your grades and test
-              scores with each school&apos;s published ranges, free and without an account.
-            </p>
-            <h3 className="mt-6 text-xl text-navy">What you&apos;ll enter</h3>
-            <ul className="mt-3 grid gap-x-6 gap-y-2 text-[0.95rem] sm:grid-cols-2">
-              <li>GPA and its scale</li>
-              <li>SAT or ACT, if you have one</li>
-              <li>Graduation year</li>
-              <li>Primary position</li>
-              <li>Preferred regions</li>
-              <li>Divisions you&apos;re open to</li>
-            </ul>
+            <form method="get" action="/schools" className="mt-4 space-y-4">
+              <TextField id="home-q" name="q" label="School name or city" autoComplete="off" maxLength={100} />
+              <SelectField id="home-division" name="division" label="Division" defaultValue="">
+                <option value="">Any division</option>
+                {SHORTCUTS.map((key) =>
+                  key === 'two_year' ? (
+                    <option key={key} value="two_year">
+                      {DIVISION_SHORTCUTS[key].label}
+                    </option>
+                  ) : (
+                    <option key={key} value={DIVISION_SHORTCUTS[key].codes[0]}>
+                      {DIVISION_SHORTCUTS[key].label}
+                    </option>
+                  ),
+                )}
+              </SelectField>
+              <button type="submit" className={buttonStyles({ variant: 'primary' })}>
+                Show schools
+              </button>
+            </form>
             <p className="mt-6 text-sm text-slate">
-              Results are a starting point, not an admission decision. Test-optional schools never count a missing score
-              against you.
+              Free, with no account. Results show each school&apos;s division and admissions figures with the year they
+              describe.
             </p>
-            <Link href="/how-it-works" className="mt-4 inline-block font-semibold text-royal-ink underline">
-              See how matching works
-            </Link>
           </aside>
         </div>
       </section>
@@ -92,19 +100,21 @@ export default function HomePage() {
               steps={[
                 {
                   title: 'Search schools',
-                  body: 'Browse real college baseball programs across every division, with the source of each fact.',
+                  body: 'Browse colleges that reported a baseball team in the latest federal athletics report, with the source of each fact.',
                 },
                 {
-                  title: 'Understand academic fit',
-                  body: 'See where your grades and scores sit against each school’s published ranges and policies.',
+                  title: 'Compare your scores',
+                  body: 'See where your SAT or ACT sits against the score ranges each school reported for a past entering class.',
+                  note: availabilityLabel(FEATURES.academic_comparison.status),
                 },
                 {
                   title: 'Build your shortlist',
-                  body: 'Compare schools side by side and save as many as you like. No account needed to start.',
+                  body: 'Compare up to five schools side by side, and save as many as you like. No account needed to start.',
                 },
                 {
                   title: 'Create your recruiting profile',
                   body: 'Share what you choose with verified college coaches, and change your mind any time.',
+                  note: availabilityLabel(FEATURES.athlete_profile.status),
                 },
               ]}
             />
@@ -117,12 +127,14 @@ export default function HomePage() {
           <div>
             <h2 className="text-5xl text-navy">Every school result shows its work</h2>
             <p className="mt-4 text-lg">
-              Each result lists the program&apos;s division and conference, the school&apos;s published academic ranges
-              with the year they come from, and its testing policy. If a school doesn&apos;t publish a number, we say
-              so instead of estimating one.
+              Each result shows the baseball division and how it was confirmed, the school&apos;s reported admissions
+              figures with the entering class they describe, and its published cost with the academic year. If a figure
+              isn&apos;t reported, we say so instead of estimating one.
             </p>
             <p className="mt-4 text-slate">
-              The registry is being built from official sources now. No school records are published yet.
+              <Link href="/data-methodology" className="font-semibold text-royal-ink underline">
+                See what the data covers and what is still missing
+              </Link>
             </p>
           </div>
           <figure aria-labelledby="result-anatomy-caption" className="border-2 border-navy bg-white p-6">
@@ -132,23 +144,23 @@ export default function HomePage() {
             <dl className="mt-4 divide-y divide-rule">
               <div className="flex justify-between gap-4 py-3">
                 <dt className="font-semibold">Program</dt>
-                <dd className="text-right text-slate">Division, conference, verified status</dd>
+                <dd className="text-right text-slate">Division, and whether it was checked against an official page</dd>
               </div>
               <div className="flex justify-between gap-4 py-3">
                 <dt className="font-semibold">Middle 50% SAT and ACT</dt>
-                <dd className="text-right text-slate">With source and academic year</dd>
+                <dd className="text-right text-slate">With the entering class they describe</dd>
               </div>
               <div className="flex justify-between gap-4 py-3">
                 <dt className="font-semibold">GPA data</dt>
-                <dd className="text-right text-slate">Or “Not publicly reported”</dd>
+                <dd className="text-right text-slate">“Not reported in federal data”</dd>
               </div>
               <div className="flex justify-between gap-4 py-3">
                 <dt className="font-semibold">Testing policy</dt>
-                <dd className="text-right text-slate">Required, optional or blind</dd>
+                <dd className="text-right text-slate">The past class’s policy, and the current one where checked</dd>
               </div>
               <div className="flex justify-between gap-4 py-3">
-                <dt className="font-semibold">Your fit</dt>
-                <dd className="text-right text-slate">Explained in plain language</dd>
+                <dt className="font-semibold">Cost</dt>
+                <dd className="text-right text-slate">Published price with its academic year</dd>
               </div>
             </dl>
           </figure>
@@ -159,13 +171,13 @@ export default function HomePage() {
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <h2 className="text-5xl text-navy">Browse by division</h2>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            {DIVISIONS.map((division) => (
-              <li key={division.key}>
+            {SHORTCUTS.map((key) => (
+              <li key={key}>
                 <Link
-                  href={`/schools?division=${division.key}`}
+                  href={shortcutHref(key)}
                   className="flex min-h-20 items-end border-b-4 border-royal bg-ice px-4 py-3 text-xl font-bold text-navy no-underline hover:bg-white"
                 >
-                  {division.label}
+                  {DIVISION_SHORTCUTS[key].label}
                 </Link>
               </li>
             ))}
@@ -178,9 +190,8 @@ export default function HomePage() {
           <div>
             <h2 className="text-5xl text-white">Free for verified college coaches</h2>
             <p className="mt-4 text-lg text-white/90">
-              Coaches whose role is confirmed against their program&apos;s official staff page search athletes who chose
-              to be found, keep private recruiting boards and message within recruiting rules. No coach subscription,
-              ever.
+              College coaches can create an account and apply for verification now. Searching athletes who choose to be
+              found, private recruiting boards and messaging open later, and stay free. No coach subscription, ever.
             </p>
             <ButtonLink href="/coaches" variant="onNavy" className="mt-6">
               How coach verification works
@@ -189,8 +200,8 @@ export default function HomePage() {
           <div className="space-y-6">
             <h2 className="text-5xl text-white">Free core, optional tools</h2>
             <p className="text-lg text-white/90">
-              Everything you need to find schools and be found stays free. Planned paid plans add organizing tools like
-              reminders and pipeline tracking, and are not on sale yet.
+              Everything you need to find schools stays free. Planned paid plans would add organizing tools like
+              reminders and pipeline tracking. They are not on sale, and nothing is billed.
             </p>
             <ButtonLink href="/pricing" variant="outlineOnNavy">
               Compare free and planned plans
@@ -204,8 +215,8 @@ export default function HomePage() {
           <div>
             <h2 className="text-5xl text-navy">What you can trust</h2>
             <p className="mt-4 text-lg text-slate">
-              Sources and dates on every figure. Matches are estimates, never guarantees. Self-reported information is
-              always labelled as self-reported. You decide who sees your profile.
+              Sources and years on every figure. Score comparisons describe past entering classes, never your chances of
+              admission. Unchecked facts are labelled as unchecked.
             </p>
             <Link href="/data-methodology" className="mt-4 inline-block font-semibold text-royal-ink underline">
               Read the data methodology
@@ -229,9 +240,9 @@ export default function HomePage() {
 
       <section className="border-t-8 border-royal bg-ice">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-14 sm:px-6 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-5xl text-navy">Start with the schools that fit.</h2>
-          <ButtonLink href="/match" size="lg">
-            Find my college matches
+          <h2 className="text-5xl text-navy">Start with the schools.</h2>
+          <ButtonLink href="/schools" size="lg">
+            Search schools
           </ButtonLink>
         </div>
       </section>

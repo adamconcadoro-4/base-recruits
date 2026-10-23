@@ -9,8 +9,8 @@ select tests.ok(
 select tests.ok(
   (select array_agg(t.tablename::text order by t.tablename) from pg_tables t
     where t.schemaname = 'public' and has_any_column_privilege('anon', format('%I.%I', t.schemaname, t.tablename), 'SELECT'))
-  = array['admissions_statistics', 'athletic_associations', 'athletic_divisions', 'baseball_programs', 'capabilities',
-          'data_sources', 'institution_aliases', 'institution_costs', 'institutions', 'plan_capabilities'],
+  = array['admissions_policies', 'admissions_statistics', 'athletic_associations', 'athletic_divisions', 'baseball_programs',
+          'capabilities', 'data_sources', 'institution_aliases', 'institution_costs', 'institutions', 'plan_capabilities'],
   'anonymous visitors can read only the capability catalog and the public school registry');
 select tests.ok(
   not exists (
@@ -71,7 +71,8 @@ select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname in ('public', 'private') and has_function_privilege('anon', p.oid, 'EXECUTE'))
-  = array['compare_schools', 'get_school', 'registry_coverage', 'search_schools'],
+  = array['compare_schools', 'current_admissions_policies', 'get_school', 'registry_coverage', 'schools_by_slugs',
+          'search_schools'],
   'anonymous visitors can execute only the free school-registry reads');
 select tests.ok(
   not exists (
@@ -83,13 +84,15 @@ select tests.ok(
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'EXECUTE'))
   = array['admin_create_import_job', 'admin_discard_import_job', 'admin_finalize_import_job', 'admin_grant_role',
-          'admin_publish_import_job', 'admin_restage_import_job', 'admin_review_coach', 'admin_revoke_role',
+          'admin_publish_import_job', 'admin_resolve_correction_report', 'admin_restage_import_job',
+          'admin_retire_admissions_policy', 'admin_review_coach', 'admin_revoke_role', 'admin_set_admissions_policy',
           'admin_set_import_decision', 'admin_set_institution_listing', 'admin_stage_import_rows',
           'admin_update_baseball_program', 'approve_consent_as_guardian',
           'approve_family_link', 'cancel_family_invite', 'compare_schools', 'complete_onboarding', 'create_family_invite',
-          'end_family_link', 'get_school', 'grant_consent', 'guardian_consent_requests', 'list_family_links',
-          'my_consent_grants', 'record_birthdate', 'redeem_family_invite', 'registry_coverage', 'revoke_consent',
-          'search_schools', 'submit_coach_affiliation'],
+          'current_admissions_policies', 'end_family_link', 'get_school', 'grant_consent', 'guardian_consent_requests',
+          'list_family_links', 'my_consent_grants', 'my_saved_schools', 'record_birthdate', 'redeem_family_invite',
+          'registry_coverage', 'revoke_consent', 'save_schools', 'schools_by_slugs', 'search_schools',
+          'submit_coach_affiliation', 'submit_correction_report', 'unsave_school'],
   'signed-in users can call exactly the reviewed list of API functions');
 select tests.ok(
   (select array_agg(p.proname::text order by p.proname)

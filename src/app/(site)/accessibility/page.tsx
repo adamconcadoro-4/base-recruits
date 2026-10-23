@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 
 import { ContentSection, DraftNotice, PageIntro } from '@/components/site/page-intro';
 
-export const metadata: Metadata = { title: 'Accessibility' };
+export const metadata: Metadata = {
+  title: 'Accessibility',
+  description: 'The accessibility target Base Recruits designs and tests against, and how to report a problem.',
+  alternates: { canonical: '/accessibility' },
+};
 
 export default function AccessibilityPage() {
   return (
@@ -11,8 +15,10 @@ export default function AccessibilityPage() {
       <DraftNotice />
       <ContentSection title="Our target">
         <p>
-          We design and test against the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA. Automated
-          accessibility checks run on key pages at desktop and phone sizes every time the code changes.
+          We design and test against the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA. Automated checks
+          (axe) run on key pages at desktop and phone sizes on every proposed code change, alongside keyboard tests.
+          Automated checks catch only some problems, so this is a target we test toward, not a claim of full
+          conformance.
         </p>
       </ContentSection>
       <ContentSection title="What that means in practice" tone="ice">
@@ -25,8 +31,8 @@ export default function AccessibilityPage() {
       </ContentSection>
       <ContentSection title="Report a problem">
         <p>
-          A dedicated support address will be published before launch. Until then, please tell the Base Recruits team
-          through the contact you were given.
+          A support email address will be published before launch. Until then, see{' '}
+          <a href="/support">help and corrections</a>.
         </p>
       </ContentSection>
     </>

@@ -4,22 +4,47 @@ import type { Metadata } from 'next';
 import { PageIntro } from '@/components/site/page-intro';
 import { ButtonLink } from '@/components/ui/button';
 import { StatusChip } from '@/components/ui/status-chip';
+import { availabilityLabel, capabilityAvailability } from '@/config/availability';
 import { PLANS } from '@/config/plans';
-import { CAPABILITIES, CORE_CAPABILITY_KEYS, type CapabilityDefinition } from '@/lib/entitlements/capabilities';
+import { CAPABILITIES, CORE_CAPABILITY_KEYS, type CoreCapabilityKey } from '@/lib/entitlements/capabilities';
 
-export const metadata: Metadata = { title: 'Free and optional plans' };
+export const metadata: Metadata = {
+  title: 'Free and optional plans',
+  description:
+    'What is free on Base Recruits today, what is coming later, and the optional paid plans that are proposed but not on sale.',
+  alternates: { canonical: '/pricing' },
+};
 
-const CORE: readonly CapabilityDefinition[] = CORE_CAPABILITY_KEYS.map((key) => CAPABILITIES[key]);
-const coreForPeople = CORE.filter((capability) => capability.audience !== 'verified_coach' && capability.audience !== 'admin');
-const coreForCoaches = CORE.filter((capability) => capability.audience === 'verified_coach');
+const coreForPeople = CORE_CAPABILITY_KEYS.filter(
+  (key) => CAPABILITIES[key].audience !== 'verified_coach' && CAPABILITIES[key].audience !== 'admin',
+);
+const coreForCoaches = CORE_CAPABILITY_KEYS.filter((key) => CAPABILITIES[key].audience === 'verified_coach');
+
+function CapabilityItem({ capability }: { readonly capability: CoreCapabilityKey }) {
+  const label = availabilityLabel(capabilityAvailability(capability));
+  return (
+    <li className="flex gap-3">
+      <Check aria-hidden="true" className="mt-1 size-5 shrink-0 text-success-ink" />
+      <span>
+        {CAPABILITIES[capability].description}
+        {label ? (
+          <>
+            {' '}
+            <StatusChip tone="neutral">{label}</StatusChip>
+          </>
+        ) : null}
+      </span>
+    </li>
+  );
+}
 
 export default function PricingPage() {
   const paidPlans = PLANS.filter((plan) => plan.availability === 'planned');
   return (
     <>
       <PageIntro title="Free core. Optional tools.">
-        Finding schools and being found by coaches is free for good. Paying never changes your matches or whether
-        coaches can see you.
+        Finding schools is free for good, and so will be being found by coaches. Items marked &ldquo;Coming later&rdquo;
+        are not built yet. Paying will never change your results or whether coaches can see you.
       </PageIntro>
 
       <section className="bg-white">
@@ -28,11 +53,8 @@ export default function PricingPage() {
             <h2 className="text-4xl text-navy">Base Free</h2>
             <p className="mt-2 text-lg">$0, for athletes and families. Always.</p>
             <ul className="mt-6 space-y-3">
-              {coreForPeople.map((capability) => (
-                <li key={capability.description} className="flex gap-3">
-                  <Check aria-hidden="true" className="mt-1 size-5 shrink-0 text-success-ink" />
-                  <span>{capability.description}</span>
-                </li>
+              {coreForPeople.map((key) => (
+                <CapabilityItem key={key} capability={key} />
               ))}
             </ul>
             <ButtonLink href="/signup" className="mt-8">
@@ -43,11 +65,8 @@ export default function PricingPage() {
             <h2 className="text-4xl text-navy">Verified coaches</h2>
             <p className="mt-2 text-lg">$0 after verification. Always.</p>
             <ul className="mt-6 space-y-3">
-              {coreForCoaches.map((capability) => (
-                <li key={capability.description} className="flex gap-3">
-                  <Check aria-hidden="true" className="mt-1 size-5 shrink-0 text-success-ink" />
-                  <span>{capability.description}</span>
-                </li>
+              {coreForCoaches.map((key) => (
+                <CapabilityItem key={key} capability={key} />
               ))}
             </ul>
           </div>
@@ -74,8 +93,7 @@ export default function PricingPage() {
             ))}
           </div>
           <p className="mt-8 max-w-2xl text-slate">
-            If you ever cancel a paid plan, you keep a full free account, including every saved school, your academic
-            basics and your recruiting profile.
+            If paid plans ever launch and you cancel one, you keep a full free account, including every saved school.
           </p>
         </div>
       </section>
