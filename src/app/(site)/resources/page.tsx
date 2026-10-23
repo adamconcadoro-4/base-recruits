@@ -2,7 +2,12 @@ import type { Metadata } from 'next';
 
 import { ContentSection, PageIntro } from '@/components/site/page-intro';
 
-export const metadata: Metadata = { title: 'Recruiting resources' };
+export const metadata: Metadata = {
+  title: 'Recruiting resources',
+  description:
+    'Plain guidance on college baseball recruiting and academic readiness, with links to the NCAA, NAIA, NJCAA and other official sources.',
+  alternates: { canonical: '/resources' },
+};
 
 export default function ResourcesPage() {
   return (

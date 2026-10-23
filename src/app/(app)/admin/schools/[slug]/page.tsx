@@ -2,14 +2,15 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { ListingForm, ProgramForm } from '@/app/(app)/admin/schools/forms';
+import { ListingForm, PolicyForm, ProgramForm } from '@/app/(app)/admin/schools/forms';
 import { DashboardSection, PageTitle } from '@/components/app/section';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip } from '@/components/ui/status-chip';
 import { requireAccess } from '@/lib/auth/guard';
-import { STATUS_LABELS, VERIFICATION_LABELS, formatRetrieved } from '@/lib/registry/labels';
+import { STATUS_LABELS, TEST_POLICY_LABELS, VERIFICATION_LABELS, formatRetrieved } from '@/lib/registry/labels';
+import { APPLICANT_LABELS, entryLabel } from '@/lib/registry/policy';
 import { SLUG_PATTERN } from '@/lib/registry/search-params';
-import type { ProgramStatus, ProgramVerification } from '@/lib/registry/types';
+import type { ApplicantType, ProgramStatus, ProgramVerification, TestPolicy } from '@/lib/registry/types';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = { title: 'Correct a school' };
@@ -72,7 +73,7 @@ export default async function AdminSchoolPage({ params }: { readonly params: Pro
     .maybeSingle();
   if (!institutionData) notFound();
   const institution = institutionData as Institution;
-  const [programResult, divisionsResult, revisionsResult] = await Promise.all([
+  const [programResult, divisionsResult, revisionsResult, policiesResult, reportsResult] = await Promise.all([
     supabase
       .from('baseball_programs')
       .select('status, status_source, season, association_code, division_code, classification_label, classification_other, conference, athletics_url, roster_url, questionnaire_url, verification, verification_source_url, verified_at')
@@ -85,7 +86,32 @@ export default async function AdminSchoolPage({ params }: { readonly params: Pro
       .eq('institution_id', institution.id)
       .order('id', { ascending: false })
       .limit(30),
+    supabase
+      .from('admissions_policies')
+      .select('id, applicant_type, entry_year, test_policy, exceptions, source_url, source_title, verified_at')
+      .eq('institution_id', institution.id)
+      .eq('is_current', true)
+      .order('entry_year', { ascending: false }),
+    supabase
+      .from('correction_reports')
+      .select('id, topic, details, evidence_url, created_at')
+      .eq('institution_id', institution.id)
+      .eq('status', 'open')
+      .order('created_at', { ascending: true }),
   ]);
+  const policies = (policiesResult.data ?? []) as {
+    id: string;
+    applicant_type: ApplicantType;
+    entry_year: number;
+    test_policy: TestPolicy;
+    exceptions: string | null;
+    source_url: string;
+    source_title: string | null;
+    verified_at: string;
+  }[];
+  const openReports = (reportsResult.data ?? []) as { id: string; topic: string; details: string; evidence_url: string | null; created_at: string }[];
+  const thisYear = new Date().getUTCFullYear();
+  const policyYears = [thisYear - 1, thisYear, thisYear + 1, thisYear + 2, thisYear + 3];
   const program = programResult.data as Program | null;
   const divisions = ((divisionsResult.data ?? []) as { code: string; association_code: string; name: string }[]).map((d) => ({
     code: d.code,
@@ -150,6 +176,55 @@ export default async function AdminSchoolPage({ params }: { readonly params: Pro
             <Notice tone="info">This school has no baseball program record.</Notice>
           )}
         </DashboardSection>
+
+        <DashboardSection
+          id="policies"
+          title="Current admissions testing policy"
+          description="Record a policy only from the school's own admissions page, for one applicant type and entry year. The historical IPEDS policy is never edited here."
+        >
+          {policies.length === 0 ? (
+            <p className="mb-5">No checked policy on record. Visitors see “Not yet checked”.</p>
+          ) : (
+            <ul className="mb-6 divide-y-2 divide-rule border-y-2 border-rule">
+              {policies.map((p) => (
+                <li key={p.id} className="py-3 text-sm">
+                  <p className="font-semibold">
+                    {APPLICANT_LABELS[p.applicant_type]}, {entryLabel(p.entry_year)}: {TEST_POLICY_LABELS[p.test_policy].short}
+                  </p>
+                  {p.exceptions ? <p>{p.exceptions}</p> : null}
+                  <p className="text-slate">
+                    Checked {formatRetrieved(p.verified_at)} ·{' '}
+                    <a href={p.source_url} target="_blank" rel="noopener noreferrer nofollow" className="text-royal-ink underline">
+                      {p.source_title ?? p.source_url}
+                    </a>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+          <PolicyForm institutionId={institution.id} slug={institution.slug} years={policyYears} />
+        </DashboardSection>
+
+        {openReports.length > 0 ? (
+          <DashboardSection id="reports" title="Open correction reports">
+            <ul className="space-y-3">
+              {openReports.map((r) => (
+                <li key={r.id} className="border-2 border-rule p-3 text-sm">
+                  <p className="font-semibold">
+                    {r.topic.replace('_', ' ')} · {formatRetrieved(r.created_at)}
+                  </p>
+                  <p className="whitespace-pre-line">{r.details}</p>
+                  {r.evidence_url ? <p className="break-all text-slate">Evidence given: {r.evidence_url}</p> : null}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3">
+              <Link href="/admin/corrections" className="font-semibold text-royal-ink underline">
+                Close reports in the corrections queue
+              </Link>
+            </p>
+          </DashboardSection>
+        ) : null}
 
         <DashboardSection id="listing" title="Public listing">
           {institution.is_listed ? null : (

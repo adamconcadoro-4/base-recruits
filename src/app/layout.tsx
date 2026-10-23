@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Archivo } from 'next/font/google';
 import type { ReactNode } from 'react';
 
+import { indexingAllowed } from '@/lib/seo/indexing';
+
 import './globals.css';
 
 const archivo = Archivo({
@@ -18,7 +20,9 @@ export const metadata: Metadata = {
     template: '%s | Base Recruits',
   },
   description:
-    'Free college baseball discovery and academic matching for student-athletes and families, with a free portal for verified college coaches.',
+    'Free college baseball program search and score comparison for student-athletes and families, with coach verification for college coaches.',
+  // Off until launch sign-off; see src/lib/seo/indexing.ts.
+  ...(indexingAllowed() ? {} : { robots: { index: false, follow: false } }),
 };
 
 export const viewport: Viewport = {

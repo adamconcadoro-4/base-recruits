@@ -3,14 +3,19 @@ import type { Metadata } from 'next';
 import { ContentSection, PageIntro } from '@/components/site/page-intro';
 import { ButtonLink } from '@/components/ui/button';
 
-export const metadata: Metadata = { title: 'For college coaches' };
+export const metadata: Metadata = {
+  title: 'For college coaches',
+  description:
+    'College baseball coaches can apply for free verification now. Athlete search, private boards and messaging open later and stay free.',
+  alternates: { canonical: '/coaches' },
+};
 
 export default function CoachesPage() {
   return (
     <>
       <PageIntro title="Free for verified college coaches">
-        Find student-athletes who chose to be found, keep private recruiting boards and message within recruiting rules.
-        No subscription, now or later.
+        Apply for verification now. Searching athletes who choose to be found, private recruiting boards and messaging
+        open later. No subscription, now or later.
       </PageIntro>
       <ContentSection title="How verification works">
         <ol className="list-decimal space-y-2 pl-5">
@@ -26,14 +31,17 @@ export default function CoachesPage() {
           <ButtonLink href="/signup">Create a coach account</ButtonLink>
         </div>
       </ContentSection>
-      <ContentSection title="What verified coaches can do" tone="ice">
+      <ContentSection title="What verified coaches will be able to do" tone="ice">
         <ul>
           <li>Search athletes who turned on coach visibility</li>
           <li>Review the academic and athletic information they shared, labelled self-reported or verified</li>
           <li>Save athletes to private recruiting boards</li>
           <li>Message athletes who allow it, within recruiting-contact rules</li>
         </ul>
-        <p>Athlete search, boards and messaging open with the athlete profile release.</p>
+        <p>
+          None of these are open yet. They open with recruiting profiles, and the core tools will stay free for verified
+          coaches.
+        </p>
       </ContentSection>
     </>
   );

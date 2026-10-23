@@ -84,3 +84,67 @@ export async function setListingAction(_previous: ActionState, formData: FormDat
   revalidatePath('/schools');
   return success(listed ? 'Listed again on public pages.' : 'Hidden from public pages.');
 }
+
+const TEST_POLICY_VALUES = ['required', 'considered_not_required', 'not_considered'] as const;
+const APPLICANT_VALUES = ['first_year', 'transfer'] as const;
+
+/** Records a testing policy checked against the school's official admissions page. */
+export async function setAdmissionsPolicyAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  const institutionId = field(formData, 'institutionId');
+  const slug = field(formData, 'slug');
+  const applicantType = field(formData, 'applicantType');
+  const entryYear = Number(field(formData, 'entryYear'));
+  const testPolicy = field(formData, 'testPolicy');
+  const exceptions = field(formData, 'exceptions');
+  const sourceUrl = field(formData, 'sourceUrl');
+  const sourceTitle = field(formData, 'sourceTitle');
+  const note = field(formData, 'note');
+  const thisYear = new Date().getUTCFullYear();
+  const errors: Record<string, string> = {};
+  if (!UUID.test(institutionId)) return failure('That school was not found.');
+  if (!(APPLICANT_VALUES as readonly string[]).includes(applicantType)) errors.applicantType = 'Choose first-year or transfer.';
+  if (!Number.isInteger(entryYear) || entryYear < thisYear - 1 || entryYear > thisYear + 3) {
+    errors.entryYear = `Choose an entry year from ${thisYear - 1} to ${thisYear + 3}.`;
+  }
+  if (!(TEST_POLICY_VALUES as readonly string[]).includes(testPolicy)) errors.testPolicy = 'Choose the policy.';
+  if (!sourceUrl || !httpsOrEmpty(sourceUrl)) errors.sourceUrl = 'Link the official admissions page (https://).';
+  if (exceptions && exceptions.length < 3) errors.exceptions = 'Describe the exceptions or leave this empty.';
+  if (note.length < 5) errors.note = 'Say what you checked (at least 5 characters).';
+  if (Object.keys(errors).length) return failure('Please fix the highlighted fields.', errors);
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('admin_set_admissions_policy', {
+    p_institution_id: institutionId,
+    p_applicant_type: applicantType,
+    p_entry_year: entryYear,
+    p_test_policy: testPolicy,
+    p_exceptions: exceptions || null,
+    p_source_url: sourceUrl,
+    p_source_title: sourceTitle || null,
+    p_note: note,
+  });
+  if (error) return failure(withDiagnostics(userMessageForDatabaseError(error), error));
+  revalidatePath(`/admin/schools/${slug}`);
+  revalidatePath(`/schools/${slug}`);
+  revalidatePath('/schools');
+  return success('Policy recorded. Any earlier policy for the same applicants and year is kept in the history.');
+}
+
+/** Closes a correction report (resolved after checking an official source, or dismissed). */
+export async function resolveCorrectionAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  const reportId = field(formData, 'reportId');
+  const status = field(formData, 'status');
+  const note = field(formData, 'note');
+  if (!UUID.test(reportId)) return failure('That report was not found.');
+  if (status !== 'resolved' && status !== 'dismissed') return failure('Choose resolved or dismissed.');
+  if (note.length < 3) return failure('Add a short note on what you did.', { note: 'At least 3 characters.' });
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('admin_resolve_correction_report', {
+    p_report_id: reportId,
+    p_status: status,
+    p_note: note,
+  });
+  if (error) return failure(withDiagnostics(userMessageForDatabaseError(error), error));
+  revalidatePath('/admin/corrections');
+  return success(status === 'resolved' ? 'Marked resolved.' : 'Dismissed.');
+}

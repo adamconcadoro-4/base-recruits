@@ -63,10 +63,10 @@ export function MobileNav({ items }: { readonly items: readonly NavItem[] }) {
           </li>
         </ul>
         <Link
-          href="/match"
+          href="/schools"
           className="mt-3 flex min-h-12 items-center justify-center rounded-md bg-royal px-5 text-lg font-semibold text-white no-underline"
         >
-          Find my matches
+          Search schools
         </Link>
       </nav>
     </div>

@@ -2,7 +2,11 @@ import type { Metadata } from 'next';
 
 import { ContentSection, DraftNotice, PageIntro } from '@/components/site/page-intro';
 
-export const metadata: Metadata = { title: 'Terms of use' };
+export const metadata: Metadata = {
+  title: 'Terms of use',
+  description: 'The basic rules for using Base Recruits.',
+  alternates: { canonical: '/terms' },
+};
 
 export default function TermsPage() {
   return (

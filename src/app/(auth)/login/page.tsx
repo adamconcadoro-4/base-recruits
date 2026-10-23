@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { LoginForm } from '@/app/(auth)/login/login-form';
 import { safeNextPath } from '@/lib/auth/route-access';
 
-export const metadata: Metadata = { title: 'Log in' };
+export const metadata: Metadata = { title: 'Log in', alternates: { canonical: '/login' } };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 

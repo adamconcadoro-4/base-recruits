@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { VerifyForm } from '@/app/(auth)/verify/verify-form';
 import { readPendingVerification } from '@/lib/auth/pending-verification';
 
-export const metadata: Metadata = { title: 'Enter your code' };
+export const metadata: Metadata = { title: 'Enter your code', robots: { index: false, follow: false } };
 
 export default async function VerifyPage() {
   const pending = await readPendingVerification();

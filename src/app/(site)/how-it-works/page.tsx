@@ -2,14 +2,19 @@ import type { Metadata } from 'next';
 
 import { BasePath } from '@/components/site/base-path';
 import { ContentSection, PageIntro } from '@/components/site/page-intro';
+import { FEATURES, availabilityLabel } from '@/config/availability';
 
-export const metadata: Metadata = { title: 'How it works' };
+export const metadata: Metadata = {
+  title: 'How it works',
+  description: 'How Base Recruits sources school data, compares scores with published ranges, and keeps your information private.',
+  alternates: { canonical: '/how-it-works' },
+};
 
 export default function HowItWorksPage() {
   return (
     <>
       <PageIntro title="How Base Recruits works">
-        Real school data, plain-language academic fit, and a recruiting profile you control.
+        Real school data with its sources, an honest score comparison, and a shortlist you control.
       </PageIntro>
       <section className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
@@ -17,19 +22,21 @@ export default function HowItWorksPage() {
             steps={[
               {
                 title: 'Search schools',
-                body: 'Every program is checked against official sources before it is listed, with each fact’s source and year.',
+                body: 'Programs come from the federal athletics report, with each fact’s source and year. Divisions we have checked against an official page say so.',
               },
               {
-                title: 'Understand academic fit',
-                body: 'Your grades and scores are compared with published ranges under each school’s own testing rules.',
+                title: 'Compare your scores',
+                body: 'Your SAT or ACT is compared with the ranges a school reported for a past entering class. A current testing policy is used only once it has been checked.',
+                note: availabilityLabel(FEATURES.academic_comparison.status),
               },
               {
                 title: 'Build your shortlist',
-                body: 'Compare schools and save as many as you want, on your device or in a free account.',
+                body: 'Compare up to five schools and save as many as you want, in this browser or in a free account.',
               },
               {
                 title: 'Create your recruiting profile',
                 body: 'Choose what verified college coaches can see. Turn it off whenever you like.',
+                note: availabilityLabel(FEATURES.athlete_profile.status),
               },
             ]}
           />
@@ -37,15 +44,17 @@ export default function HowItWorksPage() {
       </section>
       <ContentSection title="Who can see what" tone="ice">
         <ul>
-          <li>Your profile is private until you choose to share it.</li>
-          <li>Only coaches whose role we&apos;ve confirmed against their program&apos;s official staff page can search athletes.</li>
-          <li>Athletes under 18 need a linked parent or guardian to approve coach visibility.</li>
-          <li>Parents see only what the athlete shares with them.</li>
+          <li>Schools saved in this browser stay in this browser. Schools saved to an account are visible only to you.</li>
+          <li>The scores you type into the score comparison stay in your browser; they are not sent to us or saved.</li>
+          <li>When recruiting profiles open, they will be private until you choose to share them.</li>
+          <li>Only coaches whose role we&apos;ve confirmed against their program&apos;s official staff page will be able to search athletes.</li>
+          <li>Athletes under 18 will need a linked parent or guardian to approve coach visibility.</li>
         </ul>
       </ContentSection>
       <ContentSection title="What it costs">
         <p>
-          Searching, matching, comparing, saving schools, a basic profile and coach visibility are free for good. See{' '}
+          Searching, school pages, comparing and saving schools, and the score comparison are free and stay free. When
+          recruiting profiles and coach visibility open, their basic versions will be free too. See{' '}
           <a href="/pricing">free and planned plans</a>.
         </p>
       </ContentSection>

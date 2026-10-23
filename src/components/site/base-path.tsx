@@ -6,6 +6,8 @@
 export interface BasePathStep {
   readonly title: string;
   readonly body: string;
+  /** Short availability label, e.g. "Coming later", shown with the title. */
+  readonly note?: string | null;
 }
 
 const BASES = [
@@ -69,6 +71,11 @@ export function BasePath({ steps }: { readonly steps: readonly [BasePathStep, Ba
               {index + 1}
             </p>
             <h3 className="mt-2 text-2xl text-navy">{step.title}</h3>
+            {step.note ? (
+              <p className="mt-1 inline-block rounded-full border-2 border-field px-3 py-0.5 text-sm font-semibold text-graphite">
+                {step.note}
+              </p>
+            ) : null}
             <p className="mt-2 text-slate">{step.body}</p>
           </li>
         ))}

@@ -150,6 +150,27 @@ export interface SchoolRecord {
   } | null;
 }
 
+export const APPLICANT_TYPES = ['first_year', 'transfer'] as const;
+export type ApplicantType = (typeof APPLICANT_TYPES)[number];
+
+/**
+ * One row of public.current_admissions_policies: a testing policy checked by
+ * an administrator against the school's official admissions page, for one
+ * applicant type and entry year. Separate from the historical IPEDS policy in
+ * SchoolSummary.test_policy, which describes a past entering class.
+ */
+export interface CurrentPolicy {
+  readonly slug: string;
+  readonly applicant_type: ApplicantType;
+  /** The fall the applicant would enroll (2027 = entering fall 2027). */
+  readonly entry_year: number;
+  readonly test_policy: TestPolicy;
+  readonly exceptions: string | null;
+  readonly source_url: string;
+  readonly source_title: string | null;
+  readonly verified_at: string;
+}
+
 /** public.registry_coverage */
 export interface RegistryCoverage {
   readonly active_programs: number;
@@ -159,6 +180,8 @@ export interface RegistryCoverage {
   readonly with_admission_rate: number;
   readonly with_test_scores: number;
   readonly with_test_policy: number;
+  /** Schools with a first-year testing policy checked against an official page. */
+  readonly with_current_test_policy?: number;
   readonly with_cost_of_attendance: number;
   readonly with_gpa: number;
   readonly four_year_without_admissions: number;
@@ -167,6 +190,7 @@ export interface RegistryCoverage {
   readonly latest_cost_year: string | null;
   readonly association_or_school_verified: number;
   readonly federal_report_only: number;
+  readonly reported_as_other?: number;
   readonly with_conference: number;
   readonly last_retrieved_at: string | null;
 }

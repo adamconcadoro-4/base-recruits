@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
@@ -21,18 +22,33 @@ import {
   formatRate,
   placeLabel,
 } from '@/lib/registry/labels';
-import { compareSchools } from '@/lib/registry/queries';
-import { MAX_COMPARE, parseCompareList } from '@/lib/registry/search-params';
-import type { SchoolRecord } from '@/lib/registry/types';
+import { entryLabel, latestPolicy } from '@/lib/registry/policy';
+import { COMPARE_COOKIE, selectionFor } from '@/lib/registry/compare-selection';
+import { compareSchools, currentPolicies } from '@/lib/registry/queries';
+import { MAX_COMPARE } from '@/lib/registry/search-params';
+import type { CurrentPolicy, SchoolRecord } from '@/lib/registry/types';
 
 export const metadata: Metadata = {
   title: 'Compare schools',
   description: 'Compare up to five college baseball programs side by side, free, with the source year of every figure.',
+  alternates: { canonical: '/compare' },
+  robots: { index: false, follow: true },
 };
 
 interface Line {
   readonly label: string;
-  readonly value: (school: SchoolRecord) => { readonly text: string; readonly year?: string | null };
+  /** `policies` are the checked current policies for this school (undefined when they didn't load). */
+  readonly value: (school: SchoolRecord, policies: readonly CurrentPolicy[] | undefined) => { readonly text: string; readonly year?: string | null };
+}
+
+const NOT_CHECKED = 'Not yet checked';
+
+/** The checked first-year policy, or an honest "not checked" (never the past-class figure). */
+function currentPolicyFact(policies: readonly CurrentPolicy[] | undefined) {
+  if (policies === undefined) return { text: 'Didn’t load' };
+  const policy = latestPolicy(policies, 'first_year');
+  if (!policy) return { text: NOT_CHECKED };
+  return { text: TEST_POLICY_LABELS[policy.test_policy].short, year: `First-year, ${entryLabel(policy.entry_year)} (checked)` };
 }
 
 function fact(text: string | null | undefined, year?: string | null) {
@@ -62,7 +78,11 @@ const LINES: readonly { readonly heading: string; readonly lines: readonly Line[
     heading: 'Admissions',
     lines: [
       { label: 'Admission rate', value: (s) => fact(s.admissions?.admission_rate != null ? formatRate(s.admissions.admission_rate) : null, s.admissions?.term) },
-      { label: 'Test policy', value: (s) => fact(s.admissions?.test_policy ? TEST_POLICY_LABELS[s.admissions.test_policy].short : null, s.admissions?.term) },
+      { label: 'Current testing policy', value: (_s, policies) => currentPolicyFact(policies) },
+      {
+        label: 'Test policy, past class',
+        value: (s) => fact(s.admissions?.test_policy ? TEST_POLICY_LABELS[s.admissions.test_policy].short : null, s.admissions?.term),
+      },
       {
         label: 'SAT Reading and Writing, middle 50%',
         value: (s) => fact(s.admissions?.sat_erw_25 != null ? formatRange(s.admissions.sat_erw_25, s.admissions.sat_erw_75) : null, s.admissions?.term),
@@ -111,7 +131,7 @@ const LINES: readonly { readonly heading: string; readonly lines: readonly Line[
 ];
 
 function Cell({ value }: { readonly value: { readonly text: string; readonly year?: string | null } }) {
-  const missing = value.text === NOT_REPORTED || value.text === 'Not yet verified';
+  const missing = value.text === NOT_REPORTED || value.text === 'Not yet verified' || value.text === NOT_CHECKED;
   return (
     <>
       <span className={missing ? 'text-slate italic' : undefined}>{value.text}</span>
@@ -120,9 +140,10 @@ function Cell({ value }: { readonly value: { readonly text: string; readonly yea
   );
 }
 
+/** Removing the last school uses an explicit empty list, so the stored selection is cleared too. */
 function without(list: readonly string[], slug: string): string {
   const rest = list.filter((s) => s !== slug);
-  return rest.length ? `/compare?schools=${rest.join(',')}` : '/compare';
+  return `/compare?schools=${rest.join(',')}`;
 }
 
 function Links({ school }: { readonly school: SchoolRecord }): ReactNode {
@@ -153,12 +174,18 @@ export default async function ComparePage({
 }: {
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const raw = (await searchParams).schools;
+  const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
+  const raw = params.schools;
   const requested = (Array.isArray(raw) ? raw : raw ? [raw] : []).flatMap((v) => v.split(','));
-  const slugs = parseCompareList(requested);
+  // An explicit list in the URL wins; a plain /compare shows the visitor's stored selection.
+  const slugs = selectionFor(raw, cookieStore.get(COMPARE_COOKIE)?.value);
+  const fromStoredSelection = raw === undefined && slugs.length > 0;
   const tooMany = new Set(requested.map((s) => s.trim().toLowerCase()).filter(Boolean)).size > MAX_COMPARE;
-  const result = await compareSchools(slugs);
+  const refusedSixth = params.full === '1';
+  const [result, policyMap] = await Promise.all([compareSchools(slugs), currentPolicies(slugs)]);
   const schools = result === 'failed' ? [] : result;
+  const policiesFor = (slug: string) => (policyMap === 'failed' ? undefined : (policyMap.get(slug) ?? []));
+  const notFound = result === 'failed' ? 0 : slugs.length - schools.length;
   const exploreLink = `/schools${slugs.length ? `?compare=${slugs.join(',')}` : ''}`;
 
   return (
@@ -175,9 +202,22 @@ export default async function ComparePage({
         {tooMany ? (
           <Notice tone="info">Compare shows up to five schools, so only the first five are here.</Notice>
         ) : null}
+        {refusedSixth ? (
+          <Notice tone="attention" live title="Compare holds five schools">
+            Remove one below to add another. Your saved schools are not affected.
+          </Notice>
+        ) : null}
+        {notFound > 0 ? (
+          <Notice tone="info">
+            {notFound === 1 ? 'One school in this comparison isn’t' : `${notFound} schools in this comparison aren’t`} in the
+            registry, so {notFound === 1 ? 'it was' : 'they were'} left out.
+          </Notice>
+        ) : null}
         {schools.length === 0 && result !== 'failed' ? (
           <Notice tone="info" title="Pick schools to compare">
-            Use “Add to compare” in the <Link href="/schools" className="font-semibold text-royal-ink underline">school search</Link>.
+            Use “Add to compare” in the <Link href="/schools" className="font-semibold text-royal-ink underline">school search</Link>,
+            on a school page, or on your <Link href="/saved" className="font-semibold text-royal-ink underline">saved schools</Link>.
+            Up to five at a time.
           </Notice>
         ) : null}
 
@@ -188,6 +228,15 @@ export default async function ComparePage({
                 <ButtonLink href={exploreLink} variant="secondary" size="sm">
                   Add another school
                 </ButtonLink>
+              ) : null}
+              {fromStoredSelection ? (
+                <Link
+                  href={`/compare?schools=${slugs.join(',')}`}
+                  prefetch={false}
+                  className="font-semibold text-royal-ink underline"
+                >
+                  Link to share this comparison
+                </Link>
               ) : null}
             </div>
 
@@ -204,6 +253,7 @@ export default async function ComparePage({
                         <Link
                           href={without(slugs, s.institution.slug)}
                           aria-label={`Remove ${s.institution.name}`}
+                          prefetch={false}
                           className="mt-1 inline-block text-sm font-semibold text-royal-ink underline"
                         >
                           Remove
@@ -226,7 +276,7 @@ export default async function ComparePage({
                         </th>
                         {schools.map((s) => (
                           <td key={s.institution.slug} className="p-3 align-top">
-                            <Cell value={line.value(s)} />
+                            <Cell value={line.value(s, policiesFor(s.institution.slug))} />
                           </td>
                         ))}
                       </tr>
@@ -253,7 +303,7 @@ export default async function ComparePage({
               {schools.map((s) => (
                 <li key={s.institution.slug} className="border-2 border-rule p-4">
                   <h2 className="text-2xl text-navy">{s.institution.name}</h2>
-                  <Link href={without(slugs, s.institution.slug)} aria-label={`Remove ${s.institution.name}`} className="text-sm font-semibold text-royal-ink underline">
+                  <Link href={without(slugs, s.institution.slug)} aria-label={`Remove ${s.institution.name}`} prefetch={false} className="text-sm font-semibold text-royal-ink underline">
                     Remove
                   </Link>
                   {LINES.map((group) => (
@@ -264,7 +314,7 @@ export default async function ComparePage({
                           <div key={line.label} className="grid grid-cols-2 gap-3 border-b-2 border-rule py-2">
                             <dt className="font-semibold">{line.label}</dt>
                             <dd>
-                              <Cell value={line.value(s)} />
+                              <Cell value={line.value(s, policiesFor(s.institution.slug))} />
                             </dd>
                           </div>
                         ))}

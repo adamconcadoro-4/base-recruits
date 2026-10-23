@@ -7,12 +7,14 @@ import { execFileSync } from 'node:child_process';
 
 import { describe, expect, it } from 'vitest';
 
+import { CORRECTION_TOPICS } from '@/app/(site)/schools/[slug]/correction/topics';
 import { PLANS } from '@/config/plans';
 import { COACH_STATUS_TRANSITIONS, COACH_VERIFICATION_STATUSES } from '@/lib/auth/coach-verification';
 import { APP_ROLES } from '@/lib/auth/roles';
 import { CONSENT_SCOPES, CONSENT_SCOPE_KEYS } from '@/lib/consent/scopes';
 import { CAPABILITIES, CAPABILITY_KEYS } from '@/lib/entitlements/capabilities';
 import {
+  APPLICANT_TYPES,
   CONTROLS,
   DIVISION_CODES,
   LEVELS,
@@ -110,5 +112,10 @@ describe.skipIf(!DATABASE_URL)('database and TypeScript catalogs agree', () => {
     expect(enumValues('test_policy')).toEqual([...TEST_POLICIES]);
     expect(enumValues('program_status')).toEqual([...PROGRAM_STATUSES]);
     expect(enumValues('program_verification')).toEqual([...VERIFICATIONS]);
+  });
+
+  it('admissions policies and correction reports', () => {
+    expect(enumValues('applicant_type')).toEqual([...APPLICANT_TYPES]);
+    expect(enumValues('correction_topic')).toEqual(Object.keys(CORRECTION_TOPICS));
   });
 });

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import { ExternalLink } from '@/components/registry/values';
 import { ContentSection, DraftNotice, PageIntro } from '@/components/site/page-intro';
@@ -6,7 +7,12 @@ import { Notice } from '@/components/ui/notice';
 import { formatCount, formatRetrieved } from '@/lib/registry/labels';
 import { registryCoverage } from '@/lib/registry/queries';
 
-export const metadata: Metadata = { title: 'Data methodology' };
+export const metadata: Metadata = {
+  title: 'Data methodology',
+  description:
+    'Where Base Recruits school and baseball program data comes from, how divisions and testing policies are checked, and what the coverage numbers mean.',
+  alternates: { canonical: '/data-methodology' },
+};
 
 export default async function DataMethodologyPage() {
   const coverage = await registryCoverage();
@@ -57,7 +63,17 @@ export default async function DataMethodologyPage() {
                 {coverage.latest_admissions_term ?? 'no term'}). Two-year and open-admission colleges usually don&apos;t report one.
               </li>
               <li>SAT or ACT ranges reported: {formatCount(coverage.with_test_scores)}.</li>
-              <li>Test policy reported: {formatCount(coverage.with_test_policy)}.</li>
+              <li>
+                Test policy reported for a past entering class: {formatCount(coverage.with_test_policy)}. This is
+                history, not today&apos;s rule.
+              </li>
+              {coverage.with_current_test_policy !== undefined ? (
+                <li>
+                  Current testing policy checked on the school&apos;s own admissions page:{' '}
+                  {formatCount(coverage.with_current_test_policy)}. Everywhere else the current policy shows as not yet
+                  checked.
+                </li>
+              ) : null}
               <li>Published cost of attendance: {formatCount(coverage.with_cost_of_attendance)}.</li>
               <li>GPA: {formatCount(coverage.with_gpa)}. Federal data doesn&apos;t include GPA; we&apos;ll add it only from schools&apos; own published reports.</li>
               <li>
@@ -65,6 +81,12 @@ export default async function DataMethodologyPage() {
                 The rest use the school&apos;s athletics classification from the federal report.
               </li>
               <li>Conference verified: {formatCount(coverage.with_conference)}.</li>
+              {coverage.reported_as_other !== undefined && coverage.reported_as_other > 0 ? (
+                <li>
+                  Listed under &ldquo;Other&rdquo; because the federal report doesn&apos;t name a baseball division we can
+                  use: {formatCount(coverage.reported_as_other)}. They move to their division once it is checked.
+                </li>
+              ) : null}
               {coverage.stale_admissions > 0 ? <li>Admissions figures older than the newest term: {formatCount(coverage.stale_admissions)}.</li> : null}
             </ul>
             <p>We don&apos;t claim to cover every college. These counts are computed live from the published records.</p>
@@ -123,10 +145,23 @@ export default async function DataMethodologyPage() {
             admission rate is not anyone&apos;s personal chance of admission.
           </li>
         </ul>
-        <p>A way to report a correction will be published before launch.</p>
+        <p>
+          Spot something wrong? Use &ldquo;Report a correction&rdquo; on any school page (a free account is needed so we
+          can follow up), or see <Link href="/support" className="font-semibold text-royal-ink underline">Help and corrections</Link>.
+        </p>
       </ContentSection>
 
-      <ContentSection title="Admissions history">
+      <ContentSection title="The score comparison">
+        <p>
+          <Link href="/match" className="font-semibold text-royal-ink underline">Compare your scores</Link> uses a fixed,
+          published set of rules. A testing requirement counts only when the school&apos;s current policy has been checked
+          for your applicant type and entry year; otherwise it says Unknown. Past-class score ranges are shown as
+          history, never as minimums, and transfer students aren&apos;t compared with first-year ranges. Scores are
+          compared in your browser and never sent to us.
+        </p>
+      </ContentSection>
+
+      <ContentSection title="Admissions history" tone="ice">
         <p>
           We don&apos;t publish admissions scattergrams or acceptance predictions. They will appear only if real,
           permissioned applicant outcomes exist in large enough numbers to protect privacy, with their sample size and

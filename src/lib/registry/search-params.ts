@@ -7,8 +7,9 @@
 
 import { z } from 'zod';
 
+import { normalizeDivisionValues } from './divisions';
 import { STATE_NAMES } from './states';
-import { CONTROLS, DIVISION_CODES, LEVELS, SETTINGS, SORTS, TEST_POLICIES, type SchoolSort } from './types';
+import { CONTROLS, LEVELS, SETTINGS, SORTS, TEST_POLICIES, type DivisionCode, type SchoolSort } from './types';
 
 export const PAGE_SIZE = 20;
 export const MAX_COMPARE = 5;
@@ -51,10 +52,20 @@ function only<T extends string>(values: string[], allowed: readonly T[]): T[] {
   return [...new Set(values.filter((v): v is T => (allowed as readonly string[]).includes(v)))];
 }
 
+function unknown(values: string[], allowed: readonly string[]): string[] {
+  return values.filter((v) => !allowed.includes(v));
+}
+
+/** How an ignored URL value is described to the visitor (never echoed at length). */
+function describeIgnored(label: string, value: string): string {
+  const shown = value.length > 30 ? `${value.slice(0, 30)}…` : value;
+  return `${label} “${shown}”`;
+}
+
 export interface ExplorerState {
   readonly q: string;
   readonly state: string | null;
-  readonly divisions: readonly (typeof DIVISION_CODES)[number][];
+  readonly divisions: readonly DivisionCode[];
   readonly controls: readonly (typeof CONTROLS)[number][];
   readonly levels: readonly (typeof LEVELS)[number][];
   readonly settings: readonly (typeof SETTINGS)[number][];
@@ -65,33 +76,65 @@ export interface ExplorerState {
   readonly sort: SchoolSort | null;
   readonly page: number;
   readonly compare: readonly string[];
+  /**
+   * Filter values in the URL that were not recognised and so were not applied,
+   * described for the visitor. Never sent to the database.
+   */
+  readonly ignored: readonly string[];
 }
 
 const pageSchema = z.coerce.number().int().min(1).max(500);
 
-/** Unknown or malformed values are dropped, never passed to the database. */
+/**
+ * Unknown or malformed values are never passed to the database. They are
+ * listed in `ignored` so the page can say a filter was not applied, instead of
+ * quietly showing an unfiltered list as if it were filtered.
+ */
 export function parseExplorerParams(raw: RawParams): ExplorerState {
   const q = (one(raw, 'q') ?? '').slice(0, 100);
-  const stateCode = one(raw, 'state')?.toUpperCase();
+  const stateRaw = one(raw, 'state');
+  const stateCode = stateRaw?.toUpperCase();
   const size = one(raw, 'size');
   const rate = one(raw, 'rate');
   const cost = one(raw, 'cost');
   const sort = one(raw, 'sort');
-  const page = pageSchema.safeParse(one(raw, 'page') ?? '1');
+  const pageRaw = one(raw, 'page');
+  const page = pageSchema.safeParse(pageRaw ?? '1');
+  const divisions = normalizeDivisionValues(all(raw, 'division'));
+  const controls = all(raw, 'control');
+  const levels = all(raw, 'level');
+  const settings = all(raw, 'setting');
+  const tests = all(raw, 'test');
+
+  const ignored: string[] = [
+    ...divisions.unrecognized.map((v) => describeIgnored('division', v)),
+    ...unknown(controls, CONTROLS).map((v) => describeIgnored('school type', v)),
+    ...unknown(levels, LEVELS).map((v) => describeIgnored('two- or four-year', v)),
+    ...unknown(settings, SETTINGS).map((v) => describeIgnored('campus setting', v)),
+    ...unknown(tests, TEST_POLICIES).map((v) => describeIgnored('test policy', v)),
+  ];
+  if (stateCode && !(stateCode in STATE_NAMES)) ignored.push(describeIgnored('state', stateRaw ?? ''));
+  if (size && !(size in SIZE_BANDS)) ignored.push(describeIgnored('enrollment', size));
+  if (rate && !(rate in RATE_CHOICES)) ignored.push(describeIgnored('admission rate', rate));
+  if (cost && !(COST_CHOICES as readonly string[]).includes(cost)) ignored.push(describeIgnored('cost', cost));
+  if (sort && !(SORTS as readonly string[]).includes(sort)) ignored.push(describeIgnored('sort', sort));
+  if (pageRaw !== undefined && !page.success) ignored.push(describeIgnored('page', pageRaw));
+
   return {
     q,
     state: stateCode && stateCode in STATE_NAMES ? stateCode : null,
-    divisions: only(all(raw, 'division'), DIVISION_CODES),
-    controls: only(all(raw, 'control'), CONTROLS),
-    levels: only(all(raw, 'level'), LEVELS),
-    settings: only(all(raw, 'setting'), SETTINGS),
-    tests: only(all(raw, 'test'), TEST_POLICIES),
+    divisions: divisions.codes,
+    controls: only(controls, CONTROLS),
+    levels: only(levels, LEVELS),
+    settings: only(settings, SETTINGS),
+    tests: only(tests, TEST_POLICIES),
     size: size && size in SIZE_BANDS ? (size as SizeBand) : null,
     rate: rate && rate in RATE_CHOICES ? (rate as RateChoice) : null,
     cost: cost && (COST_CHOICES as readonly string[]).includes(cost) ? (cost as CostChoice) : null,
     sort: sort && (SORTS as readonly string[]).includes(sort) ? (sort as SchoolSort) : null,
     page: page.success ? page.data : 1,
     compare: parseCompareList(all(raw, 'compare')),
+    ignored,
   };
 }
 
@@ -99,8 +142,9 @@ export function parseCompareList(values: readonly string[]): string[] {
   return [...new Set(values.map((v) => v.toLowerCase()).filter((v) => v.length <= 120 && SLUG_PATTERN.test(v)))].slice(0, MAX_COMPARE);
 }
 
-/** Arguments for public.search_schools. */
-export function toSearchArgs(state: ExplorerState) {
+/** Arguments for public.search_schools (pageSize up to 100, the database's limit). */
+export function toSearchArgs(state: ExplorerState, pageSize: number = PAGE_SIZE) {
+  const limit = Math.min(Math.max(Math.trunc(pageSize), 1), 100);
   const size = state.size ? SIZE_BANDS[state.size] : null;
   const rate = state.rate ? RATE_CHOICES[state.rate] : null;
   const sort: SchoolSort = state.sort ?? (state.q ? 'relevance' : 'name');
@@ -118,9 +162,24 @@ export function toSearchArgs(state: ExplorerState) {
     p_test_policies: state.tests.length ? [...state.tests] : null,
     p_max_cost: state.cost ? Number(state.cost) : null,
     p_sort: sort === 'relevance' && !state.q ? 'name' : sort,
-    p_limit: PAGE_SIZE,
-    p_offset: (state.page - 1) * PAGE_SIZE,
+    p_limit: limit,
+    p_offset: (state.page - 1) * limit,
   };
+}
+
+/** Number of filters set, not counting the search text and sort (for the "Filters (n)" label). */
+export function activeFilterCount(state: ExplorerState): number {
+  return (
+    (state.state ? 1 : 0) +
+    state.divisions.length +
+    state.controls.length +
+    state.levels.length +
+    state.settings.length +
+    state.tests.length +
+    (state.size ? 1 : 0) +
+    (state.rate ? 1 : 0) +
+    (state.cost ? 1 : 0)
+  );
 }
 
 /** True when any filter other than the search text and sort is set. */
@@ -158,6 +217,7 @@ export function explorerQuery(state: ExplorerState, changes: Partial<ExplorerSta
   if (next.sort) params.set('sort', next.sort);
   if (next.page > 1) params.set('page', String(next.page));
   if (next.compare.length) params.set('compare', next.compare.join(','));
+  else if (changes.compare !== undefined && state.compare.length) params.set('compare', '');
   const text = params.toString();
   return text ? `?${text}` : '';
 }
