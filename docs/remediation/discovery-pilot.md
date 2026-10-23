@@ -103,7 +103,10 @@ the checks in "After merge" pass on the live site.
   (`br_compare`, 30 days, no personal data) and restores it when a page is opened without it. School and saved pages
   use a form-post toggle that works without JavaScript and is never triggered by link prefetching. A sixth school is
   refused with a way to make room. Clearing writes an explicit empty value.
-- **Tests:** unit (`decideCompare`, limits, tampered cookies, client reader); e2e (search → profile → footer link,
+  - Background link prefetches never store or restore the selection (found by CI: prefetching an "Add to compare"
+    or "Remove" link could otherwise change the stored comparison without a click), and links that change the
+    comparison are not prefetched.
+- **Tests:** unit (`decideCompare`, prefetch requests, limits, tampered cookies, client reader); e2e (search → profile → footer link,
   clear, five-school refusal, current vs past policy rows).
 
 ### BR-07 Feature availability
@@ -205,7 +208,7 @@ optional, so an older database does not break the new pages.
 | --- | --- | --- |
 | Database security tests (13 files, including `013_discovery_pilot`) | Local PostgreSQL 16 | 469 assertions passed |
 | Concurrency tests | Local PostgreSQL 16 | 12 scenarios passed |
-| Unit tests (10 of 11 files, including the new `matching-rules` and `discovery-urls`) and the catalog contract test against a database with every migration | Local Node 22 test runner with a Vitest-compatible shim; the workspace cannot install packages. `registry-snapshot` was not run locally (it needs zod 4; its code is unchanged) | 115 passed |
+| Unit tests (10 of 11 files, including the new `matching-rules` and `discovery-urls`) and the catalog contract test against a database with every migration | Local Node 22 test runner with a Vitest-compatible shim; the workspace cannot install packages. `registry-snapshot` was not run locally (it needs zod 4; its code is unchanged) | 116 passed |
 | Rollback script | Local PostgreSQL 16, inside a transaction | Completes; old coverage function works |
 | Typecheck, full Vitest suite, contract tests, Playwright e2e and axe (desktop and Pixel 7), database on the real Supabase stack | GitHub Actions on the pull request | See the pull request's checks |
 

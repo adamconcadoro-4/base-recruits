@@ -150,13 +150,13 @@ export function SchoolCard({
         </Link>
         {compare ? (
           compare.inCompare ? (
-            <Link href={compare.href} aria-label={`Remove from compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false}>
+            <Link href={compare.href} aria-label={`Remove from compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false} prefetch={false}>
               Remove from compare
             </Link>
           ) : compare.full ? (
             <span className="text-sm text-slate">Compare holds five schools</span>
           ) : (
-            <Link href={compare.href} aria-label={`Add to compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false}>
+            <Link href={compare.href} aria-label={`Add to compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false} prefetch={false}>
               Add to compare
             </Link>
           )

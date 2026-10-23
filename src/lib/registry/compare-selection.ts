@@ -14,6 +14,9 @@
  *    are dropped when the comparison loads.
  *  - The comparison is separate from saved schools: adding or removing one
  *    never changes the other.
+ *  - Prefetch requests (Next.js fetches visible links in the background) never
+ *    store or restore anything: only a page the visitor actually opens may
+ *    change the selection.
  */
 
 import { parseCompareList } from './search-params';
@@ -39,9 +42,17 @@ export interface CompareDecision {
   readonly store: string | undefined;
 }
 
-export function decideCompare(url: URL, method: string, cookieValue: string | undefined): CompareDecision {
+/** True for background prefetches (Next.js router, browser speculation rules, link prefetch). */
+export function isPrefetchRequest(headers: { get(name: string): string | null }): boolean {
+  if (headers.get('next-router-prefetch')) return true;
+  if (headers.get('x-middleware-prefetch')) return true;
+  const purpose = `${headers.get('purpose') ?? ''} ${headers.get('sec-purpose') ?? ''}`.toLowerCase();
+  return purpose.includes('prefetch');
+}
+
+export function decideCompare(url: URL, method: string, cookieValue: string | undefined, prefetch = false): CompareDecision {
   const param = COMPARE_PARAM_BY_PATH[url.pathname];
-  if (!param || method !== 'GET') return { redirectTo: null, store: undefined };
+  if (!param || method !== 'GET' || prefetch) return { redirectTo: null, store: undefined };
 
   if (url.searchParams.has(param)) {
     const list = parseCompareList(url.searchParams.getAll(param).flatMap((v) => v.split(',')));

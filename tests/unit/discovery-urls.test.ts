@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import { FEATURES, availabilityLabel, isLive } from '@/config/availability';
-import { COMPARE_COOKIE, compareFromDocumentCookie, decideCompare, readCompareCookie, withSchool } from '@/lib/registry/compare-selection';
+import {
+  COMPARE_COOKIE,
+  compareFromDocumentCookie,
+  decideCompare,
+  isPrefetchRequest,
+  readCompareCookie,
+  withSchool,
+} from '@/lib/registry/compare-selection';
 import { DIVISION_SHORTCUTS, TWO_YEAR_DIVISIONS, normalizeDivisionValues, shortcutHref, type DivisionShortcut } from '@/lib/registry/divisions';
 import { explorerQuery, parseExplorerParams, toSearchArgs } from '@/lib/registry/search-params';
 import { indexingAllowed } from '@/lib/seo/indexing';
@@ -74,6 +81,18 @@ describe('comparison selection follows the visitor (BR-06)', () => {
     expect(decideCompare(at('/compare'), 'GET', '')).toEqual({ redirectTo: null, store: undefined });
     expect(decideCompare(at('/schools/a'), 'GET', 'a,b')).toEqual({ redirectTo: null, store: undefined });
     expect(decideCompare(at('/compare'), 'POST', 'a,b')).toEqual({ redirectTo: null, store: undefined });
+  });
+
+  it('background prefetches never change or restore the selection', () => {
+    expect(decideCompare(at('/compare?schools='), 'GET', 'a,b', true)).toEqual({ redirectTo: null, store: undefined });
+    expect(decideCompare(at('/schools?compare=a,c'), 'GET', 'a,b', true)).toEqual({ redirectTo: null, store: undefined });
+    expect(decideCompare(at('/compare'), 'GET', 'a,b', true)).toEqual({ redirectTo: null, store: undefined });
+    const headers = (entries: Record<string, string>) => new Headers(entries);
+    expect(isPrefetchRequest(headers({ 'next-router-prefetch': '1' }))).toBe(true);
+    expect(isPrefetchRequest(headers({ purpose: 'prefetch' }))).toBe(true);
+    expect(isPrefetchRequest(headers({ 'sec-purpose': 'prefetch;prerender' }))).toBe(true);
+    expect(isPrefetchRequest(headers({ rsc: '1' }))).toBe(false);
+    expect(isPrefetchRequest(headers({}))).toBe(false);
   });
 
   it('stores at most five valid schools and ignores tampered cookies', () => {

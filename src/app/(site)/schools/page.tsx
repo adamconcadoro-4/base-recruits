@@ -92,7 +92,7 @@ export default async function SchoolsPage({ searchParams }: { readonly searchPar
                 <ButtonLink href={`/compare?schools=${state.compare.join(',')}`} size="sm">
                   Compare now
                 </ButtonLink>
-                <Link href={`/schools${explorerQuery(state, { compare: [] })}`} className="font-semibold text-royal-ink underline">
+                <Link href={`/schools${explorerQuery(state, { compare: [] })}`} prefetch={false} className="font-semibold text-royal-ink underline">
                   Clear compare
                 </Link>
               </div>

@@ -240,6 +240,7 @@ export default async function ComparePage({
                         <Link
                           href={without(slugs, s.institution.slug)}
                           aria-label={`Remove ${s.institution.name}`}
+                          prefetch={false}
                           className="mt-1 inline-block text-sm font-semibold text-royal-ink underline"
                         >
                           Remove
@@ -289,7 +290,7 @@ export default async function ComparePage({
               {schools.map((s) => (
                 <li key={s.institution.slug} className="border-2 border-rule p-4">
                   <h2 className="text-2xl text-navy">{s.institution.name}</h2>
-                  <Link href={without(slugs, s.institution.slug)} aria-label={`Remove ${s.institution.name}`} className="text-sm font-semibold text-royal-ink underline">
+                  <Link href={without(slugs, s.institution.slug)} aria-label={`Remove ${s.institution.name}`} prefetch={false} className="text-sm font-semibold text-royal-ink underline">
                     Remove
                   </Link>
                   {LINES.map((group) => (

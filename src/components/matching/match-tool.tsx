@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 import { matchCandidates, savedCandidates, type CandidateResult } from '@/app/(site)/match/actions';
 import { SaveButton } from '@/components/shortlist/save-button';
@@ -182,6 +182,13 @@ export function MatchTool({ signedIn, thisYear }: { readonly signedIn: boolean; 
   const [sort, setSort] = useState<'group' | 'name'>('group');
   const errorSummary = useRef<HTMLDivElement>(null);
   const resultsHeading = useRef<HTMLHeadingElement>(null);
+  // Where focus goes after a submission, applied once React has rendered it.
+  const [focusRequest, setFocusRequest] = useState<{ readonly target: 'errors' | 'results' } | null>(null);
+
+  useEffect(() => {
+    if (!focusRequest) return;
+    (focusRequest.target === 'errors' ? errorSummary.current : resultsHeading.current)?.focus();
+  }, [focusRequest]);
 
   const results = useMemo(() => {
     if (!input || !data || data.status !== 'ok') return [];
@@ -245,7 +252,7 @@ export function MatchTool({ signedIn, thisYear }: { readonly signedIn: boolean; 
       setErrors(parsed.errors);
       setInput(null);
       // Move focus to the error summary only after a failed submission.
-      requestAnimationFrame(() => errorSummary.current?.focus());
+      setFocusRequest({ target: 'errors' });
       return;
     }
     setErrors({});
@@ -257,7 +264,7 @@ export function MatchTool({ signedIn, thisYear }: { readonly signedIn: boolean; 
     };
     setFilters(nextFilters);
     await load(nextFilters, 1, false);
-    requestAnimationFrame(() => resultsHeading.current?.focus());
+    setFocusRequest({ target: 'results' });
   }
 
   const errorEntries = Object.entries(errors);
