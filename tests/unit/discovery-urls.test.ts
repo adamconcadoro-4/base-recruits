@@ -4,9 +4,10 @@ import { FEATURES, availabilityLabel, isLive } from '@/config/availability';
 import {
   COMPARE_COOKIE,
   compareFromDocumentCookie,
-  decideCompare,
+  compareToStore,
   isPrefetchRequest,
   readCompareCookie,
+  selectionFor,
   withSchool,
 } from '@/lib/registry/compare-selection';
 import { DIVISION_SHORTCUTS, TWO_YEAR_DIVISIONS, normalizeDivisionValues, shortcutHref, type DivisionShortcut } from '@/lib/registry/divisions';
@@ -62,43 +63,42 @@ describe('comparison selection follows the visitor (BR-06)', () => {
   const at = (path: string) => new URL(path, 'https://example.test');
 
   it('an explicit URL is stored, and an empty value clears', () => {
-    expect(decideCompare(at('/schools?compare=a,b'), 'GET', undefined)).toEqual({ redirectTo: null, store: 'a,b' });
-    expect(decideCompare(at('/compare?schools=c'), 'GET', 'a,b')).toEqual({ redirectTo: null, store: 'c' });
-    expect(decideCompare(at('/compare?schools='), 'GET', 'a,b')).toEqual({ redirectTo: null, store: '' });
+    expect(compareToStore(at('/schools?compare=a,b'), 'GET')).toBe('a,b');
+    expect(compareToStore(at('/compare?schools=c'), 'GET')).toBe('c');
+    expect(compareToStore(at('/compare?schools='), 'GET')).toBe('');
   });
 
-  it('a plain link restores the stored selection, keeping other parameters', () => {
-    const decision = decideCompare(at('/schools?q=texas'), 'GET', 'a,b');
-    expect(decision.store).toBeUndefined();
-    expect(decision.redirectTo?.pathname).toBe('/schools');
-    expect(decision.redirectTo?.searchParams.get('q')).toBe('texas');
-    expect(decision.redirectTo?.searchParams.get('compare')).toBe('a,b');
-    expect(decideCompare(at('/compare'), 'GET', 'a,b').redirectTo?.searchParams.get('schools')).toBe('a,b');
+  it('stores nothing for plain links, other pages, non-GET requests or prefetches', () => {
+    expect(compareToStore(at('/compare'), 'GET')).toBeUndefined();
+    expect(compareToStore(at('/schools?q=texas'), 'GET')).toBeUndefined();
+    expect(compareToStore(at('/schools/a?compare=b'), 'GET')).toBeUndefined();
+    expect(compareToStore(at('/compare?schools=a'), 'POST')).toBeUndefined();
+    expect(compareToStore(at('/compare?schools='), 'GET', true)).toBeUndefined();
+    expect(compareToStore(at('/schools?compare=a,c'), 'GET', true)).toBeUndefined();
   });
 
-  it('does nothing without a stored selection, for other pages, or for non-GET requests', () => {
-    expect(decideCompare(at('/compare'), 'GET', undefined)).toEqual({ redirectTo: null, store: undefined });
-    expect(decideCompare(at('/compare'), 'GET', '')).toEqual({ redirectTo: null, store: undefined });
-    expect(decideCompare(at('/schools/a'), 'GET', 'a,b')).toEqual({ redirectTo: null, store: undefined });
-    expect(decideCompare(at('/compare'), 'POST', 'a,b')).toEqual({ redirectTo: null, store: undefined });
-  });
-
-  it('background prefetches never change or restore the selection', () => {
-    expect(decideCompare(at('/compare?schools='), 'GET', 'a,b', true)).toEqual({ redirectTo: null, store: undefined });
-    expect(decideCompare(at('/schools?compare=a,c'), 'GET', 'a,b', true)).toEqual({ redirectTo: null, store: undefined });
-    expect(decideCompare(at('/compare'), 'GET', 'a,b', true)).toEqual({ redirectTo: null, store: undefined });
+  it('recognises background prefetch requests', () => {
     const headers = (entries: Record<string, string>) => new Headers(entries);
     expect(isPrefetchRequest(headers({ 'next-router-prefetch': '1' }))).toBe(true);
+    expect(isPrefetchRequest(headers({ 'next-router-segment-prefetch': '/_tree' }))).toBe(true);
     expect(isPrefetchRequest(headers({ purpose: 'prefetch' }))).toBe(true);
     expect(isPrefetchRequest(headers({ 'sec-purpose': 'prefetch;prerender' }))).toBe(true);
     expect(isPrefetchRequest(headers({ rsc: '1' }))).toBe(false);
     expect(isPrefetchRequest(headers({}))).toBe(false);
   });
 
+  it('a page shows the URL list when present (even empty), otherwise the stored one', () => {
+    expect(selectionFor(undefined, 'a,b')).toEqual(['a', 'b']);
+    expect(selectionFor('c', 'a,b')).toEqual(['c']);
+    expect(selectionFor('', 'a,b')).toEqual([]);
+    expect(selectionFor(['a', 'b,c'], undefined)).toEqual(['a', 'b', 'c']);
+    expect(selectionFor(undefined, undefined)).toEqual([]);
+  });
+
   it('stores at most five valid schools and ignores tampered cookies', () => {
-    expect(decideCompare(at('/compare?schools=a,b,c,d,e,f'), 'GET', undefined).store).toBe('a,b,c,d,e');
+    expect(compareToStore(at('/compare?schools=a,b,c,d,e,f'), 'GET')).toBe('a,b,c,d,e');
     expect(readCompareCookie('a,../etc,Bad Slug,<script>,b')).toEqual(['a', 'b']);
-    expect(decideCompare(at('/compare'), 'GET', '../etc').redirectTo).toBeNull();
+    expect(selectionFor(undefined, '../etc')).toEqual([]);
   });
 
   it('adding and removing respects the five-school limit', () => {

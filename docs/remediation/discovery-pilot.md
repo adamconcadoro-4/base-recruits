@@ -99,15 +99,21 @@ the checks in "After merge" pass on the live site.
   e2e (home link equals manual filter count, legacy link, unknown filter notice).
 
 ### BR-06 Comparison continuity
-- **Fix:** the URL stays the shareable source of truth. The request proxy stores it in a first-party cookie
-  (`br_compare`, 30 days, no personal data) and restores it when a page is opened without it. School and saved pages
-  use a form-post toggle that works without JavaScript and is never triggered by link prefetching. A sixth school is
-  refused with a way to make room. Clearing writes an explicit empty value.
-  - Background link prefetches never store or restore the selection (found by CI: prefetching an "Add to compare"
-    or "Remove" link could otherwise change the stored comparison without a click), and links that change the
-    comparison are not prefetched.
-- **Tests:** unit (`decideCompare`, prefetch requests, limits, tampered cookies, client reader); e2e (search → profile → footer link,
-  clear, five-school refusal, current vs past policy rows).
+- **Fix:**
+  - An explicit list in the URL (`/compare?schools=…`, `/schools?compare=…`) always wins and stays shareable.
+  - The request proxy stores it in a first-party cookie (`br_compare`, 30 days, school identifiers only). Pages
+    opened without a list (header, footer, bookmarks) show the stored selection directly, and `/compare` then offers a
+    link to share it.
+  - School and saved pages use a form-post toggle that works without JavaScript. A sixth school is refused with a way
+    to make room. Clearing writes an explicit empty value.
+- **Found in CI, fixed:** background link prefetches passed through the proxy.
+  - Prefetching an "Add to compare" or "Remove" link could change the stored comparison without a click.
+  - A restore *redirect* fetched in the background could be cached by the router and replayed later with an
+    out-of-date list.
+  - Prefetches now never store anything, links that change the comparison are not prefetched, and pages read the
+    stored selection instead of redirecting.
+- **Tests:** unit (`compareToStore`, `selectionFor`, prefetch detection, limits, tampered cookies, client reader); e2e
+  (search → profile → footer link, clear, five-school refusal, current vs past policy rows).
 
 ### BR-07 Feature availability
 - **Fix:** `src/config/availability.ts` is the one place that says what works today (available / pilot / planned /

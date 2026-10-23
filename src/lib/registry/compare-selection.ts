@@ -1,22 +1,21 @@
 /**
  * The comparison selection follows the visitor across normal navigation.
  *
- * Rules (applied by the request proxy, so they work without JavaScript):
- *  - The selection lives in the URL: `/schools?compare=a,b` and
- *    `/compare?schools=a,b`. Those links are shareable.
- *  - Whenever one of those pages is opened WITH its parameter, that list
- *    becomes the visitor's stored selection (an explicit URL always wins, and
- *    an empty value, `?schools=`, clears it).
+ * Rules (they work without JavaScript):
+ *  - An explicit list in the URL always wins: `/schools?compare=a,b` and
+ *    `/compare?schools=a,b`. Those links are shareable. When one of them is
+ *    opened, the request proxy stores the list in a first-party cookie, and an
+ *    empty value (`?schools=`) clears it.
  *  - When one of those pages is opened WITHOUT its parameter (a header or
- *    footer link, a bookmark, the back button to a plain URL), the stored
- *    selection is restored by redirecting to the same page with it.
+ *    footer link, a bookmark), the page shows the stored selection. There is
+ *    no redirect: a redirect fetched by a background prefetch can be cached by
+ *    the router and replayed later with an out-of-date list.
+ *  - Prefetch requests (Next.js fetches visible links in the background) never
+ *    store anything: only a page the visitor actually opens may change it.
  *  - At most five schools, each a valid slug, no duplicates. Unknown schools
  *    are dropped when the comparison loads.
  *  - The comparison is separate from saved schools: adding or removing one
  *    never changes the other.
- *  - Prefetch requests (Next.js fetches visible links in the background) never
- *    store or restore anything: only a page the visitor actually opens may
- *    change the selection.
  */
 
 import { parseCompareList } from './search-params';
@@ -35,35 +34,33 @@ export function readCompareCookie(value: string | undefined): string[] {
   return parseCompareList(value.split(','));
 }
 
-export interface CompareDecision {
-  /** Where to send the visitor to restore their selection, if anywhere. */
-  readonly redirectTo: URL | null;
-  /** The value to store (empty string clears), or undefined to leave it. */
-  readonly store: string | undefined;
-}
-
 /** True for background prefetches (Next.js router, browser speculation rules, link prefetch). */
 export function isPrefetchRequest(headers: { get(name: string): string | null }): boolean {
   if (headers.get('next-router-prefetch')) return true;
+  if (headers.get('next-router-segment-prefetch')) return true;
   if (headers.get('x-middleware-prefetch')) return true;
   const purpose = `${headers.get('purpose') ?? ''} ${headers.get('sec-purpose') ?? ''}`.toLowerCase();
   return purpose.includes('prefetch');
 }
 
-export function decideCompare(url: URL, method: string, cookieValue: string | undefined, prefetch = false): CompareDecision {
+/**
+ * What the request proxy should store for this request: the explicit list
+ * (empty string clears), or undefined to leave the stored selection alone.
+ */
+export function compareToStore(url: URL, method: string, prefetch = false): string | undefined {
   const param = COMPARE_PARAM_BY_PATH[url.pathname];
-  if (!param || method !== 'GET' || prefetch) return { redirectTo: null, store: undefined };
+  if (!param || method !== 'GET' || prefetch || !url.searchParams.has(param)) return undefined;
+  return parseCompareList(url.searchParams.getAll(param).flatMap((v) => v.split(','))).join(',');
+}
 
-  if (url.searchParams.has(param)) {
-    const list = parseCompareList(url.searchParams.getAll(param).flatMap((v) => v.split(',')));
-    return { redirectTo: null, store: list.join(',') };
-  }
-
-  const stored = readCompareCookie(cookieValue);
-  if (stored.length === 0) return { redirectTo: null, store: undefined };
-  const target = new URL(url);
-  target.searchParams.set(param, stored.join(','));
-  return { redirectTo: target, store: undefined };
+/**
+ * The selection a page shows: the explicit URL list when the parameter is
+ * present (even empty), otherwise the stored one.
+ */
+export function selectionFor(urlValue: string | readonly string[] | undefined, cookieValue: string | undefined): string[] {
+  if (urlValue === undefined) return readCompareCookie(cookieValue);
+  const values = typeof urlValue === 'string' ? [urlValue] : urlValue;
+  return parseCompareList(values.flatMap((v) => v.split(',')));
 }
 
 /** `list` with `slug` added (when there is room) or removed. */

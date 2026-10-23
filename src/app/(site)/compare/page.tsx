@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
@@ -22,8 +23,9 @@ import {
   placeLabel,
 } from '@/lib/registry/labels';
 import { entryLabel, latestPolicy } from '@/lib/registry/policy';
+import { COMPARE_COOKIE, selectionFor } from '@/lib/registry/compare-selection';
 import { compareSchools, currentPolicies } from '@/lib/registry/queries';
-import { MAX_COMPARE, parseCompareList } from '@/lib/registry/search-params';
+import { MAX_COMPARE } from '@/lib/registry/search-params';
 import type { CurrentPolicy, SchoolRecord } from '@/lib/registry/types';
 
 export const metadata: Metadata = {
@@ -172,10 +174,12 @@ export default async function ComparePage({
 }: {
   readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const params = await searchParams;
+  const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
   const raw = params.schools;
   const requested = (Array.isArray(raw) ? raw : raw ? [raw] : []).flatMap((v) => v.split(','));
-  const slugs = parseCompareList(requested);
+  // An explicit list in the URL wins; a plain /compare shows the visitor's stored selection.
+  const slugs = selectionFor(raw, cookieStore.get(COMPARE_COOKIE)?.value);
+  const fromStoredSelection = raw === undefined && slugs.length > 0;
   const tooMany = new Set(requested.map((s) => s.trim().toLowerCase()).filter(Boolean)).size > MAX_COMPARE;
   const refusedSixth = params.full === '1';
   const [result, policyMap] = await Promise.all([compareSchools(slugs), currentPolicies(slugs)]);
@@ -224,6 +228,15 @@ export default async function ComparePage({
                 <ButtonLink href={exploreLink} variant="secondary" size="sm">
                   Add another school
                 </ButtonLink>
+              ) : null}
+              {fromStoredSelection ? (
+                <Link
+                  href={`/compare?schools=${slugs.join(',')}`}
+                  prefetch={false}
+                  className="font-semibold text-royal-ink underline"
+                >
+                  Link to share this comparison
+                </Link>
               ) : null}
             </div>
 

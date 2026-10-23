@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 
 import { ExplorerFilters } from '@/components/registry/explorer-filters';
@@ -8,6 +9,7 @@ import { PageIntro } from '@/components/site/page-intro';
 import { ButtonLink } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
 import { isSignedIn } from '@/lib/auth/session';
+import { COMPARE_COOKIE, selectionFor } from '@/lib/registry/compare-selection';
 import { formatAcademicYear, formatCount } from '@/lib/registry/labels';
 import { latestPolicy } from '@/lib/registry/policy';
 import { currentPolicies, mySavedSlugs, registryCoverage, searchSchools } from '@/lib/registry/queries';
@@ -39,7 +41,10 @@ export async function generateMetadata({ searchParams }: { readonly searchParams
 }
 
 export default async function SchoolsPage({ searchParams }: { readonly searchParams: SearchParams }) {
-  const state = parseExplorerParams(await searchParams);
+  const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
+  const parsed = parseExplorerParams(params);
+  // An explicit compare list in the URL wins; otherwise show the visitor's stored selection.
+  const state = { ...parsed, compare: selectionFor(params.compare, cookieStore.get(COMPARE_COOKIE)?.value) };
   const [result, coverage, signedIn] = await Promise.all([searchSchools(state), registryCoverage(), isSignedIn()]);
   const slugsOnPage = result.rows.map((row) => row.slug);
   const [policies, savedSlugs] = await Promise.all([

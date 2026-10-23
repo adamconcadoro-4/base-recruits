@@ -63,8 +63,13 @@ test.describe('comparison continuity (BR-06)', () => {
     await expect(page.getByRole('button', { name: 'Remove from compare: Harvard University' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'view comparison' })).toBeVisible();
 
+    // A plain link (no list in the URL) shows the stored selection, with a link to share it.
     await page.getByRole('contentinfo').getByRole('link', { name: 'Compare schools' }).click();
-    await expect(page).toHaveURL(/\/compare\?schools=stanford-university-ca(%2C|,)harvard-university-ma$/);
+    await expect(page).toHaveURL(/\/compare$/);
+    await expect(page.getByRole('link', { name: 'Link to share this comparison' })).toHaveAttribute(
+      'href',
+      '/compare?schools=stanford-university-ca,harvard-university-ma',
+    );
     const table = page.getByRole('table');
     await expect(table.getByRole('columnheader', { name: /Stanford University/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: /Harvard University/ })).toBeVisible();
