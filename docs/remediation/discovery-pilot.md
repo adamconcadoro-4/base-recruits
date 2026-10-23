@@ -13,19 +13,22 @@ the checks in "After merge" pass on the live site.
 
 | ID | Finding | Reproduced | Status |
 | --- | --- | --- | --- |
-| BR-01 | Academic matching was promised everywhere but `/match` was a placeholder | Confirmed | See CI result in the pull request |
-| BR-02 | No real shortlist: "saving" was the five-school compare list, lost between visits and never in an account | Confirmed | Tested locally (database); UI see CI |
-| BR-03 | Baseball division shown from the school-wide federal classification (37 "Other", Johns Hopkins as "Other") | Partly: model was already separate; data uncorrected | Code: see CI. Data: **awaiting authorization** |
-| BR-04 | A past class's IPEDS test policy was presented as the school's current rule | Confirmed | Tested locally (database); UI see CI |
-| BR-05 | Home-page division links (`division=ncaa-d1`) were silently ignored, so they showed every school | Confirmed | Tested locally (unit) |
-| BR-06 | The comparison was lost when moving between pages by header, footer or profile links | Confirmed | Tested locally (unit); UI see CI |
-| BR-07 | Pages described unbuilt features (profiles, coach tools, majors, transfer tools) as available | Confirmed | Tested locally (unit); UI see CI |
-| BR-08 | Coverage figures did not show how much is checked versus taken from federal reports | Partly: counts were computed from live data | Tested locally (database); page see CI |
-| BR-09 | School pages lacked save/compare/report actions; no way to report a correction; cost basis unclear | Confirmed | Tested locally (database); UI see CI |
-| BR-10 | On phones the filter panel pushed results far down the page | Confirmed | See CI (Pixel 7 project) |
-| BR-11 | Accessibility statement over-claimed; error handling on new forms needed focus management | Partly: mobile menu was already correct | See CI (axe, desktop and Pixel 7) |
-| BR-12 | Privacy page did not match what the product actually collects; no support route | Confirmed | Copy only; **legal review outstanding** |
-| BR-13 | No robots.txt, sitemap, canonical URLs or descriptions; pre-launch pages indexable | Confirmed | Tested locally (unit); see CI |
+| BR-01 | Academic matching was promised everywhere but `/match` was a placeholder | Confirmed | Tested locally (unit, e2e, axe) |
+| BR-02 | No real shortlist: "saving" was the five-school compare list, lost between visits and never in an account | Confirmed | Tested locally (database, e2e) |
+| BR-03 | Baseball division shown from the school-wide federal classification (37 "Other", Johns Hopkins as "Other") | Partly: model was already separate; data uncorrected | Code tested locally. Data: **awaiting authorization** |
+| BR-04 | A past class's IPEDS test policy was presented as the school's current rule | Confirmed | Tested locally (database, e2e) |
+| BR-05 | Home-page division links (`division=ncaa-d1`) were silently ignored, so they showed every school | Confirmed | Tested locally (unit, e2e) |
+| BR-06 | The comparison was lost when moving between pages by header, footer or profile links | Confirmed | Tested locally (unit, e2e) |
+| BR-07 | Pages described unbuilt features (profiles, coach tools, majors, transfer tools) as available | Confirmed | Tested locally (unit, e2e) |
+| BR-08 | Coverage figures did not show how much is checked versus taken from federal reports | Partly: counts were computed from live data | Tested locally (database, e2e) |
+| BR-09 | School pages lacked save/compare/report actions; no way to report a correction; cost basis unclear | Confirmed | Tested locally (database, e2e) |
+| BR-10 | On phones the filter panel pushed results far down the page | Confirmed | Tested locally (e2e, Pixel 7) |
+| BR-11 | Accessibility statement over-claimed; error handling on new forms needed focus management | Partly: mobile menu was already correct | Tested locally (axe desktop and Pixel 7, focus tests) |
+| BR-12 | Privacy page did not match what the product actually collects; no support route | Confirmed | Copy corrected; **blocked by external dependency** (legal review, support address) |
+| BR-13 | No robots.txt, sitemap, canonical URLs or descriptions; pre-launch pages indexable | Confirmed | Tested locally (unit, e2e) |
+
+"Tested locally" here includes GitHub Actions runs against a local Supabase stack and a production build. There is
+no staging environment (Vercel previews have no database keys), so nothing is "Validated in staging".
 
 ## Findings
 
@@ -216,11 +219,18 @@ optional, so an older database does not break the new pages.
 | Concurrency tests | Local PostgreSQL 16 | 12 scenarios passed |
 | Unit tests (10 of 11 files, including the new `matching-rules` and `discovery-urls`) and the catalog contract test against a database with every migration | Local Node 22 test runner with a Vitest-compatible shim; the workspace cannot install packages. `registry-snapshot` was not run locally (it needs zod 4; its code is unchanged) | 116 passed |
 | Rollback script | Local PostgreSQL 16, inside a transaction | Completes; old coverage function works |
-| Typecheck, full Vitest suite, contract tests, Playwright e2e and axe (desktop and Pixel 7), database on the real Supabase stack | GitHub Actions on the pull request | See the pull request's checks |
+| Typecheck | GitHub Actions | 0 errors (172 files) |
+| Unit tests (Vitest, all 11 files) | GitHub Actions | 113 passed |
+| Contract tests | GitHub Actions, PostgreSQL 16 and 17 | 7 passed |
+| Database security and concurrency tests | GitHub Actions, PostgreSQL 16, 17 and the real Supabase stack | 469 assertions and 12 scenarios passed on each |
+| End-to-end and axe (desktop and Pixel 7, production build, local Supabase stack, synthetic accounts) | GitHub Actions | 161 passed, 2 skipped (phone-only tests on the desktop project) |
+
+CI also caught two real defects that are now fixed: a type error on the pricing page, and the prefetch problem
+described under BR-06.
 
 ## Release readiness
 
-**Not ready for a public launch.** The remediation can be merged once CI passes. Merging only applies the additive
+**Not ready for a public launch.** The remediation itself is ready to merge: every CI check passes. Merging only applies the additive
 migration, keeps search engines out and publishes the honest copy; it adds no public data changes. Public launch is
 blocked by:
 
