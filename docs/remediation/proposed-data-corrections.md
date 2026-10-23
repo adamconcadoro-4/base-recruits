@@ -103,3 +103,22 @@ whether submitted scores are considered (optional vs. blind). Alternative: email
 
 The Hopkins division correction (NCAA Division III, Centennial Conference) is row A above, from
 https://hopkinssports.com/news/2026/2/9/baseball-picked-as-centennial-conference-favorite.aspx.
+
+## E. Re-check of the 8 held rows (2026-10-23, not applied)
+
+A second research pass looked for current official pages. No page contradicted the proposed divisions. The five
+"strong" pages were re-read before this was written.
+
+| School (slug) | Division | Evidence | Strength |
+| --- | --- | --- | --- |
+| `snead-state-community-college-al` | NJCAA Division I | ACCC 2026 "postseason awards for Division I baseball" listing Snead State players (May 8, 2026): https://www.acccathletics.com/sports/bsb/2025-26/releases/20260508iio2o6 | Strong |
+| `triton-college-il` | NJCAA Division I | Triton athletics, May 4, 2026: "No. 4 seed in the Region 4 Division I Baseball Tournament": https://tritonathletics.com/news/2026/5/4/baseball-draws-south-suburban-in-regional-opener.aspx | Strong |
+| `southeastern-community-college-ia` | NJCAA Division II | ICCAC "2026 Baseball Team Stats - DII Southeastern Community College": https://iccac.org/sports/bsb/2025-26/d2/teams/southeasterncommunitycollege | Strong |
+| `marshalltown-community-college-ia` | NJCAA Division II | Marshalltown athletics: "The 2026 Division II All-Region baseball teams were released" with MCC players: https://mccathletics.com/sports/bsb/2025-26/releases/20260513ujhhx5 | Strong |
+| `rockland-community-college-ny` | NJCAA Division II | NJCAA Region 15 site: Rockland the #2 seed in the Region 15 Division II tournament (May 8-10, season year inferred as 2026): https://www.region15athletics.com/general/2025-26/releases/20260505uqt239 | Strong |
+| `mineral-area-college-mo` | NJCAA Division I | Indirect: Region 16 then South Central District then the NJCAA World Series in Grand Junction (the Division I site); not on the Region 16 Division II list: https://athletic.mineralarea.edu/sports/bsb/index | Moderate |
+| `paradise-valley-community-college-az` | NJCAA Division II | Indirect: 2026 ACCAC conference games with Division II teams; own 2025 page says Division II: https://pimaaztecs.com/sports/bsb/2025-26/releases/20260414wricur | Moderate |
+| `massasoit-community-college-ma` | NJCAA Division III | Athletics department page (undated): "premier NJCAA Division III, Region 21"; team active in 2026: https://massasoit.edu/athletics | Moderate |
+
+Nothing suggested any of the eight was discontinued or changing division for 2026-27.
+
