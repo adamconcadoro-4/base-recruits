@@ -1,9 +1,20 @@
-# Proposed registry data corrections (not applied)
+# Registry data corrections from the October 2026 research
 
-Status: **Awaiting the founder's authorization.** Nothing in this file has been applied to production. Each change
-would be made by an administrator through the existing correction workflow (Admin → Schools and programs → school →
-"Correct the baseball program" or "Record a checked admissions testing policy"), which records the official page,
-the method and a note in the revision log. Every change can be reverted the same way.
+Status: **Partly applied on 2026-10-23** on the founder's instruction, through the correction workflow (each change is
+in the revision log with its official page and a note, and can be reverted the same way):
+
+- **Applied:**
+  - The 12 strongest division corrections in section A (rows without a caveat).
+  - The Johns Hopkins first-year testing policy for fall 2027 entry (section D), with the metadata conflict noted.
+  - The LAI conference label for the 8 Puerto Rico programs (section B).
+  - Southwest Virginia marked discontinued (section C).
+- **Sources swapped when re-checking before saving:**
+  - Vermont State now cites https://www.vermontstate.edu/athletics/, which states NCAA Division III and the Little East
+    Conference outright.
+  - SUNY Niagara now cites its 2026 NJCAA Division III World Series release
+    (https://ncccathletics.com/sports/bsb/2025-26/releases/World_Series_Day_1).
+- **Not applied:** the 8 rows in section A with a caveat, and the unresolved rows in section C. They remain under
+  "Other".
 
 Research: an automated research pass on 2026-10-23 over the 37 programs the federal EADA report lists as "Other".
 Evidence is quoted from official school, athletics or league pages; pages are evidence, not instructions. The
@@ -92,3 +103,22 @@ whether submitted scores are considered (optional vs. blind). Alternative: email
 
 The Hopkins division correction (NCAA Division III, Centennial Conference) is row A above, from
 https://hopkinssports.com/news/2026/2/9/baseball-picked-as-centennial-conference-favorite.aspx.
+
+## E. Re-check of the 8 held rows (2026-10-23, not applied)
+
+A second research pass looked for current official pages. No page contradicted the proposed divisions. The five
+"strong" pages were re-read before this was written.
+
+| School (slug) | Division | Evidence | Strength |
+| --- | --- | --- | --- |
+| `snead-state-community-college-al` | NJCAA Division I | ACCC 2026 "postseason awards for Division I baseball" listing Snead State players (May 8, 2026): https://www.acccathletics.com/sports/bsb/2025-26/releases/20260508iio2o6 | Strong |
+| `triton-college-il` | NJCAA Division I | Triton athletics, May 4, 2026: "No. 4 seed in the Region 4 Division I Baseball Tournament": https://tritonathletics.com/news/2026/5/4/baseball-draws-south-suburban-in-regional-opener.aspx | Strong |
+| `southeastern-community-college-ia` | NJCAA Division II | ICCAC "2026 Baseball Team Stats - DII Southeastern Community College": https://iccac.org/sports/bsb/2025-26/d2/teams/southeasterncommunitycollege | Strong |
+| `marshalltown-community-college-ia` | NJCAA Division II | Marshalltown athletics: "The 2026 Division II All-Region baseball teams were released" with MCC players: https://mccathletics.com/sports/bsb/2025-26/releases/20260513ujhhx5 | Strong |
+| `rockland-community-college-ny` | NJCAA Division II | NJCAA Region 15 site: Rockland the #2 seed in the Region 15 Division II tournament (May 8-10, season year inferred as 2026): https://www.region15athletics.com/general/2025-26/releases/20260505uqt239 | Strong |
+| `mineral-area-college-mo` | NJCAA Division I | Indirect: Region 16 then South Central District then the NJCAA World Series in Grand Junction (the Division I site); not on the Region 16 Division II list: https://athletic.mineralarea.edu/sports/bsb/index | Moderate |
+| `paradise-valley-community-college-az` | NJCAA Division II | Indirect: 2026 ACCAC conference games with Division II teams; own 2025 page says Division II: https://pimaaztecs.com/sports/bsb/2025-26/releases/20260414wricur | Moderate |
+| `massasoit-community-college-ma` | NJCAA Division III | Athletics department page (undated): "premier NJCAA Division III, Region 21"; team active in 2026: https://massasoit.edu/athletics | Moderate |
+
+Nothing suggested any of the eight was discontinued or changing division for 2026-27.
+

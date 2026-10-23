@@ -15,8 +15,8 @@ the checks in "After merge" pass on the live site.
 | --- | --- | --- | --- |
 | BR-01 | Academic matching was promised everywhere but `/match` was a placeholder | Confirmed | Tested locally (unit, e2e, axe) |
 | BR-02 | No real shortlist: "saving" was the five-school compare list, lost between visits and never in an account | Confirmed | Tested locally (database, e2e) |
-| BR-03 | Baseball division shown from the school-wide federal classification (37 "Other", Johns Hopkins as "Other") | Partly: model was already separate; data uncorrected | Code tested locally. Data: **awaiting authorization** |
-| BR-04 | A past class's IPEDS test policy was presented as the school's current rule | Confirmed | Tested locally (database, e2e) |
+| BR-03 | Baseball division shown from the school-wide federal classification (37 "Other", Johns Hopkins as "Other") | Partly: model was already separate; data uncorrected | Code tested locally. Data: **production verified** for the approved corrections (2026-10-23); 24 remain under "Other" |
+| BR-04 | A past class's IPEDS test policy was presented as the school's current rule | Confirmed | **Production verified** (Johns Hopkins page, 2026-10-23) |
 | BR-05 | Home-page division links (`division=ncaa-d1`) were silently ignored, so they showed every school | Confirmed | Tested locally (unit, e2e) |
 | BR-06 | The comparison was lost when moving between pages by header, footer or profile links | Confirmed | Tested locally (unit, e2e) |
 | BR-07 | Pages described unbuilt features (profiles, coach tools, majors, transfer tools) as available | Confirmed | Tested locally (unit, e2e) |
@@ -25,7 +25,7 @@ the checks in "After merge" pass on the live site.
 | BR-10 | On phones the filter panel pushed results far down the page | Confirmed | Tested locally (e2e, Pixel 7) |
 | BR-11 | Accessibility statement over-claimed; error handling on new forms needed focus management | Partly: mobile menu was already correct | Tested locally (axe desktop and Pixel 7, focus tests) |
 | BR-12 | Privacy page did not match what the product actually collects; no support route | Confirmed | Copy corrected; **blocked by external dependency** (legal review, support address) |
-| BR-13 | No robots.txt, sitemap, canonical URLs or descriptions; pre-launch pages indexable | Confirmed | Tested locally (unit, e2e) |
+| BR-13 | No robots.txt, sitemap, canonical URLs or descriptions; pre-launch pages indexable | Confirmed | **Production verified** (robots.txt, noindex, canonical, 2026-10-23) |
 
 "Tested locally" here includes GitHub Actions runs against a local Supabase stack and a production build. There is
 no staging environment (Vercel previews have no database keys), so nothing is "Validated in staging".
@@ -236,8 +236,22 @@ blocked by:
 2. A support address and sending domain (F7), and custom SMTP. Today only the founder's address receives sign-in
    codes.
 3. Vercel Pro (the Hobby plan does not allow commercial use).
-4. The founder's decision on the proposed data corrections, including Johns Hopkins.
-5. Turning on indexing (`ALLOW_INDEXING=true`) after items 1–3.
+4. Turning on indexing (`ALLOW_INDEXING=true`) after items 1–3.
+
+Done since: the founder approved and an administrator applied the data corrections listed in
+`proposed-data-corrections.md` (2026-10-23). Leaked-password protection is on, and the `rls_auto_enable` API access
+is revoked (PR #6).
+
+### Production checks done on 2026-10-23
+
+- Supabase shows migrations `20261024000100_discovery_pilot` and `20261024000200_revoke_rls_auto_enable_execute`.
+  The three new tables have row-level security on.
+- `robots.txt` shows `Disallow: /`. School pages send `noindex, nofollow` and a canonical URL.
+- Johns Hopkins page: NCAA Division III (checked), and "Current testing policy: First-year applicants, entering fall
+  2027: SAT/ACT required", shown separately from "The Fall 2024 entering class (historical)".
+- `/match` against Vermont schools compared 4 of 4, moved focus to the results, and showed the rules version.
+- Supabase security advisor: only the expected warning remains (signed-in users can call the app's write functions,
+  each of which checks the caller).
 
 ### After merge (to reach "Production verified")
 
