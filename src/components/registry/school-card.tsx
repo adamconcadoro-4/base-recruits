@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 
 import { StatusChip } from '@/components/ui/status-chip';
 import {
@@ -6,6 +7,7 @@ import {
   LEVEL_LABELS,
   SETTING_LABELS,
   TEST_POLICY_LABELS,
+  VERIFICATION_LABELS,
   formatAcademicYear,
   formatCount,
   formatMoney,
@@ -13,25 +15,34 @@ import {
   formatRate,
   placeLabel,
 } from '@/lib/registry/labels';
-import type { SchoolSummary } from '@/lib/registry/types';
+import { entryLabel } from '@/lib/registry/policy';
+import type { CurrentPolicy, SchoolSummary } from '@/lib/registry/types';
 
 import { Value, YearTag } from './values';
 
-/** One search result. Every figure shows the term or year it describes. */
+/**
+ * One search result. Every figure shows the term or year it describes, and
+ * the baseball division says how it was confirmed. "Add to compare" (up to
+ * five) and "Save school" (no limit) are separate controls.
+ */
 export function SchoolCard({
   school,
-  compareHref,
-  inCompare,
-  compareFull,
+  compare,
+  actions,
+  currentPolicy,
 }: {
   readonly school: SchoolSummary;
-  readonly compareHref: string;
-  readonly inCompare: boolean;
-  readonly compareFull: boolean;
+  /** Compare control for pages that keep the selection in their URL (the search). */
+  readonly compare?: { readonly href: string; readonly inCompare: boolean; readonly full: boolean } | null;
+  /** Other controls: Save, or a form-based compare toggle. */
+  readonly actions?: ReactNode;
+  /** The checked current first-year testing policy, if any. */
+  readonly currentPolicy?: CurrentPolicy | null;
 }) {
   const headingId = `school-${school.slug}`;
   const sameTuition =
     school.tuition_in_state !== null && school.tuition_in_state === school.tuition_out_of_state;
+  const checked = school.verification !== 'federal_report';
   return (
     <article aria-labelledby={headingId} className="border-2 border-rule bg-white p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -54,7 +65,8 @@ export function SchoolCard({
         </div>
       </div>
       <p className="mt-2 text-sm text-slate">
-        Baseball team listed in the {formatAcademicYear(school.program_season)} federal athletics report
+        Baseball team listed in the {formatAcademicYear(school.program_season)} federal athletics report ·{' '}
+        {checked ? VERIFICATION_LABELS[school.verification].short : 'Division as reported by the school, not yet checked'}
         {school.conference ? ` · ${school.conference}` : ' · Conference not yet verified'}
       </p>
 
@@ -68,7 +80,9 @@ export function SchoolCard({
           </dd>
         </div>
         <div>
-          <dt className="text-sm font-semibold text-slate">SAT middle 50%</dt>
+          <dt className="text-sm font-semibold text-slate">
+            SAT middle 50%{school.admissions_term && (school.sat_math_25 !== null || school.sat_erw_25 !== null) ? <YearTag>{school.admissions_term}</YearTag> : null}
+          </dt>
           <dd>
             {school.sat_math_25 !== null || school.sat_erw_25 !== null ? (
               <span>
@@ -80,7 +94,9 @@ export function SchoolCard({
           </dd>
         </div>
         <div>
-          <dt className="text-sm font-semibold text-slate">ACT composite middle 50%</dt>
+          <dt className="text-sm font-semibold text-slate">
+            ACT composite middle 50%{school.admissions_term && school.act_composite_25 !== null ? <YearTag>{school.admissions_term}</YearTag> : null}
+          </dt>
           <dd>
             <Value value={school.act_composite_25}>{formatRange(school.act_composite_25, school.act_composite_75)}</Value>
           </dd>
@@ -88,7 +104,23 @@ export function SchoolCard({
         <div>
           <dt className="text-sm font-semibold text-slate">Test policy</dt>
           <dd>
-            <Value value={school.test_policy}>{school.test_policy ? TEST_POLICY_LABELS[school.test_policy].short : null}</Value>
+            {currentPolicy ? (
+              <span className="block">
+                Now: {TEST_POLICY_LABELS[currentPolicy.test_policy].short.toLowerCase()} for first-year students{' '}
+                {entryLabel(currentPolicy.entry_year)} <span className="text-sm text-slate">(checked)</span>
+              </span>
+            ) : null}
+            <span className={currentPolicy ? 'block text-sm text-slate' : 'block'}>
+              {school.test_policy ? (
+                <>
+                  {TEST_POLICY_LABELS[school.test_policy].short}
+                  {school.admissions_term ? ` for the ${school.admissions_term} class` : ''}
+                </>
+              ) : (
+                <Value value={null} />
+              )}
+            </span>
+            {!currentPolicy ? <span className="block text-sm text-slate">Current policy not yet checked</span> : null}
           </dd>
         </div>
         <div>
@@ -112,21 +144,24 @@ export function SchoolCard({
         </div>
       </dl>
 
-      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+      <div className="mt-4 flex flex-wrap items-start gap-x-5 gap-y-2">
         <Link href={`/schools/${school.slug}`} aria-label={`Details and sources for ${school.name}`} className="font-semibold text-royal-ink underline">
           Details and sources
         </Link>
-        {inCompare ? (
-          <Link href={compareHref} aria-label={`Remove from compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false}>
-            Remove from compare
-          </Link>
-        ) : compareFull ? (
-          <span className="text-sm text-slate">Compare holds five schools</span>
-        ) : (
-          <Link href={compareHref} aria-label={`Add to compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false}>
-            Add to compare
-          </Link>
-        )}
+        {compare ? (
+          compare.inCompare ? (
+            <Link href={compare.href} aria-label={`Remove from compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false}>
+              Remove from compare
+            </Link>
+          ) : compare.full ? (
+            <span className="text-sm text-slate">Compare holds five schools</span>
+          ) : (
+            <Link href={compare.href} aria-label={`Add to compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false}>
+              Add to compare
+            </Link>
+          )
+        ) : null}
+        {actions}
       </div>
     </article>
   );

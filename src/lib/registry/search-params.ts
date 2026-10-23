@@ -142,8 +142,9 @@ export function parseCompareList(values: readonly string[]): string[] {
   return [...new Set(values.map((v) => v.toLowerCase()).filter((v) => v.length <= 120 && SLUG_PATTERN.test(v)))].slice(0, MAX_COMPARE);
 }
 
-/** Arguments for public.search_schools. */
-export function toSearchArgs(state: ExplorerState) {
+/** Arguments for public.search_schools (pageSize up to 100, the database's limit). */
+export function toSearchArgs(state: ExplorerState, pageSize: number = PAGE_SIZE) {
+  const limit = Math.min(Math.max(Math.trunc(pageSize), 1), 100);
   const size = state.size ? SIZE_BANDS[state.size] : null;
   const rate = state.rate ? RATE_CHOICES[state.rate] : null;
   const sort: SchoolSort = state.sort ?? (state.q ? 'relevance' : 'name');
@@ -161,8 +162,8 @@ export function toSearchArgs(state: ExplorerState) {
     p_test_policies: state.tests.length ? [...state.tests] : null,
     p_max_cost: state.cost ? Number(state.cost) : null,
     p_sort: sort === 'relevance' && !state.q ? 'name' : sort,
-    p_limit: PAGE_SIZE,
-    p_offset: (state.page - 1) * PAGE_SIZE,
+    p_limit: limit,
+    p_offset: (state.page - 1) * limit,
   };
 }
 

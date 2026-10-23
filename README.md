@@ -1,6 +1,6 @@
 # Base Recruits
 
-**Where Academics Meet Opportunity.** Free college baseball discovery and academic matching for student-athletes and
+**Where Academics Meet Opportunity.** Free college baseball discovery and score comparison for student-athletes and
 families, with a free, verified-coach recruiting portal. Optional paid plans sell workflow and convenience — never
 visibility, admission or opportunity.
 
@@ -16,6 +16,7 @@ Stage 1 (accounts, roles, consent, coach verification): `docs/reports/stage-1.md
 | Free explorer, school pages, compare (up to five), live coverage on the data methodology page | Done |
 | Admin screens: stage and review imports, publish or roll back, correct programs, hide records | Done |
 | Hosted Supabase project | Created 2026-10-23 (US East); migrations deploy automatically from `main` — see `docs/deployment.md` |
+| Discovery remediation (audit findings BR-01 to BR-13): score comparison, saved schools, current vs historical testing policy, correction reports, SEO switch | See `docs/remediation/discovery-pilot.md` |
 
 ## Requirements
 
@@ -129,6 +130,7 @@ On a fresh database (including a new hosted project) nothing is public until ste
 - `docs/decisions.md` — open founder and legal decisions, with current defaults
 - `docs/reports/` — engineering report for each stage
 - `docs/deployment.md` — production setup: Supabase, Vercel, Auth settings and one-time steps
+- `docs/remediation/` — the discovery remediation register, release readiness and proposed data corrections
 - `CONTRIBUTING.md` — repository conventions and review checklists
 
 ## Product rules the code enforces

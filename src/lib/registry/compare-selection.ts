@@ -60,3 +60,12 @@ export function withSchool(list: readonly string[], slug: string, maxSize: numbe
   if (list.includes(slug)) return list.filter((s) => s !== slug);
   return list.length >= maxSize ? [...list] : [...list, slug];
 }
+
+/** Reads the selection from `document.cookie` (client components). */
+export function compareFromDocumentCookie(cookieString: string): string[] {
+  for (const part of cookieString.split(';')) {
+    const [name, ...rest] = part.trim().split('=');
+    if (name === COMPARE_COOKIE) return readCompareCookie(decodeURIComponent(rest.join('=')));
+  }
+  return [];
+}

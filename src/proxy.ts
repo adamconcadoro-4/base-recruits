@@ -12,7 +12,9 @@ function storeCompare(response: NextResponse, value: string | undefined, secure:
     response.cookies.delete(COMPARE_COOKIE);
   } else {
     response.cookies.set(COMPARE_COOKIE, value, {
-      httpOnly: true,
+      // Readable by the page so client-rendered lists can show "In comparison";
+      // it holds only public school identifiers.
+      httpOnly: false,
       sameSite: 'lax',
       secure,
       path: '/',

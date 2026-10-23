@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 
+import { CompareToggle } from '@/components/registry/compare-toggle';
 import { SourceList } from '@/components/registry/source-list';
+import { SaveButton } from '@/components/shortlist/save-button';
 import { ExternalLink, Value, YearTag } from '@/components/registry/values';
-import { ButtonLink } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip } from '@/components/ui/status-chip';
 import {
@@ -25,8 +27,12 @@ import {
   linkHost,
   placeLabel,
 } from '@/lib/registry/labels';
-import { getSchool } from '@/lib/registry/queries';
+import { isSignedIn } from '@/lib/auth/session';
+import { COMPARE_COOKIE, readCompareCookie } from '@/lib/registry/compare-selection';
+import { APPLICANT_LABELS, entryLabel } from '@/lib/registry/policy';
+import { currentPolicies, getSchool, mySavedSlugs } from '@/lib/registry/queries';
 import { SLUG_PATTERN } from '@/lib/registry/search-params';
+import { APPLICANT_TYPES } from '@/lib/registry/types';
 
 type Params = Promise<{ slug: string }>;
 
@@ -39,9 +45,13 @@ async function load(params: Params) {
 export async function generateMetadata({ params }: { readonly params: Params }): Promise<Metadata> {
   const school = await load(params);
   if (!school || school === 'failed') return { title: 'School not found' };
+  const place = [school.institution.city, school.institution.state].filter(Boolean).join(', ');
+  const division = school.program?.status === 'active' ? school.program.division.name : null;
   return {
     title: `${school.institution.name} baseball`,
-    description: `${school.institution.name}: baseball program, admissions, test policy and published cost, with sources.`,
+    description: `${school.institution.name}${place ? ` (${place})` : ''}${division ? `, ${division}` : ''}: baseball program, admissions figures, testing policy and published cost, each with its source and year.`,
+    alternates: { canonical: `/schools/${school.institution.slug}` },
+    openGraph: { title: `${school.institution.name} baseball | Base Recruits`, url: `/schools/${school.institution.slug}` },
   };
 }
 
@@ -80,6 +90,11 @@ export default async function SchoolPage({ params }: { readonly params: Params }
 
   const { institution, program, admissions, costs } = school;
   const active = program?.status === 'active';
+  const [policyMap, signedIn, cookieStore] = await Promise.all([currentPolicies([institution.slug]), isSignedIn(), cookies()]);
+  const policies = policyMap === 'failed' ? null : (policyMap.get(institution.slug) ?? []);
+  const savedSlugs = signedIn ? await mySavedSlugs() : null;
+  const compareSelection = readCompareCookie(cookieStore.get(COMPARE_COOKIE)?.value);
+  const programChecked = program !== null && program.verification !== 'federal_report';
   const sameTuition = costs !== null && costs.tuition_in_state !== null && costs.tuition_in_state === costs.tuition_out_of_state;
   const hasSat = admissions !== null && (admissions.sat_erw_25 !== null || admissions.sat_math_25 !== null);
 
@@ -98,15 +113,22 @@ export default async function SchoolPage({ params }: { readonly params: Params }
             {institution.control ? ` · ${CONTROL_LABELS[institution.control]}` : ''}
             {institution.level ? ` · ${LEVEL_LABELS[institution.level]}` : ''}
           </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
             {program ? (
               <StatusChip tone={active ? 'progress' : 'attention'}>
                 {active ? program.division.name : STATUS_LABELS[program.status]}
               </StatusChip>
             ) : null}
-            <ButtonLink href={`/schools?compare=${institution.slug}`} variant="secondary" size="sm">
-              Add to compare
-            </ButtonLink>
+            <SaveButton
+              slug={institution.slug}
+              name={institution.name}
+              mode={signedIn ? 'account' : 'guest'}
+              initiallySaved={savedSlugs?.includes(institution.slug) ?? false}
+            />
+            <CompareToggle slug={institution.slug} name={institution.name} selected={compareSelection} back={`/schools/${institution.slug}`} />
+            <Link href={`/schools/${institution.slug}/correction`} className="font-semibold text-royal-ink underline">
+              Report a correction
+            </Link>
           </div>
         </div>
       </section>
@@ -123,9 +145,14 @@ export default async function SchoolPage({ params }: { readonly params: Params }
                 </Notice>
               ) : null}
               <dl>
-                <Row label="Division">
+                <Row label="Baseball division">
                   <span>{program.division.name}</span>
                   <span className="block text-sm text-slate">{program.association.name}</span>
+                  <span className="block text-sm text-slate">
+                    {programChecked
+                      ? 'Checked for the baseball team against an official page (see below).'
+                      : 'Taken from the classification the school reported for its whole athletics program; not yet checked for the baseball team.'}
+                  </span>
                 </Row>
                 <Row label="How it was confirmed">
                   <span>{VERIFICATION_LABELS[program.verification].short}</span>
@@ -137,12 +164,15 @@ export default async function SchoolPage({ params }: { readonly params: Params }
                     </span>
                   ) : null}
                 </Row>
-                <Row label="Reported classification">
+                <Row label="Classification the school reported (all sports)">
                   <Value value={program.classification_label}>
                     {program.classification_label}
                     {program.classification_other ? `: ${program.classification_other}` : ''}
                   </Value>
-                  <span className="block text-sm text-slate">As the school reported it to EADA for {formatAcademicYear(program.season)}.</span>
+                  <span className="block text-sm text-slate">
+                    As the school reported it to EADA for {formatAcademicYear(program.season)}. Kept exactly as reported, even when the
+                    baseball division above has been corrected.
+                  </span>
                 </Row>
                 <Row label="Conference">
                   {program.conference ?? <span className="text-slate italic">Not yet verified</span>}
@@ -185,14 +215,58 @@ export default async function SchoolPage({ params }: { readonly params: Params }
         </Section>
 
         <Section id="admissions" title="Admissions">
+          <h3 className="text-2xl text-navy">Current testing policy</h3>
+          {policies === null ? (
+            <p className="mt-2 text-slate">Checked policies didn&apos;t load. Refresh the page to try again.</p>
+          ) : policies.length === 0 ? (
+            <p className="mt-2">
+              <span className="text-slate italic">Not yet checked.</span> Testing policies change from year to year, so we
+              show a current policy only after checking the school&apos;s own admissions page. Until then, check with the
+              school&apos;s admissions office
+              {institution.website_url ? (
+                <>
+                  {' '}
+                  (<ExternalLink href={institution.website_url}>{linkHost(institution.website_url) ?? 'school website'}</ExternalLink>)
+                </>
+              ) : null}
+              .
+            </p>
+          ) : (
+            <dl className="mt-2">
+              {APPLICANT_TYPES.flatMap((type) =>
+                policies
+                  .filter((p) => p.applicant_type === type)
+                  .map((p) => (
+                    <Row key={`${type}-${p.entry_year}`} label={`${APPLICANT_LABELS[type]}, ${entryLabel(p.entry_year)}`}>
+                      <span>{TEST_POLICY_LABELS[p.test_policy].long}</span>
+                      {p.exceptions ? <span className="block text-sm">{p.exceptions}</span> : null}
+                      <span className="block text-sm text-slate">
+                        Checked {formatRetrieved(p.verified_at)} against{' '}
+                        <ExternalLink href={p.source_url}>{p.source_title ?? linkHost(p.source_url) ?? 'the official admissions page'}</ExternalLink>
+                      </span>
+                    </Row>
+                  )),
+              )}
+            </dl>
+          )}
+          {policies !== null && policies.length > 0 && !policies.some((p) => p.applicant_type === 'transfer') ? (
+            <p className="mt-2 text-sm text-slate">Transfer applicants: not yet checked. Transfer rules often differ from first-year rules.</p>
+          ) : null}
+
+          <h3 className="mt-8 text-2xl text-navy">
+            {admissions ? `The ${admissions.term} entering class (historical)` : 'Past entering class'}
+          </h3>
           {admissions ? (
             <>
-              <p className="mb-2 text-slate">First-year admissions for the {admissions.term} entering class.</p>
+              <p className="mb-2 mt-2 text-slate">
+                What the school reported about first-year students who entered in {admissions.term}. This is history, not a
+                current requirement.
+              </p>
               <dl>
                 <Row label="Admission rate">
                   <Value value={admissions.admission_rate}>{formatRate(admissions.admission_rate)}</Value>
                 </Row>
-                <Row label="Test policy">
+                <Row label={`Test policy for the ${admissions.term} class`}>
                   <Value value={admissions.test_policy}>{admissions.test_policy ? TEST_POLICY_LABELS[admissions.test_policy].long : null}</Value>
                 </Row>
                 <Row label="SAT Reading and Writing, middle 50%">
@@ -211,13 +285,14 @@ export default async function SchoolPage({ params }: { readonly params: Params }
               {hasSat || admissions.act_composite_25 !== null ? (
                 <p className="mt-4 text-sm text-slate">
                   Score ranges are the 25th to 75th percentile of enrolled first-time students whose scores were used in
-                  the admission decision, as reported to IPEDS. They are not the range for all applicants, and a school&apos;s
-                  admission rate is not anyone&apos;s personal chance of admission.
+                  the admission decision, as reported to IPEDS. They are not the range for all applicants, they are not
+                  minimums, and a school&apos;s admission rate is not anyone&apos;s personal chance of admission. They describe
+                  the whole entering class, not recruited athletes.
                 </p>
               ) : null}
             </>
           ) : (
-            <p>
+            <p className="mt-2">
               <span className="text-slate italic">Not reported.</span> The federal data has no first-year admissions figures for
               this school. Open-admission and two-year colleges usually don&apos;t report them.
             </p>
@@ -231,7 +306,12 @@ export default async function SchoolPage({ params }: { readonly params: Params }
               <dl>
                 <Row label="Cost of attendance">
                   <Value value={costs.cost_of_attendance}>{formatMoney(costs.cost_of_attendance)}</Value>
-                  <span className="block text-sm text-slate">Tuition and fees, housing, food, books and other costs for one year.</span>
+                  <span className="block text-sm text-slate">
+                    The average yearly cost of attendance the school reported to the College Scorecard: tuition and fees,
+                    books and supplies, housing, food and other expenses for full-time first-year students. Our source
+                    data doesn&apos;t say which residency (in-state or out-of-state) or housing arrangement it assumes, so
+                    treat it as a rough guide; yours depends on both.
+                  </span>
                 </Row>
                 {sameTuition ? (
                   <Row label="Tuition and fees">{formatMoney(costs.tuition_in_state)}</Row>
@@ -292,7 +372,8 @@ export default async function SchoolPage({ params }: { readonly params: Params }
               )}
             </Row>
             <Row label="Majors">
-              <span className="text-slate italic">Coming soon</span>
+              <span className="text-slate italic">Not imported yet.</span>{' '}
+              <span className="text-sm text-slate">Check the school&apos;s catalog for majors offered.</span>
             </Row>
           </dl>
         </Section>
@@ -303,6 +384,10 @@ export default async function SchoolPage({ params }: { readonly params: Params }
             Federal identifier (IPEDS unit ID) {institution.unitid}.{' '}
             <Link href="/data-methodology" className="font-semibold text-royal-ink underline">
               How we source and label this data
+            </Link>
+            .{' '}
+            <Link href={`/schools/${institution.slug}/correction`} className="font-semibold text-royal-ink underline">
+              Report a wrong or missing fact
             </Link>
           </p>
         </Section>

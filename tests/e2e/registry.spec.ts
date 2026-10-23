@@ -72,7 +72,9 @@ test.describe('visitors (no account)', () => {
     await expect(baseball.getByText('Federal report', { exact: true })).toBeVisible();
     await expect(baseball.getByText('Not yet verified').first()).toBeVisible();
     const admissions = page.getByRole('region', { name: 'Admissions' });
-    await expect(admissions.getByText('First-year admissions for the Fall 2024 entering class.')).toBeVisible();
+    await expect(admissions.getByRole('heading', { name: 'Current testing policy' })).toBeVisible();
+    await expect(admissions.getByText('Not yet checked.')).toBeVisible();
+    await expect(admissions.getByRole('heading', { name: 'The Fall 2024 entering class (historical)' })).toBeVisible();
     await expect(admissions.getByText('3.6%')).toBeVisible();
     await expect(admissions.getByText('770–800')).toBeVisible();
     await expect(admissions.getByText('Not reported in federal data')).toBeVisible();
@@ -108,8 +110,8 @@ test.describe('visitors (no account)', () => {
     const table = page.getByRole('table');
     await expect(table.getByRole('columnheader', { name: /Stanford University/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: /Harvard University/ })).toBeVisible();
-    await expect(table.getByRole('row', { name: /Test policy/ })).toContainText('Test optional');
-    await expect(table.getByRole('row', { name: /Test policy/ })).toContainText('Test required');
+    await expect(table.getByRole('row', { name: /^Test policy, past class/ })).toContainText('Test optional');
+    await expect(table.getByRole('row', { name: /^Test policy, past class/ })).toContainText('Test required');
     await expect(table.getByRole('row', { name: /^GPA/ })).toContainText('Not reported in federal data');
     await page.getByRole('link', { name: 'Remove Stanford University' }).click();
     await expect(page).toHaveURL('/compare?schools=harvard-university-ma');

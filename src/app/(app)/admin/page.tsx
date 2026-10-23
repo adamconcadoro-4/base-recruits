@@ -87,6 +87,10 @@ export default async function AdminPage() {
         Every decision is recorded in the audit log with your account.{' '}
         <Link href="/admin/data" className="font-semibold text-royal-ink underline">
           School data and imports
+        </Link>{' '}
+        ·{' '}
+        <Link href="/admin/corrections" className="font-semibold text-royal-ink underline">
+          Correction reports
         </Link>
       </PageTitle>
       {queueResult.error || recentResult.error ? (

@@ -5,7 +5,7 @@ import { AgeScreenBlocked } from '@/app/(auth)/signup/age-screen-blocked';
 import { SignupForm } from '@/app/(auth)/signup/signup-form';
 import { isAgeGateBlocked } from '@/lib/auth/age-gate';
 
-export const metadata: Metadata = { title: 'Create a free account' };
+export const metadata: Metadata = { title: 'Create a free account', alternates: { canonical: '/signup' } };
 
 export default async function SignupPage() {
   const blocked = await isAgeGateBlocked();

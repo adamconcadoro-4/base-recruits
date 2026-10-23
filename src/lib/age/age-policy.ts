@@ -133,6 +133,6 @@ export function birthDateMessage(reason: Extract<BirthDateCheck, { ok: false }>[
     case 'implausible':
       return 'Check the date of birth you entered.';
     case 'under_minimum_age':
-      return 'Base Recruits accounts are for people 13 and older. You can still search schools and run academic matches without an account.';
+      return 'Base Recruits accounts are for people 13 and older. You can still search schools and compare your scores without an account.';
   }
 }

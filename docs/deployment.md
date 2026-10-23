@@ -50,6 +50,7 @@ These mirror `supabase/config.toml`. Security depends on them (see the README).
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://qdwnxdkygeptynkdvgez.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | The project's publishable key (`sb_publishable_…`, Project Settings → API Keys) |
 | `SUPABASE_SECRET_KEY` | A secret key (`sb_secret_…`, same page). Server-only. Entered in Vercel by the founder; never pasted into chats, issues or commits |
+| `ALLOW_INDEXING` | Leave **unset** until launch sign-off (decision F14). Set to `true` only in Production to let search engines index the site; with it unset every page is `noindex` and `robots.txt` disallows crawling |
 
 Vercel's Hobby plan does not allow commercial use. Move the Vercel account to Pro before the public launch.
 
@@ -68,3 +69,5 @@ Vercel's Hobby plan does not allow commercial use. Move the Vercel account to Pr
 - Custom SMTP sender (decision F7) and a domain.
 - Client-IP forwarding for Auth rate limits, or deliberately raised limits (see the README).
 - Vercel Pro.
+- Decide on the proposed registry corrections (`docs/remediation/proposed-data-corrections.md`).
+- Only after legal review and a support address: set `ALLOW_INDEXING=true` (decision F14).

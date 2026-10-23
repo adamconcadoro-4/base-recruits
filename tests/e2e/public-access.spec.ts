@@ -13,10 +13,25 @@ test.describe('public pages stay open to anonymous visitors', () => {
     });
   }
 
-  test('the home page leads with the spec headline and the match call to action', async ({ page }) => {
+  test('the home page leads with the spec headline and calls to action that work today', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1, name: 'Your Next Level Starts Here.' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Find my college matches' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Search schools' }).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Compare your scores' }).first()).toBeVisible();
+    await expect(page.getByText(/Find my (college )?matches/i)).toHaveCount(0);
+  });
+
+  test('on a phone, search results come first and filters are one tap away', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'phone layout only');
+    await page.goto('/schools');
+    await expect(page.getByRole('button', { name: 'Show schools' })).toBeVisible();
+    await expect(page.locator('details#filters')).not.toHaveAttribute('open', /.*/);
+    const first = page.getByRole('article').first();
+    await first.scrollIntoViewIfNeeded();
+    await expect(first).toBeVisible();
+    await page.getByText('Filters', { exact: true }).click();
+    await expect(page.getByLabel('State', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Apply filters' })).toBeVisible();
   });
 
   test('an unknown school shows an honest not-found page, never an invented record', async ({ page }) => {
@@ -35,6 +50,18 @@ test.describe('protected pages require signing in', () => {
       await expect(page).toHaveURL(`/login?next=${encodeURIComponent(path)}`);
     });
   }
+});
+
+test('search engines are told not to index the site until launch is switched on', async ({ page, request }) => {
+  const robots = await request.get('/robots.txt');
+  expect(robots.status()).toBe(200);
+  expect(await robots.text()).toMatch(/Disallow: \/\s*$/m);
+  const sitemap = await request.get('/sitemap.xml');
+  expect(sitemap.status()).toBe(200);
+  expect(await sitemap.text()).not.toContain('<loc>');
+  await page.goto('/schools/stanford-university-ca');
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/schools\/stanford-university-ca$/);
 });
 
 test('responses carry the security headers', async ({ request }) => {

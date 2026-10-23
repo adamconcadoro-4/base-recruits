@@ -3,11 +3,14 @@ import Link from 'next/link';
 
 import { ExplorerFilters } from '@/components/registry/explorer-filters';
 import { SchoolCard } from '@/components/registry/school-card';
+import { SaveButton } from '@/components/shortlist/save-button';
 import { PageIntro } from '@/components/site/page-intro';
 import { ButtonLink } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
+import { isSignedIn } from '@/lib/auth/session';
 import { formatAcademicYear, formatCount } from '@/lib/registry/labels';
-import { registryCoverage, searchSchools } from '@/lib/registry/queries';
+import { latestPolicy } from '@/lib/registry/policy';
+import { currentPolicies, mySavedSlugs, registryCoverage, searchSchools } from '@/lib/registry/queries';
 import {
   MAX_COMPARE,
   PAGE_SIZE,
@@ -18,18 +21,32 @@ import {
   toggleCompare,
 } from '@/lib/registry/search-params';
 
-export const metadata: Metadata = {
-  title: 'Search college baseball programs',
-  description: 'Free search of colleges with a confirmed baseball team, with admissions, test policy and cost from official federal data.',
-};
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export default async function SchoolsPage({
-  searchParams,
-}: {
-  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
+const DESCRIPTION =
+  'Free search of colleges that reported a baseball team in the latest federal athletics report, with admissions figures, test policy and cost, each with its source and year.';
+
+/** The unfiltered directory is the canonical page; filtered and paged variants are not indexed. */
+export async function generateMetadata({ searchParams }: { readonly searchParams: SearchParams }): Promise<Metadata> {
+  const params = await searchParams;
+  const variant = Object.keys(params).length > 0;
+  return {
+    title: 'Search college baseball programs',
+    description: DESCRIPTION,
+    alternates: { canonical: '/schools' },
+    ...(variant ? { robots: { index: false, follow: true } } : {}),
+  };
+}
+
+export default async function SchoolsPage({ searchParams }: { readonly searchParams: SearchParams }) {
   const state = parseExplorerParams(await searchParams);
-  const [result, coverage] = await Promise.all([searchSchools(state), registryCoverage()]);
+  const [result, coverage, signedIn] = await Promise.all([searchSchools(state), registryCoverage(), isSignedIn()]);
+  const slugsOnPage = result.rows.map((row) => row.slug);
+  const [policies, savedSlugs] = await Promise.all([
+    currentPolicies(slugsOnPage),
+    signedIn ? mySavedSlugs() : Promise.resolve(null),
+  ]);
+  const saved = new Set(savedSlugs ?? []);
   const published = (coverage?.active_programs ?? 0) > 0;
   const pages = Math.max(1, Math.ceil(result.total / PAGE_SIZE));
   const first = result.total === 0 ? 0 : (state.page - 1) * PAGE_SIZE + 1;
@@ -50,15 +67,21 @@ export default async function SchoolsPage({
         )}
       </PageIntro>
 
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[18rem_1fr]">
-        <aside aria-label="Filters">
-          <ExplorerFilters state={state} />
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[18rem_1fr] lg:gap-10">
+        <aside aria-label="Search and filters">
+          <ExplorerFilters state={state} admissionsTerm={coverage?.latest_admissions_term ?? null} />
         </aside>
 
         <section aria-labelledby="results-heading" className="min-w-0 space-y-6">
           <h2 id="results-heading" className="sr-only">
             Results
           </h2>
+
+          {state.ignored.length > 0 ? (
+            <Notice tone="attention" title="Some filters in this link weren't recognised, so they weren't applied">
+              Ignored: {state.ignored.join(', ')}. The results below don&apos;t use {state.ignored.length === 1 ? 'it' : 'them'}.
+            </Notice>
+          ) : null}
 
           {state.compare.length > 0 ? (
             <div className="flex flex-wrap items-center justify-between gap-3 border-2 border-navy bg-ice px-4 py-3">
@@ -69,7 +92,7 @@ export default async function SchoolsPage({
                 <ButtonLink href={`/compare?schools=${state.compare.join(',')}`} size="sm">
                   Compare now
                 </ButtonLink>
-                <Link href={`/schools${explorerQuery(state, { compare: [], page: 1 })}`} className="font-semibold text-royal-ink underline">
+                <Link href={`/schools${explorerQuery(state, { compare: [] })}`} className="font-semibold text-royal-ink underline">
                   Clear compare
                 </Link>
               </div>
@@ -93,6 +116,9 @@ export default async function SchoolsPage({
                   : `Showing ${formatCount(first)}–${formatCount(last)} of ${formatCount(result.total)} programs`}
                 {state.q ? ` for “${state.q}”` : ''}.
               </p>
+              {policies === 'failed' ? (
+                <p className="text-sm text-slate">Checked current testing policies didn&apos;t load; the past class&apos;s policy is shown.</p>
+              ) : null}
               {excluded.length > 0 ? (
                 <p className="text-sm text-slate">
                   Filtering by {excluded.join(', ')} leaves out schools that don&apos;t report that figure.
@@ -107,9 +133,20 @@ export default async function SchoolsPage({
                       <li key={school.slug}>
                         <SchoolCard
                           school={school}
-                          inCompare={inCompare}
-                          compareFull={!inCompare && state.compare.length >= MAX_COMPARE}
-                          compareHref={`/schools${explorerQuery(state, { compare: toggleCompare(state.compare, school.slug) })}#results-heading`}
+                          currentPolicy={policies === 'failed' ? null : latestPolicy(policies.get(school.slug), 'first_year')}
+                          compare={{
+                            inCompare,
+                            full: !inCompare && state.compare.length >= MAX_COMPARE,
+                            href: `/schools${explorerQuery(state, { compare: toggleCompare(state.compare, school.slug) })}#results-heading`,
+                          }}
+                          actions={
+                            <SaveButton
+                              slug={school.slug}
+                              name={school.name}
+                              mode={signedIn ? 'account' : 'guest'}
+                              initiallySaved={saved.has(school.slug)}
+                            />
+                          }
                         />
                       </li>
                     );
