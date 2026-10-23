@@ -15,7 +15,7 @@ Stage 1 (accounts, roles, consent, coach verification): `docs/reports/stage-1.md
 | Registry schema, import → review → publish → restage, corrections against official pages, revision log | Done, 3 migrations |
 | Free explorer, school pages, compare (up to five), live coverage on the data methodology page | Done |
 | Admin screens: stage and review imports, publish or roll back, correct programs, hide records | Done |
-| Hosted Supabase project | Not created yet (decision F1) |
+| Hosted Supabase project | Created 2026-10-23 (US East); migrations deploy automatically from `main` — see `docs/deployment.md` |
 
 ## Requirements
 
@@ -77,7 +77,8 @@ counts as a notice on the run.
 
 ## Apply the migrations to a Supabase project
 
-Use a project dedicated to Base Recruits.
+Production is already connected: merging to `main` applies new migrations through Supabase's GitHub integration
+(`docs/deployment.md`). For any other project dedicated to Base Recruits:
 
 ```bash
 supabase link --project-ref <your-project-ref>
@@ -127,6 +128,7 @@ On a fresh database (including a new hosted project) nothing is public until ste
 - `docs/architecture.md` — system shape, modules, stage dependencies, security model, how free access is enforced
 - `docs/decisions.md` — open founder and legal decisions, with current defaults
 - `docs/reports/` — engineering report for each stage
+- `docs/deployment.md` — production setup: Supabase, Vercel, Auth settings and one-time steps
 - `CONTRIBUTING.md` — repository conventions and review checklists
 
 ## Product rules the code enforces

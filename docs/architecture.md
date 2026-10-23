@@ -188,7 +188,8 @@ reference year could not be confirmed; each school's net price calculator is lin
 | GitHub Actions CI | Every push and pull request: database suite, concurrency and contract tests on PostgreSQL 16 and 17; typecheck and unit tests under Vitest | Working |
 | Local Supabase (`supabase start`, Docker) | Full Auth + Data API for development and end-to-end tests; codes land in the local mail catcher | Working in CI; requires Docker on a developer machine |
 | Supabase dev project | Shared development and end-to-end tests | Not created — founder decision |
-| Staging / production | Vercel + Supabase, separate projects and secrets | Stage 5 |
+| Production | Supabase project `Base Recruits` (us-east-2) + Vercel; migrations deploy from `main` (`docs/deployment.md`) | Being set up 2026-10-23 |
+| Staging | Separate Vercel + Supabase project and secrets | Stage 5 |
 
 ## 8. Scheduled jobs
 
