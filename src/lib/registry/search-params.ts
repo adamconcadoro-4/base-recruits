@@ -216,8 +216,6 @@ export function explorerQuery(state: ExplorerState, changes: Partial<ExplorerSta
   if (next.cost) params.set('cost', next.cost);
   if (next.sort) params.set('sort', next.sort);
   if (next.page > 1) params.set('page', String(next.page));
-  if (next.compare.length) params.set('compare', next.compare.join(','));
-  else if (changes.compare !== undefined && state.compare.length) params.set('compare', '');
   const text = params.toString();
   return text ? `?${text}` : '';
 }

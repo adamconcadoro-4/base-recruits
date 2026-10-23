@@ -102,21 +102,19 @@ no staging environment (Vercel previews have no database keys), so nothing is "V
   e2e (home link equals manual filter count, legacy link, unknown filter notice).
 
 ### BR-06 Comparison continuity
-- **Fix:**
-  - An explicit list in the URL (`/compare?schools=…`, `/schools?compare=…`) always wins and stays shareable.
-  - The request proxy stores it in a first-party cookie (`br_compare`, 30 days, school identifiers only). Pages
-    opened without a list (header, footer, bookmarks) show the stored selection directly, and `/compare` then offers a
-    link to share it.
-  - School and saved pages use a form-post toggle that works without JavaScript. A sixth school is refused with a way
-    to make room. Clearing writes an explicit empty value.
-- **Found in CI, fixed:** background link prefetches passed through the proxy.
-  - Prefetching an "Add to compare" or "Remove" link could change the stored comparison without a click.
-  - A restore *redirect* fetched in the background could be cached by the router and replayed later with an
-    out-of-date list.
-  - Prefetches now never store anything, links that change the comparison are not prefetched, and pages read the
-    stored selection instead of redirecting.
-- **Tests:** unit (`compareToStore`, `selectionFor`, prefetch detection, limits, tampered cookies, client reader); e2e
-  (search → profile → footer link, clear, five-school refusal, current vs past policy rows).
+- **Fix:** the selection lives in one first-party cookie (`br_compare`, 30 days, httpOnly, school identifiers only).
+  - It changes **only through form posts**: Add to compare, Remove, Clear compare and "Make this my comparison". They
+    are on search results, school pages, saved schools and `/compare`, and all work without JavaScript.
+  - Every page reads the cookie, so header, footer and bookmark links show the same comparison.
+  - `/compare?schools=…` is a shared, read-only view. Opening it never changes the visitor's own comparison until they
+    choose "Make this my comparison". `/compare` offers a link to share the visitor's list.
+  - A sixth school is refused with a way to make room.
+- **Found in CI, fixed:** the first design stored or restored the selection on ordinary page loads. Background link
+  prefetches and out-of-order requests could then rewrite the comparison without a click, intermittently. Page loads
+  now never change it.
+- **Tests:** unit (`sharedCompareList`, limits, tampered values, search links never carry the comparison); e2e (search
+  → profile → footer link, remove both and reopen, shared link is read-only until adopted, five-school refusal,
+  current vs past policy rows).
 
 ### BR-07 Feature availability
 - **Fix:** `src/config/availability.ts` is the one place that says what works today (available / pilot / planned /

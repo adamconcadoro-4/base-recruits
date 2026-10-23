@@ -55,15 +55,16 @@ test.describe('search links (BR-05)', () => {
 test.describe('comparison continuity (BR-06)', () => {
   test('the selection follows the visitor between search, a school page and the footer link', async ({ page }) => {
     await page.goto('/schools?q=Stanford');
-    await page.getByRole('link', { name: 'Add to compare: Stanford University' }).click();
+    await page.getByRole('button', { name: 'Add to compare: Stanford University' }).click();
     await expect(page.getByText('1 of 5 schools picked to compare')).toBeVisible();
+    await expect(page).toHaveURL(/\/schools\?q=Stanford$/);
 
     await page.goto('/schools/harvard-university-ma');
     await page.getByRole('button', { name: 'Add to compare: Harvard University' }).click();
     await expect(page.getByRole('button', { name: 'Remove from compare: Harvard University' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'view comparison' })).toBeVisible();
 
-    // A plain link (no list in the URL) shows the stored selection, with a link to share it.
+    // A plain link shows the visitor's comparison, with a link to share it.
     await page.getByRole('contentinfo').getByRole('link', { name: 'Compare schools' }).click();
     await expect(page).toHaveURL(/\/compare$/);
     await expect(page.getByRole('link', { name: 'Link to share this comparison' })).toHaveAttribute(
@@ -74,19 +75,35 @@ test.describe('comparison continuity (BR-06)', () => {
     await expect(table.getByRole('columnheader', { name: /Stanford University/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: /Harvard University/ })).toBeVisible();
 
-    // Removing both clears the stored selection; a plain link then shows the empty state.
-    await page.getByRole('link', { name: 'Remove Stanford University' }).click();
-    await page.getByRole('link', { name: 'Remove Harvard University' }).click();
-    await expect(page).toHaveURL(/\/compare\?schools=$/);
+    // Removing both empties it, and it stays empty when opened again from a plain link.
+    await page.getByRole('button', { name: 'Remove Stanford University' }).click();
+    await expect(table.getByRole('columnheader', { name: /Stanford University/ })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Remove Harvard University' }).click();
+    await expect(page.getByText('Pick schools to compare')).toBeVisible();
+    await page.goto('/schools');
     await page.getByRole('contentinfo').getByRole('link', { name: 'Compare schools' }).click();
     await expect(page).toHaveURL(/\/compare$/);
     await expect(page.getByText('Pick schools to compare')).toBeVisible();
+  });
+
+  test('opening a shared link never changes the visitor\'s own comparison until they choose to', async ({ page }) => {
+    await page.goto('/compare?schools=stanford-university-ca,harvard-university-ma');
+    await expect(page.getByText('A shared comparison')).toBeVisible();
+    await page.goto('/compare');
+    await expect(page.getByText('Pick schools to compare')).toBeVisible();
+
+    await page.goto('/compare?schools=stanford-university-ca,harvard-university-ma');
+    await page.getByRole('button', { name: 'Make this my comparison' }).click();
+    await expect(page).toHaveURL(/\/compare$/);
+    await expect(page.getByRole('table').getByRole('columnheader', { name: /Harvard University/ })).toBeVisible();
   });
 
   test('a school page refuses a sixth school and says how to make room', async ({ page }) => {
     await page.goto(
       '/compare?schools=stanford-university-ca,harvard-university-ma,long-beach-city-college-ca,auburn-university-al,alabama-a-and-m-university-al',
     );
+    await page.getByRole('button', { name: 'Make this my comparison' }).click();
+    await expect(page).toHaveURL(/\/compare$/);
     await page.goto('/schools/the-university-of-alabama-al');
     await expect(page.getByText('Compare holds five schools.')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Remove one to add this school' })).toBeVisible();

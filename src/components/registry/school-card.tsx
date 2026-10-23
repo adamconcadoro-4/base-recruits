@@ -22,19 +22,16 @@ import { Value, YearTag } from './values';
 
 /**
  * One search result. Every figure shows the term or year it describes, and
- * the baseball division says how it was confirmed. "Add to compare" (up to
- * five) and "Save school" (no limit) are separate controls.
+ * the baseball division says how it was confirmed. Controls (Add to compare,
+ * up to five, and Save school, no limit) are passed in as `actions`.
  */
 export function SchoolCard({
   school,
-  compare,
   actions,
   currentPolicy,
 }: {
   readonly school: SchoolSummary;
-  /** Compare control for pages that keep the selection in their URL (the search). */
-  readonly compare?: { readonly href: string; readonly inCompare: boolean; readonly full: boolean } | null;
-  /** Other controls: Save, or a form-based compare toggle. */
+  /** Controls: Add to compare, Save school. */
   readonly actions?: ReactNode;
   /** The checked current first-year testing policy, if any. */
   readonly currentPolicy?: CurrentPolicy | null;
@@ -148,19 +145,6 @@ export function SchoolCard({
         <Link href={`/schools/${school.slug}`} aria-label={`Details and sources for ${school.name}`} className="font-semibold text-royal-ink underline">
           Details and sources
         </Link>
-        {compare ? (
-          compare.inCompare ? (
-            <Link href={compare.href} aria-label={`Remove from compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false} prefetch={false}>
-              Remove from compare
-            </Link>
-          ) : compare.full ? (
-            <span className="text-sm text-slate">Compare holds five schools</span>
-          ) : (
-            <Link href={compare.href} aria-label={`Add to compare: ${school.name}`} className="font-semibold text-royal-ink underline" scroll={false} prefetch={false}>
-              Add to compare
-            </Link>
-          )
-        ) : null}
         {actions}
       </div>
     </article>

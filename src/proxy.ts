@@ -2,34 +2,13 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { findProtectedRoute, loginRedirectFor } from '@/lib/auth/route-access';
-import { COMPARE_COOKIE, COMPARE_COOKIE_MAX_AGE, compareToStore, isPrefetchRequest } from '@/lib/registry/compare-selection';
 import { sessionCookieOptions } from '@/lib/supabase/cookie-options';
-
-/** Stores (or clears) the comparison selection on the outgoing response. */
-function storeCompare(response: NextResponse, value: string | undefined, secure: boolean): NextResponse {
-  if (value === undefined) return response;
-  if (value === '') {
-    response.cookies.delete(COMPARE_COOKIE);
-  } else {
-    response.cookies.set(COMPARE_COOKIE, value, {
-      // Readable by the page so client-rendered lists can show "In comparison";
-      // it holds only public school identifiers.
-      httpOnly: false,
-      sameSite: 'lax',
-      secure,
-      path: '/',
-      maxAge: COMPARE_COOKIE_MAX_AGE,
-    });
-  }
-  return response;
-}
 
 /**
  * Runs before every page request:
- *  1. stores the comparison selection when a page is opened with an explicit
- *     list (never for prefetches; see src/lib/registry/compare-selection.ts),
- *  2. refreshes the Supabase session cookie, and
- *  3. sends anonymous visitors on protected prefixes to sign in.
+ *  1. refreshes the Supabase session cookie, and
+ *  2. sends anonymous visitors on protected prefixes to sign in.
+ * It never changes the comparison selection: only form posts do.
  * Role, onboarding and coach-verification gates run in the protected layouts
  * (src/lib/auth/guard.ts), and the database enforces everything again with RLS.
  * Public discovery pages never require an account.
@@ -38,16 +17,13 @@ export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const isProtected = findProtectedRoute(request.nextUrl.pathname) !== null;
-  const secure = request.nextUrl.protocol === 'https:';
-
-  const compareStore = compareToStore(new URL(request.url), request.method, isPrefetchRequest(request.headers));
 
   if (!url || !key) {
     // Supabase is not configured (e.g. a marketing-only preview): public pages
     // still work; protected pages cannot.
     return isProtected
       ? NextResponse.redirect(new URL(loginRedirectFor(request.nextUrl.pathname), request.url))
-      : storeCompare(NextResponse.next({ request }), compareStore, secure);
+      : NextResponse.next({ request });
   }
 
   let response = NextResponse.next({ request });
@@ -79,7 +55,7 @@ export async function proxy(request: NextRequest) {
     for (const [name, value] of Object.entries(refreshHeaders)) redirect.headers.set(name, value);
     return redirect;
   }
-  return storeCompare(response, compareStore, secure);
+  return response;
 }
 
 export const config = {

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 
+import { clearCompare } from '@/app/(site)/compare/actions';
+import { CompareToggle } from '@/components/registry/compare-toggle';
 import { ExplorerFilters } from '@/components/registry/explorer-filters';
 import { SchoolCard } from '@/components/registry/school-card';
 import { SaveButton } from '@/components/shortlist/save-button';
@@ -9,7 +11,7 @@ import { PageIntro } from '@/components/site/page-intro';
 import { ButtonLink } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
 import { isSignedIn } from '@/lib/auth/session';
-import { COMPARE_COOKIE, selectionFor } from '@/lib/registry/compare-selection';
+import { COMPARE_COOKIE, readCompareCookie } from '@/lib/registry/compare-selection';
 import { formatAcademicYear, formatCount } from '@/lib/registry/labels';
 import { latestPolicy } from '@/lib/registry/policy';
 import { currentPolicies, mySavedSlugs, registryCoverage, searchSchools } from '@/lib/registry/queries';
@@ -20,7 +22,6 @@ import {
   figureFilters,
   hasFilters,
   parseExplorerParams,
-  toggleCompare,
 } from '@/lib/registry/search-params';
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
@@ -43,8 +44,9 @@ export async function generateMetadata({ searchParams }: { readonly searchParams
 export default async function SchoolsPage({ searchParams }: { readonly searchParams: SearchParams }) {
   const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
   const parsed = parseExplorerParams(params);
-  // An explicit compare list in the URL wins; otherwise show the visitor's stored selection.
-  const state = { ...parsed, compare: selectionFor(params.compare, cookieStore.get(COMPARE_COOKIE)?.value) };
+  // The comparison is the visitor's stored selection; it only changes through form posts.
+  const state = { ...parsed, compare: readCompareCookie(cookieStore.get(COMPARE_COOKIE)?.value) };
+  const here = `/schools${explorerQuery(state)}`;
   const [result, coverage, signedIn] = await Promise.all([searchSchools(state), registryCoverage(), isSignedIn()]);
   const slugsOnPage = result.rows.map((row) => row.slug);
   const [policies, savedSlugs] = await Promise.all([
@@ -94,12 +96,15 @@ export default async function SchoolsPage({ searchParams }: { readonly searchPar
                 {state.compare.length} of {MAX_COMPARE} schools picked to compare
               </p>
               <div className="flex flex-wrap items-center gap-4">
-                <ButtonLink href={`/compare?schools=${state.compare.join(',')}`} size="sm">
+                <ButtonLink href="/compare" size="sm">
                   Compare now
                 </ButtonLink>
-                <Link href={`/schools${explorerQuery(state, { compare: [] })}`} prefetch={false} className="font-semibold text-royal-ink underline">
-                  Clear compare
-                </Link>
+                <form action={clearCompare}>
+                  <input type="hidden" name="back" value={here} />
+                  <button type="submit" className="font-semibold text-royal-ink underline">
+                    Clear compare
+                  </button>
+                </form>
               </div>
             </div>
           ) : null}
@@ -133,24 +138,21 @@ export default async function SchoolsPage({ searchParams }: { readonly searchPar
               {result.rows.length > 0 ? (
                 <ul className="space-y-5">
                   {result.rows.map((school) => {
-                    const inCompare = state.compare.includes(school.slug);
                     return (
                       <li key={school.slug}>
                         <SchoolCard
                           school={school}
                           currentPolicy={policies === 'failed' ? null : latestPolicy(policies.get(school.slug), 'first_year')}
-                          compare={{
-                            inCompare,
-                            full: !inCompare && state.compare.length >= MAX_COMPARE,
-                            href: `/schools${explorerQuery(state, { compare: toggleCompare(state.compare, school.slug) })}#results-heading`,
-                          }}
                           actions={
-                            <SaveButton
-                              slug={school.slug}
-                              name={school.name}
-                              mode={signedIn ? 'account' : 'guest'}
-                              initiallySaved={saved.has(school.slug)}
-                            />
+                            <>
+                              <CompareToggle slug={school.slug} name={school.name} selected={state.compare} back={here} showCount={false} />
+                              <SaveButton
+                                slug={school.slug}
+                                name={school.name}
+                                mode={signedIn ? 'account' : 'guest'}
+                                initiallySaved={saved.has(school.slug)}
+                              />
+                            </>
                           }
                         />
                       </li>

@@ -99,23 +99,23 @@ test.describe('visitors (no account)', () => {
 
   test('compare: add from search, compare side by side, remove', async ({ page }) => {
     await page.goto('/schools?q=Stanford');
-    await page.getByRole('link', { name: 'Add to compare: Stanford University' }).click();
+    await page.getByRole('button', { name: 'Add to compare: Stanford University' }).click();
     await expect(page.getByText('1 of 5 schools picked to compare')).toBeVisible();
     await page.getByLabel('School name or city').fill('Harvard');
     await page.getByRole('button', { name: 'Show schools' }).click();
-    await page.getByRole('link', { name: 'Add to compare: Harvard University' }).click();
+    await page.getByRole('button', { name: 'Add to compare: Harvard University' }).click();
     await expect(page.getByText('2 of 5 schools picked to compare')).toBeVisible();
     await page.getByRole('link', { name: 'Compare now' }).click();
-    await expect(page).toHaveURL('/compare?schools=stanford-university-ca,harvard-university-ma');
+    await expect(page).toHaveURL('/compare');
     const table = page.getByRole('table');
     await expect(table.getByRole('columnheader', { name: /Stanford University/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: /Harvard University/ })).toBeVisible();
     await expect(table.getByRole('row', { name: /^Test policy, past class/ })).toContainText('Test optional');
     await expect(table.getByRole('row', { name: /^Test policy, past class/ })).toContainText('Test required');
     await expect(table.getByRole('row', { name: /^GPA/ })).toContainText('Not reported in federal data');
-    await page.getByRole('link', { name: 'Remove Stanford University' }).click();
-    await expect(page).toHaveURL('/compare?schools=harvard-university-ma');
+    await page.getByRole('button', { name: 'Remove Stanford University' }).click();
     await expect(page.getByRole('columnheader', { name: /Stanford University/ })).toHaveCount(0);
+    await expect(table.getByRole('columnheader', { name: /Harvard University/ })).toBeVisible();
   });
 
   test('compare holds at most five schools', async ({ page }) => {
