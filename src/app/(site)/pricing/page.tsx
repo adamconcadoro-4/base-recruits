@@ -15,9 +15,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/pricing' },
 };
 
-const coreForPeople = CORE_CAPABILITY_KEYS.filter(
-  (key) => CAPABILITIES[key].audience !== 'verified_coach' && CAPABILITIES[key].audience !== 'admin',
-);
+const coreForPeople = CORE_CAPABILITY_KEYS.filter((key) => CAPABILITIES[key].audience !== 'verified_coach');
 const coreForCoaches = CORE_CAPABILITY_KEYS.filter((key) => CAPABILITIES[key].audience === 'verified_coach');
 
 function CapabilityItem({ capability }: { readonly capability: CoreCapabilityKey }) {
