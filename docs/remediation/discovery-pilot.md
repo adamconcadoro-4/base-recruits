@@ -235,12 +235,11 @@ blocked by:
 1. Legal review of the privacy policy, terms and the open legal questions (L1–L8). **Blocked by external dependency.**
 2. A support address and sending domain (F7), and custom SMTP. Today only the founder's address receives sign-in
    codes.
-3. Vercel Pro (the Hobby plan does not allow commercial use).
-4. Turning on indexing (`ALLOW_INDEXING=true`) after items 1–3.
+3. Turning on indexing (`ALLOW_INDEXING=true`) after items 1–2.
 
 Done since: the founder approved and an administrator applied the data corrections listed in
 `proposed-data-corrections.md` (2026-10-23). Leaked-password protection is on, and the `rls_auto_enable` API access
-is revoked (PR #6).
+is revoked (PR #6). The Vercel team is on Pro (verified in the billing page, plan active since 2026-10-22).
 
 ### Production checks done on 2026-10-23
 
