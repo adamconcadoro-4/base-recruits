@@ -69,7 +69,8 @@ describe('explorer URL state', () => {
   });
 
   it('round-trips through the query string', () => {
-    const state = parseExplorerParams({ q: 'A&M', division: ['ncaa_d1', 'naia'], compare: 'a-b-tx,c-d-ca', page: '2' });
+    // The comparison is not part of search links (it changes only through form posts).
+    const state = parseExplorerParams({ q: 'A&M', division: ['ncaa_d1', 'naia'], page: '2' });
     const query = explorerQuery(state);
     const again = parseExplorerParams(Object.fromEntries(
       [...new URLSearchParams(query.slice(1)).keys()].map((k) => [k, new URLSearchParams(query.slice(1)).getAll(k)]),

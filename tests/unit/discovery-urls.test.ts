@@ -1,15 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { FEATURES, availabilityLabel, isLive } from '@/config/availability';
-import {
-  COMPARE_COOKIE,
-  compareFromDocumentCookie,
-  compareToStore,
-  isPrefetchRequest,
-  readCompareCookie,
-  selectionFor,
-  withSchool,
-} from '@/lib/registry/compare-selection';
+import { readCompareCookie, sharedCompareList, withSchool } from '@/lib/registry/compare-selection';
 import { DIVISION_SHORTCUTS, TWO_YEAR_DIVISIONS, normalizeDivisionValues, shortcutHref, type DivisionShortcut } from '@/lib/registry/divisions';
 import { explorerQuery, parseExplorerParams, toSearchArgs } from '@/lib/registry/search-params';
 import { indexingAllowed } from '@/lib/seo/indexing';
@@ -59,63 +51,31 @@ describe('division links (BR-05)', () => {
   });
 });
 
-describe('comparison selection follows the visitor (BR-06)', () => {
-  const at = (path: string) => new URL(path, 'https://example.test');
-
-  it('an explicit URL is stored, and an empty value clears', () => {
-    expect(compareToStore(at('/schools?compare=a,b'), 'GET')).toBe('a,b');
-    expect(compareToStore(at('/compare?schools=c'), 'GET')).toBe('c');
-    expect(compareToStore(at('/compare?schools='), 'GET')).toBe('');
+describe('comparison selection (BR-06)', () => {
+  it('a shared link shows its own list; no list (or an empty one) means the visitor\'s own selection', () => {
+    expect(sharedCompareList('a,b')).toEqual(['a', 'b']);
+    expect(sharedCompareList(['a', 'b,c'])).toEqual(['a', 'b', 'c']);
+    expect(sharedCompareList(undefined)).toBeNull();
+    expect(sharedCompareList('')).toBeNull();
+    expect(sharedCompareList([' ', ''])).toBeNull();
   });
 
-  it('stores nothing for plain links, other pages, non-GET requests or prefetches', () => {
-    expect(compareToStore(at('/compare'), 'GET')).toBeUndefined();
-    expect(compareToStore(at('/schools?q=texas'), 'GET')).toBeUndefined();
-    expect(compareToStore(at('/schools/a?compare=b'), 'GET')).toBeUndefined();
-    expect(compareToStore(at('/compare?schools=a'), 'POST')).toBeUndefined();
-    expect(compareToStore(at('/compare?schools='), 'GET', true)).toBeUndefined();
-    expect(compareToStore(at('/schools?compare=a,c'), 'GET', true)).toBeUndefined();
-  });
-
-  it('recognises background prefetch requests', () => {
-    const headers = (entries: Record<string, string>) => new Headers(entries);
-    expect(isPrefetchRequest(headers({ 'next-router-prefetch': '1' }))).toBe(true);
-    expect(isPrefetchRequest(headers({ 'next-router-segment-prefetch': '/_tree' }))).toBe(true);
-    expect(isPrefetchRequest(headers({ purpose: 'prefetch' }))).toBe(true);
-    expect(isPrefetchRequest(headers({ 'sec-purpose': 'prefetch;prerender' }))).toBe(true);
-    expect(isPrefetchRequest(headers({ rsc: '1' }))).toBe(false);
-    expect(isPrefetchRequest(headers({}))).toBe(false);
-  });
-
-  it('a page shows the URL list when present (even empty), otherwise the stored one', () => {
-    expect(selectionFor(undefined, 'a,b')).toEqual(['a', 'b']);
-    expect(selectionFor('c', 'a,b')).toEqual(['c']);
-    expect(selectionFor('', 'a,b')).toEqual([]);
-    expect(selectionFor(['a', 'b,c'], undefined)).toEqual(['a', 'b', 'c']);
-    expect(selectionFor(undefined, undefined)).toEqual([]);
-  });
-
-  it('stores at most five valid schools and ignores tampered cookies', () => {
-    expect(compareToStore(at('/compare?schools=a,b,c,d,e,f'), 'GET')).toBe('a,b,c,d,e');
+  it('keeps at most five valid schools and ignores tampered values', () => {
+    expect(sharedCompareList('a,b,c,d,e,f')).toEqual(['a', 'b', 'c', 'd', 'e']);
     expect(readCompareCookie('a,../etc,Bad Slug,<script>,b')).toEqual(['a', 'b']);
-    expect(selectionFor(undefined, '../etc')).toEqual([]);
+    expect(readCompareCookie(undefined)).toEqual([]);
   });
 
   it('adding and removing respects the five-school limit', () => {
-    expect(withSchool(['a'], 'b', 5)).toEqual(['a', 'b']);
-    expect(withSchool(['a', 'b'], 'a', 5)).toEqual(['b']);
-    expect(withSchool(['a', 'b', 'c', 'd', 'e'], 'f', 5)).toEqual(['a', 'b', 'c', 'd', 'e']);
+    expect(withSchool(['a'], 'b')).toEqual(['a', 'b']);
+    expect(withSchool(['a', 'b'], 'a')).toEqual(['b']);
+    expect(withSchool(['a', 'b', 'c', 'd', 'e'], 'f')).toEqual(['a', 'b', 'c', 'd', 'e']);
   });
 
-  it('client components read the same cookie', () => {
-    expect(compareFromDocumentCookie(`x=1; ${COMPARE_COOKIE}=a%2Cb; y=2`)).toEqual(['a', 'b']);
-    expect(compareFromDocumentCookie('x=1')).toEqual([]);
-  });
-
-  it('clearing the comparison from the search writes an explicit empty value', () => {
-    const state = parseExplorerParams({ q: 'texas', compare: 'a,b' });
-    expect(explorerQuery(state, { compare: [] })).toBe('?q=texas&compare=');
-    expect(explorerQuery(parseExplorerParams({ q: 'texas' }), { compare: [] })).toBe('?q=texas');
+  it('search links never carry the comparison, so opening one cannot change it', () => {
+    const state = parseExplorerParams({ q: 'texas', compare: 'a,b', page: '2' });
+    expect(explorerQuery(state)).toBe('?q=texas&page=2');
+    expect(explorerQuery(state, { page: 3 })).toBe('?q=texas&page=3');
   });
 });
 

@@ -23,7 +23,9 @@ import {
   placeLabel,
 } from '@/lib/registry/labels';
 import { entryLabel, latestPolicy } from '@/lib/registry/policy';
-import { COMPARE_COOKIE, selectionFor } from '@/lib/registry/compare-selection';
+import { adoptComparison } from '@/app/(site)/compare/actions';
+import { CompareToggle } from '@/components/registry/compare-toggle';
+import { COMPARE_COOKIE, readCompareCookie, sharedCompareList } from '@/lib/registry/compare-selection';
 import { compareSchools, currentPolicies } from '@/lib/registry/queries';
 import { MAX_COMPARE } from '@/lib/registry/search-params';
 import type { CurrentPolicy, SchoolRecord } from '@/lib/registry/types';
@@ -140,10 +142,20 @@ function Cell({ value }: { readonly value: { readonly text: string; readonly yea
   );
 }
 
-/** Removing the last school uses an explicit empty list, so the stored selection is cleared too. */
+/** In a shared (read-only) comparison, removing a school narrows the link; the visitor's own selection is untouched. */
 function without(list: readonly string[], slug: string): string {
   const rest = list.filter((s) => s !== slug);
-  return `/compare?schools=${rest.join(',')}`;
+  return rest.length ? `/compare?schools=${rest.join(',')}` : '/compare';
+}
+
+/** Remove control: a form post for the visitor's own comparison, a narrower link for a shared one. */
+function RemoveControl({ slug, name, slugs, shared }: { readonly slug: string; readonly name: string; readonly slugs: readonly string[]; readonly shared: boolean }) {
+  if (!shared) return <CompareToggle slug={slug} name={name} selected={slugs} back="/compare" compact />;
+  return (
+    <Link href={without(slugs, slug)} aria-label={`Remove ${name}`} prefetch={false} className="text-sm font-semibold text-royal-ink underline">
+      Remove
+    </Link>
+  );
 }
 
 function Links({ school }: { readonly school: SchoolRecord }): ReactNode {
@@ -177,16 +189,16 @@ export default async function ComparePage({
   const [params, cookieStore] = await Promise.all([searchParams, cookies()]);
   const raw = params.schools;
   const requested = (Array.isArray(raw) ? raw : raw ? [raw] : []).flatMap((v) => v.split(','));
-  // An explicit list in the URL wins; a plain /compare shows the visitor's stored selection.
-  const slugs = selectionFor(raw, cookieStore.get(COMPARE_COOKIE)?.value);
-  const fromStoredSelection = raw === undefined && slugs.length > 0;
-  const tooMany = new Set(requested.map((s) => s.trim().toLowerCase()).filter(Boolean)).size > MAX_COMPARE;
+  // A shared link shows its own list read-only; otherwise this is the visitor's comparison.
+  const sharedList = sharedCompareList(raw);
+  const shared = sharedList !== null;
+  const slugs = sharedList ?? readCompareCookie(cookieStore.get(COMPARE_COOKIE)?.value);
+  const tooMany = shared && new Set(requested.map((s) => s.trim().toLowerCase()).filter(Boolean)).size > MAX_COMPARE;
   const refusedSixth = params.full === '1';
   const [result, policyMap] = await Promise.all([compareSchools(slugs), currentPolicies(slugs)]);
   const schools = result === 'failed' ? [] : result;
   const policiesFor = (slug: string) => (policyMap === 'failed' ? undefined : (policyMap.get(slug) ?? []));
   const notFound = result === 'failed' ? 0 : slugs.length - schools.length;
-  const exploreLink = `/schools${slugs.length ? `?compare=${slugs.join(',')}` : ''}`;
 
   return (
     <>
@@ -213,6 +225,17 @@ export default async function ComparePage({
             registry, so {notFound === 1 ? 'it was' : 'they were'} left out.
           </Notice>
         ) : null}
+        {shared && schools.length > 0 ? (
+          <Notice tone="info" title="A shared comparison">
+            <p>This link shows someone&apos;s list. Your own comparison isn&apos;t changed.</p>
+            <form action={adoptComparison} className="mt-2">
+              <input type="hidden" name="schools" value={schools.map((s) => s.institution.slug).join(',')} />
+              <button type="submit" className="font-semibold text-royal-ink underline">
+                Make this my comparison
+              </button>
+            </form>
+          </Notice>
+        ) : null}
         {schools.length === 0 && result !== 'failed' ? (
           <Notice tone="info" title="Pick schools to compare">
             Use “Add to compare” in the <Link href="/schools" className="font-semibold text-royal-ink underline">school search</Link>,
@@ -224,12 +247,12 @@ export default async function ComparePage({
         {schools.length > 0 ? (
           <>
             <div className="flex flex-wrap items-center gap-4">
-              {schools.length < MAX_COMPARE ? (
-                <ButtonLink href={exploreLink} variant="secondary" size="sm">
+              {!shared && schools.length < MAX_COMPARE ? (
+                <ButtonLink href="/schools" variant="secondary" size="sm">
                   Add another school
                 </ButtonLink>
               ) : null}
-              {fromStoredSelection ? (
+              {!shared ? (
                 <Link
                   href={`/compare?schools=${slugs.join(',')}`}
                   prefetch={false}
@@ -250,14 +273,9 @@ export default async function ComparePage({
                     {schools.map((s) => (
                       <th key={s.institution.slug} scope="col" className="border-b-4 border-navy p-3 align-bottom">
                         <span className="block text-xl text-navy">{s.institution.name}</span>
-                        <Link
-                          href={without(slugs, s.institution.slug)}
-                          aria-label={`Remove ${s.institution.name}`}
-                          prefetch={false}
-                          className="mt-1 inline-block text-sm font-semibold text-royal-ink underline"
-                        >
-                          Remove
-                        </Link>
+                        <span className="mt-1 block">
+                          <RemoveControl slug={s.institution.slug} name={s.institution.name} slugs={slugs} shared={shared} />
+                        </span>
                       </th>
                     ))}
                   </tr>
@@ -303,9 +321,7 @@ export default async function ComparePage({
               {schools.map((s) => (
                 <li key={s.institution.slug} className="border-2 border-rule p-4">
                   <h2 className="text-2xl text-navy">{s.institution.name}</h2>
-                  <Link href={without(slugs, s.institution.slug)} aria-label={`Remove ${s.institution.name}`} prefetch={false} className="text-sm font-semibold text-royal-ink underline">
-                    Remove
-                  </Link>
+                  <RemoveControl slug={s.institution.slug} name={s.institution.name} slugs={slugs} shared={shared} />
                   {LINES.map((group) => (
                     <div key={group.heading} className="mt-4">
                       <h3 className="text-lg text-navy">{group.heading}</h3>

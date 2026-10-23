@@ -44,7 +44,6 @@ export function ExplorerFilters({
 }) {
   const termNote = admissionsTerm ? ` (${admissionsTerm} entering class)` : '';
   const active = activeFilterCount(state);
-  const clearHref = state.compare.length ? `/schools?compare=${state.compare.join(',')}` : '/schools';
   return (
     <form method="get" action="/schools" className="space-y-4" aria-label="Search and filter schools">
       <TextField id="f-q" name="q" label="School name or city" defaultValue={state.q} maxLength={100} autoComplete="off" />
@@ -53,7 +52,7 @@ export function ExplorerFilters({
           Show schools
         </button>
         {active > 0 || state.q ? (
-          <Link href={clearHref} className="font-semibold text-royal-ink underline">
+          <Link href="/schools" className="font-semibold text-royal-ink underline">
             Clear search and filters
           </Link>
         ) : null}
@@ -165,7 +164,6 @@ export function ExplorerFilters({
         </div>
       </ResponsiveDetails>
 
-      {state.compare.length ? <input type="hidden" name="compare" value={state.compare.join(',')} /> : null}
     </form>
   );
 }
