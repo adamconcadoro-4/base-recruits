@@ -55,6 +55,13 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
     // wiped at confirmation). Sign out; the owner can set one with a new code.
     await supabase.auth.signOut();
     if (passwordError.code === 'weak_password') {
+      // Leaked-password protection reports "pwned" for passwords found in known data breaches.
+      const reasons = 'reasons' in passwordError && Array.isArray(passwordError.reasons) ? passwordError.reasons : [];
+      if (reasons.includes('pwned')) {
+        return failure('That password has appeared in a known data breach. Choose a different one, then enter a new code.', {
+          password: 'This password has appeared in a known data breach.',
+        });
+      }
       return failure('Choose a stronger password, then enter a new code.', { password: 'Choose a stronger password.' });
     }
     return failure(withDiagnostics('We couldn’t set your password. Send a new code and try again.', passwordError));
