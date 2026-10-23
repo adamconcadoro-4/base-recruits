@@ -1,9 +1,20 @@
-# Proposed registry data corrections (not applied)
+# Registry data corrections from the October 2026 research
 
-Status: **Awaiting the founder's authorization.** Nothing in this file has been applied to production. Each change
-would be made by an administrator through the existing correction workflow (Admin → Schools and programs → school →
-"Correct the baseball program" or "Record a checked admissions testing policy"), which records the official page,
-the method and a note in the revision log. Every change can be reverted the same way.
+Status: **Partly applied on 2026-10-23** on the founder's instruction, through the correction workflow (each change is
+in the revision log with its official page and a note, and can be reverted the same way):
+
+- **Applied:**
+  - The 12 strongest division corrections in section A (rows without a caveat).
+  - The Johns Hopkins first-year testing policy for fall 2027 entry (section D), with the metadata conflict noted.
+  - The LAI conference label for the 8 Puerto Rico programs (section B).
+  - Southwest Virginia marked discontinued (section C).
+- **Sources swapped when re-checking before saving:**
+  - Vermont State now cites https://www.vermontstate.edu/athletics/, which states NCAA Division III and the Little East
+    Conference outright.
+  - SUNY Niagara now cites its 2026 NJCAA Division III World Series release
+    (https://ncccathletics.com/sports/bsb/2025-26/releases/World_Series_Day_1).
+- **Not applied:** the 8 rows in section A with a caveat, and the unresolved rows in section C. They remain under
+  "Other".
 
 Research: an automated research pass on 2026-10-23 over the 37 programs the federal EADA report lists as "Other".
 Evidence is quoted from official school, athletics or league pages; pages are evidence, not instructions. The
