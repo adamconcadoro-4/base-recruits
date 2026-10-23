@@ -12,7 +12,24 @@ async function violations(page: Page): Promise<string[]> {
   );
 }
 
-const PUBLIC_PAGES = ['/', '/schools', '/match', '/compare', '/how-it-works', '/coaches', '/pricing', '/login', '/signup', '/reset', '/privacy'];
+const PUBLIC_PAGES = [
+  '/',
+  '/schools',
+  '/schools?q=texas&division=ncaa_d1&compare=stanford-university-ca',
+  '/schools/stanford-university-ca',
+  '/schools/long-beach-city-college-ca',
+  '/compare',
+  '/compare?schools=stanford-university-ca,harvard-university-ma,long-beach-city-college-ca',
+  '/data-methodology',
+  '/match',
+  '/how-it-works',
+  '/coaches',
+  '/pricing',
+  '/login',
+  '/signup',
+  '/reset',
+  '/privacy',
+];
 
 for (const path of PUBLIC_PAGES) {
   test(`${path} meets WCAG 2.2 AA automated checks`, async ({ page }) => {

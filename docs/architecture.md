@@ -145,12 +145,40 @@ Each stage stops at its exit gate with a report (`docs/reports/`). External depe
 | `PlanDefinition.premiumCapabilities` | Typed as premium keys: adding a core capability to a plan is a compile error (verified). |
 | Tests | 31 database assertions and 12 unit tests target these guarantees directly; a contract test keeps TypeScript and database catalogs identical. |
 
-## 6. Data provenance (Stage 2 onward)
+## 6. School registry and data provenance (Stage 2)
 
-Institution and baseball-program records will be separate entities. Every source-driven fact carries `provider`,
-`source_url`, `source_year`, `retrieved_at`, `verification_status` and `effective_period`, with versioned revisions so any
-past match explanation can be audited. Imports are staged → reviewed → published by an admin; missing statistics stay
-missing. Test fixtures are synthetic and never loaded into production.
+**Sources.** Only public U.S. Department of Education data is imported today: EADA (which institutions reported a men's
+baseball team, its participants and the institution's athletics classification, per academic year) and College
+Scorecard (institution facts, IPEDS admissions for a fall entering class, published prices for an academic year, fall
+enrollment). Association directories, Common Data Sets and school pages are not scraped; a school's official pages
+enter only through an administrator's reviewed correction that cites the page.
+
+**Pipeline.** `data/pipeline` (Python, standard library + openpyxl) runs on GitHub's runners (`data-refresh` workflow,
+`data/*` branches): it downloads the EADA release, keeps institutions with a men's baseball team, fetches their College
+Scorecard records with the key held in a GitHub secret, labels every section with its year, and writes
+`data/snapshots/registry-<season>.json` (one record per line, file and record checksums). Unknown codes and inconsistent
+values are reported as issues and left blank. The snapshot is reviewed in a pull request and ships with the app.
+
+**Import.** In the app an administrator stages a bundled snapshot (`/admin/data`). The server verifies the file's
+format and record checksum, creates a job, sends the records in chunks, and the database validates every value and
+computes the exact field-level changes against the live registry (new, changed, unchanged, missing, invalid). The
+administrator can skip rows, then publishes; publishes and reviews take turns and a publish requires the registry
+version its review was computed against. Restaging an earlier import is the rollback path.
+
+**Records.** `institutions` (IPEDS unit id), `institution_aliases`, `baseball_programs` (one per institution: status,
+season, association/division, reported classification, participants, conference and official links, verification level
+and evidence), `admissions_statistics` (per fall term) and `institution_costs` (per academic year). Every source-backed
+row stores its source, dataset, URL, year and retrieval time; triggers write every change to the append-only
+`registry_revisions` log with the import job or administrator and the reason. An administrator's verified division or
+confirmed status is never overwritten by an import for the same or an older season.
+
+**Access.** Listed registry rows are readable by everyone, signed in or not (`search_schools`, `get_school`,
+`compare_schools`, `registry_coverage` are SECURITY INVOKER, so row-level security applies); unlisted institutions and
+everything about them are visible only to administrators. Reviewer ids, internal notes and import ids are excluded by
+column grants. All writes go through admin-only SECURITY DEFINER functions.
+
+**What is not imported yet.** GPA (not in federal data), majors, conferences (admin-verified only), net price (its
+reference year could not be confirmed; each school's net price calculator is linked instead).
 
 ## 7. Environments
 

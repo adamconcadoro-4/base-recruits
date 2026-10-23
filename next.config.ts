@@ -32,6 +32,8 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Registry snapshots are read from disk by the admin import page's server action.
+  outputFileTracingIncludes: { '/admin/data': ['./data/snapshots/*.json'] },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
