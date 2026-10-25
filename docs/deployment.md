@@ -9,7 +9,8 @@ key, SMTP passwords) are never written here or committed anywhere.
 | --- | --- | --- |
 | Code | GitHub `adamconcadoro-4/base-recruits`, branch `main` | Pull requests merged into `main` |
 | Database, Auth | Supabase project **Base Recruits** (ref `qdwnxdkygeptynkdvgez`, region us-east-2, Ohio) in the **Base Recruits** organization, Pro plan | Supabase GitHub integration applies new migrations when `main` changes |
-| Web app | Vercel project for this repository, production branch `main` | Vercel builds and publishes every push to `main` |
+| Web app | Vercel project for this repository (team on the Pro plan), production branch `main` | Vercel builds and publishes every push to `main` |
+| Address | **https://baserecruits.app**. `www.baserecruits.app` and `base-recruits.vercel.app` permanently redirect (308) to it | Vercel → Project → Domains |
 
 An earlier, empty project in the same organization (`addbssupnaiiuawqxiod`, ca-central-1) is not used. The founder
 deletes it from the dashboard.
@@ -32,8 +33,8 @@ These mirror `supabase/config.toml`. Security depends on them (see the README).
 
 | Setting | Value |
 | --- | --- |
-| Site URL | The production web address |
-| Redirect URLs | `<production address>/**` |
+| Site URL | `https://baserecruits.app` |
+| Redirect URLs | `https://baserecruits.app/**` (the old `https://base-recruits.vercel.app/**` is still listed and can be removed once nothing uses it) |
 | Email provider | Enabled, **Confirm email on**, **Secure email change on** |
 | Anonymous sign-ins | Off |
 | Minimum password length | 10 |
@@ -45,7 +46,7 @@ These mirror `supabase/config.toml`. Security depends on them (see the README).
 
 | Name | Value |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | The production web address, no trailing slash |
+| `NEXT_PUBLIC_SITE_URL` | `https://baserecruits.app` (no trailing slash). Stored as a **Config** variable: Vercel refuses `NEXT_PUBLIC_` values saved as Secrets, and a saved Secret cannot be changed to Config, so to change it, delete and re-add it, then redeploy |
 | `NEXT_PUBLIC_APP_ENV` | `production` |
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://qdwnxdkygeptynkdvgez.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | The project's publishable key (`sb_publishable_…`, Project Settings → API Keys) |
