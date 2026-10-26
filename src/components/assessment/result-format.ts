@@ -4,6 +4,7 @@ import type { MetricResult } from '@/lib/assessment/results';
 import { rubricFormula, targetFormula, targetFromStored } from '@/lib/assessment/scoring';
 import type { CanonicalUnit } from '@/lib/assessment/types';
 import { formatValue } from '@/lib/assessment/units';
+import { SITE_TIME_ZONE, displayTimeZone, parseStoredDate } from '@/lib/time';
 
 /** Display helpers shared by report, preview, progress and sample pages. */
 
@@ -66,14 +67,23 @@ export function targetText(result: MetricResult): string | null {
 
 export function formatDateOnly(iso: string | null | undefined): string {
   if (!iso) return 'Not set';
-  const date = new Date(iso.length === 10 ? `${iso}T00:00:00Z` : iso);
+  const date = parseStoredDate(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' }).format(date);
+  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: displayTimeZone(iso) }).format(date);
+}
+
+/** "EDT" or "EST" for the moment given. */
+function easternZoneLabel(date: Date): string {
+  const part = new Intl.DateTimeFormat('en-US', { timeZone: SITE_TIME_ZONE, timeZoneName: 'short' })
+    .formatToParts(date)
+    .find((p) => p.type === 'timeZoneName');
+  return part?.value ?? 'ET';
 }
 
 export function formatDateTime(iso: string | null | undefined): string {
   if (!iso) return 'Not set';
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }).format(date) + ' UTC';
+  // "Oct 25, 2026, 11:06 PM EDT"
+  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short', timeZone: SITE_TIME_ZONE }).format(date) + ' ' + easternZoneLabel(date);
 }

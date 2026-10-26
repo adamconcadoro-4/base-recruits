@@ -1,6 +1,7 @@
 /** Shapes and labels for family links (public.list_family_links). */
 
 import type { ActionState } from '@/lib/forms/action-state';
+import { displayTimeZone, parseStoredDate } from '@/lib/time';
 
 export interface InviteState extends ActionState {
   readonly code?: string;
@@ -48,5 +49,5 @@ export function redeemOutcomeMessage(outcome: string): { readonly ok: boolean; r
 }
 
 export function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(iso));
+  return new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: displayTimeZone(iso) }).format(parseStoredDate(iso));
 }

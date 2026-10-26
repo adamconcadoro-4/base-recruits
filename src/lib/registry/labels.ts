@@ -4,6 +4,7 @@
  */
 
 import type { CampusSetting, InstitutionControl, InstitutionLevel, ProgramStatus, ProgramVerification, TestPolicy } from './types';
+import { displayTimeZone, parseStoredDate } from '@/lib/time';
 
 export const NOT_REPORTED = 'Not reported';
 
@@ -94,12 +95,12 @@ export function formatAcademicYear(value: string | null | undefined): string {
   return value ? value.replace('-', '–') : NOT_REPORTED;
 }
 
-const dateFormat = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
-
+/** "Oct 25, 2026", in Eastern time for timestamps (plain calendar dates are shown as written). */
 export function formatRetrieved(iso: string | null | undefined): string {
   if (!iso) return 'unknown date';
-  const date = new Date(iso);
-  return Number.isNaN(date.getTime()) ? 'unknown date' : dateFormat.format(date);
+  const date = parseStoredDate(iso);
+  if (Number.isNaN(date.getTime())) return 'unknown date';
+  return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: displayTimeZone(iso) }).format(date);
 }
 
 export function placeLabel(city: string | null, state: string | null): string {
