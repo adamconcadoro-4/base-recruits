@@ -1,17 +1,17 @@
 import Link from 'next/link';
 
 import { Logo } from '@/components/site/logo';
-import { FOOTER_NAV } from '@/components/site/navigation';
+import { footerNav } from '@/components/site/navigation';
 
 export function SiteFooter() {
   return (
-    <footer className="on-navy bg-navy text-white">
+    <footer className="on-navy bg-navy text-white print:hidden">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="space-y-4">
           <Logo />
           <p className="max-w-xs text-white/85">Where academics meet opportunity.</p>
         </div>
-        {FOOTER_NAV.map((group) => (
+        {footerNav().map((group) => (
           <nav key={group.heading} aria-label={group.heading}>
             <h2 className="text-lg text-white">{group.heading}</h2>
             <ul className="mt-3 space-y-2">

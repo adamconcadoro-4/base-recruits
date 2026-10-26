@@ -30,3 +30,21 @@ export async function reviewCoachAction(_previous: ActionState, formData: FormDa
   revalidatePath('/admin');
   return success('Decision saved.');
 }
+
+/**
+ * The database switches for Assessment. The site switch
+ * (NEXT_PUBLIC_ASSESSMENT_ENABLED) must also be on for anyone to see it;
+ * video uploads stay off until the legal review of minors' video is done.
+ */
+export async function setAssessmentSwitchesAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  const supabase = await createClient();
+  const enabled = field(formData, 'enabled') === 'on';
+  const videoEnabled = enabled && field(formData, 'video_enabled') === 'on';
+  const { error } = await supabase.rpc('admin_set_assessment_switches', { p_enabled: enabled, p_video_enabled: videoEnabled });
+  if (error) return failure(userMessageForDatabaseError(error));
+  revalidatePath('/admin');
+  revalidatePath('/assessment', 'layout');
+  return success(
+    enabled ? `Assessment is on. Video uploads are ${videoEnabled ? 'on' : 'off'}.` : 'Assessment is off. Nothing can be recorded.',
+  );
+}

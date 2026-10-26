@@ -3,13 +3,17 @@ import Link from 'next/link';
 
 import { signOutAction } from '@/app/(auth)/login/actions';
 import { Logo } from '@/components/site/logo';
+import { assessmentSiteEnabled } from '@/config/assessment';
 import type { Account } from '@/lib/auth/account';
 import { ROLE_HOME_PATHS, ROLE_LABELS } from '@/lib/auth/roles';
 
 export function AppHeader({ account }: { readonly account: Account }) {
-  const homes = account.viewer.kind === 'signed_in' && account.viewer.onboardingComplete ? account.roles : [];
+  const signedIn = account.viewer.kind === 'signed_in' && account.viewer.onboardingComplete;
+  const homes = signedIn ? account.roles : [];
+  // The development coach's home is Assessment, so the separate link is only for other roles.
+  const showAssessment = signedIn && assessmentSiteEnabled() && !account.roles.includes('development_coach');
   return (
-    <header className="on-navy bg-navy">
+    <header className="on-navy bg-navy print:hidden">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6">
         <Logo />
         <nav aria-label="Account" className="flex flex-wrap items-center gap-1">
@@ -22,6 +26,11 @@ export function AppHeader({ account }: { readonly account: Account }) {
               {ROLE_LABELS[role]}
             </Link>
           ))}
+          {showAssessment ? (
+            <Link href="/assessment" className="rounded-md px-3 py-2 font-semibold text-white no-underline hover:bg-white/10">
+              Assessment
+            </Link>
+          ) : null}
           <Link href="/settings" className="rounded-md px-3 py-2 font-semibold text-white no-underline hover:bg-white/10">
             Settings
           </Link>

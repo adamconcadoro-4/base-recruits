@@ -12,6 +12,7 @@
  * Change a status here (and only here) when a feature ships or is paused.
  */
 
+import { assessmentSiteEnabled } from '@/config/assessment';
 import type { CapabilityKey } from '@/lib/entitlements/capabilities';
 
 export type Availability = 'available' | 'pilot' | 'planned' | 'unavailable';
@@ -94,6 +95,11 @@ export const FEATURES = {
     status: 'planned',
     name: 'Self-service privacy tools',
     now: 'Self-service data export and account deletion are not built yet.',
+  },
+  assessment: {
+    status: assessmentSiteEnabled() ? 'pilot' : 'unavailable',
+    name: 'Player assessment',
+    now: 'Hitting and pitching assessments with video review, transparent scoring and training plans. Switched off until it opens.',
   },
   paid_plans: {
     status: 'planned',

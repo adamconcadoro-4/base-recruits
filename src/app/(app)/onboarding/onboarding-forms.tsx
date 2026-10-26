@@ -23,7 +23,15 @@ const MONTHS = [
   'December',
 ] as const;
 
-export function RoleForm({ defaultName, adult }: { readonly defaultName: string; readonly adult: boolean }) {
+export function RoleForm({
+  defaultName,
+  adult,
+  developmentCoachOpen = false,
+}: {
+  readonly defaultName: string;
+  readonly adult: boolean;
+  readonly developmentCoachOpen?: boolean;
+}) {
   const [state, action] = useActionState<ActionState, FormData>(chooseRoleAction, IDLE);
   return (
     <form action={action} className="max-w-xl space-y-6">
@@ -33,6 +41,7 @@ export function RoleForm({ defaultName, adult }: { readonly defaultName: string;
           { value: 'athlete', label: 'Student-athlete', adultsOnly: false },
           { value: 'parent', label: 'Parent or guardian', adultsOnly: true },
           { value: 'coach', label: 'College coach', adultsOnly: true },
+          ...(developmentCoachOpen ? [{ value: 'development_coach', label: 'Development coach', adultsOnly: true }] : []),
         ]
           .filter((option) => adult || !option.adultsOnly)
           .map((option, index) => (

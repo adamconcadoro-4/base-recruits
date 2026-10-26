@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { accountSchema, dateOfBirthSchema, isoDate, type AgeStepState } from '@/app/(auth)/signup/schema';
+import { assessmentSiteEnabled } from '@/config/assessment';
 import { birthDateMessage, checkBirthDate, todayUtc } from '@/lib/age/age-policy';
 import { blockAgeGate, isAgeGateBlocked } from '@/lib/auth/age-gate';
 import { failure, field, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
@@ -76,6 +77,10 @@ export async function signUpAction(_previous: ActionState, formData: FormData): 
     return failure('Check the highlighted fields.', fieldErrors);
   }
   const { accountType, displayName, email } = parsed.data;
+
+  if (accountType === 'development_coach' && !assessmentSiteEnabled()) {
+    return failure('Development coach accounts are not open yet.', { accountType: 'Development coach accounts are not open yet.' });
+  }
 
   if (accountType !== 'athlete' && check.band === 'minor') {
     return failure('Parent, guardian and coach accounts are for adults.', {
