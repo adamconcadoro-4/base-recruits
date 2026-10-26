@@ -1,8 +1,21 @@
 # School data check against the founder's spreadsheets and Airtable (2026-10-25)
 
-Status: **approved by the founder on 2026-10-25**. Sections A and B are applied through the admin correction and policy
-forms. Each change is in the revision log with its official page and a note, and can be reverted the same way. Section C
-needs the "Add a school" tool (pull request #10).
+Status: **approved by the founder on 2026-10-25 and applied the same evening** (dates in the app show 2026-10-26, UTC).
+
+- Section A: 17 corrections, through the admin correction form.
+- Section B: 25 testing policies, through the admin policy form.
+- Section C: 13 schools, through the new "Add a school" tool (pull request #10).
+
+Each change is in the revision log with its official page and a note, and can be reverted the same way. A database check
+afterwards confirmed every row, and the public pages were spot-checked:
+
+- Army: division, conference, "not in the federal report" note and evidence link.
+- Search for "Air Force".
+- Purdue Fort Wayne: shown as discontinued.
+- Columbia and Cal State Fullerton: policies shown.
+- La Salle: season 2025–26.
+
+Active programs went from 1,669 to 1,679 (13 added, 3 discontinued).
 
 ## Inputs and method
 
@@ -100,3 +113,20 @@ Federal IDs and addresses come from NCES College Navigator; teams come from each
 - **Lees–McRae:** baseball program announced June 2026; first season expected spring 2028. Add when it plays.
 - **Already right on the site:** Texas A&M–Texarkana, Texas Wesleyan and Loyola New Orleans (NAIA in 2026-27) and
   Lackawanna (NJCAA). Each has announced a future NCAA Division II move.
+
+## E. Re-check at the next data refresh
+
+- **Columbia-Greene CC:** confirm the team still plays (no official game found after April 15, 2025). If not, mark
+  it discontinued.
+- **The six schools added for 2025–26** (La Salle, Morehouse, Coast Guard, Grove City, Wabash, Saint John's): once
+  their 2027 rosters are posted (usually January–February), re-save each one for 2026–27 with the roster as evidence.
+- **Schools changing division or conference in 2027–28:**
+  - Ferrum becomes a full Division II member in August 2027.
+  - Vermont State–Castleton moves to the MASCAC.
+  - Texas A&M–Texarkana joins the Lone Star Conference on July 1, 2027.
+  - Loyola New Orleans joins the Gulf South Conference on July 1, 2027.
+  - Lees–McRae's first season is expected in spring 2028.
+- **Pending NCAA Division II applications:** Texas Wesleyan, Lackawanna and Monroe University.
+- **Reclassifying Division I schools** (not eligible for the NCAA postseason until full membership): New Haven and
+  Mercyhurst (2028–29), West Florida (2029), West Georgia (2027–28).
+- **Provisional Division III schools:** Regent and Johnson & Wales–Charlotte (full membership 2028–29).
