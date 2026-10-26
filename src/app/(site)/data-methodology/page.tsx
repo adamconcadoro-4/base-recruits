@@ -105,6 +105,12 @@ export default async function DataMethodologyPage() {
             A program is listed as active only when the latest report shows a men&apos;s baseball team with participants.
           </li>
           <li>
+            <strong>Teams the federal report leaves out:</strong> the report does not cover service academies, men&apos;s
+            colleges, colleges that take no federal student aid, or teams too new to have reported. We add those by hand after
+            checking a current schedule, roster or announcement on the school&apos;s or conference&apos;s own site. Their school
+            pages say so and link the page we checked; they don&apos;t show admissions figures or costs yet.
+          </li>
+          <li>
             <strong>Division:</strong> the school&apos;s athletics classification in the same report (for example NCAA Division
             II or NJCAA Division I). Where we have checked the association&apos;s directory or the team&apos;s own site, the
             school page says so and links the page we checked.

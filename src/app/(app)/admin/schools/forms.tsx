@@ -3,6 +3,7 @@
 import { startTransition, useActionState, type FormEvent } from 'react';
 
 import {
+  addSchoolAction,
   resolveCorrectionAction,
   setAdmissionsPolicyAction,
   setListingAction,
@@ -96,6 +97,116 @@ export function ProgramForm({
         ) : null}
         <Button type="submit" disabled={pending} aria-disabled={pending}>
           {pending ? 'Saving…' : 'Save program'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function AddSchoolForm({
+  divisions,
+  seasons,
+  defaultSeason,
+  states,
+}: {
+  readonly divisions: readonly { readonly code: string; readonly association: string; readonly name: string }[];
+  readonly seasons: readonly string[];
+  readonly defaultSeason: string;
+  readonly states: readonly { readonly code: string; readonly name: string }[];
+}) {
+  const [state, action, pending] = useActionState<ActionState, FormData>(addSchoolAction, IDLE);
+  const errors = state.fieldErrors ?? {};
+  // Submitted through a transition so a refused addition keeps what was typed.
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    startTransition(() => action(data));
+  }
+  return (
+    <form action={action} onSubmit={submit} className="grid gap-5 lg:grid-cols-2" noValidate aria-label="Add a school">
+      <TextField
+        id="n-unitid"
+        name="unitid"
+        label="Federal school ID (IPEDS UNITID)"
+        hint="Six digits, from the school's College Navigator page (nces.ed.gov/collegenavigator)."
+        inputMode="numeric"
+        maxLength={6}
+        error={errors.unitid}
+      />
+      <TextField id="n-name" name="name" label="Official school name" maxLength={200} error={errors.name} />
+      <TextField id="n-city" name="city" label="City" maxLength={100} error={errors.city} />
+      <SelectField id="n-state" name="state" label="State" defaultValue="" error={errors.state}>
+        <option value="" disabled>
+          Choose one
+        </option>
+        {states.map((s) => (
+          <option key={s.code} value={s.code}>
+            {s.name}
+          </option>
+        ))}
+      </SelectField>
+      <TextField id="n-website" name="websiteUrl" type="url" label="School website" error={errors.websiteUrl} />
+      <SelectField id="n-control" name="control" label="Control" defaultValue="" error={errors.control}>
+        <option value="" disabled>
+          Choose one
+        </option>
+        <option value="public">Public</option>
+        <option value="private_nonprofit">Private nonprofit</option>
+        <option value="private_for_profit">Private for-profit</option>
+      </SelectField>
+      <SelectField id="n-level" name="level" label="Level" defaultValue="four_year" error={errors.level}>
+        <option value="four_year">Four-year</option>
+        <option value="two_year">Two-year</option>
+        <option value="less_than_two_year">Less than two-year</option>
+      </SelectField>
+      <SelectField
+        id="n-season"
+        name="season"
+        label="Season you confirmed"
+        hint="The season the official page shows. Choose the one just finished if next season's roster isn't posted yet."
+        defaultValue={defaultSeason}
+        error={errors.season}
+      >
+        {seasons.map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </SelectField>
+      <SelectField id="n-division" name="division" label="Division" defaultValue="" error={errors.division}>
+        <option value="" disabled>
+          Choose one
+        </option>
+        {divisions.map((d) => (
+          <option key={d.code} value={`${d.association}|${d.code}`}>
+            {d.name}
+          </option>
+        ))}
+      </SelectField>
+      <TextField id="n-conference" name="conference" label="Conference" hint="Leave blank until you've confirmed it." maxLength={120} error={errors.conference} />
+      <SelectField id="n-verification" name="verification" label="How you confirmed the team" defaultValue="official_athletics_site" error={errors.verification}>
+        <option value="official_athletics_site">Checked the school&apos;s official athletics site</option>
+        <option value="association_directory">Checked the association&apos;s directory</option>
+      </SelectField>
+      <TextField id="n-athletics" name="athleticsUrl" type="url" label="Team page (optional)" error={errors.athleticsUrl} />
+      <TextField
+        id="n-evidence"
+        name="evidenceUrl"
+        type="url"
+        label="Official page you checked"
+        hint="A current schedule, roster or announcement on the school's or conference's own site."
+        error={errors.evidenceUrl}
+        className="lg:col-span-2"
+      />
+      <TextAreaField id="n-note" name="note" label="What you checked" maxLength={1000} error={errors.note} className="lg:col-span-2" />
+      <div className="space-y-3 lg:col-span-2">
+        {state.message ? (
+          <Notice tone={state.status === 'error' ? 'error' : 'success'} live>
+            {state.message}
+          </Notice>
+        ) : null}
+        <Button type="submit" disabled={pending} aria-disabled={pending}>
+          {pending ? 'Adding…' : 'Add school'}
         </Button>
       </div>
     </form>

@@ -58,9 +58,12 @@ export default async function AdminSchoolsPage({
 
   return (
     <>
-      <p className="mb-4">
+      <p className="mb-4 flex flex-wrap gap-x-6 gap-y-2">
         <Link href="/admin/data" className="font-semibold text-royal-ink underline">
           School data
+        </Link>
+        <Link href="/admin/schools/add" className="font-semibold text-royal-ink underline">
+          Add a school the federal report leaves out
         </Link>
       </p>
       <PageTitle title="Schools and programs">Find a record to correct against an official page, or to hide from public pages.</PageTitle>

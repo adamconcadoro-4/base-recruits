@@ -1,9 +1,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 import { userMessageForDatabaseError } from '@/lib/db/errors';
 import { failure, field, success, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
+import { parseAddSchool } from '@/lib/registry/add-school';
 import { DIVISION_CODES, PROGRAM_STATUSES, VERIFICATIONS } from '@/lib/registry/types';
 import { createClient } from '@/lib/supabase/server';
 
@@ -63,6 +65,35 @@ export async function updateProgramAction(_previous: ActionState, formData: Form
   revalidatePath(`/schools/${slug}`);
   revalidatePath('/schools');
   return success('Program updated. The change and your note are in the revision log.');
+}
+
+/** Adds a school the federal athletics report leaves out, then opens its admin page. */
+export async function addSchoolAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = parseAddSchool((name) => field(formData, name));
+  if (!parsed.ok) return failure('Please fix the highlighted fields.', { ...parsed.errors });
+  const v = parsed.value;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('admin_add_baseball_program', {
+    p_unitid: v.unitid,
+    p_name: v.name,
+    p_city: v.city,
+    p_state: v.state,
+    p_website_url: v.websiteUrl,
+    p_control: v.control,
+    p_level: v.level,
+    p_season: v.season,
+    p_association_code: v.association,
+    p_division_code: v.division,
+    p_conference: v.conference,
+    p_athletics_url: v.athleticsUrl,
+    p_verification: v.verification,
+    p_verification_source_url: v.evidenceUrl,
+    p_note: v.note,
+  });
+  if (error) return failure(withDiagnostics(userMessageForDatabaseError(error), error));
+  if (typeof data !== 'string') return failure('The school was not added. Try again.');
+  revalidatePath('/schools');
+  redirect(`/admin/schools/${data}?added=1`);
 }
 
 export async function setListingAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
