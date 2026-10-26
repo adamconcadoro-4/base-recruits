@@ -8,6 +8,7 @@ import {
   evaluateRouteAccess,
   normalizePath,
   safeNextPath,
+  signedOutRedirectFor,
   type Viewer,
 } from '@/lib/auth/route-access';
 
@@ -94,6 +95,24 @@ describe('evaluateRouteAccess', () => {
     }
   });
 
+  it('sends signed-out visitors to Assessment to its public explanation, and lets any onboarded account in', () => {
+    for (const path of ['/assessment', '/assessment/film', '/assessment/0b6c2c3e-0000-4000-8000-000000000001/report']) {
+      expect(evaluateRouteAccess(path, ANONYMOUS)).toEqual({
+        allowed: false,
+        reason: 'sign_in_required',
+        redirectTo: '/player-assessment',
+      });
+      expect(signedOutRedirectFor(path)).toBe('/player-assessment');
+    }
+    expect(signedOutRedirectFor('/athlete')).toBe('/login?next=%2Fathlete');
+    for (const roles of [['athlete'], ['parent'], ['coach'], ['development_coach']] as const) {
+      expect(evaluateRouteAccess('/assessment', signedIn({ roles: [...roles] }))).toEqual({ allowed: true });
+    }
+    expect(evaluateRouteAccess('/assessment', signedIn({ roles: [], onboardingComplete: false }))).toMatchObject({
+      reason: 'onboarding_required',
+    });
+  });
+
   it('normalizes paths before matching', () => {
     expect(normalizePath('/admin/')).toBe('/admin');
     expect(normalizePath('//admin//users?x=1')).toBe('/admin/users');
@@ -131,6 +150,11 @@ describe('roles', () => {
   it('never lets admin be self-selected', () => {
     expect(isSelfSelectableRole('admin')).toBe(false);
     expect(isSelfSelectableRole('coach')).toBe(true);
+    expect(isSelfSelectableRole('development_coach')).toBe(true);
+  });
+
+  it('sends development coaches to Assessment', () => {
+    expect(homePathFor(['development_coach'], 'development_coach')).toBe('/assessment');
   });
 
   it('routes people to their primary role home, or onboarding', () => {
