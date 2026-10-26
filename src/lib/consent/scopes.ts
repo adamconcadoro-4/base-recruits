@@ -15,11 +15,14 @@ export const CONSENT_SCOPE_KEYS = [
   'document_access',
   'family_recruiting',
   'family_academic',
+  'development_coach_access',
+  'family_assessments',
+  'coach_assessment_reports',
 ] as const;
 export type ConsentScope = (typeof CONSENT_SCOPE_KEYS)[number];
 
 export type ConsentAudience = 'verified_coaches' | 'specific_user';
-export type GranteeKind = 'verified_coach' | 'linked_guardian' | 'verified_coach_or_linked_guardian';
+export type GranteeKind = 'verified_coach' | 'linked_guardian' | 'verified_coach_or_linked_guardian' | 'development_coach';
 
 export interface ConsentScopeRule {
   readonly audience: ConsentAudience;
@@ -104,6 +107,33 @@ export const CONSENT_SCOPES: Readonly<Record<ConsentScope, ConsentScopeRule>> = 
     textVersion: 'family-academic-v1',
     label: 'Academic profile',
     description: 'Let a linked parent/guardian see your academic profile.',
+  },
+  development_coach_access: {
+    audience: 'specific_user',
+    granteeKind: 'development_coach',
+    requiresGuardianApprovalForMinor: true,
+    maxDurationDays: null,
+    textVersion: 'development-coach-access-v1',
+    label: 'Development coach access to assessments',
+    description: 'Let one named development coach see, add to and review your assessments, video and training plans.',
+  },
+  family_assessments: {
+    audience: 'specific_user',
+    granteeKind: 'linked_guardian',
+    requiresGuardianApprovalForMinor: false,
+    maxDurationDays: null,
+    textVersion: 'family-assessments-v1',
+    label: 'Assessments',
+    description: 'Let a linked parent/guardian see and add to your assessments, video and training plans.',
+  },
+  coach_assessment_reports: {
+    audience: 'specific_user',
+    granteeKind: 'verified_coach',
+    requiresGuardianApprovalForMinor: true,
+    maxDurationDays: 365,
+    textVersion: 'coach-assessment-reports-v1',
+    label: 'Published assessment reports',
+    description: 'Let one named verified college coach see your published assessment reports. Video is never shared.',
   },
 };
 

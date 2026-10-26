@@ -202,6 +202,41 @@ race "a review prepared during a publish is computed after it" \
           = (select publish_version from private.registry_state)" \
   b_must_succeed
 
+# Assessment: four open development-coach codes (five allowed), a published report that two
+# sessions publish again at once, and an athlete with an active training plan.
+local_psql "${BR_TEST_DB}" >/dev/null <<'SQL'
+select tests.enable_assessment(false);
+select tests.create_user('assess_athlete', 'athlete', p_date_of_birth => date '2000-01-01');
+select tests.create_user('assess_coach', 'development_coach', p_date_of_birth => date '1985-01-01');
+select tests.link_development_coach('assess_athlete', 'assess_coach');
+begin;
+select tests.authenticate_as('assess_athlete');
+select public.create_development_coach_invite() from generate_series(1, 4);
+select tests.remember_job('assess_h', public.create_assessment(auth.uid(), 'hitting-video', 1, private.today_utc(), '{"rep_goal": 5}'::jsonb));
+select public.record_assessment_observation(tests.job('assess_h'), 'hit_load_repeatability', null, 3, false, null, null, null, null, null, null);
+select tests.remember_job('assess_rev', public.publish_assessment(tests.job('assess_h'), null));
+select public.reopen_assessment(tests.job('assess_h'), 'Race test correction');
+commit;
+SQL
+
+race "concurrent development-coach codes cannot exceed five open codes" \
+  "select tests.authenticate_as('assess_athlete'); select public.create_development_coach_invite();" \
+  "select tests.authenticate_as('assess_athlete'); select public.create_development_coach_invite();" \
+  "select count(*) = 5 from public.development_coach_invites where athlete_id = tests.id('assess_athlete') and redeemed_at is null and cancelled_at is null"
+
+race "two sessions publishing one assessment at once leave exactly one current report" \
+  "select tests.authenticate_as('assess_athlete'); select public.publish_assessment(tests.job('assess_h'), 'A');" \
+  "select tests.authenticate_as('assess_coach'); select public.publish_assessment(tests.job('assess_h'), 'B');" \
+  "select (select count(*) from public.assessment_report_revisions where assessment_id = tests.job('assess_h') and status = 'current') = 1
+      and (select count(*) from public.assessment_report_revisions where assessment_id = tests.job('assess_h')) = 2"
+
+race "two training plans started at once leave one active plan per discipline" \
+  "select tests.authenticate_as('assess_athlete'); select public.create_training_plan(auth.uid(), tests.job('assess_rev'), 'Plan A', private.today_utc(), private.today_utc() + 28, '[]', '[{\"drill_key\": \"hit-stride-line\", \"drill_version\": 1, \"reason\": \"Race test\", \"dosage\": \"3x8\"}]');" \
+  "select tests.authenticate_as('assess_coach'); select public.create_training_plan(tests.id('assess_athlete'), tests.job('assess_rev'), 'Plan B', private.today_utc(), private.today_utc() + 28, '[]', '[{\"drill_key\": \"hit-stride-line\", \"drill_version\": 1, \"reason\": \"Race test\", \"dosage\": \"3x8\"}]');" \
+  "select (select count(*) from public.assessment_training_plans where athlete_id = tests.id('assess_athlete') and status = 'active') = 1
+      and (select count(*) from public.assessment_training_plans where athlete_id = tests.id('assess_athlete')) = 2" \
+  b_must_succeed
+
 local_psql postgres -c "drop database if exists ${BR_TEST_DB} with (force);" >/dev/null
 
 echo

@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { setAssessmentSwitchesAction } from '@/app/(app)/admin/actions';
 import { ReviewForm } from '@/app/(app)/admin/review-form';
+import { ActionForm } from '@/components/assessment/action-form';
 import { DashboardSection, PageTitle } from '@/components/app/section';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip } from '@/components/ui/status-chip';
+import { assessmentSiteEnabled } from '@/config/assessment';
 import { requireAccess } from '@/lib/auth/guard';
 import { describeCoachStatus, type CoachVerificationStatus } from '@/lib/auth/coach-verification';
 import { reviewFlags, staffUrlProblem } from '@/lib/auth/staff-url';
@@ -64,7 +67,7 @@ function StaffLink({ url, emailDomain }: { readonly url: string | null; readonly
 export default async function AdminPage() {
   await requireAccess('/admin');
   const supabase = await createClient();
-  const [queueResult, recentResult] = await Promise.all([
+  const [queueResult, recentResult, switchesResult] = await Promise.all([
     supabase
       .from('coaches')
       .select('user_id, work_email, email_domain, institution_name_claimed, coaching_title, staff_directory_url, affiliation_submitted_at')
@@ -77,7 +80,11 @@ export default async function AdminPage() {
       .neq('verification_status', 'affiliation_under_review')
       .order('status_changed_at', { ascending: false })
       .limit(20),
+    supabase.rpc('assessment_switches'),
   ]);
+  const switchRow = (Array.isArray(switchesResult.data) ? switchesResult.data[0] : switchesResult.data) as
+    | { enabled?: boolean; video_enabled?: boolean }
+    | null;
   const queue = (queueResult.data ?? []) as QueueRow[];
   const recent = (recentResult.data ?? []) as RecentRow[];
 
@@ -134,6 +141,29 @@ export default async function AdminPage() {
             <p>No coaches are waiting for review.</p>
           )}
         </DashboardSection>
+
+        {assessmentSiteEnabled() ? (
+          <DashboardSection
+            id="assessment"
+            title="Assessment switches"
+            description="Assessment shows on the site only when the site switch is on in the deployment settings. These database switches decide whether anything can be recorded and whether video can be uploaded. Keep video off until the legal review of minors' video is complete."
+          >
+            {switchesResult.error ? (
+              <Notice tone="error">The switches didn&apos;t load. Refresh to try again.</Notice>
+            ) : (
+              <ActionForm action={setAssessmentSwitchesAction} submitLabel="Save switches" variant="secondary">
+                <label className="flex min-h-11 items-center gap-3">
+                  <input type="checkbox" name="enabled" defaultChecked={Boolean(switchRow?.enabled)} className="size-5" />
+                  Assessment is open (people can record and publish)
+                </label>
+                <label className="flex min-h-11 items-center gap-3">
+                  <input type="checkbox" name="video_enabled" defaultChecked={Boolean(switchRow?.video_enabled)} className="size-5" />
+                  Video uploads are on
+                </label>
+              </ActionForm>
+            )}
+          </DashboardSection>
+        ) : null}
 
         <DashboardSection id="recent" title="Recent coach status changes">
           {recent.length > 0 ? (

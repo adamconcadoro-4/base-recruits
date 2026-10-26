@@ -130,6 +130,7 @@ On a fresh database (including a new hosted project) nothing is public until ste
 - `docs/decisions.md` — open founder and legal decisions, with current defaults
 - `docs/reports/` — engineering report for each stage
 - `docs/deployment.md` — production setup: Supabase, Vercel, Auth settings and one-time steps
+- `docs/assessment.md` — Base Recruits Assessment (hitting and pitching assessments; built, switched off)
 - `docs/remediation/` — the discovery remediation register, release readiness and proposed data corrections
 - `CONTRIBUTING.md` — repository conventions and review checklists
 

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { BirthdateForm, RoleForm } from '@/app/(app)/onboarding/onboarding-forms';
 import { PageTitle } from '@/components/app/section';
 import { Notice } from '@/components/ui/notice';
+import { assessmentSiteEnabled } from '@/config/assessment';
 import { requireAccess } from '@/lib/auth/guard';
 
 export const metadata: Metadata = { title: 'Finish setting up' };
@@ -33,7 +34,7 @@ export default async function OnboardingPage() {
   return (
     <>
       <PageTitle title="One more step">Tell us who this account is for. You can only choose once.</PageTitle>
-      <RoleForm defaultName={account.profile?.display_name ?? ''} adult={!account.isMinor} />
+      <RoleForm defaultName={account.profile?.display_name ?? ''} adult={!account.isMinor} developmentCoachOpen={assessmentSiteEnabled()} />
     </>
   );
 }

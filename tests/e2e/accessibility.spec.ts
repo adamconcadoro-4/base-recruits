@@ -35,6 +35,9 @@ const PUBLIC_PAGES = [
   '/signup',
   '/reset',
   '/privacy',
+  // Assessment's public pages (a not-found page when the site switch is off).
+  '/player-assessment',
+  '/player-assessment/sample',
 ];
 
 for (const path of PUBLIC_PAGES) {

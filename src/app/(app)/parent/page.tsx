@@ -17,6 +17,9 @@ interface ApprovalRequest {
   readonly grant_id: string;
   readonly athlete_name: string | null;
   readonly scope: ConsentScope;
+  /** Who would receive access (for sharing with a specific person, such as a development coach). */
+  readonly grantee_name?: string | null;
+  readonly grantee_email?: string | null;
 }
 
 export default async function ParentHomePage() {
@@ -59,6 +62,12 @@ export default async function ParentHomePage() {
                     <p className="font-semibold">
                       {grant.athlete_name ?? 'Your athlete'}: {CONSENT_SCOPES[grant.scope]?.label ?? 'Sharing request'}
                     </p>
+                    {grant.grantee_name || grant.grantee_email ? (
+                      <p className="text-sm">
+                        With: <span className="font-semibold">{grant.grantee_name ?? 'Unnamed account'}</span>
+                        {grant.grantee_email ? ` (${grant.grantee_email})` : ''}
+                      </p>
+                    ) : null}
                     <p className="text-sm text-slate">{CONSENT_SCOPES[grant.scope]?.description}</p>
                   </div>
                   <ActionButtonForm

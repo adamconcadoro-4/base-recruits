@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { dateOfBirthSchema, isoDate } from '@/app/(auth)/signup/schema';
+import { assessmentSiteEnabled } from '@/config/assessment';
 import { birthDateMessage, checkBirthDate, todayUtc } from '@/lib/age/age-policy';
 import { getAccount } from '@/lib/auth/account';
 import { blockAgeGate, isAgeGateBlocked } from '@/lib/auth/age-gate';
@@ -15,6 +16,9 @@ import { createClient } from '@/lib/supabase/server';
 export async function chooseRoleAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const accountType = field(formData, 'accountType');
   if (!isSelfSelectableRole(accountType)) return failure('Choose who this account is for.');
+  if (accountType === 'development_coach' && !assessmentSiteEnabled()) {
+    return failure('Development coach accounts are not open yet.');
+  }
 
   // Unknown age counts as a minor, so the date of birth comes first.
   const account = await getAccount();

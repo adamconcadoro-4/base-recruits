@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { findProtectedRoute, loginRedirectFor } from '@/lib/auth/route-access';
+import { findProtectedRoute, signedOutRedirectFor } from '@/lib/auth/route-access';
 import { sessionCookieOptions } from '@/lib/supabase/cookie-options';
 
 /**
@@ -22,7 +22,7 @@ export async function proxy(request: NextRequest) {
     // Supabase is not configured (e.g. a marketing-only preview): public pages
     // still work; protected pages cannot.
     return isProtected
-      ? NextResponse.redirect(new URL(loginRedirectFor(request.nextUrl.pathname), request.url))
+      ? NextResponse.redirect(new URL(signedOutRedirectFor(request.nextUrl.pathname), request.url))
       : NextResponse.next({ request });
   }
 
@@ -50,7 +50,7 @@ export async function proxy(request: NextRequest) {
   const signedIn = typeof data?.claims?.sub === 'string';
 
   if (!signedIn && isProtected) {
-    const redirect = NextResponse.redirect(new URL(loginRedirectFor(request.nextUrl.pathname), request.url));
+    const redirect = NextResponse.redirect(new URL(signedOutRedirectFor(request.nextUrl.pathname), request.url));
     for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
     for (const [name, value] of Object.entries(refreshHeaders)) redirect.headers.set(name, value);
     return redirect;

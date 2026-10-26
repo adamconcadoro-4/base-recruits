@@ -31,7 +31,15 @@ const ACCOUNT_TYPES = [
   { value: 'coach', label: 'College coach', hint: 'Use your institutional email. Verification required.', adultsOnly: true },
 ] as const;
 
-export function SignupForm() {
+/** Offered only while Assessment is switched on; the server checks again. */
+const DEVELOPMENT_COACH = {
+  value: 'development_coach',
+  label: 'Development coach',
+  hint: 'A hitting or pitching instructor who reviews the assessments of the players they train.',
+  adultsOnly: true,
+} as const;
+
+export function SignupForm({ developmentCoachOpen = false }: { readonly developmentCoachOpen?: boolean }) {
   const [ageState, checkAge] = useActionState<AgeStepState, FormData>(checkAgeAction, IDLE);
   const [accountState, signUp] = useActionState<ActionState, FormData>(signUpAction, IDLE);
   const [birth, setBirth] = useState({ month: '', day: '', year: '' });
@@ -94,7 +102,9 @@ export function SignupForm() {
   }
 
   const errors = accountState.fieldErrors ?? {};
-  const choices = ACCOUNT_TYPES.filter((type) => ageState.adult || !type.adultsOnly);
+  const choices = [...ACCOUNT_TYPES, ...(developmentCoachOpen ? [DEVELOPMENT_COACH] : [])].filter(
+    (type) => ageState.adult || !type.adultsOnly,
+  );
 
   return (
     <form action={signUp} className="mt-8 space-y-6" noValidate>

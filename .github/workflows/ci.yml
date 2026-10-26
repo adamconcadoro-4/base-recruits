@@ -197,6 +197,10 @@ jobs:
     name: end-to-end and accessibility
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    env:
+      # Assessment is off in production; the tests build with it on (and the
+      # global setup turns its database switches on) so it is covered.
+      NEXT_PUBLIC_ASSESSMENT_ENABLED: 'true'
     steps:
       - uses: actions/checkout@v5
 
@@ -221,7 +225,7 @@ jobs:
       - name: Start Supabase with the migrations
         run: >-
           scripts/ci/run.sh "supabase start"
-          supabase start -x realtime,storage-api,imgproxy,studio,postgres-meta,edge-runtime,logflare,vector,supavisor
+          supabase start -x realtime,imgproxy,studio,postgres-meta,edge-runtime,logflare,vector,supavisor
 
       - name: Use the local stack settings
         run: scripts/ci/supabase-env.sh >> "${GITHUB_ENV}"

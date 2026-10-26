@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { AgeScreenBlocked } from '@/app/(auth)/signup/age-screen-blocked';
 import { SignupForm } from '@/app/(auth)/signup/signup-form';
+import { assessmentSiteEnabled } from '@/config/assessment';
 import { isAgeGateBlocked } from '@/lib/auth/age-gate';
 
 export const metadata: Metadata = { title: 'Create a free account', alternates: { canonical: '/signup' } };
@@ -22,7 +23,7 @@ export default async function SignupPage() {
               Log in
             </Link>
           </p>
-          <SignupForm />
+          <SignupForm developmentCoachOpen={assessmentSiteEnabled()} />
         </>
       )}
     </div>

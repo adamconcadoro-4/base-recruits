@@ -35,6 +35,8 @@ interface RouteRequirement {
 export interface ProtectedRoute {
   readonly prefix: string;
   readonly requirement: RouteRequirement;
+  /** Where signed-out visitors go instead of the login page (a public explanation with its own sign-in link). */
+  readonly signedOutPath?: string;
 }
 
 /** Every route under these prefixes requires a signed-in user. */
@@ -49,6 +51,8 @@ export const PROTECTED_ROUTES: readonly ProtectedRoute[] = [
   { prefix: '/coach/boards', requirement: { role: 'coach', verifiedCoach: true } },
   { prefix: '/coach/messages', requirement: { role: 'coach', verifiedCoach: true } },
   { prefix: '/admin', requirement: { role: 'admin' } },
+  // Assessment: any onboarded account; what each person can see is decided by the database.
+  { prefix: '/assessment', requirement: {}, signedOutPath: '/player-assessment' },
 ];
 
 /**
@@ -75,6 +79,8 @@ export const PUBLIC_ROUTES = [
   '/terms',
   '/data-methodology',
   '/accessibility',
+  '/player-assessment',
+  '/player-assessment/sample',
 ] as const;
 
 export type DenialReason = 'sign_in_required' | 'onboarding_required' | 'role_required' | 'coach_verification_required';
@@ -134,12 +140,18 @@ export function loginRedirectFor(pathname: string): string {
   return `/login?next=${encodeURIComponent(safeNextPath(normalizePath(pathname)))}`;
 }
 
+/** Where a signed-out visitor to a protected path is sent: the route's public page, or login. */
+export function signedOutRedirectFor(pathname: string): string {
+  const route = findProtectedRoute(pathname);
+  return route?.signedOutPath ?? loginRedirectFor(pathname);
+}
+
 export function evaluateRouteAccess(pathname: string, viewer: Viewer): AccessDecision {
   const route = findProtectedRoute(pathname);
   if (!route) return { allowed: true };
 
   if (viewer.kind === 'anonymous') {
-    return { allowed: false, reason: 'sign_in_required', redirectTo: loginRedirectFor(pathname) };
+    return { allowed: false, reason: 'sign_in_required', redirectTo: route.signedOutPath ?? loginRedirectFor(pathname) };
   }
 
   const { requirement } = route;
