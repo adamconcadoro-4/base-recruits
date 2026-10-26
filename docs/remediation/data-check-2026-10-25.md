@@ -113,3 +113,20 @@ Federal IDs and addresses come from NCES College Navigator; teams come from each
 - **Lees–McRae:** baseball program announced June 2026; first season expected spring 2028. Add when it plays.
 - **Already right on the site:** Texas A&M–Texarkana, Texas Wesleyan and Loyola New Orleans (NAIA in 2026-27) and
   Lackawanna (NJCAA). Each has announced a future NCAA Division II move.
+
+## E. Re-check at the next data refresh
+
+- **Columbia-Greene CC:** confirm the team still plays (no official game found after April 15, 2025). If not, mark
+  it discontinued.
+- **The six schools added for 2025–26** (La Salle, Morehouse, Coast Guard, Grove City, Wabash, Saint John's): once
+  their 2027 rosters are posted (usually January–February), re-save each one for 2026–27 with the roster as evidence.
+- **Schools changing division or conference in 2027–28:**
+  - Ferrum becomes a full Division II member in August 2027.
+  - Vermont State–Castleton moves to the MASCAC.
+  - Texas A&M–Texarkana joins the Lone Star Conference on July 1, 2027.
+  - Loyola New Orleans joins the Gulf South Conference on July 1, 2027.
+  - Lees–McRae's first season is expected in spring 2028.
+- **Pending NCAA Division II applications:** Texas Wesleyan, Lackawanna and Monroe University.
+- **Reclassifying Division I schools** (not eligible for the NCAA postseason until full membership): New Haven and
+  Mercyhurst (2028–29), West Florida (2029), West Georgia (2027–28).
+- **Provisional Division III schools:** Regent and Johnson & Wales–Charlotte (full membership 2028–29).
