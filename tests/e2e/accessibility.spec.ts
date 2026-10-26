@@ -31,6 +31,7 @@ const PUBLIC_PAGES = [
   '/coaches',
   '/pricing',
   '/login',
+  '/login/code',
   '/signup',
   '/reset',
   '/privacy',

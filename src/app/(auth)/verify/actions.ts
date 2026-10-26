@@ -2,10 +2,11 @@
 
 import { redirect } from 'next/navigation';
 
-import { verificationSchema } from '@/app/(auth)/signup/schema';
+import { codeOnlySchema, verificationSchema } from '@/app/(auth)/signup/schema';
 import { checkBirthDate, todayUtc } from '@/lib/age/age-policy';
 import { blockAgeGate } from '@/lib/auth/age-gate';
 import { clearPendingVerification, readPendingVerification } from '@/lib/auth/pending-verification';
+import { safeNextPath } from '@/lib/auth/route-access';
 import { failure, field, success, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
@@ -23,6 +24,7 @@ const START_AGAIN = 'This code request has expired. Start again to get a new cod
 export async function verifyCodeAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const pending = await readPendingVerification();
   if (!pending) return failure(START_AGAIN);
+  if (pending.purpose === 'login') return logInWithCode(pending.email, pending.next, formData);
 
   const parsed = verificationSchema.safeParse({
     code: field(formData, 'code').replace(/\s+/g, ''),
@@ -100,6 +102,23 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
 
   await clearPendingVerification();
   redirect('/dashboard');
+}
+
+/** Logging in with the emailed code alone: no password is read or changed, other sessions stay signed in. */
+async function logInWithCode(email: string, next: string | undefined, formData: FormData): Promise<ActionState> {
+  const parsed = codeOnlySchema.safeParse({ code: field(formData, 'code').replace(/\s+/g, '') });
+  if (!parsed.success) {
+    return failure('Check the highlighted fields.', { code: parsed.error.issues[0]?.message ?? 'Enter the 6-digit code from the email.' });
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.auth.verifyOtp({ email, token: parsed.data.code, type: 'email' });
+  if (error) {
+    return failure(withDiagnostics('That code is wrong or has expired. Check the latest email, or send a new code.', error), {
+      code: 'That code is wrong or has expired.',
+    });
+  }
+  await clearPendingVerification();
+  redirect(safeNextPath(next, '/dashboard'));
 }
 
 export async function resendCodeAction(_previous: ActionState, _formData: FormData): Promise<ActionState> {

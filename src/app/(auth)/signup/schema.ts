@@ -22,6 +22,11 @@ export const emailSchema = z.string().trim().max(254, 'Use 254 characters or few
 /** Supabase Auth limits passwords to 72 bytes (bcrypt); accented letters and emoji use more than one. */
 export const MAXIMUM_PASSWORD_BYTES = 72;
 
+/** A sign-in code on its own (logging in with a code). */
+export const codeOnlySchema = z.object({
+  code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code from the email.'),
+});
+
 export const verificationSchema = z.object({
   code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code from the email.'),
   password: z

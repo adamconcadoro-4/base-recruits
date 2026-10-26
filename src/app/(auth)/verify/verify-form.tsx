@@ -9,7 +9,9 @@ import { Notice } from '@/components/ui/notice';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { IDLE, type ActionState } from '@/lib/forms/action-state';
 
-export function VerifyForm({ purpose }: { readonly purpose: 'signup' | 'reset' }) {
+const SUBMIT_LABELS = { signup: 'Create my account', reset: 'Set new password', login: 'Log in' } as const;
+
+export function VerifyForm({ purpose }: { readonly purpose: 'signup' | 'reset' | 'login' }) {
   const [state, verify] = useActionState<ActionState, FormData>(verifyCodeAction, IDLE);
   const [resendState, resend] = useActionState<ActionState, FormData>(resendCodeAction, IDLE);
   const errors = state.fieldErrors ?? {};
@@ -26,22 +28,24 @@ export function VerifyForm({ purpose }: { readonly purpose: 'signup' | 'reset' }
           error={errors.code}
           required
         />
-        <TextField
-          id="password"
-          name="password"
-          type="password"
-          label={purpose === 'signup' ? 'Create a password' : 'New password'}
-          hint={`At least ${MINIMUM_PASSWORD_LENGTH} characters. Avoid very long passwords with accented letters or emoji.`}
-          autoComplete="new-password"
-          error={errors.password}
-          required
-        />
+        {purpose === 'login' ? null : (
+          <TextField
+            id="password"
+            name="password"
+            type="password"
+            label={purpose === 'signup' ? 'Create a password' : 'New password'}
+            hint={`At least ${MINIMUM_PASSWORD_LENGTH} characters. Avoid very long passwords with accented letters or emoji.`}
+            autoComplete="new-password"
+            error={errors.password}
+            required
+          />
+        )}
         {state.status === 'error' && state.message ? (
           <Notice tone="error" live>
             {state.message}
           </Notice>
         ) : null}
-        <SubmitButton pendingLabel="Checking…">{purpose === 'signup' ? 'Create my account' : 'Set new password'}</SubmitButton>
+        <SubmitButton pendingLabel="Checking…">{SUBMIT_LABELS[purpose]}</SubmitButton>
       </form>
       <form action={resend} className="space-y-3">
         <p className="text-slate">No email after a few minutes? Check spam, or send a new code.</p>

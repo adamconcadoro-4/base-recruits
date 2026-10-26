@@ -99,6 +99,37 @@ test('a forgotten password is reset with an emailed code', async ({ page }) => {
   expect(oldPassword).not.toBeNull();
 });
 
+test('logging in with an emailed code needs no password and keeps the password unchanged', async ({ page }) => {
+  const account = await createAccount({ role: 'athlete', name: 'Code Login', dateOfBirth: yearsAgo(20) });
+  const requestedAt = new Date(Date.now() - 2000);
+  await page.goto('/login?next=/saved');
+  await page.getByRole('link', { name: 'Email me a sign-in code' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Log in with a code' })).toBeVisible();
+  await page.getByLabel('Email', { exact: true }).fill(account.email);
+  await page.getByRole('button', { name: 'Email me a sign-in code' }).click();
+  await reachVerifyPage(page);
+  await expect(page.getByText(/has a Base Recruits account, we sent it a 6-digit code/)).toBeVisible();
+  await expect(page.getByLabel(/password/i)).toHaveCount(0);
+  await page.getByLabel('6-digit code').fill(await emailCode(account.email, requestedAt));
+  await page.getByRole('button', { name: 'Log in', exact: true }).click();
+  await expect(page).toHaveURL('/saved');
+
+  const { error: samePassword } = await publicClient().auth.signInWithPassword({ email: account.email, password: PASSWORD });
+  expect(samePassword).toBeNull();
+});
+
+test('asking for a sign-in code answers the same for an address with no account', async ({ page }) => {
+  await page.goto('/login/code');
+  await page.getByLabel('Email', { exact: true }).fill(uniqueEmail('nobody'));
+  await page.getByRole('button', { name: 'Email me a sign-in code' }).click();
+  await reachVerifyPage(page);
+  await expect(page.getByText(/has a Base Recruits account, we sent it a 6-digit code/)).toBeVisible();
+  await page.getByLabel('6-digit code').fill('000000');
+  await page.getByRole('button', { name: 'Log in', exact: true }).click();
+  await expect(page.getByText(/That code is wrong or has expired/).first()).toBeVisible();
+  await expect(page).toHaveURL('/verify');
+});
+
 test('a wrong code is refused', async ({ page }) => {
   await page.goto('/signup');
   await fillBirthDate(page, yearsAgo(22));
