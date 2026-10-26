@@ -88,7 +88,15 @@ export default function PricingPage() {
                 <p className="mt-2 text-slate">
                   Proposed ${plan.proposedMonthlyPriceUsd.toFixed(2)} a month, or ${plan.proposedAnnualPriceUsd} a year
                 </p>
-                <p className="mt-4">{plan.summary}</p>
+                <p className="mt-4 text-lg font-semibold text-navy">{plan.summary}</p>
+                <ul className="mt-4 space-y-2" aria-label={`${plan.name} includes`}>
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex gap-3">
+                      <Check aria-hidden="true" className="mt-1 size-5 shrink-0 text-success-ink" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
               </article>
             ))}
           </div>
