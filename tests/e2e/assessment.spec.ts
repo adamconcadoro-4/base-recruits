@@ -156,6 +156,8 @@ test('an athlete records, publishes and acts on a hitting self-assessment', asyn
   await page.getByRole('button', { name: 'Save timing' }).click();
   await expect(page.getByText('Timing saved as a video estimate.')).toBeVisible();
   await page.getByRole('button', { name: 'Turn drawing on' }).click();
+  // The button sits below the video; bring the frame back into view before drawing on it.
+  await page.locator('video').scrollIntoViewIfNeeded();
   const box = await page.locator('video').boundingBox();
   if (!box) throw new Error('video not laid out');
   await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.2);
