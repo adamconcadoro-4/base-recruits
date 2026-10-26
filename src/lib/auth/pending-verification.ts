@@ -20,7 +20,7 @@ const pendingSchema = z.object({
   next: z.string().max(500).optional(),
   email: z.string().min(3).max(254),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  accountType: z.enum(['athlete', 'parent', 'coach']).optional(),
+  accountType: z.enum(['athlete', 'parent', 'coach', 'development_coach']).optional(),
   displayName: z.string().max(80).optional(),
 });
 
