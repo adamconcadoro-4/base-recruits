@@ -1,8 +1,21 @@
 # School data check against the founder's spreadsheets and Airtable (2026-10-25)
 
-Status: **approved by the founder on 2026-10-25**. Sections A and B are applied through the admin correction and policy
-forms. Each change is in the revision log with its official page and a note, and can be reverted the same way. Section C
-needs the "Add a school" tool (pull request #10).
+Status: **approved by the founder on 2026-10-25 and applied the same evening** (dates in the app show 2026-10-26, UTC).
+
+- Section A: 17 corrections, through the admin correction form.
+- Section B: 25 testing policies, through the admin policy form.
+- Section C: 13 schools, through the new "Add a school" tool (pull request #10).
+
+Each change is in the revision log with its official page and a note, and can be reverted the same way. A database check
+afterwards confirmed every row, and the public pages were spot-checked:
+
+- Army: division, conference, "not in the federal report" note and evidence link.
+- Search for "Air Force".
+- Purdue Fort Wayne: shown as discontinued.
+- Columbia and Cal State Fullerton: policies shown.
+- La Salle: season 2025–26.
+
+Active programs went from 1,669 to 1,679 (13 added, 3 discontinued).
 
 ## Inputs and method
 
