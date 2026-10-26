@@ -85,7 +85,9 @@ export default function PricingPage() {
                   <h3 className="text-3xl text-navy">{plan.name}</h3>
                   <StatusChip tone="neutral">Not available yet</StatusChip>
                 </div>
-                <p className="mt-2 text-slate">Proposed ${plan.proposedMonthlyPriceUsd.toFixed(2)} a month</p>
+                <p className="mt-2 text-slate">
+                  Proposed ${plan.proposedMonthlyPriceUsd.toFixed(2)} a month, or ${plan.proposedAnnualPriceUsd} a year
+                </p>
                 <p className="mt-4">{plan.summary}</p>
               </article>
             ))}
