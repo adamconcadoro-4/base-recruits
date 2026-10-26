@@ -29,22 +29,22 @@ export default async function AssessmentLayout({ children }: { readonly children
           Refresh the page to try again.
         </Notice>
       ) : !switches.enabled ? (
-        <Notice tone="attention" title="Assessment isn’t open yet">
+        <Notice tone="attention" title="Assessment is paused">
+          Nothing new can be recorded right now. You can still read published reports, remove clips, and manage who can see
+          your assessments on the Connections page.
           {isAdmin ? (
             <>
-              It is switched off in the database. An administrator can switch it on from the{' '}
+              {' '}
+              An administrator can switch it back on from the{' '}
               <a href="/admin#assessment" className="font-semibold text-royal-ink underline">
                 admin page
               </a>
               .
             </>
-          ) : (
-            'We’re finishing it. Nothing can be recorded until it opens.'
-          )}
+          ) : null}
         </Notice>
-      ) : (
-        children
-      )}
+      ) : null}
+      {switches === null ? null : children}
     </div>
   );
 }

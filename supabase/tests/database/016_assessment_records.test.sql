@@ -160,6 +160,9 @@ select tests.ok((select author_kind = 'self' and kind = 'event' from public.asse
 select tests.throws(format($$select public.record_interval_from_markers(%L, 'hit_fc_to_contact_ms', %L, %L)$$,
                            (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 3), tests.job('contact'), tests.job('fc')),
   'BR003', 'markers in the wrong order are refused');
+select tests.throws(format($$select public.record_interval_from_markers(%L, 'hit_fc_to_contact_ms', %L, %L)$$,
+                           (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 2), tests.job('fc'), tests.job('contact')),
+  'BR003', 'markers placed on another repetition cannot time this one');
 select tests.lives(format($$select public.record_interval_from_markers(%L, 'hit_fc_to_contact_ms', %L, %L)$$,
                           (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 3), tests.job('fc'), tests.job('contact')),
   'a timing estimate is made from the two markers');
@@ -181,8 +184,10 @@ select tests.authenticate_as('athlete');
 select public.record_interval_from_markers(
   (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 4),
   'hit_fc_to_contact_ms',
-  public.add_assessment_annotation(tests.job('slow'), 'event', 'foot_contact', 10000, null, null, null),
-  public.add_assessment_annotation(tests.job('slow'), 'event', 'contact', 11680, null, null, null));
+  public.add_assessment_annotation(tests.job('slow'), 'event', 'foot_contact', 10000, null, null,
+    (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 4)),
+  public.add_assessment_annotation(tests.job('slow'), 'event', 'contact', 11680, null, null,
+    (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 4)));
 select tests.ok((select value from public.assessment_observations o join public.assessment_repetitions r on r.id = o.repetition_id
                   where r.assessment_id = tests.job('hit') and r.seq = 4 and o.metric_key = 'hit_fc_to_contact_ms') = 210,
   'an 8× slow-motion interval of 1,680 ms is recorded as 210 ms of real time');
@@ -195,8 +200,10 @@ update public.assessment_media set status = 'uploaded', uploaded_at = now() wher
 select tests.authenticate_as('athlete');
 select tests.throws(format($$select public.record_interval_from_markers(%L, 'hit_fc_to_contact_ms', %L, %L)$$,
   (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 5),
-  public.add_assessment_annotation(tests.job('unknown'), 'event', 'foot_contact', 1000, null, null, null),
-  public.add_assessment_annotation(tests.job('unknown'), 'event', 'contact', 1200, null, null, null)),
+  public.add_assessment_annotation(tests.job('unknown'), 'event', 'foot_contact', 1000, null, null,
+    (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 5)),
+  public.add_assessment_annotation(tests.job('unknown'), 'event', 'contact', 1200, null, null,
+    (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 5))),
   'BR004', 'timing is not estimated from a clip whose playback speed is unknown');
 
 -- ================================================================ CSV import
@@ -259,6 +266,19 @@ select tests.ok((select retired_at is not null from public.assessment_targets wh
   and (select retired_at is null from public.assessment_targets where id = tests.job('target2')),
   'a new target retires the previous one and keeps it in history');
 
+-- ================================================================ the coach's values stay the coach's
+select tests.authenticate_as('dev');
+select public.record_assessment_observation(tests.job('hit'), 'hit_solid_contact',
+  (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 6), 1, false, null, null, null, null, null, null);
+select tests.authenticate_as('athlete');
+select tests.throws(format($$select public.record_assessment_observation(%L, 'hit_solid_contact', %L, 0, false, null, null, null, null, null, null)$$,
+                           tests.job('hit'), (select id from public.assessment_repetitions where assessment_id = tests.job('hit') and seq = 6)),
+  'BR002', 'the athlete''s side cannot overwrite a value the development coach entered');
+select tests.ok((select value = 1 and source_kind = 'development_coach' from public.assessment_observations o
+                   join public.assessment_repetitions r on r.id = o.repetition_id
+                  where r.assessment_id = tests.job('hit') and r.seq = 6 and o.metric_key = 'hit_solid_contact'),
+  'the coach''s value is unchanged');
+
 -- ================================================================ clean-up rules
 select tests.authenticate_as('athlete');
 select tests.throws(format($$select public.delete_assessment(%L)$$, tests.job('hit')), 'BR004',
@@ -268,3 +288,40 @@ select tests.ok(public.remove_assessment_media(tests.job('clip')) like '%/' || t
 select tests.ok(private.assessment_object_access((select storage_path from public.assessment_media where id = tests.job('clip')), 'delete')
   and not private.assessment_object_access((select storage_path from public.assessment_media where id = tests.job('clip')), 'select'),
   'a removed clip''s file can be deleted and can no longer be read');
+select tests.ok((select count(*) from public.assessment_annotations where media_id = tests.job('clip')) = 0
+                and not exists (select 1 from public.assessment_observations where media_id = tests.job('clip')),
+  'removing a clip removes its markers, notes and drawings and the timing values measured from them');
+
+-- Deleting video never depends on the Assessment switch.
+select tests.clear_authentication();
+update private.assessment_settings set enabled = false, video_enabled = false where id;
+select tests.authenticate_as('athlete');
+select tests.lives(format('select public.remove_assessment_media(%L)', tests.job('slow')),
+  'a clip can be removed while Assessment is switched off');
+select tests.throws(format($$select public.add_assessment_repetitions(%L, 1)$$, tests.job('hit')), 'BR004',
+  'nothing new can be recorded while Assessment is switched off');
+select tests.clear_authentication();
+select tests.enable_assessment(true);
+
+-- Deleting a draft: checked under lock before any clip is removed.
+select tests.authenticate_as('athlete');
+select tests.remember_job('del', public.create_assessment(auth.uid(), 'hitting-video', 1, current_date, '{"rep_goal": 5}'));
+select tests.remember_job('del_clip', (select media_id from public.begin_assessment_upload(tests.job('del'), 'a.mp4', 'video/mp4', 1000, null, 'real_time', null, null)));
+select tests.ok((select count(*) from public.begin_assessment_deletion(tests.job('del'))) = 1,
+  'starting to delete a draft removes its clips and returns their paths');
+select tests.ok((select status from public.assessment_media where id = tests.job('del_clip')) = 'removed', 'the draft''s clip is marked removed');
+select tests.lives(format('select public.delete_assessment(%L)', tests.job('del')), 'the draft is then deleted');
+select tests.ok(not exists (select 1 from public.assessments where id = tests.job('del')), 'the draft is gone');
+
+select tests.remember_job('kept', public.create_assessment(auth.uid(), 'hitting-video', 1, current_date, '{"rep_goal": 5}'));
+select tests.remember_job('kept_clip', (select media_id from public.begin_assessment_upload(tests.job('kept'), 'b.mp4', 'video/mp4', 1000, null, 'real_time', null, null)));
+select public.record_assessment_observation(tests.job('kept'), 'hit_load_repeatability', null, 3, false, null, null, null, null, null, null);
+select public.publish_assessment(tests.job('kept'), null);
+select tests.throws(format('select * from public.begin_assessment_deletion(%L)', tests.job('kept')), 'BR004',
+  'a published assessment cannot be deleted');
+select tests.ok((select status from public.assessment_media where id = tests.job('kept_clip')) = 'pending',
+  'and refusing the deletion leaves its clips alone');
+select tests.authenticate_as('dev');
+select tests.throws(format('select * from public.begin_assessment_deletion(%L)', tests.job('kept')), 'BR004',
+  'not by the development coach either');
+select tests.clear_authentication();

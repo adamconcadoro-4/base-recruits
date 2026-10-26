@@ -52,6 +52,25 @@ promise "Understand your game, see the evidence, and know what to work on next."
 Limits: CI uses the Supabase CLI's local stack (Storage included for the end-to-end job), not the hosted project; no
 manual screen-reader session; video was tested with a 3-second synthetic test pattern, not real swing footage.
 
+## Independent review
+
+A separate reviewer read the whole module without seeing this report. Fixed on the branch (migration
+`20261026000700_assessment_review_fixes.sql`, server actions and tests):
+
+| Finding | Fix |
+| --- | --- |
+| Removed clips' files were never deleted (the storage read policy hid them from the user's delete) | The database authorizes and records the removal; the server deletes the file with its storage key. End-to-end test checks the object is gone |
+| Saving one repetition re-saved every pre-filled value, resetting reviews, devices and import provenance | Only changed values are saved; the athlete's side can no longer overwrite a coach-entered value |
+| A coach connection ended elsewhere (for example a revoked grant) could never be re-established | A new code closes the dead connection and starts a fresh request; dead links no longer count toward the limit; declining revokes any grant |
+| Parents had no way to remove a development coach | "Remove this coach" on the Connections page for linked parents and guardians |
+| Deleting a draft could remove clips before finding out it had been published | `begin_assessment_deletion` checks first, under lock |
+| Switching Assessment off hid the pages for ending connections | The database switch now pauses recording only; Connections, reading reports and removing clips stay available |
+| Removing a clip left its markers and timing values | They are removed with it |
+| Timing markers did not have to belong to the chosen repetition; reassessment count not locked; file-name length mismatch | All fixed |
+
+Left as decisions or known gaps: who may publish a report a college coach can see (F25), the two-hour signed upload
+window (`docs/assessment.md` § 9).
+
 ## Before opening (founder)
 
 1. **Who the first development coaches are (F22).** The account type is open to any adult. For a pilot I recommend a
@@ -64,10 +83,11 @@ manual screen-reader session; video was tested with a 3-second synthetic test pa
 
 ## Merging and deploying (when authorized)
 
-Merging to `main` applies six migrations to production automatically. They are additive except that three existing
+Merging to `main` applies seven migrations to production automatically. They are additive except that three existing
 functions are replaced: `complete_onboarding` (adds the development coach type, refused while the switch is off),
 `grant_consent` (development coaches are eligible only with an open link) and `guardian_consent_requests` (now also
-returns who receives access; the parent page reads it). Two enum types gain values. Everything stays off until
+returns who receives access; the parent page reads it). The seventh migration only replaces Assessment functions
+created by the earlier six. Two enum types gain values. Everything stays off until
 `NEXT_PUBLIC_ASSESSMENT_ENABLED=true` is set and the admin switch is turned on (`docs/assessment.md` § 7). Review the
 pull request's database diff before merging; do not merge during launch week.
 

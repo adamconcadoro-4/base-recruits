@@ -3,7 +3,7 @@ import path from 'node:path';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
-import { PASSWORD, createAccount, logIn, publicClient, yearsAgo, type TestAccount } from './support';
+import { PASSWORD, createAccount, logIn, publicClient, sql, yearsAgo, type TestAccount } from './support';
 
 /**
  * Base Recruits Assessment, end to end against the real local stack: a hitting
@@ -223,6 +223,39 @@ test('an athlete records, publishes and acts on a hitting self-assessment', asyn
   await page.goto('/assessment/progress');
   await expect(page.getByText('Publish a second hitting assessment to compare.')).toBeVisible();
   await expectAccessible(page, 'Progress');
+});
+
+test('removing a clip deletes its file, and deleting a draft leaves no video behind', async ({ page }) => {
+  test.setTimeout(120_000);
+  const athlete = await createAccount({ role: 'athlete', name: 'Harper Synthetic', dateOfBirth: yearsAgo(17) });
+  const id = await draftFor(athlete);
+  const stored = (assessmentId: string) =>
+    sql(`select count(*) from storage.objects o join public.assessment_media m on m.storage_path = o.name
+          where o.bucket_id = 'assessment-media' and m.assessment_id = '${assessmentId}'`);
+  page.on('dialog', (dialog) => void dialog.accept());
+  await logIn(page, athlete.email);
+
+  await page.goto(`/assessment/${id}?step=clips`);
+  await page.getByLabel('Video file').setInputFiles(CLIP);
+  await page.getByRole('button', { name: 'Upload clip' }).click();
+  await expect(page.getByText('Uploaded test-pattern.webm.')).toBeVisible({ timeout: 30_000 });
+  expect(stored(id)).toBe('1');
+  await page.locator('summary', { hasText: 'Edit or remove' }).click();
+  await page.getByRole('button', { name: 'Remove clip and delete file' }).click();
+  await expect.poll(() => stored(id), { timeout: 15_000 }).toBe('0');
+  await expect(page.getByText('No clips yet.')).toBeVisible();
+
+  // A second clip, then delete the whole draft.
+  await page.getByLabel('Video file').setInputFiles(CLIP);
+  await page.getByRole('button', { name: 'Upload clip' }).click();
+  await expect(page.getByText('Uploaded test-pattern.webm.')).toBeVisible({ timeout: 30_000 });
+  expect(stored(id)).toBe('1');
+  const path = sql(`select storage_path from public.assessment_media where assessment_id = '${id}' and status = 'uploaded'`);
+  await page.goto(`/assessment/${id}?step=publish`);
+  await page.getByRole('button', { name: 'Delete draft and its clips' }).click();
+  await page.waitForURL('/assessment');
+  expect(sql(`select count(*) from public.assessments where id = '${id}'`)).toBe('0');
+  expect(sql(`select count(*) from storage.objects where bucket_id = 'assessment-media' and name = '${path}'`)).toBe('0');
 });
 
 test('one athlete cannot open another athlete’s assessment', async ({ page }) => {

@@ -230,7 +230,7 @@ export default async function ConnectionsPage() {
           <DashboardSection
             id="guardian"
             title="Development coaches for your athlete"
-            description="Approve or remove a development coach's access from your parent and guardian home."
+            description="Approve a development coach's access from your parent and guardian home. You can remove a coach here at any time."
           >
             <LinkList
               links={guardianLinks}
@@ -243,7 +243,18 @@ export default async function ConnectionsPage() {
                   {link.coach_email ? <p className="text-sm text-slate">{link.coach_email}</p> : null}
                 </>
               )}
-              actions={() => null}
+              actions={(link) =>
+                link.access !== 'ended' ? (
+                  <ActionForm
+                    action={endCoachLinkAction}
+                    fields={{ linkId: link.link_id }}
+                    submitLabel="Remove this coach"
+                    size="sm"
+                    variant="danger"
+                    confirm="Remove this development coach? They immediately lose access to your athlete's assessments."
+                  />
+                ) : null
+              }
             />
           </DashboardSection>
         ) : null}

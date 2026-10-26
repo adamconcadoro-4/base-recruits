@@ -35,7 +35,7 @@ video, charted outcomes, measured values from a radar or tracking device, and ra
 | Server reads and action plumbing | `src/lib/assessment/server/` (`server-only`; every query runs as the signed-in person) |
 | Pages and server actions | `src/app/(app)/assessment/` (`actions.ts`, `media-actions.ts`, `plan-actions.ts`, `connection-actions.ts`) |
 | Components | `src/components/assessment/` (report view, summaries, action form, context fields, drill details) |
-| Database | `supabase/migrations/20261026000100` … `000600` |
+| Database | `supabase/migrations/20261026000100` … `000700` |
 | Tests | `tests/unit/assessment-*.test.ts`, `tests/contract/assessment-catalog.test.ts`, `supabase/tests/015`–`018`, `scripts/db/race-test.sh`, `tests/e2e/assessment.spec.ts` |
 | Switches | `src/config/assessment.ts` (site), `private.assessment_settings` (database) |
 
@@ -109,20 +109,26 @@ Development coach accounts are adults only; a college coach account cannot also 
   `complete_assessment_upload` checks the stored object's size and type.
 - Playback: 15-minute signed links created as the viewer. The content security policy adds the Supabase origin to
   `connect-src` and `media-src` only when Assessment is on.
-- Removing a clip (or deleting a draft) deletes the file. Nothing is transcoded, analyzed or sent to any outside service.
+- Removing a clip (or deleting a draft) is checked by the database first (`remove_assessment_media`,
+  `begin_assessment_deletion`), which also removes the clip's markers, notes, drawings and the timing measured from
+  them, and returns the path; the server then deletes the file with its storage key
+  (`src/lib/assessment/server/storage.ts`), because the storage read policy hides removed clips from users. Removing
+  video never depends on the Assessment switch. Nothing is transcoded, analyzed or sent to any outside service.
 
 ## 7. Turning it on
 
 1. Founder decisions in `docs/reports/assessment.md` (at least who reviews assessments, video legal review L9).
-2. Merge the pull request (this applies the six migrations to production; everything stays off).
+2. Merge the pull request (this applies the seven migrations to production; everything stays off).
 3. Supabase → Storage settings: the project's upload size limit must be at least 200 MB, or lower
    `MAX_VIDEO_BYTES` and the database limit together.
 4. Vercel: set `NEXT_PUBLIC_ASSESSMENT_ENABLED=true` (Config variable) and redeploy. The tab, public pages and
    development coach sign-up appear.
 5. Admin → Assessment switches: turn on "Assessment is open". Turn on video only after legal review.
 
-To turn it off: untick the database switch (stops all recording at once) and/or remove the variable and redeploy
-(hides it). Data is kept.
+To pause: untick the database switch. Nothing new can be recorded, but people can still read published reports,
+remove clips and end connections or sharing (the Connections page stays available). To hide Assessment entirely,
+remove the variable and redeploy — do that only while nobody has connections or clips, because it also hides the
+pages where people manage them. Data is kept either way.
 
 ## 8. Tests
 
@@ -140,4 +146,7 @@ To turn it off: untick the database switch (stops all recording at once) and/or 
 - No pose estimation, motion capture, force plate or device integrations; the lab mode is listed as unavailable.
 - Drill instructions are written only (no demonstration video) and need a qualified coach's review before opening.
 - Self-service account deletion is not built yet (site-wide); when it is, it must also delete the athlete's clip files.
+- A signed upload link stays usable for about two hours after it is created; a development coach whose connection
+  ends in that window could still finish an upload, which the database then refuses to confirm, leaving an orphan
+  file. A scheduled clean-up of unconfirmed uploads should be added before video is switched on.
 - Reference benchmarks: none, by design, until an approved dataset exists.

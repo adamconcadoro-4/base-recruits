@@ -3,10 +3,9 @@
 import { revalidatePath } from 'next/cache';
 
 import { callRpc, numberField, rpcAction, switchedOff, textOrNull } from '@/lib/assessment/server/actions';
+import { ASSESSMENT_BUCKET, deleteClipFiles } from '@/lib/assessment/server/storage';
 import { field, failure, success, type ActionState } from '@/lib/forms/action-state';
 import { createClient } from '@/lib/supabase/server';
-
-const BUCKET = 'assessment-media';
 
 export type UploadStart =
   | { readonly ok: true; readonly mediaId: string; readonly uploadUrl: string }
@@ -31,7 +30,7 @@ export async function beginUploadAction(input: {
   if (off) return { ok: false, message: off.message ?? 'Assessment is switched off.' };
   const { data, error } = await callRpc<Array<{ media_id: string; storage_path: string }>>('begin_assessment_upload', {
     p_assessment_id: input.assessmentId,
-    p_file_name: input.fileName.slice(0, 200),
+    p_file_name: input.fileName.slice(0, 160),
     p_mime_type: input.mimeType,
     p_byte_size: input.byteSize,
     p_camera_view: input.cameraView,
@@ -42,7 +41,7 @@ export async function beginUploadAction(input: {
   const row = Array.isArray(data) ? data[0] : null;
   if (error || !row) return { ok: false, message: error ?? 'We couldn’t start the upload.' };
   const supabase = await createClient();
-  const { data: signed, error: signError } = await supabase.storage.from(BUCKET).createSignedUploadUrl(row.storage_path);
+  const { data: signed, error: signError } = await supabase.storage.from(ASSESSMENT_BUCKET).createSignedUploadUrl(row.storage_path);
   if (signError || !signed) {
     await callRpc('remove_assessment_media', { p_media_id: row.media_id });
     return { ok: false, message: 'We couldn’t prepare the upload. Please try again.' };
@@ -66,10 +65,7 @@ export async function completeUploadAction(input: {
 /** Cancels a clip whose upload failed, removing any partial file. */
 export async function cancelUploadAction(input: { readonly mediaId: string }): Promise<void> {
   const { data } = await callRpc<string>('remove_assessment_media', { p_media_id: input.mediaId });
-  if (data) {
-    const supabase = await createClient();
-    await supabase.storage.from(BUCKET).remove([data]);
-  }
+  if (data) await deleteClipFiles([data]);
 }
 
 export async function updateMediaAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
@@ -89,15 +85,13 @@ export async function updateMediaAction(_previous: ActionState, formData: FormDa
   );
 }
 
-/** Removes the clip record, then deletes the file from storage. */
+/** Removes the clip (and what was marked on it), then deletes the file from storage. */
 export async function removeMediaAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const id = field(formData, 'assessmentId');
   const { data, error } = await callRpc<string>('remove_assessment_media', { p_media_id: field(formData, 'mediaId') });
   if (error) return failure(error);
-  if (data) {
-    const supabase = await createClient();
-    const { error: storageError } = await supabase.storage.from(BUCKET).remove([data]);
-    if (storageError) return failure('The clip was removed from the assessment, but its file could not be deleted yet.');
+  if (!(await deleteClipFiles([data]))) {
+    return failure('The clip was removed from the assessment, but its file could not be deleted yet. Please tell support.');
   }
   revalidatePath(`/assessment/${id}`);
   revalidatePath('/assessment/film');

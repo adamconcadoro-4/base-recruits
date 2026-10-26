@@ -55,7 +55,7 @@ Three enforcement layers, each sufficient to stop a data leak on its own:
 | Coach portal | Search consented athletes, boards, messaging with guardrails | 4 (Pillar C) | — |
 | Billing | Stripe, premium entitlements | 6 | — |
 | Historical CCR | Permissioned outcomes, privacy thresholds, scattergrams | 7 | — |
-| Assessment | Hitting and pitching assessments: evidence-labelled observations, anchored rubrics, coach targets, frozen reports, Film Room, training plans, development coach access. Switched off (decision F21) | After launch | `20261026000100`–`000600`, `src/lib/assessment/`, `src/app/(app)/assessment/`, `docs/assessment.md` |
+| Assessment | Hitting and pitching assessments: evidence-labelled observations, anchored rubrics, coach targets, frozen reports, Film Room, training plans, development coach access. Switched off (decision F21) | After launch | `20261026000100`–`000700`, `src/lib/assessment/`, `src/app/(app)/assessment/`, `docs/assessment.md` |
 
 Spec logical tables → Stage 1 implementation: `users` → `auth.users` + `profiles`; `coach_verifications` →
 `coach_verification_events` + `coach_status_transitions`; `parent_athlete_relationships` → `family_links` +

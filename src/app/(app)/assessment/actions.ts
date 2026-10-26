@@ -5,8 +5,8 @@ import { redirect } from 'next/navigation';
 
 import { protocol as findProtocol } from '@/lib/assessment/catalog/protocols';
 import { callRpc, numberField, rpcAction, switchedOff, textOrNull } from '@/lib/assessment/server/actions';
+import { deleteClipFiles } from '@/lib/assessment/server/storage';
 import { field, failure, success, type ActionState } from '@/lib/forms/action-state';
-import { createClient } from '@/lib/supabase/server';
 
 const CONTEXT_FIELDS = [
   'competition_level',
@@ -95,25 +95,22 @@ export async function setAssessmentStatusAction(_previous: ActionState, formData
   return rpcAction('set_assessment_status', { p_assessment_id: id, p_status: status }, message, [`/assessment/${id}`]);
 }
 
-/** Removes the assessment's clips (records and files) first, so no video is left behind, then deletes the draft. */
+/**
+ * Deletes a draft that was never published. The database checks that first,
+ * under lock, and only then marks its clips removed and returns their paths;
+ * the files are deleted, then the draft. A failure part-way can be retried.
+ */
 export async function deleteAssessmentAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const off = switchedOff();
   if (off) return off;
   const id = field(formData, 'assessmentId');
-  const supabase = await createClient();
-  const { data: clips } = await supabase.from('assessment_media').select('id').eq('assessment_id', id).neq('status', 'removed');
-  const paths: string[] = [];
-  for (const clip of (clips ?? []) as Array<{ id: string }>) {
-    const { data, error } = await callRpc<string>('remove_assessment_media', { p_media_id: clip.id });
-    if (error) return failure(error);
-    if (data) paths.push(data);
-  }
-  if (paths.length > 0) {
-    const { error } = await supabase.storage.from('assessment-media').remove(paths);
-    if (error) return failure('The clips were removed but their files could not be deleted yet. Please try again.');
-  }
-  const { error } = await callRpc('delete_assessment', { p_assessment_id: id });
+  const { data: paths, error } = await callRpc<string[]>('begin_assessment_deletion', { p_assessment_id: id });
   if (error) return failure(error);
+  if (!(await deleteClipFiles(paths ?? []))) {
+    return failure('The clips were removed but their files could not be deleted yet. Please try again.');
+  }
+  const { error: deleteError } = await callRpc('delete_assessment', { p_assessment_id: id });
+  if (deleteError) return failure(deleteError);
   revalidatePath('/assessment', 'layout');
   redirect('/assessment');
 }
@@ -216,6 +213,9 @@ export async function recordRepetitionValuesAction(_previous: ActionState, formD
   for (const [name, raw] of formData.entries()) {
     if (!name.startsWith('rep:') || typeof raw !== 'string' || raw.trim() === '') continue;
     const repetitionId = name.slice(4);
+    // Boxes are pre-filled with what is recorded; only changed values are saved, so
+    // reviews, devices and import or Film Room provenance of the others stay as they are.
+    if (raw.trim() === field(formData, `was:${repetitionId}`)) continue;
     const seq = field(formData, `seq:${repetitionId}`);
     const text = raw.trim().toLowerCase();
     const value = text === 'yes' ? 1 : text === 'no' ? 0 : Number(text);
@@ -243,7 +243,7 @@ export async function recordRepetitionValuesAction(_previous: ActionState, formD
   if (problems.length > 0) {
     return failure(`Saved ${saved}. Not saved — ${problems.slice(0, 5).join('; ')}${problems.length > 5 ? '; and more' : ''}`);
   }
-  if (saved === 0) return failure('Enter at least one value.');
+  if (saved === 0) return failure('Nothing changed. Enter or change at least one value.');
   return success(saved === 1 ? 'Saved 1 value.' : `Saved ${saved} values.`);
 }
 

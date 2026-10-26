@@ -112,7 +112,7 @@ export async function ClipsStep({ row, videoEnabled }: { readonly row: Assessmen
                       pendingLabel="Removing…"
                       variant="danger"
                       size="sm"
-                      confirm="Remove this clip and permanently delete the video file? Markers and notes on it are removed too."
+                      confirm="Remove this clip and permanently delete the video file? Its markers, notes, drawings and the timing measured from it are removed too."
                     />
                   </div>
                 </details>

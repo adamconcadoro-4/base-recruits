@@ -30,6 +30,7 @@ const REDEEM_MESSAGES: Readonly<Record<string, string>> = {
   invalid_or_expired: 'That code isn’t valid or has expired. Ask the athlete for a new one.',
   too_many_attempts: 'Too many attempts. Please wait a while and try again.',
   athlete_link_limit_reached: 'This athlete already has the most development coaches allowed.',
+  already_connected: 'You are already connected to this athlete. The code was not used.',
 };
 
 /** A development coach enters an athlete's code. */
@@ -43,6 +44,7 @@ export async function redeemCoachCodeAction(_previous: ActionState, formData: Fo
   const outcome = Array.isArray(data) ? data[0]?.outcome : undefined;
   revalidatePath('/assessment/coaches');
   if (outcome === 'pending_athlete_approval') return success(REDEEM_MESSAGES.pending_athlete_approval ?? 'Code accepted.');
+  if (outcome === 'already_connected') return success(REDEEM_MESSAGES.already_connected ?? 'Already connected.');
   return failure(REDEEM_MESSAGES[outcome ?? ''] ?? 'That code didn’t work.');
 }
 

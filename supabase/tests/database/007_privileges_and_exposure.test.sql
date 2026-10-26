@@ -92,7 +92,7 @@ select tests.ok(
           'admin_set_import_decision', 'admin_set_institution_listing', 'admin_stage_import_rows',
           'admin_update_baseball_program', 'approve_consent_as_guardian', 'approve_development_coach_link',
           'approve_family_link', 'approve_training_plan', 'assessment_athletes', 'assessment_family_access',
-          'assessment_switches', 'begin_assessment_upload', 'cancel_development_coach_invite', 'cancel_family_invite',
+          'assessment_switches', 'begin_assessment_deletion', 'begin_assessment_upload', 'cancel_development_coach_invite', 'cancel_family_invite',
           'compare_schools', 'complete_assessment_upload', 'complete_onboarding', 'complete_training_plan',
           'create_assessment', 'create_development_coach_invite', 'create_family_invite', 'create_reassessment',
           'create_training_plan', 'current_admissions_policies', 'decline_development_coach_link', 'delete_assessment',

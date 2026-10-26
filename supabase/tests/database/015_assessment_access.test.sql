@@ -120,6 +120,43 @@ select tests.ok((select revocation_reason from public.consent_grants
                   where athlete_id = tests.id('minor') and scope = 'development_coach_access' order by created_at desc limit 1)
                 = 'withdrawn_by_guardian', 'the withdrawal is recorded with who withdrew it');
 
+-- A connection whose consent was revoked elsewhere can be re-established with a new code.
+select tests.authenticate_as('adult');
+select tests.remember_job('stale_link', (select link_id from public.list_development_coach_links()
+                                            where coach_id = tests.id('dev') and access = 'active'));
+select public.revoke_consent((select grant_id from public.list_development_coach_links() where link_id = tests.job('stale_link')));
+select tests.ok((select access from public.list_development_coach_links() where link_id = tests.job('stale_link')) = 'ended',
+  'revoking the coach''s consent ends the connection in effect');
+insert into t_codes select 'adult_again', code from public.create_development_coach_invite();
+select tests.authenticate_as('dev');
+select tests.ok((select outcome from public.redeem_development_coach_invite((select code from t_codes where name = 'adult_again')))
+                = 'pending_athlete_approval', 'the coach can ask again with a new code');
+select tests.authenticate_as('adult');
+select tests.ok((select count(*) from public.list_development_coach_links() where coach_id = tests.id('dev') and access = 'pending_athlete_approval') = 1
+                and (select access from public.list_development_coach_links() where link_id = tests.job('stale_link')) = 'ended',
+  'the athlete sees one new request to approve, and the old connection is closed');
+select tests.ok((select public.approve_development_coach_link(link_id) from public.list_development_coach_links()
+                  where coach_id = tests.id('dev') and access = 'pending_athlete_approval') = 'active', 'and approving it restores access');
+insert into t_codes select 'adult_third', code from public.create_development_coach_invite();
+select tests.authenticate_as('dev');
+select tests.ok((select outcome from public.redeem_development_coach_invite((select code from t_codes where name = 'adult_third')))
+                = 'already_connected', 'a coach who is already connected is told so');
+
+-- Declining a request revokes any grant, however it was made.
+select tests.authenticate_as('adult');
+insert into t_codes select 'adult_dev2', code from public.create_development_coach_invite();
+select tests.authenticate_as('dev2');
+select public.redeem_development_coach_invite((select code from t_codes where name = 'adult_dev2'));
+select tests.authenticate_as('adult');
+select public.grant_consent('development_coach_access', 'development-coach-access-v1', tests.id('dev2'));
+select public.decline_development_coach_link((select link_id from public.list_development_coach_links()
+                                               where coach_id = tests.id('dev2') and access = 'pending_athlete_approval'));
+select tests.clear_authentication();
+select tests.ok(not private.can_work_on_assessments(tests.id('dev2'), tests.id('adult')), 'a declined coach has no access');
+select tests.ok(not exists (select 1 from public.consent_grants where athlete_id = tests.id('adult') and grantee_id = tests.id('dev2')
+                             and scope = 'development_coach_access' and status in ('active', 'pending_guardian')),
+  'declining revokes the grant');
+
 -- Removing the development coach role removes access immediately.
 select tests.authenticate_as('admin');
 select public.admin_revoke_role(tests.id('dev'), 'development_coach');
@@ -133,11 +170,15 @@ select tests.ok(private.can_work_on_assessments(tests.id('dev'), tests.id('adult
 
 select tests.authenticate_as('dev');
 select tests.lives((select format('select public.end_development_coach_link(%L)', link_id) from public.list_development_coach_links()
-                     where athlete_id = tests.id('adult')), 'a coach can end their own link');
+                     where athlete_id = tests.id('adult') and access = 'active'), 'a coach can end their own link');
 select tests.clear_authentication();
 select tests.ok(not private.can_work_on_assessments(tests.id('dev'), tests.id('adult'))
-  and (select revocation_reason from public.consent_grants
-        where athlete_id = tests.id('adult') and scope = 'development_coach_access' order by created_at desc limit 1) = 'withdrawn_by_grantee',
+  and exists (select 1 from public.consent_grants
+               where athlete_id = tests.id('adult') and scope = 'development_coach_access' and grantee_id = tests.id('dev')
+                 and revocation_reason = 'withdrawn_by_grantee')
+  and not exists (select 1 from public.consent_grants
+                   where athlete_id = tests.id('adult') and scope = 'development_coach_access' and grantee_id = tests.id('dev')
+                     and status in ('active', 'pending_guardian')),
   'the coach''s access ends and the grant records that the coach withdrew');
 
 -- ================================================================ family sharing

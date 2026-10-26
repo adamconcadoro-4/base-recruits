@@ -370,6 +370,7 @@ function MetricEntry({
               return (
                 <div key={rep.id} className="space-y-1">
                   <input type="hidden" name={`seq:${rep.id}`} value={rep.seq} />
+                  <input type="hidden" name={`was:${rep.id}`} value={current} />
                   <label htmlFor={`v-${metric.key}-${rep.id}`} className="block text-sm font-semibold">
                     #{rep.seq}
                     {rep.pitch_type ? <span className="font-normal text-slate"> {PITCH_TYPE_LABELS[rep.pitch_type]}</span> : null}
