@@ -161,6 +161,14 @@ describe('plans', () => {
     }
   });
 
+  it('give each planned plan a short value statement and a bullet list', () => {
+    for (const plan of PLANS.filter((p) => p.availability === 'planned')) {
+      expect(plan.summary.length > 0 && plan.summary.length <= 120).toBe(true);
+      expect((plan.summary.match(/[.!?](\s|$)/g) ?? []).length <= 2).toBe(true);
+      expect(plan.features.length >= 2).toBe(true);
+    }
+  });
+
   it('only reference premium capabilities that exist', () => {
     const premium = new Set<PremiumCapabilityKey>(PREMIUM_CAPABILITY_KEYS);
     for (const plan of PLANS) {

@@ -24,7 +24,10 @@ export interface PlanDefinition {
   /** Paid once a year; 0 for the free core. */
   readonly proposedAnnualPriceUsd: number;
   readonly priceIsHypothesis: boolean;
+  /** One or two short sentences: the plan's value at a glance. */
   readonly summary: string;
+  /** What the plan includes, one item per bullet on the pricing page. */
+  readonly features: readonly string[];
   /** Premium capabilities this plan adds on top of the free core. */
   readonly premiumCapabilities: readonly PremiumCapabilityKey[];
 }
@@ -60,6 +63,7 @@ export const PLANS: readonly PlanDefinition[] = [
     priceIsHypothesis: false,
     summary:
       'School search, academic matching, comparisons, unlimited saved schools, a basic recruiting profile and consent-based visibility to verified coaches.',
+    features: [],
     premiumCapabilities: [],
   },
   {
@@ -69,7 +73,8 @@ export const PLANS: readonly PlanDefinition[] = [
     proposedMonthlyPriceUsd: 9.99,
     proposedAnnualPriceUsd: 99,
     priceIsHypothesis: true,
-    summary: 'A recruiting timeline that lays out the steps and dates for your class year.',
+    summary: 'Stay on schedule through the recruiting process.',
+    features: ['A recruiting timeline with the steps and dates for your class year', 'Everything in Base Free'],
     premiumCapabilities: [...RECRUIT_WORKFLOWS],
   },
   {
@@ -79,8 +84,15 @@ export const PLANS: readonly PlanDefinition[] = [
     proposedMonthlyPriceUsd: 14.99,
     proposedAnnualPriceUsd: 149,
     priceIsHypothesis: true,
-    summary:
-      'Everything in Starter plus a recruiting contact tracker, a coach outreach planner with email templates, deadline reminders, a task checklist and a progress dashboard.',
+    summary: 'Run your recruiting outreach in one place.',
+    features: [
+      'Everything in Starter',
+      'Recruiting contact tracker and activity history',
+      'Coach outreach planner with email templates',
+      'Deadline reminders',
+      'Personal recruiting task checklist',
+      'Progress dashboard',
+    ],
     premiumCapabilities: [...RECRUIT_WORKFLOWS, ...ELITE_ANALYSIS],
   },
   {
@@ -90,8 +102,15 @@ export const PLANS: readonly PlanDefinition[] = [
     proposedMonthlyPriceUsd: 19.99,
     proposedAnnualPriceUsd: 199,
     priceIsHypothesis: true,
-    summary:
-      'Everything in Plus plus a shared family workspace, recruiting analytics, cost and scholarship planning, and expense tracking.',
+    summary: 'The complete recruiting toolkit for athletes and their families.',
+    features: [
+      'Everything in Plus',
+      'Shared family workspace for athletes and parents',
+      'Recruiting analytics and progress reports',
+      'Cost and scholarship planning',
+      'Recruiting expense tracking',
+      'Expanded application and deadline tracking',
+    ],
     premiumCapabilities: [...RECRUIT_WORKFLOWS, ...ELITE_ANALYSIS, ...FAMILY_COORDINATION],
   },
 ];
