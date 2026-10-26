@@ -43,8 +43,8 @@ promise "Understand your game, see the evidence, and know what to work on next."
 
 | Check | Result |
 | --- | --- |
-| CI run (commit, all jobs) | _filled in below after the final run_ |
-| Database security suite (PostgreSQL 16 and 17, plain and on the real Supabase stack) | 715 assertions including Assessment suites 015–018 |
+| CI run 40286947397, commit `d0e9445` | All 7 jobs passed: typecheck (0 errors), 200 unit tests, database suites on PostgreSQL 16 and 17 and on the real Supabase stack, contract tests, 181 end-to-end and accessibility tests (0 failed, 2 skipped phone-only checks) |
+| Database security suite (PostgreSQL 16 and 17, plain and on the real Supabase stack) | 735 assertions including Assessment suites 015–018 |
 | Concurrency | 15 scenarios, 3 for Assessment |
 | Unit and contract tests | Assessment unit suites and the catalog/engine contract test |
 | End to end | `tests/e2e/assessment.spec.ts`: full hitting self-assessment (upload, measurements, Film Room timing and drawing, ratings, preview, publish, plan, log, reassessment), cross-athlete 404, development coach connect/approve/end, minor's guardian gate, public pages, WCAG checks |
