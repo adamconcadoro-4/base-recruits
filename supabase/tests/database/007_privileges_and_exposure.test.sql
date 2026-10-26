@@ -83,7 +83,7 @@ select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'EXECUTE'))
-  = array['admin_create_import_job', 'admin_discard_import_job', 'admin_finalize_import_job', 'admin_grant_role',
+  = array['admin_add_baseball_program', 'admin_create_import_job', 'admin_discard_import_job', 'admin_finalize_import_job', 'admin_grant_role',
           'admin_publish_import_job', 'admin_resolve_correction_report', 'admin_restage_import_job',
           'admin_retire_admissions_policy', 'admin_review_coach', 'admin_revoke_role', 'admin_set_admissions_policy',
           'admin_set_import_decision', 'admin_set_institution_listing', 'admin_stage_import_rows',

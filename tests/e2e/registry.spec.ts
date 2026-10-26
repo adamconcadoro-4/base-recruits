@@ -226,4 +226,54 @@ test.describe('administrator', () => {
     await visitor.goto('/schools/blue-mountain-community-college-or');
     await expect(visitor.getByRole('heading', { level: 1, name: 'Blue Mountain Community College' })).toBeVisible();
   });
+
+  test('add a school the federal report leaves out, with the official page as evidence', async ({ page, browser }) => {
+    await logIn(page, ADMIN);
+    await page.goto('/admin/schools');
+    await page.getByRole('link', { name: 'Add a school the federal report leaves out' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Add a school' })).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+
+    const form = page.getByRole('form', { name: 'Add a school' });
+    // An addition that already exists is refused, and what was typed stays.
+    await form.getByLabel('Federal school ID (IPEDS UNITID)').fill('162928');
+    await form.getByLabel('Official school name').fill('Johns Hopkins University');
+    await form.getByLabel('City').fill('Baltimore');
+    await form.getByLabel('State').selectOption('MD');
+    await form.getByLabel('School website').fill('https://www.jhu.edu/');
+    await form.getByLabel('Control').selectOption('private_nonprofit');
+    await form.getByLabel('Division').selectOption({ label: 'NCAA Division III' });
+    await form.getByLabel('Official page you checked').fill('https://hopkinssports.com/sports/baseball');
+    await form.getByLabel('What you checked').fill('Already listed; this should be refused.');
+    await form.getByRole('button', { name: 'Add school' }).click();
+    await expect(form.getByText(/That school is already in the registry/)).toBeVisible();
+    await expect(form.getByLabel('City')).toHaveValue('Baltimore');
+
+    await form.getByLabel('Federal school ID (IPEDS UNITID)').fill('197036');
+    await form.getByLabel('Official school name').fill('United States Military Academy');
+    await form.getByLabel('City').fill('West Point');
+    await form.getByLabel('State').selectOption('NY');
+    await form.getByLabel('School website').fill('https://www.westpoint.edu/');
+    await form.getByLabel('Control').selectOption('public');
+    await form.getByLabel('Division').selectOption({ label: 'NCAA Division I' });
+    await form.getByLabel('Conference').fill('Patriot League');
+    await form.getByLabel('Official page you checked').fill('https://goarmywestpoint.com/sports/baseball/schedule');
+    await form.getByLabel('What you checked').fill('2027 schedule and Patriot League play on the official athletics site.');
+    await form.getByRole('button', { name: 'Add school' }).click();
+    await page.waitForURL(/\/admin\/schools\/united-states-military-academy-ny\?added=1$/);
+    await expect(page.getByText('School added')).toBeVisible();
+    await expect(page.getByText(/Added by hand for 2\d{3}-\d{2} from an official page/)).toBeVisible();
+
+    const visitor = await (await browser.newContext()).newPage();
+    await visitor.goto('/schools/united-states-military-academy-ny');
+    const baseball = visitor.getByRole('region', { name: 'Baseball program' });
+    await expect(baseball.getByText('NCAA Division I', { exact: true })).toBeVisible();
+    await expect(baseball.getByText('Patriot League')).toBeVisible();
+    await expect(baseball.getByRole('link', { name: /goarmywestpoint\.com/ })).toBeVisible();
+    await expect(baseball.getByText('Not listed', { exact: true })).toBeVisible();
+    await expect(visitor.getByText(/its federal admissions figures haven.t been loaded/)).toBeVisible();
+    expect(await violations(visitor)).toEqual([]);
+    await visitor.goto('/schools?q=Military+Academy');
+    await expect(visitor.getByRole('article', { name: 'United States Military Academy' })).toBeVisible();
+  });
 });

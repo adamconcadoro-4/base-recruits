@@ -41,6 +41,7 @@ interface Program {
   readonly verification: ProgramVerification;
   readonly verification_source_url: string | null;
   readonly verified_at: string;
+  readonly source_id: string;
 }
 
 interface Revision {
@@ -61,9 +62,16 @@ function changedFields(before: Record<string, unknown> | null, after: Record<str
   return Object.keys(after).filter((k) => !IGNORED.has(k) && JSON.stringify(before[k]) !== JSON.stringify(after[k]));
 }
 
-export default async function AdminSchoolPage({ params }: { readonly params: Promise<{ slug: string }> }) {
+export default async function AdminSchoolPage({
+  params,
+  searchParams,
+}: {
+  readonly params: Promise<{ slug: string }>;
+  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requireAccess('/admin');
   const { slug } = await params;
+  const justAdded = (await searchParams).added === '1';
   if (!SLUG_PATTERN.test(slug)) notFound();
   const supabase = await createClient();
   const { data: institutionData } = await supabase
@@ -76,7 +84,7 @@ export default async function AdminSchoolPage({ params }: { readonly params: Pro
   const [programResult, divisionsResult, revisionsResult, policiesResult, reportsResult] = await Promise.all([
     supabase
       .from('baseball_programs')
-      .select('status, status_source, season, association_code, division_code, classification_label, classification_other, conference, athletics_url, roster_url, questionnaire_url, verification, verification_source_url, verified_at')
+      .select('status, status_source, season, association_code, division_code, classification_label, classification_other, conference, athletics_url, roster_url, questionnaire_url, verification, verification_source_url, verified_at, source_id')
       .eq('institution_id', institution.id)
       .maybeSingle(),
     supabase.from('athletic_divisions').select('code, association_code, name').order('sort_order'),
@@ -138,6 +146,11 @@ export default async function AdminSchoolPage({ params }: { readonly params: Pro
         )}
       </PageTitle>
 
+      {justAdded ? (
+        <Notice tone="success" className="mb-8" title="School added" live>
+          It is on public pages now. The addition and your note are in the revision log.
+        </Notice>
+      ) : null}
       <div className="space-y-14">
         <DashboardSection
           id="program"
@@ -151,10 +164,17 @@ export default async function AdminSchoolPage({ params }: { readonly params: Pro
                 <StatusChip tone="neutral">{VERIFICATION_LABELS[program.verification].short}</StatusChip>
                 {program.status_source === 'admin' ? <StatusChip tone="progress">Status set by an administrator</StatusChip> : null}
               </div>
-              <p className="mb-5 text-sm text-slate">
-                Reported to EADA for {program.season} as: {program.classification_label ?? 'no classification'}
-                {program.classification_other ? ` (${program.classification_other})` : ''}. Last confirmed {formatRetrieved(program.verified_at)}.
-              </p>
+              {program.source_id === 'official_site' ? (
+                <p className="mb-5 text-sm text-slate">
+                  Added by hand for {program.season} from an official page; not in the federal athletics report. Last confirmed{' '}
+                  {formatRetrieved(program.verified_at)}.
+                </p>
+              ) : (
+                <p className="mb-5 text-sm text-slate">
+                  Reported to EADA for {program.season} as: {program.classification_label ?? 'no classification'}
+                  {program.classification_other ? ` (${program.classification_other})` : ''}. Last confirmed {formatRetrieved(program.verified_at)}.
+                </p>
+              )}
               <ProgramForm
                 divisions={divisions}
                 values={{

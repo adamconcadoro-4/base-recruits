@@ -95,6 +95,8 @@ export default async function SchoolPage({ params }: { readonly params: Params }
   const savedSlugs = signedIn ? await mySavedSlugs() : null;
   const compareSelection = readCompareCookie(cookieStore.get(COMPARE_COOKIE)?.value);
   const programChecked = program !== null && program.verification !== 'federal_report';
+  // Added by hand because the federal athletics report leaves the school out.
+  const handAdded = program !== null && program.source.id === 'official_site';
   const sameTuition = costs !== null && costs.tuition_in_state !== null && costs.tuition_in_state === costs.tuition_out_of_state;
   const hasSat = admissions !== null && (admissions.sat_erw_25 !== null || admissions.sat_math_25 !== null);
 
@@ -164,23 +166,36 @@ export default async function SchoolPage({ params }: { readonly params: Params }
                     </span>
                   ) : null}
                 </Row>
-                <Row label="Classification the school reported (all sports)">
-                  <Value value={program.classification_label}>
-                    {program.classification_label}
-                    {program.classification_other ? `: ${program.classification_other}` : ''}
-                  </Value>
-                  <span className="block text-sm text-slate">
-                    As the school reported it to EADA for {formatAcademicYear(program.season)}. Kept exactly as reported, even when the
-                    baseball division above has been corrected.
-                  </span>
-                </Row>
+                {handAdded ? (
+                  <Row label="Federal athletics report">
+                    <span>Not listed</span>
+                    <span className="block text-sm text-slate">
+                      The federal report leaves out service academies, men&apos;s colleges, colleges that take no federal student aid
+                      and new teams. Base Recruits added this team for {formatAcademicYear(program.season)} after checking the official
+                      page linked above.
+                    </span>
+                  </Row>
+                ) : (
+                  <Row label="Classification the school reported (all sports)">
+                    <Value value={program.classification_label}>
+                      {program.classification_label}
+                      {program.classification_other ? `: ${program.classification_other}` : ''}
+                    </Value>
+                    <span className="block text-sm text-slate">
+                      As the school reported it to EADA for {formatAcademicYear(program.season)}. Kept exactly as reported, even when the
+                      baseball division above has been corrected.
+                    </span>
+                  </Row>
+                )}
                 <Row label="Conference">
                   {program.conference ?? <span className="text-slate italic">Not yet verified</span>}
                 </Row>
-                <Row label={<>Team participants<YearTag>{formatAcademicYear(program.season)}</YearTag></>}>
-                  <Value value={program.reported_participants}>{formatCount(program.reported_participants)}</Value>
-                  <span className="block text-sm text-slate">Athletes on the team as reported to EADA; not a count of open spots.</span>
-                </Row>
+                {handAdded ? null : (
+                  <Row label={<>Team participants<YearTag>{formatAcademicYear(program.season)}</YearTag></>}>
+                    <Value value={program.reported_participants}>{formatCount(program.reported_participants)}</Value>
+                    <span className="block text-sm text-slate">Athletes on the team as reported to EADA; not a count of open spots.</span>
+                  </Row>
+                )}
                 <Row label="Official baseball pages">
                   {program.athletics_url || program.roster_url || program.questionnaire_url ? (
                     <ul className="space-y-1">
@@ -293,8 +308,17 @@ export default async function SchoolPage({ params }: { readonly params: Params }
             </>
           ) : (
             <p className="mt-2">
-              <span className="text-slate italic">Not reported.</span> The federal data has no first-year admissions figures for
-              this school. Open-admission and two-year colleges usually don&apos;t report them.
+              {handAdded ? (
+                <>
+                  <span className="text-slate italic">Not shown yet.</span> This school isn&apos;t in the federal athletics report our
+                  data is built from, so its federal admissions figures haven&apos;t been loaded.
+                </>
+              ) : (
+                <>
+                  <span className="text-slate italic">Not reported.</span> The federal data has no first-year admissions figures for
+                  this school. Open-admission and two-year colleges usually don&apos;t report them.
+                </>
+              )}
             </p>
           )}
         </Section>
@@ -329,7 +353,16 @@ export default async function SchoolPage({ params }: { readonly params: Params }
             </>
           ) : (
             <p>
-              <span className="text-slate italic">Not reported.</span> The federal data has no published prices for this school.
+              {handAdded ? (
+                <>
+                  <span className="text-slate italic">Not shown yet.</span> This school isn&apos;t in the federal athletics report our
+                  data is built from, so its published prices haven&apos;t been loaded.
+                </>
+              ) : (
+                <>
+                  <span className="text-slate italic">Not reported.</span> The federal data has no published prices for this school.
+                </>
+              )}
             </p>
           )}
           <p className="mt-4">
