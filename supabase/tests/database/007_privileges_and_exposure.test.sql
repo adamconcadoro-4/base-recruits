@@ -83,16 +83,33 @@ select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'EXECUTE'))
-  = array['admin_add_baseball_program', 'admin_create_import_job', 'admin_discard_import_job', 'admin_finalize_import_job', 'admin_grant_role',
+  = array['add_assessment_annotation', 'add_assessment_repetitions', 'add_training_assignment',
+          'admin_add_baseball_program', 'admin_add_benchmark_values', 'admin_create_benchmark_release',
+          'admin_create_import_job', 'admin_discard_import_job', 'admin_finalize_import_job', 'admin_grant_role',
           'admin_publish_import_job', 'admin_resolve_correction_report', 'admin_restage_import_job',
           'admin_retire_admissions_policy', 'admin_review_coach', 'admin_revoke_role', 'admin_set_admissions_policy',
+          'admin_set_assessment_switches', 'admin_set_benchmark_release_status',
           'admin_set_import_decision', 'admin_set_institution_listing', 'admin_stage_import_rows',
-          'admin_update_baseball_program', 'approve_consent_as_guardian',
-          'approve_family_link', 'cancel_family_invite', 'compare_schools', 'complete_onboarding', 'create_family_invite',
-          'current_admissions_policies', 'end_family_link', 'get_school', 'grant_consent', 'guardian_consent_requests',
-          'list_family_links', 'my_consent_grants', 'my_saved_schools', 'record_birthdate', 'redeem_family_invite',
-          'registry_coverage', 'revoke_consent', 'save_schools', 'schools_by_slugs', 'search_schools',
-          'submit_coach_affiliation', 'submit_correction_report', 'unsave_school'],
+          'admin_update_baseball_program', 'approve_consent_as_guardian', 'approve_development_coach_link',
+          'approve_family_link', 'approve_training_plan', 'assessment_athletes', 'assessment_family_access',
+          'assessment_switches', 'begin_assessment_upload', 'cancel_development_coach_invite', 'cancel_family_invite',
+          'compare_schools', 'complete_assessment_upload', 'complete_onboarding', 'complete_training_plan',
+          'create_assessment', 'create_development_coach_invite', 'create_family_invite', 'create_reassessment',
+          'create_training_plan', 'current_admissions_policies', 'decline_development_coach_link', 'delete_assessment',
+          'delete_assessment_annotation', 'delete_assessment_observation', 'delete_assessment_repetition',
+          'delete_training_log', 'end_development_coach_link', 'end_family_link', 'get_school', 'grant_consent',
+          'guardian_consent_requests', 'import_assessment_measurements', 'list_development_coach_links',
+          'list_family_links', 'log_training', 'my_assessment_report_shares', 'my_consent_grants',
+          'my_development_coach_invites', 'my_saved_schools', 'preview_assessment_report', 'publish_assessment',
+          'record_assessment_observation', 'record_birthdate', 'record_interval_from_markers',
+          'redeem_development_coach_invite', 'redeem_family_invite', 'registry_coverage', 'remove_assessment_media',
+          'remove_training_assignment', 'reopen_assessment', 'replace_training_assignment', 'retire_assessment_target',
+          'revoke_consent', 'save_schools', 'schools_by_slugs', 'search_schools', 'set_assessment_baseline',
+          'set_assessment_repetition_status', 'set_assessment_status', 'set_assessment_target',
+          'set_observation_quality', 'set_reassessment_date', 'set_training_plan_notes',
+          'share_assessment_reports_with_coach', 'share_assessments_with_family', 'shared_assessment_reports',
+          'submit_coach_affiliation', 'submit_correction_report', 'unsave_school', 'update_assessment_context',
+          'update_assessment_media', 'update_assessment_repetition', 'update_training_assignment'],
   'signed-in users can call exactly the reviewed list of API functions');
 select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
@@ -104,7 +121,8 @@ select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'private' and has_function_privilege('authenticated', p.oid, 'EXECUTE'))
-  = array['age_in_years', 'can_act_as_guardian', 'coach_can_view', 'grant_needs_guardian_approval',
+  = array['age_in_years', 'assessment_object_access', 'can_act_as_guardian', 'can_work_on_assessment',
+          'can_work_on_assessments', 'can_work_on_plan', 'coach_can_view', 'grant_needs_guardian_approval',
           'guardian_can_view', 'guardian_oversees', 'has_active_grant', 'has_capability', 'has_recorded_birthdate',
           'has_role', 'has_valid_guardian_approval', 'is_active_guardian', 'is_admin', 'is_adult',
           'is_age_blocked', 'is_minor', 'is_verified_coach', 'today_utc'],

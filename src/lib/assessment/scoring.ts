@@ -76,8 +76,9 @@ export function targetProblems(target: Target, definition: MetricDefinition, sou
     problems.push('Enter every number for the target.');
     return problems;
   }
-  const inRange = (value: number) =>
-    (definition.min === null || value >= definition.min) && (definition.max === null || value <= definition.max);
+  // Rates are scored as percentages (0–100); other metrics in their stored unit.
+  const [min, max] = definition.aggregation === 'rate' ? [0, 100] : [definition.min, definition.max];
+  const inRange = (value: number) => (min === null || value >= min) && (max === null || value <= max);
   switch (target.kind) {
     case 'higher_is_better':
       if (!(target.floor < target.goal)) problems.push('The goal must be higher than the zero-score floor.');

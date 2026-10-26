@@ -61,7 +61,7 @@ begin
 
   -- Equivalent to the owner's one-time role choice (complete_onboarding):
   -- only self-selectable roles, never for anonymous sessions.
-  if p_account_type in ('athlete', 'parent', 'coach') and not p_is_anonymous then
+  if p_account_type in ('athlete', 'parent', 'coach', 'development_coach') and not p_is_anonymous then
     update public.profiles
        set primary_role = p_account_type::public.app_role, role_selected_at = now(),
            display_name = left(p_display_name, 80)
@@ -161,6 +161,79 @@ begin
   perform tests.authenticate_as(p_admin);
   perform public.admin_review_coach(tests.id(p_coach), 'approve', 'Listed on official staff directory.');
   perform tests.clear_authentication();
+end;
+$$;
+
+-- Assessment: switch it on (and optionally video), as an administrator would.
+create function tests.enable_assessment(p_video boolean default true) returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  update private.assessment_settings s set enabled = true, video_enabled = p_video where s.id
+$$;
+
+-- The real development-coach flow: the athlete creates a code, the coach
+-- redeems it, the athlete approves. For a minor, p_guardian (a linked parent)
+-- approves too. Leaves the session as the migration owner.
+create function tests.link_development_coach(p_athlete text, p_coach text, p_guardian text default null) returns uuid
+language plpgsql
+as $$
+declare
+  v_code text;
+  v_link uuid;
+  v_grant uuid;
+begin
+  perform tests.authenticate_as(p_athlete);
+  select code into v_code from public.create_development_coach_invite();
+  perform tests.authenticate_as(p_coach);
+  select link_id into v_link from public.redeem_development_coach_invite(v_code);
+  perform tests.authenticate_as(p_athlete);
+  perform public.approve_development_coach_link(v_link);
+  if p_guardian is not null then
+    perform tests.clear_authentication();
+    select grant_id into v_grant from public.development_coach_links where id = v_link;
+    perform tests.authenticate_as(p_guardian);
+    perform public.approve_consent_as_guardian(v_grant);
+  end if;
+  perform tests.clear_authentication();
+  return v_link;
+end;
+$$;
+
+-- An approved parent link (the athlete's code, the parent redeems, the athlete approves).
+create function tests.link_family(p_athlete text, p_parent text) returns uuid
+language plpgsql
+as $$
+declare
+  v_code text;
+  v_link uuid;
+begin
+  perform tests.authenticate_as(p_athlete);
+  select code into v_code from public.create_family_invite();
+  perform tests.authenticate_as(p_parent);
+  select link_id into v_link from public.redeem_family_invite(v_code, 'parent');
+  perform tests.authenticate_as(p_athlete);
+  perform public.approve_family_link(v_link);
+  perform tests.clear_authentication();
+  return v_link;
+end;
+$$;
+
+-- Places a file in emulated (or real) storage as the database owner. Returns
+-- false when this database has no storage schema or does not allow it.
+create function tests.store_object(p_path text, p_size bigint default 1000, p_mime text default 'video/mp4') returns boolean
+language plpgsql
+as $$
+begin
+  if to_regclass('storage.objects') is null then
+    return false;
+  end if;
+  execute 'insert into storage.objects (bucket_id, name, metadata) values ($1, $2, $3)'
+    using 'assessment-media', p_path, jsonb_build_object('size', p_size, 'mimetype', p_mime);
+  return true;
+exception when others then
+  return false;
 end;
 $$;
 

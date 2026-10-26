@@ -83,6 +83,11 @@ describe('coach-defined targets', () => {
     expect(targetProblems({ kind: 'target_range', low: 8, high: 200, tolerance: 6 }, launch, 'Coach goal')).toContain(
       'Target values must be inside the metric’s valid range.',
     );
+    // Charted outcomes are stored as yes/no but scored as a percentage.
+    expect(targetProblems({ kind: 'higher_is_better', floor: 30, goal: 80 }, requireMetric('hit_solid_contact'), 'Coach goal')).toEqual([]);
+    expect(targetProblems({ kind: 'higher_is_better', floor: 30, goal: 120 }, requireMetric('hit_solid_contact'), 'Coach goal')).toContain(
+      'Target values must be inside the metric’s valid range.',
+    );
   });
 
   it('stores and restores each target kind without changing it', () => {
