@@ -150,6 +150,17 @@ describe('plans', () => {
     }
   });
 
+  it('price each planned plan at the founder-approved proposals, with annual billing cheaper than twelve months', () => {
+    const byName = Object.fromEntries(PLANS.map((plan) => [plan.name, plan]));
+    expect([byName.Starter?.proposedMonthlyPriceUsd, byName.Plus?.proposedMonthlyPriceUsd, byName.Pro?.proposedMonthlyPriceUsd]).toEqual([9.99, 14.99, 19.99]);
+    expect([byName.Starter?.proposedAnnualPriceUsd, byName.Plus?.proposedAnnualPriceUsd, byName.Pro?.proposedAnnualPriceUsd]).toEqual([99, 149, 199]);
+    for (const plan of PLANS.filter((p) => p.availability === 'planned')) {
+      const saving = 1 - plan.proposedAnnualPriceUsd / (plan.proposedMonthlyPriceUsd * 12);
+      // "About 17%" on the brief: every plan saves between 16% and 18% a year.
+      expect(saving > 0.16 && saving < 0.18).toBe(true);
+    }
+  });
+
   it('only reference premium capabilities that exist', () => {
     const premium = new Set<PremiumCapabilityKey>(PREMIUM_CAPABILITY_KEYS);
     for (const plan of PLANS) {
