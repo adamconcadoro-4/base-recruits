@@ -2,8 +2,10 @@
 
 import { redirect } from 'next/navigation';
 
+import { emailSchema } from '@/app/(auth)/signup/schema';
+import { setPendingVerification } from '@/lib/auth/pending-verification';
 import { safeNextPath } from '@/lib/auth/route-access';
-import { failure, field, type ActionState } from '@/lib/forms/action-state';
+import { failure, field, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { createClient } from '@/lib/supabase/server';
 
 export async function logInAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
@@ -30,6 +32,25 @@ export async function logInAction(_previous: ActionState, formData: FormData): P
   }
 
   redirect(safeNextPath(field(formData, 'next'), '/dashboard'));
+}
+
+/**
+ * Emails a 6-digit sign-in code to an existing account; the code alone logs
+ * the person in on /verify. Never creates an account. The page answers the
+ * same way for unknown addresses, so it doesn't reveal who has an account.
+ */
+export async function requestLoginCodeAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  const parsed = emailSchema.safeParse(field(formData, 'email'));
+  if (!parsed.success) return failure('Enter a valid email address.', { email: 'Enter a valid email address.' });
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithOtp({ email: parsed.data, options: { shouldCreateUser: false } });
+  if (error && (error.status === 429 || error.code?.startsWith('over_'))) {
+    return failure(withDiagnostics('Too many attempts. Please wait a few minutes and try again.', error));
+  }
+
+  await setPendingVerification({ purpose: 'login', email: parsed.data, next: safeNextPath(field(formData, 'next'), '/dashboard') });
+  redirect('/verify');
 }
 
 export async function signOutAction(): Promise<void> {

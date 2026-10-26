@@ -14,7 +14,10 @@ const COOKIE = 'br_pending_verification';
 const MAX_AGE_SECONDS = 60 * 60;
 
 const pendingSchema = z.object({
-  purpose: z.enum(['signup', 'reset']),
+  /** signup: new account; reset: new password; login: sign in with the code alone. */
+  purpose: z.enum(['signup', 'reset', 'login']),
+  /** Where to go after a code login (checked again with safeNextPath before use). */
+  next: z.string().max(500).optional(),
   email: z.string().min(3).max(254),
   dateOfBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   accountType: z.enum(['athlete', 'parent', 'coach']).optional(),
