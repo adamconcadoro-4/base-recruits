@@ -51,6 +51,7 @@ These mirror `supabase/config.toml`. Security depends on them (see the README).
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://qdwnxdkygeptynkdvgez.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | The project's publishable key (`sb_publishable_…`, Project Settings → API Keys) |
 | `SUPABASE_SECRET_KEY` | A secret key (`sb_secret_…`, same page). Server-only. Entered in Vercel by the founder; never pasted into chats, issues or commits |
+| `NEXT_PUBLIC_ASSESSMENT_ENABLED` | Leave **unset** until the founder opens Assessment (decision F21). `true` shows the Assessment tab, its public pages and the development coach sign-up option, and adds the Supabase origin to the media and connect content-security rules. The database switch on the admin page must also be on before anything can be recorded |
 | `ALLOW_INDEXING` | Leave **unset** until launch sign-off (decision F14). Set to `true` only in Production to let search engines index the site; with it unset every page is `noindex` and `robots.txt` disallows crawling |
 
 Vercel's Hobby plan does not allow commercial use. Move the Vercel account to Pro before the public launch.
@@ -72,3 +73,11 @@ Vercel's Hobby plan does not allow commercial use. Move the Vercel account to Pr
 - Vercel Pro.
 - Decide on the proposed registry corrections (`docs/remediation/proposed-data-corrections.md`).
 - Only after legal review and a support address: set `ALLOW_INDEXING=true` (decision F14).
+
+## Before opening Assessment
+
+See `docs/assessment.md` § 7. In short: answer decisions F22–F26 and legal questions L9–L11; raise the Supabase
+Storage upload limit to at least 200 MB (or lower the clip limit in code and database together); set
+`NEXT_PUBLIC_ASSESSMENT_ENABLED=true` and redeploy; turn on Admin → Assessment switches. Leave video uploads off until
+L9 is answered.
+

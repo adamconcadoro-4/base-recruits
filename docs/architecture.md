@@ -55,6 +55,7 @@ Three enforcement layers, each sufficient to stop a data leak on its own:
 | Coach portal | Search consented athletes, boards, messaging with guardrails | 4 (Pillar C) | — |
 | Billing | Stripe, premium entitlements | 6 | — |
 | Historical CCR | Permissioned outcomes, privacy thresholds, scattergrams | 7 | — |
+| Assessment | Hitting and pitching assessments: evidence-labelled observations, anchored rubrics, coach targets, frozen reports, Film Room, training plans, development coach access. Switched off (decision F21) | After launch | `20261026000100`–`000600`, `src/lib/assessment/`, `src/app/(app)/assessment/`, `docs/assessment.md` |
 
 Spec logical tables → Stage 1 implementation: `users` → `auth.users` + `profiles`; `coach_verifications` →
 `coach_verification_events` + `coach_status_transitions`; `parent_athlete_relationships` → `family_links` +
@@ -196,3 +197,15 @@ reference year could not be confirmed; each school's net price calculator is lin
 `private.run_scheduled_maintenance()` (daily via `pg_cron` on Supabase) expires coach verifications and consent grants and
 flags guardian links that need re-consent at 18. Access does not depend on the job: every helper checks expiry and age
 at read time.
+
+## 9. Assessment module (switched off)
+
+Built on the same three layers. Database: every Assessment table has row-level security keyed on
+`private.assessment_relation` (athlete, guardian with `family_assessments` consent, or development coach with
+`development_coach_access` consent and an open link); writes go only through checked functions that lock what they
+check; published reports are frozen by trigger; private Storage policies call `private.assessment_object_access`.
+Server: the `/assessment` routes are behind the sign-in gate (signed-out visitors go to the public explainer) and the
+site switch (`NEXT_PUBLIC_ASSESSMENT_ENABLED`); the database switch (`private.assessment_settings`) refuses every
+write while off. Scores are calculated in SQL (`private.assessment_results`, `calc-v1`) and mirrored in TypeScript,
+with a contract test proving they agree. Details: `docs/assessment.md`.
+

@@ -112,6 +112,12 @@ export default async function ConnectionsPage() {
                     <>
                       <p className="font-semibold">{link.coach_name ?? 'Development coach'}</p>
                       {link.coach_email ? <p className="text-sm text-slate">{link.coach_email}</p> : null}
+                      {link.access === 'awaiting_guardian' ? (
+                        <p className="text-sm">
+                          Because you&apos;re under 18, a linked parent or guardian approves from their parent home before
+                          the coach can see anything.
+                        </p>
+                      ) : null}
                     </>
                   )}
                   actions={(link) =>

@@ -87,7 +87,7 @@ test('an athlete records, publishes and acts on a hitting self-assessment', asyn
   await page.getByRole('radio', { name: /video plus measured ball data/ }).check();
   await page.getByLabel(/Goal: valid swings/).fill('6');
   await page.getByLabel('Drill', { exact: true }).selectOption('front_toss');
-  await page.getByRole('checkbox', { name: /Side view, camera facing the athlete/ }).check();
+  await page.getByRole('checkbox', { name: /camera facing the athlete’s chest/ }).check();
   await expectAccessible(page, 'New assessment');
   await page.getByRole('button', { name: 'Start the assessment' }).click();
   await page.waitForURL(/\/assessment\/[0-9a-f-]{36}\?step=clips$/);
@@ -260,7 +260,7 @@ test('a development coach works on an athlete’s assessments only while connect
   await athletePage.reload();
   await expect(athletePage.getByText('Coach Synthetic')).toBeVisible();
   await athletePage.getByRole('button', { name: 'Approve', exact: true }).click();
-  await expect(athletePage.getByText('Approved. Your development coach can now work on your assessments.')).toBeVisible();
+  await expect(athletePage.getByText('Connected', { exact: true })).toBeVisible();
   await expectAccessible(athletePage, 'Connections');
 
   await coachPage.goto('/assessment');
@@ -274,7 +274,7 @@ test('a development coach works on an athlete’s assessments only while connect
   await athletePage.reload();
   athletePage.once('dialog', (dialog) => void dialog.accept());
   await athletePage.getByRole('button', { name: 'End connection' }).click();
-  await expect(athletePage.getByText('Connection ended.')).toBeVisible();
+  await expect(athletePage.getByText('Ended', { exact: true })).toBeVisible();
   const response = await coachPage.goto(`/assessment/${id}`);
   expect(response?.status()).toBe(404);
 });
@@ -298,7 +298,7 @@ test('a minor’s development coach waits for a parent or guardian', async ({ br
 
   await athletePage.reload();
   await athletePage.getByRole('button', { name: 'Approve', exact: true }).click();
-  await expect(athletePage.getByText(/a linked parent or guardian also needs to approve/)).toBeVisible();
+  await expect(athletePage.getByText('Waiting for a parent or guardian to approve')).toBeVisible();
 
   await coachPage.reload();
   await expect(coachPage.getByText('Waiting for a parent or guardian to approve')).toBeVisible();
