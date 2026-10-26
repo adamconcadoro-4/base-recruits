@@ -10,6 +10,7 @@ import {
   targetText,
   valueText,
 } from '@/components/assessment/result-format';
+import { ScrollTable } from '@/components/assessment/scroll-table';
 import { StatusChip, type ChipTone } from '@/components/ui/status-chip';
 import {
   AGE_BAND_LABELS,
@@ -179,7 +180,7 @@ function PillarDetail({ pillar, metrics }: { readonly pillar: PillarResult; read
         {definition.name}
       </h3>
       <p className="max-w-3xl text-sm text-slate">{definition.limits}</p>
-      <div className="overflow-x-auto">
+      <ScrollTable label={`${definition.name} metrics`}>
         <table className="w-full min-w-[44rem] border-y-2 border-rule text-left">
           <caption className="sr-only">{definition.name} metrics, evidence and scores</caption>
           <thead>
@@ -197,7 +198,7 @@ function PillarDetail({ pillar, metrics }: { readonly pillar: PillarResult; read
             ))}
           </tbody>
         </table>
-      </div>
+      </ScrollTable>
       {pillar.status === 'complete' ? (
         <p className="text-sm">
           Pillar score: weighted average of{' '}
@@ -290,7 +291,7 @@ export function ReportView({
             <PillarCard key={pillar.pillar} pillar={pillar} />
           ))}
         </div>
-        <div className="overflow-x-auto">
+        <ScrollTable label="Pillar results">
           <table className="w-full min-w-[30rem] text-left text-sm">
             <caption className="py-2 text-left font-semibold">Pillar results as a table</caption>
             <thead>
@@ -312,7 +313,7 @@ export function ReportView({
               ))}
             </tbody>
           </table>
-        </div>
+        </ScrollTable>
       </section>
 
       <section aria-labelledby="report-findings" className="grid gap-8 md:grid-cols-2">

@@ -48,7 +48,7 @@ export interface TestAccount {
  * birth recorded through the same server-only function the signup flow uses.
  */
 export async function createAccount(options: {
-  readonly role: 'athlete' | 'parent' | 'coach' | null;
+  readonly role: 'athlete' | 'parent' | 'coach' | 'development_coach' | null;
   readonly name: string;
   readonly dateOfBirth: string;
   readonly email?: string;

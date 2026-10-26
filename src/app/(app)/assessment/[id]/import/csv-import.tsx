@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { importMeasurementsAction, type ImportOutcome } from '@/app/(app)/assessment/actions';
+import { ScrollTable } from '@/components/assessment/scroll-table';
 import { Button } from '@/components/ui/button';
 import {
   CSV_FIELDS,
@@ -217,7 +218,7 @@ export function CsvImport({
             {validation.duplicateRows > 0 ? ` (${validation.duplicateRows} duplicates within the file)` : ''}.
           </p>
           {validation.accepted.length > 0 ? (
-            <div className="overflow-x-auto">
+            <ScrollTable label="Rows to import">
               <table className="w-full min-w-[40rem] text-left text-sm">
                 <caption className="py-2 text-left font-semibold">
                   Rows to import{validation.accepted.length > 25 ? ' (first 25)' : ''}
@@ -258,7 +259,7 @@ export function CsvImport({
                   })}
                 </tbody>
               </table>
-            </div>
+            </ScrollTable>
           ) : null}
           {validation.rejected.length > 0 ? (
             <div className="space-y-2">

@@ -8,6 +8,7 @@ import {
   updateRepetitionAction,
 } from '@/app/(app)/assessment/actions';
 import { ObservationReview } from '@/app/(app)/assessment/[id]/observation-review';
+import { ScrollTable } from '@/components/assessment/scroll-table';
 import { ActionForm } from '@/components/assessment/action-form';
 import { SelectField, TextField } from '@/components/ui/field';
 import { StatusChip } from '@/components/ui/status-chip';
@@ -89,7 +90,7 @@ export async function RepetitionsStep({
           ) : null}
         </ActionForm>
         {repetitions.length > 0 ? (
-          <div className="overflow-x-auto">
+          <ScrollTable label={pitching ? 'Pitches' : 'Swings'}>
             <table className="w-full min-w-[48rem] text-left">
               <caption className="sr-only">{pitching ? 'Pitches' : 'Swings'} in this assessment</caption>
               <thead>
@@ -106,7 +107,7 @@ export async function RepetitionsStep({
                 ))}
               </tbody>
             </table>
-          </div>
+          </ScrollTable>
         ) : null}
       </section>
 

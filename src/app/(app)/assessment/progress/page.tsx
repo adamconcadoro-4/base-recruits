@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { ScrollTable } from '@/components/assessment/scroll-table';
 import { DashboardSection, PageTitle } from '@/components/app/section';
 import { AthletePicker } from '@/components/assessment/athlete-picker';
 import { formatDateOnly, metricLabel, resultUnit, scoreText, valueText } from '@/components/assessment/result-format';
@@ -134,7 +135,7 @@ export default async function ProgressPage({ searchParams }: { readonly searchPa
                   <PillarTrend key={pillar} pillar={pillar} reports={reports} />
                 ))}
               </div>
-              <div className="mt-6 overflow-x-auto">
+              <ScrollTable label="Pillar scores by report" className="mt-6">
                 <table className="w-full min-w-[32rem] text-left text-sm">
                   <caption className="py-2 text-left font-semibold">Pillar scores by report</caption>
                   <thead>
@@ -170,7 +171,7 @@ export default async function ProgressPage({ searchParams }: { readonly searchPa
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </ScrollTable>
             </DashboardSection>
 
             <DashboardSection id="compare" title="Compare two reports">
@@ -224,7 +225,7 @@ export default async function ProgressPage({ searchParams }: { readonly searchPa
                           </ul>
                         </div>
                       ) : null}
-                      <div className="overflow-x-auto">
+                      <ScrollTable label="Comparison of two reports">
                         <table className="w-full min-w-[44rem] text-left text-sm">
                           <caption className="py-2 text-left font-semibold">
                             {formatDateOnly(before.snapshot.assessment.assessment_date)} compared with{' '}
@@ -272,7 +273,7 @@ export default async function ProgressPage({ searchParams }: { readonly searchPa
                             })}
                           </tbody>
                         </table>
-                      </div>
+                      </ScrollTable>
                     </>
                   ) : (
                     <p className="text-slate">Choose two different reports.</p>
