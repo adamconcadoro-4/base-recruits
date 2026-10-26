@@ -5,7 +5,7 @@ import { AddSchoolForm } from '@/app/(app)/admin/schools/forms';
 import { DashboardSection, PageTitle } from '@/components/app/section';
 import { Notice } from '@/components/ui/notice';
 import { requireAccess } from '@/lib/auth/guard';
-import { addableSeasons } from '@/lib/registry/add-school';
+import { addableSeasons, currentSeason } from '@/lib/registry/add-school';
 import { STATE_OPTIONS } from '@/lib/registry/states';
 import { createClient } from '@/lib/supabase/server';
 
@@ -49,7 +49,7 @@ export default async function AddSchoolPage() {
         </DashboardSection>
         <DashboardSection id="details" title="School and team">
           {error ? <Notice tone="error">The division list didn&apos;t load. Reload the page.</Notice> : null}
-          <AddSchoolForm divisions={divisions} seasons={addableSeasons()} states={STATE_OPTIONS} />
+          <AddSchoolForm divisions={divisions} seasons={addableSeasons()} defaultSeason={currentSeason()} states={STATE_OPTIONS} />
         </DashboardSection>
       </div>
     </>

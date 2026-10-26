@@ -35,11 +35,20 @@ export type AddSchoolResult =
   | { readonly ok: true; readonly value: AddSchoolInput }
   | { readonly ok: false; readonly errors: Readonly<Record<string, string>> };
 
-/** The season under way and the next one, e.g. ['2026-27', '2027-28'] in October 2026. */
+/**
+ * Seasons an addition can be confirmed for: the one just finished (a team
+ * whose next roster isn't posted yet), the one under way, and the next one.
+ * In October 2026 that is ['2025-26', '2026-27', '2027-28'].
+ */
 export function addableSeasons(now: Date = new Date()): readonly string[] {
   const year = now.getUTCFullYear();
   const start = now.getUTCMonth() >= 6 ? year : year - 1; // seasons turn over on July 1
-  return [start, start + 1].map((y) => `${y}-${String((y + 1) % 100).padStart(2, '0')}`);
+  return [start - 1, start, start + 1].map((y) => `${y}-${String((y + 1) % 100).padStart(2, '0')}`);
+}
+
+/** The season under way, which the form selects by default. */
+export function currentSeason(now: Date = new Date()): string {
+  return addableSeasons(now)[1] ?? '';
 }
 
 function isHttpsUrl(value: string): boolean {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { addableSeasons, parseAddSchool } from '@/lib/registry/add-school';
+import { addableSeasons, currentSeason, parseAddSchool } from '@/lib/registry/add-school';
 
 const OCT_2026 = new Date('2026-10-25T12:00:00Z');
 
@@ -27,11 +27,16 @@ function parse(overrides: Record<string, string> = {}) {
 }
 
 describe('adding a school the federal report leaves out', () => {
-  it('offers the season under way and the next one, turning over on July 1', () => {
-    expect(addableSeasons(OCT_2026)).toEqual(['2026-27', '2027-28']);
-    expect(addableSeasons(new Date('2027-03-01T00:00:00Z'))).toEqual(['2026-27', '2027-28']);
-    expect(addableSeasons(new Date('2027-07-01T00:00:00Z'))).toEqual(['2027-28', '2028-29']);
-    expect(addableSeasons(new Date('2099-08-01T00:00:00Z'))).toEqual(['2099-00', '2100-01']);
+  it('offers the season just finished, the one under way and the next one, turning over on July 1', () => {
+    expect(addableSeasons(OCT_2026)).toEqual(['2025-26', '2026-27', '2027-28']);
+    expect(currentSeason(OCT_2026)).toBe('2026-27');
+    expect(addableSeasons(new Date('2027-03-01T00:00:00Z'))).toEqual(['2025-26', '2026-27', '2027-28']);
+    expect(addableSeasons(new Date('2027-07-01T00:00:00Z'))).toEqual(['2026-27', '2027-28', '2028-29']);
+    expect(addableSeasons(new Date('2099-08-01T00:00:00Z'))).toEqual(['2098-99', '2099-00', '2100-01']);
+  });
+
+  it('accepts the season just finished for a team whose next roster is not posted yet', () => {
+    expect(parse({ season: '2025-26' }).ok).toBe(true);
   });
 
   it('accepts a complete, sourced addition', () => {
@@ -54,7 +59,7 @@ describe('adding a school the federal report leaves out', () => {
     ['state', { state: 'New York' }],
     ['websiteUrl', { websiteUrl: 'http://www.westpoint.edu/' }],
     ['control', { control: 'military' }],
-    ['season', { season: '2025-26' }],
+    ['season', { season: '2024-25' }],
     ['division', { division: 'ncaa|varsity' }],
     ['verification', { verification: 'federal_report' }],
     ['evidenceUrl', { evidenceUrl: '' }],

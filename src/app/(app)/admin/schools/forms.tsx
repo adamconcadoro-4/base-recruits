@@ -106,10 +106,12 @@ export function ProgramForm({
 export function AddSchoolForm({
   divisions,
   seasons,
+  defaultSeason,
   states,
 }: {
   readonly divisions: readonly { readonly code: string; readonly association: string; readonly name: string }[];
   readonly seasons: readonly string[];
+  readonly defaultSeason: string;
   readonly states: readonly { readonly code: string; readonly name: string }[];
 }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(addSchoolAction, IDLE);
@@ -157,7 +159,14 @@ export function AddSchoolForm({
         <option value="two_year">Two-year</option>
         <option value="less_than_two_year">Less than two-year</option>
       </SelectField>
-      <SelectField id="n-season" name="season" label="Season you confirmed" defaultValue={seasons[0] ?? ''} error={errors.season}>
+      <SelectField
+        id="n-season"
+        name="season"
+        label="Season you confirmed"
+        hint="The season the official page shows. Choose the one just finished if next season's roster isn't posted yet."
+        defaultValue={defaultSeason}
+        error={errors.season}
+      >
         {seasons.map((s) => (
           <option key={s} value={s}>
             {s}
