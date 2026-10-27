@@ -97,7 +97,7 @@ test('the mobile menu opens and closes with the keyboard', async ({ page, isMobi
   await menu.focus();
   await page.keyboard.press('Enter');
   await expect(menu).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.getByRole('link', { name: 'Search schools' }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Explore programs' }).first()).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(menu).toHaveAttribute('aria-expanded', 'false');
 });

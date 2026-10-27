@@ -89,6 +89,6 @@ describe('describeCoachStatus', () => {
       expect(description.label.length).toBeGreaterThan(3);
       expect(description.summary.length).toBeGreaterThan(10);
     }
-    expect(describeCoachStatus('email_verified').summary).toContain('Email alone does not verify');
+    expect(describeCoachStatus('email_verified').summary).toContain('An email address alone doesn’t verify');
   });
 });

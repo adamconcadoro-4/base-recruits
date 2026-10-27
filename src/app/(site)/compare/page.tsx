@@ -221,8 +221,8 @@ export default async function ComparePage({
         ) : null}
         {notFound > 0 ? (
           <Notice tone="info">
-            {notFound === 1 ? 'One school in this comparison isn’t' : `${notFound} schools in this comparison aren’t`} in the
-            registry, so {notFound === 1 ? 'it was' : 'they were'} left out.
+            {notFound === 1 ? 'One school in this comparison isn’t' : `${notFound} schools in this comparison aren’t`} listed on
+            Base Recruits, so {notFound === 1 ? 'it was' : 'they were'} left out.
           </Notice>
         ) : null}
         {shared && schools.length > 0 ? (

@@ -26,9 +26,9 @@ const MONTHS = [
 ] as const;
 
 const ACCOUNT_TYPES = [
-  { value: 'athlete', label: 'Student-athlete', hint: 'Find schools, build a shortlist and a recruiting profile.', adultsOnly: false },
-  { value: 'parent', label: 'Parent or guardian', hint: 'Support your athlete with their permission.', adultsOnly: true },
-  { value: 'coach', label: 'College coach', hint: 'Use your institutional email. Verification required.', adultsOnly: true },
+  { value: 'athlete', label: 'Student-athlete', hint: 'Explore programs, compare your scores and save your shortlist. Recruiting profiles come later.', adultsOnly: false },
+  { value: 'parent', label: 'Parent or guardian', hint: 'Link to your player’s account with their approval. You see only what they choose to share.', adultsOnly: true },
+  { value: 'coach', label: 'College coach', hint: 'Use the email address your school gave you. We verify your coaching role before coach tools open to you.', adultsOnly: true },
 ] as const;
 
 /** Offered only while Assessment is switched on; the server checks again. */
@@ -148,7 +148,7 @@ export function SignupForm({ developmentCoachOpen = false }: { readonly developm
         name="email"
         type="email"
         label="Email"
-        hint="We'll email you a 6-digit code. Coaches: use your institutional email address."
+        hint="We'll email you a 6-digit code. Coaches: use the email address your school gave you."
         autoComplete="email"
         error={errors.email}
         required

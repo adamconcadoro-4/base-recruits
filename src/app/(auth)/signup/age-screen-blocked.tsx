@@ -6,9 +6,9 @@ export function AgeScreenBlocked() {
     <div role="status" className="mt-6 space-y-4">
       <p className="text-lg">Base Recruits accounts are for people 13 and older.</p>
       <p>
-        You can still search schools and compare your scores without an account.{' '}
+        You can still explore programs and compare your scores without an account.{' '}
         <Link href="/schools" className="font-semibold text-royal-ink underline">
-          Go to the school explorer
+          Explore Baseball Programs
         </Link>
       </p>
     </div>

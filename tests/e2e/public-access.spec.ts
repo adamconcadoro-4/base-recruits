@@ -15,8 +15,8 @@ test.describe('public pages stay open to anonymous visitors', () => {
 
   test('the home page leads with the spec headline and calls to action that work today', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1, name: 'Your Next Level Starts Here.' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Search schools' }).first()).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Know your college baseball options.' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Explore Baseball Programs' }).first()).toBeVisible();
     await expect(page.getByRole('link', { name: 'Compare your scores' }).first()).toBeVisible();
     await expect(page.getByText(/Find my (college )?matches/i)).toHaveCount(0);
   });

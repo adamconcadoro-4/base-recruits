@@ -9,9 +9,9 @@ import { PLANS } from '@/config/plans';
 import { CAPABILITIES, CORE_CAPABILITY_KEYS, type CoreCapabilityKey } from '@/lib/entitlements/capabilities';
 
 export const metadata: Metadata = {
-  title: 'Free and optional plans',
+  title: 'What’s free',
   description:
-    'What is free on Base Recruits today, what is coming later, and the optional paid plans that are proposed but not on sale.',
+    'What is free on Base Recruits today, what is coming later, and the optional paid tools being considered. Nothing is on sale.',
   alternates: { canonical: '/pricing' },
 };
 
@@ -40,16 +40,17 @@ export default function PricingPage() {
   const paidPlans = PLANS.filter((plan) => plan.availability === 'planned');
   return (
     <>
-      <PageIntro title="Free core. Optional tools.">
-        Finding schools is free for good, and so will be being found by coaches. Items marked &ldquo;Coming later&rdquo;
-        are not built yet. Paying will never change your results or whether coaches can see you.
+      <PageIntro title="What’s free">
+        School search, school pages, comparing and saving schools, and the score comparison are free. Items marked
+        &ldquo;Coming later&rdquo; aren&apos;t built yet. Paying will never change your search results, your score
+        comparison or whether coaches can see you.
       </PageIntro>
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2">
           <div className="border-t-8 border-navy pt-6">
             <h2 className="text-4xl text-navy">Base Free</h2>
-            <p className="mt-2 text-lg">$0, for athletes and families. Always.</p>
+            <p className="mt-2 text-lg">For players and families.</p>
             <ul className="mt-6 space-y-3">
               {coreForPeople.map((key) => (
                 <CapabilityItem key={key} capability={key} />
@@ -61,7 +62,7 @@ export default function PricingPage() {
           </div>
           <div className="border-t-8 border-royal pt-6">
             <h2 className="text-4xl text-navy">Verified coaches</h2>
-            <p className="mt-2 text-lg">$0 after verification. Always.</p>
+            <p className="mt-2 text-lg">Verification is free.</p>
             <ul className="mt-6 space-y-3">
               {coreForCoaches.map((key) => (
                 <CapabilityItem key={key} capability={key} />
@@ -73,10 +74,10 @@ export default function PricingPage() {
 
       <section className="bg-ice">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <h2 className="text-4xl text-navy">Planned paid plans</h2>
+          <h2 className="text-4xl text-navy">Optional tools being considered</h2>
           <p className="mt-3 max-w-2xl text-lg">
-            These add organizing and planning tools on top of the free core. They are not on sale yet, nothing is billed,
-            and prices are proposals that may change.
+            Any paid plans would add tools for organizing your work, tracking your development and managing the
+            recruiting process. None is on sale, nothing is billed, and prices haven&apos;t been set.
           </p>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {paidPlans.map((plan) => (
@@ -85,9 +86,6 @@ export default function PricingPage() {
                   <h3 className="text-3xl text-navy">{plan.name}</h3>
                   <StatusChip tone="neutral">Not available yet</StatusChip>
                 </div>
-                <p className="mt-2 text-slate">
-                  Proposed ${plan.proposedMonthlyPriceUsd.toFixed(2)} a month, or ${plan.proposedAnnualPriceUsd} a year
-                </p>
                 <p className="mt-4 text-lg font-semibold text-navy">{plan.summary}</p>
                 <ul className="mt-4 space-y-2" aria-label={`${plan.name} includes`}>
                   {plan.features.map((feature) => (
@@ -101,7 +99,7 @@ export default function PricingPage() {
             ))}
           </div>
           <p className="mt-8 max-w-2xl text-slate">
-            If paid plans ever launch and you cancel one, you keep a full free account, including every saved school.
+            If paid plans launch and you cancel one, you keep a full free account, including every saved school.
           </p>
         </div>
       </section>

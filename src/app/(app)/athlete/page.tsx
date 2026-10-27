@@ -10,6 +10,7 @@ import {
 import { InviteForm } from '@/app/(app)/athlete/invite-form';
 import { ActionButtonForm } from '@/components/app/action-button-form';
 import { DashboardSection, PageTitle } from '@/components/app/section';
+import { ButtonLink } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip } from '@/components/ui/status-chip';
 import { requireAccess } from '@/lib/auth/guard';
@@ -85,7 +86,7 @@ export default async function AthleteHomePage() {
   return (
     <>
       <PageTitle title={`Welcome${account.profile?.display_name ? `, ${account.profile.display_name}` : ''}`}>
-        Your recruiting profile is private until you choose to share it.
+        Nothing you add here is shared until you choose to share it.
       </PageTitle>
 
       {loadFailed ? (
@@ -107,11 +108,15 @@ export default async function AthleteHomePage() {
             ) : null}
             {visibility === 'off' ? (
               <p className="max-w-2xl">
-                Only coaches whose role we&apos;ve confirmed can search athletes. You can turn this off at any time.
+                When coach search opens, only verified coaches will be able to find players, and only players who
+                turned this on. You can turn it off at any time.
                 {account.isMinor ? ' Because you’re under 18, a linked parent or legal guardian must approve it too.' : ''}
               </p>
             ) : null}
-            {visibility === 'on' ? <p className="max-w-2xl">Verified college coaches can find your basic recruiting profile.</p> : null}
+            {visibility === 'on' ? <p className="max-w-2xl">
+                You&apos;ve allowed verified college coaches to find you. Coach search isn&apos;t open yet, so no coach can
+                see you today.
+              </p> : null}
             {visibility === 'waiting' ? (
               <p className="max-w-2xl">
                 {!account.isMinor
@@ -220,11 +225,18 @@ export default async function AthleteHomePage() {
           </div>
         </DashboardSection>
 
-        <DashboardSection id="coming-next" title="Coming next">
-          <p className="max-w-2xl">
-            Your academic profile, saved schools and full recruiting profile arrive with the national school registry.
-            They&apos;ll be free, like everything here.
-          </p>
+        <DashboardSection id="next-step" title="Your next step">
+          <div className="space-y-4">
+            <p className="max-w-2xl">
+              Explore baseball programs and save the ones worth a closer look. Recruiting profiles come later.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href="/schools">Explore Baseball Programs</ButtonLink>
+              <ButtonLink href="/saved" variant="secondary">
+                Saved schools
+              </ButtonLink>
+            </div>
+          </div>
         </DashboardSection>
       </div>
     </>

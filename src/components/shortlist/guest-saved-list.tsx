@@ -114,7 +114,7 @@ export function GuestSavedList({ compareSelection }: { readonly compareSelection
       </div>
       {missing > 0 ? (
         <Notice tone="attention">
-          {missing === 1 ? 'One saved school is' : `${missing} saved schools are`} no longer listed in the registry, so{' '}
+          {missing === 1 ? 'One saved school is' : `${missing} saved schools are`} no longer listed on Base Recruits, so{' '}
           {missing === 1 ? 'it isn’t' : 'they aren’t'} shown.
         </Notice>
       ) : null}
