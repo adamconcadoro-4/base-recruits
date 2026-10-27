@@ -20,6 +20,7 @@ VISIBLE = 0.5
 # Tracking people across frames.
 LINK_DISTANCE = 0.25  # frame heights between consecutive positions of one person
 LINK_GAP_FRAMES = 10
+STITCH_OVERLAP_FRAMES = 3  # a brief duplicate of one body (for example while bending over) must not split the hitter in two
 MIN_COVERAGE = 0.3  # share of frames a person must appear in to be a candidate
 CLEAR_SIZE_RATIO = 1.4  # the hitter must be this much bigger than anyone else to be chosen automatically
 
@@ -30,12 +31,16 @@ FINISH_FRACTION = 0.15
 LOAD_SPEED = 0.4
 STRIDE_SPEED = 0.4
 SUSTAIN_S = 0.05
-MERGE_S = 1.0
+MERGE_S = 1.5  # nobody swings twice this quickly; a follow-through or bat drop after a swing belongs to it
 LOOKBACK_S = 2.0
 FINISH_LIMIT_S = 1.5
 FAST_SMOOTH_S = 0.04
 SLOW_SMOOTH_S = 0.1
 MIN_TRACKED_FRACTION = 0.8
+# Before a swing the hands are set near a shoulder. Fast hands far from both
+# shoulders (reaching down to the tee, picking up a ball) are not a swing.
+HANDS_SET_DISTANCE = 0.25  # body heights
+HANDS_SET_S = 0.5
 
 WRISTS = (15, 16)
 HIPS = (23, 24)
@@ -121,6 +126,42 @@ def track_people(detections: list[list[np.ndarray]], aspect: float) -> list[Trac
             else:
                 tracks[best].frames[frame] = person
                 taken.add(best)
+    return _stitch(tracks, aspect)
+
+
+def _stitch(tracks: list[Track], aspect: float) -> list[Track]:
+    """Join a track to the one it carries on from.
+
+    A track that starts while another is still running (usually a duplicate
+    detection of the same body) can take over that person's later frames. When
+    it overlaps the earlier track by only a few frames and its first frame after
+    that track ends would have linked to it, it is the same person.
+    """
+    tracks = sorted(tracks, key=lambda t: min(t.frames))
+    joined = True
+    while joined:
+        joined = False
+        for earlier in tracks:
+            end = earlier.last_index()
+            last = _center(earlier.frames[end], aspect)
+            for later in tracks:
+                if later is earlier or not min(earlier.frames) < min(later.frames) <= end + LINK_GAP_FRAMES:
+                    continue
+                if sum(1 for f in later.frames if f <= end) > STITCH_OVERLAP_FRAMES:
+                    continue
+                after = sorted(f for f in later.frames if f > end)
+                if not after or after[0] - end > LINK_GAP_FRAMES:
+                    continue
+                first = _center(later.frames[after[0]], aspect)
+                if last is None or first is None or float(np.linalg.norm(first - last)) >= LINK_DISTANCE:
+                    continue
+                for f in after:
+                    earlier.frames[f] = later.frames[f]
+                tracks.remove(later)
+                joined = True
+                break
+            if joined:
+                break
     return tracks
 
 
@@ -197,9 +238,27 @@ def _first_sustained(speed: np.ndarray, times_s: np.ndarray, lo: int, hi: int, a
     return None
 
 
-def _peaks(speed: np.ndarray, times_s: np.ndarray) -> list[int]:
+def _hands_set(track: Track, peak: int, times_s: np.ndarray, aspect: float, body: float) -> bool:
+    """Whether the hands were near a shoulder shortly before the fastest point; True when they were never seen."""
+    closest = None
+    for frame in range(peak, -1, -1):
+        if times_s[peak] - times_s[frame] > HANDS_SET_S:
+            break
+        points = track.frames.get(frame)
+        if points is None or min(points[i, 2] for i in WRISTS) < VISIBLE:
+            continue
+        iso = _iso(points, aspect)
+        hands = iso[list(WRISTS)].mean(axis=0)
+        for shoulder in SHOULDERS:
+            if points[shoulder, 2] >= VISIBLE:
+                distance = float(np.linalg.norm(hands - iso[shoulder])) / body
+                closest = distance if closest is None else min(closest, distance)
+    return closest is None or closest <= HANDS_SET_DISTANCE
+
+
+def _peaks(speed: np.ndarray, times_s: np.ndarray, is_swing) -> list[int]:
     candidates = [i for i in range(len(speed)) if not np.isnan(speed[i]) and speed[i] >= SWING_PEAK_SPEED
-                  and speed[i] == np.nanmax(speed[np.abs(times_s - times_s[i]) <= 0.3])]
+                  and speed[i] == np.nanmax(speed[np.abs(times_s - times_s[i]) <= 0.3]) and is_swing(i)]
     kept: list[int] = []
     for i in sorted(candidates, key=lambda c: -speed[c]):
         if all(abs(times_s[i] - times_s[k]) >= MERGE_S for k in kept):
@@ -235,7 +294,7 @@ def find_swings(track: Track, times_ms: list[int], aspect: float, batting_side: 
 
     swings: list[Swing] = []
     previous_end = -1
-    for peak in _peaks(hand_fast, times_s):
+    for peak in _peaks(hand_fast, times_s, lambda i: _hands_set(track, i, times_s, aspect, body)):
         top = hand_fast[peak]
         start = peak
         while start - 1 > previous_end and not np.isnan(hand_fast[start - 1]) and hand_fast[start - 1] > SWING_START_FRACTION * top:

@@ -69,6 +69,24 @@ describe('what the model is shown', () => {
     expect(selectModelFrames(notAssessable)).toEqual([]);
   });
 
+  it('shares the stills across every reviewed swing, the most needed events first', () => {
+    const swing = FIXTURE.swings[0]!;
+    const four = {
+      ...FIXTURE,
+      swings: [1, 2, 3, 4].map((index) => ({ ...swing, index })),
+      frames: [1, 2, 3, 4].flatMap((index) => FIXTURE.frames.map((frame) => ({ ...frame, frameId: `${frame.frameId}${index}`, swingIndex: index }))),
+    };
+    const frames = selectModelFrames(four);
+    expect(frames).toHaveLength(MAX_MODEL_FRAMES);
+    for (const index of [1, 2, 3, 4]) {
+      const own = frames.filter((frame) => frame.swingIndex === index);
+      expect(own).toHaveLength(MAX_MODEL_FRAMES / 4);
+      expect(own.map((frame) => frame.event)).toEqual(expect.arrayContaining(['setup', 'contact', 'foot_contact', 'swing_start', 'finish']));
+    }
+    const six = { ...four, swings: [1, 2, 3, 4, 5, 6].map((index) => ({ ...swing, index })) };
+    expect(clipBrief(six).swings).toHaveLength(5);
+  });
+
   it('checks the answer against only the stills that were shown', () => {
     const many = withFrames(FIXTURE, 40);
     const shown = packetForModel(many, selectModelFrames(many));

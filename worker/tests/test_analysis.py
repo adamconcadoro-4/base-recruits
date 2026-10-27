@@ -4,7 +4,7 @@ import numpy as np
 
 from seamstate_worker.analysis import find_swings, select_hitter, track_people
 from seamstate_worker.evidence import clip_verdict, pick_frames
-from tests.synthetic import ASPECT, hitter_points
+from tests.synthetic import ASPECT, _smoothstep, hitter_points
 
 
 def run(people_at, seconds=2.4, fps=120, slowdown=1.0, side="right"):
@@ -79,6 +79,51 @@ class SwingTests(unittest.TestCase):
         times, _, swings = run(people, seconds=4.8)
         self.assertEqual([s.index for s in swings], [1, 2])
         self.assertAlmostEqual(event_s(times, swings[1], "contact"), 4.0, delta=0.02)
+
+    def test_reaching_down_to_the_tee_is_not_a_swing(self):
+        def people(t):
+            points = hitter_points(t, swing_at=None if t > 2.0 else 1.5)
+            if t > 2.0:
+                # Bending to set a ball on the tee: the hands drop fast, far from the shoulders.
+                reach = _smoothstep((t - 2.8) / 0.25)
+                for index in (15, 16):
+                    points[index, 0] += 0.10 * reach / ASPECT
+                    points[index, 1] += 0.30 * reach
+            return [points]
+        _, _, swings = run(people, seconds=3.6)
+        self.assertEqual(len(swings), 1)
+        self.assertAlmostEqual(swings[0].peak / 120, 1.50, delta=0.02)
+
+    def test_a_bat_drop_after_the_finish_belongs_to_the_swing(self):
+        def people(t):
+            points = hitter_points(t)
+            # Hands whip back across near the shoulders 1.2 s after contact.
+            back = _smoothstep((t - 2.65) / 0.1)
+            for index in (13, 14, 15, 16):
+                points[index, 0] += 0.2 * back / ASPECT
+            return [points]
+        _, _, swings = run(people, seconds=3.2)
+        self.assertEqual(len(swings), 1)
+
+    def test_a_duplicate_of_the_hitter_does_not_split_the_clip(self):
+        def shifted(t, **kwargs):
+            points = hitter_points(t, **kwargs)
+            points[:, 1] += 0.1
+            return points
+
+        def people(t):
+            # After the swing the hitter bends (a sudden jump), and for two frames
+            # the pose model also returns a partial duplicate where the body is heading.
+            if t < 2.0:
+                return [hitter_points(t)]
+            if t < 2.017:
+                return [hitter_points(t), shifted(t, hidden=(0, 11, 12, 13, 14, 15, 16))]
+            return [shifted(t)]
+        times, selection, swings = run(people, seconds=4.0)
+        self.assertEqual(selection.status, "selected")
+        self.assertEqual(len(selection.track.frames), len(times))
+        self.assertEqual(len(swings), 1)
+        self.assertAlmostEqual(event_s(times, swings[0], "contact"), 1.50, delta=0.02)
 
     def test_hidden_feet_leave_stride_events_out_and_limit_the_clip(self):
         times, selection, swings = run(lambda t: [hitter_points(t, hidden=(27, 28, 31, 32))])
