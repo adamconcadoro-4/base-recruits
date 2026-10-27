@@ -26,6 +26,8 @@ export const SYSTEM_PROMPT = `You review baseball swing evidence for SeamState, 
 
 You receive still frames cropped to one hitter, each labelled with a frame id, the swing it belongs to and the event it shows, plus what software measured (which events it located and when) and the capture context. Describe what the stills show for each eligible mechanic.
 
+First, for every listed swing, decide in swingContact whether the bat visibly hits the baseball in these stills. "bat_hits_ball" needs frames of that swing that show it, for example the ball on the tee before the swing and gone from the tee afterwards, or the ball leaving the bat. A practice swing (no ball, or the ball still on the tee afterwards) or a miss is "no_contact". If the stills do not show the ball clearly, say "unclear". Only swings with "bat_hits_ball" count: write findings about those swings only.
+
 Rules:
 - Use only the mechanics listed for this clip, by key, and only the swings listed as eligible for each.
 - Every finding cites one to four frame ids from the swings it describes. Cite only frame ids you were shown.
@@ -117,6 +119,6 @@ export function interpretationContent(packet: EvidencePacket, frames: readonly E
     content.push({ type: 'text', text: `Frame ${frame.frameId} · swing ${frame.swingIndex ?? '?'}${frame.event ? ` · ${frame.event.replaceAll('_', ' ')}` : ''}` });
     content.push({ type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data } });
   }
-  content.push({ type: 'text', text: 'Return your findings for the eligible mechanics, using the frame ids above.' });
+  content.push({ type: 'text', text: 'Return swingContact for every listed swing, then your findings for the eligible mechanics on swings where the bat hits the ball, using the frame ids above.' });
   return content;
 }

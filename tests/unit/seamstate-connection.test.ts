@@ -99,6 +99,7 @@ describe('what the model is shown', () => {
         limitations: [], alternativeExplanations: [], cue: null,
       }],
       unableToAssess: [],
+      swingContact: [{ swing: 1, contact: 'bat_hits_ball', evidenceFrameIds: [shown.frames.find((frame) => frame.event === 'contact')?.frameId], note: 'Contact.' }],
     };
     const result = validateInterpretation(raw, shown);
     expect(result.ok && result.rejected.map((item) => item.code)).toEqual(['evidence_not_found']);
@@ -138,6 +139,7 @@ describe('what is saved', () => {
       },
     ],
     unableToAssess: [],
+    swingContact: [{ swing: 1, contact: 'bat_hits_ball', evidenceFrameIds: [contact], note: 'The ball leaves the tee.' }],
   };
 
   it('stores validated findings with their drills, grade and versions', () => {
@@ -156,6 +158,9 @@ describe('what is saved', () => {
     expect(saved.evidence_frame_ids).toEqual([setup, contact]);
     expect(record.analysis.model_id).toBe('test-model');
     expect((record.analysis.result as { interpretation: string }).interpretation).toBe('interpreted');
+    expect((record.analysis.result as { swingContact: unknown[] }).swingContact).toEqual([
+      { swing: 1, contact: 'bat_hits_ball', counted: true, evidenceFrameIds: [contact], note: 'The ball leaves the tee.' },
+    ]);
   });
 
   it('is honest when the AI step is not set up yet', () => {

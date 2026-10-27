@@ -113,8 +113,13 @@ function finding(extra: Partial<ModelFinding> & Pick<ModelFinding, 'mechanicKey'
   };
 }
 
-function validated(raw: unknown, p: EvidencePacket) {
-  const result = validateInterpretation(raw, p);
+/** Every swing hits the ball, shown by its contact frame, unless the test says otherwise. */
+function allContact(p: EvidencePacket) {
+  return p.swings.map((item) => ({ swing: item.index, contact: 'bat_hits_ball' as const, evidenceFrameIds: [frameOf(p, item.index, 'contact')], note: 'The ball is gone from the tee after the swing.' }));
+}
+
+function validated(raw: object, p: EvidencePacket) {
+  const result = validateInterpretation({ swingContact: allContact(p), ...raw }, p);
   if (!result.ok) throw new Error(`malformed: ${result.issues.join('; ')}`);
   return result;
 }
@@ -480,6 +485,44 @@ describe('interpretation validator', () => {
     );
     expect(result.findings.filter((item) => item.priority)).toHaveLength(3);
     expect(result.findings.find((item) => item.category === 'strength')?.cue).toBeNull();
+  });
+
+  it('counts only swings where the bat visibly hits the ball', () => {
+    const p = packet({ swings: 3 });
+    const neutral = (swingIndexes: number[]) =>
+      finding({ mechanicKey: 'head_movement', category: 'neutral', swingIndexes, evidenceFrameIds: swingIndexes.map((index) => frameOf(p, index, 'contact')) });
+    const result = validated(
+      {
+        swingContact: [
+          { swing: 1, contact: 'bat_hits_ball', evidenceFrameIds: [frameOf(p, 1, 'finish')], note: 'The tee is empty after the swing.' },
+          { swing: 2, contact: 'no_contact', evidenceFrameIds: [frameOf(p, 2, 'finish')], note: 'The ball is still on the tee: a practice swing.' },
+          // Claimed, but with no frame of its own swing to show it.
+          { swing: 3, contact: 'bat_hits_ball', evidenceFrameIds: [frameOf(p, 1, 'finish')], note: 'Contact.' },
+        ],
+        findings: [neutral([1]), neutral([2]), neutral([1, 3])],
+        unableToAssess: [],
+      },
+      p,
+    );
+    expect(result.swingContact.map((item) => [item.swing, item.counted])).toEqual([[1, true], [2, false], [3, false]]);
+    expect(result.findings.map((item) => item.swingIndexes)).toEqual([[1]]);
+    expect(result.findings[0]?.eligibleSwingCount).toBe(1);
+    expect(result.rejected.map((item) => item.code)).toEqual(['swing_without_contact', 'swing_without_contact']);
+  });
+
+  it('counts no swing the model leaves unreported or unclear', () => {
+    const p = packet({ swings: 2 });
+    const result = validated(
+      {
+        swingContact: [{ swing: 1, contact: 'unclear', evidenceFrameIds: [], note: 'The ball is out of frame.' }],
+        findings: [finding({ mechanicKey: 'head_movement', category: 'neutral', swingIndexes: [1], evidenceFrameIds: [frameOf(p, 1, 'contact')] })],
+        unableToAssess: [],
+      },
+      p,
+    );
+    expect(result.findings).toEqual([]);
+    expect(result.swingContact.map((item) => item.counted)).toEqual([false, false]);
+    expect(result.unableToAssess.find((item) => item.mechanicKey === 'head_movement')?.reasons).toEqual(['No swing in this clip showed the bat hitting the ball.']);
   });
 
   it('reports malformed output separately from footage problems', () => {

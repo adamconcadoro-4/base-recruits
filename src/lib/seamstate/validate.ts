@@ -15,7 +15,7 @@ import { MECHANICS, mechanic as findMechanic, type MechanicDefinition } from '@/
 import { mechanicEligibility, type MechanicEligibility } from '@/lib/seamstate/eligibility';
 import { gradeEvidence } from '@/lib/seamstate/evidence-grade';
 import type { EvidencePacket } from '@/lib/seamstate/packet';
-import { modelOutputSchema, type ModelFinding } from '@/lib/seamstate/schema';
+import { modelOutputSchema, type ModelFinding, type SwingContact } from '@/lib/seamstate/schema';
 import { SUBSTANTIVE_CATEGORIES, type EvidenceGrade, type FindingCategory } from '@/lib/seamstate/types';
 
 /** At most this many adjustments are marked as priorities in one report. */
@@ -29,6 +29,7 @@ export const REJECTION_CODES = [
   'evidence_other_swing',
   'evidence_untracked',
   'swing_not_assessable',
+  'swing_without_contact',
   'pattern_from_too_few_swings',
   'numeric_claim',
   'measured_speed_claim',
@@ -77,6 +78,17 @@ export interface UnableToAssess {
   readonly viewRequest: string | null;
 }
 
+/** The model's contact call for one reviewed swing, and whether the swing counts. */
+export interface SwingContactCheck {
+  readonly swing: number;
+  readonly contact: SwingContact;
+  readonly counted: boolean;
+  readonly evidenceFrameIds: readonly string[];
+  readonly note: string;
+}
+
+export const NO_CONTACT_REASON = 'No contact with the ball was seen in this swing, so it does not count.';
+
 export type ValidationResult =
   | { readonly ok: false; readonly error: 'malformed_output'; readonly issues: readonly string[] }
   | {
@@ -85,6 +97,7 @@ export type ValidationResult =
       readonly rejected: readonly RejectedFinding[];
       readonly unableToAssess: readonly UnableToAssess[];
       readonly eligibility: readonly MechanicEligibility[];
+      readonly swingContact: readonly SwingContactCheck[];
     };
 
 const PATTERN_WORDS = /\b(consistent(ly)?|every swing|each swing|all (of )?(the |your )?swings|always|repeated(ly)?|pattern|tends? to|habit(ually)?|every time|routinely)\b/i;
@@ -150,7 +163,26 @@ export function validateInterpretation(raw: unknown, packet: EvidencePacket): Va
     return { ok: false, error: 'malformed_output', issues: parsed.error.issues.slice(0, 10).map((issue) => `${issue.path.join('.')}: ${issue.message}`) };
   }
 
-  const eligibilityByKey = new Map(MECHANICS.map((definition) => [definition.key, mechanicEligibility(definition, packet)] as const));
+  // A swing counts only when the bat visibly hits the ball, shown by frames of that swing. A practice
+  // swing, a miss, an unclear call or a swing the model did not report is set aside before anything else.
+  const reported = new Map(parsed.data.swingContact.map((item) => [item.swing, item] as const));
+  const swingContact: SwingContactCheck[] = packet.swings
+    .filter((swing) => swing.assessable)
+    .map((swing) => {
+      const item = reported.get(swing.index);
+      const evidenceFrameIds = [...new Set(item?.evidenceFrameIds ?? [])].filter((frameId) =>
+        packet.frames.some((frame) => frame.frameId === frameId && frame.swingIndex === swing.index),
+      );
+      const contact = item?.contact ?? 'unclear';
+      return { swing: swing.index, contact, counted: contact === 'bat_hits_ball' && evidenceFrameIds.length > 0, evidenceFrameIds, note: item?.note ?? 'Not reported.' };
+    });
+  const withoutContact = new Set(swingContact.filter((item) => !item.counted).map((item) => item.swing));
+  const counted: EvidencePacket = {
+    ...packet,
+    swings: packet.swings.map((swing) => (withoutContact.has(swing.index) ? { ...swing, assessable: false, reason: NO_CONTACT_REASON } : swing)),
+  };
+
+  const eligibilityByKey = new Map(MECHANICS.map((definition) => [definition.key, mechanicEligibility(definition, counted)] as const));
   const eligibilityFor = (definition: MechanicDefinition): MechanicEligibility => {
     const result = eligibilityByKey.get(definition.key);
     if (!result) throw new Error(`No eligibility for ${definition.key}`);
@@ -170,15 +202,16 @@ export function validateInterpretation(raw: unknown, packet: EvidencePacket): Va
       unableKeys.add(definition.key);
       return;
     }
+    if (finding.swingIndexes.some((swing) => withoutContact.has(swing))) return reject('swing_without_contact');
     if (eligibility.status === 'unavailable') return reject('not_eligible');
     const swingIndexes = [...new Set(finding.swingIndexes)].sort((a, b) => a - b);
     const normalized = { ...finding, swingIndexes, evidenceFrameIds: [...new Set(finding.evidenceFrameIds)] };
-    const evidenceProblem = evidenceCheck(normalized, packet, eligibility);
+    const evidenceProblem = evidenceCheck(normalized, counted, eligibility);
     if (evidenceProblem) return reject(evidenceProblem);
-    const claimProblem = claimCheck(normalized, packet, eligibility, definition);
+    const claimProblem = claimCheck(normalized, counted, eligibility, definition);
     if (claimProblem) return reject(claimProblem);
 
-    const grade = gradeEvidence(definition, eligibility, packet, swingIndexes);
+    const grade = gradeEvidence(definition, eligibility, counted, swingIndexes);
     if (grade.grade === 'insufficient') return reject('no_evidence');
     // A strength needs real support: not detecting a problem in weak footage is not a strength.
     if (normalized.category === 'strength' && grade.grade === 'limited') return reject('strength_without_support');
@@ -251,13 +284,16 @@ export function validateInterpretation(raw: unknown, packet: EvidencePacket): Va
     const key = definition.key;
     const eligibility = eligibilityFor(definition);
     if (coveredKeys.has(key) || (eligibility.status !== 'unavailable' && !unableKeys.has(key))) continue;
+    const noContactAtAll = withoutContact.size > 0 && swingContact.every((item) => !item.counted);
     unableToAssess.push({
       mechanicKey: key,
-      reasons: eligibility.reasons.length > 0 ? eligibility.reasons : ['Not enough visible evidence in this clip.'],
+      reasons: noContactAtAll
+        ? ['No swing in this clip showed the bat hitting the ball.']
+        : eligibility.reasons.length > 0 ? eligibility.reasons : ['Not enough visible evidence in this clip.'],
       retakeTips: eligibility.retakeTips,
       viewRequest: eligibility.viewRequest,
     });
   }
 
-  return { ok: true, findings, rejected, unableToAssess, eligibility: [...eligibilityByKey.values()] };
+  return { ok: true, findings, rejected, unableToAssess, eligibility: [...eligibilityByKey.values()], swingContact };
 }

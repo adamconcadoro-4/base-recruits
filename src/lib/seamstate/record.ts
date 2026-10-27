@@ -84,6 +84,7 @@ export function analysisRecord(input: {
         verdictReasons: reasons,
         unableToAssess,
         eligibility: validated?.eligibility ?? [],
+        swingContact: validated?.swingContact ?? [],
         rejected: validated?.rejected ?? [],
         malformedIssues: validation && !validation.ok ? validation.issues : [],
         framesShown,

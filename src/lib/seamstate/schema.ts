@@ -36,7 +36,21 @@ export const modelFindingSchema = z.object({
 });
 export type ModelFinding = z.infer<typeof modelFindingSchema>;
 
+/** Whether the bat visibly hits the ball. Only swings with contact count (a practice swing or a miss does not). */
+export const SWING_CONTACT = ['bat_hits_ball', 'no_contact', 'unclear'] as const;
+export type SwingContact = (typeof SWING_CONTACT)[number];
+
+export const modelSwingContactSchema = z.object({
+  swing: z.number().int().min(1).max(50),
+  contact: z.enum(SWING_CONTACT),
+  /** Frames from this swing that show it, such as the ball on the tee before and gone after. */
+  evidenceFrameIds: z.array(z.string().regex(/^f\d{6}$/)).max(4),
+  note: text(200),
+});
+
 export const modelOutputSchema = z.object({
+  /** One entry per reviewed swing, decided before any finding. */
+  swingContact: z.array(modelSwingContactSchema).max(50),
   findings: z.array(modelFindingSchema).max(20),
   unableToAssess: z
     .array(z.object({ mechanicKey: z.string().min(1).max(60), reason: text(300) }))
