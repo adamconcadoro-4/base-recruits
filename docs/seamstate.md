@@ -1,6 +1,6 @@
 # SeamState — Base Recruits Assessment engine (design, Milestone 1)
 
-Status: **design only.** Nothing in this document is built yet unless a section says so. SeamState lives inside
+Status: **design approved 2026-10-27 (F30–F35); build in progress on a branch.** Nothing in this document is built yet unless a section says so. SeamState lives inside
 Assessment (`docs/assessment.md`), uses the same accounts, athletes, relations, switches and private storage, and stays
 off until the founder opens Assessment (decision F21). Founder decisions this design needs are listed in §11 and in
 `docs/decisions.md` (F30–F35).
