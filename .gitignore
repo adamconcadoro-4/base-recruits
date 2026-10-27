@@ -31,3 +31,7 @@ test-results/
 .idea/
 __pycache__/
 *.pyc
+
+# SeamState worker
+worker/.venv/
+__pycache__/

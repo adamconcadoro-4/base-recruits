@@ -1,0 +1,194 @@
+{
+  "mediaId": "00000000-0000-4000-8000-000000000001",
+  "durationMs": 2400,
+  "frameCount": 144,
+  "timing": {
+    "measuredFps": 60.008,
+    "timingBasis": "real_time",
+    "slowdownFactor": null,
+    "variableFrameRate": false
+  },
+  "capture": {
+    "protocolVersion": "seamstate-capture-v1",
+    "battingSide": "right",
+    "cameraView": "side_facing",
+    "setting": {
+      "setting": "tee",
+      "teeZone": 5
+    },
+    "task": null,
+    "devices": [],
+    "limitations": null
+  },
+  "swings": [
+    {
+      "index": 1,
+      "startMs": 0,
+      "endMs": 1617,
+      "assessable": true,
+      "reason": null,
+      "events": {
+        "setup": {
+          "frameIndex": 0,
+          "timeMs": 0,
+          "intervalMs": null,
+          "method": "pose_rule"
+        },
+        "load_start": {
+          "frameIndex": 60,
+          "timeMs": 1000,
+          "intervalMs": null,
+          "method": "pose_rule"
+        },
+        "stride_start": {
+          "frameIndex": 65,
+          "timeMs": 1083,
+          "intervalMs": null,
+          "method": "pose_rule"
+        },
+        "foot_contact": {
+          "frameIndex": 77,
+          "timeMs": 1283,
+          "intervalMs": [
+            1267,
+            1300
+          ],
+          "method": "pose_rule"
+        },
+        "swing_start": {
+          "frameIndex": 86,
+          "timeMs": 1433,
+          "intervalMs": [
+            1417,
+            1450
+          ],
+          "method": "pose_rule"
+        },
+        "contact": {
+          "frameIndex": 90,
+          "timeMs": 1500,
+          "intervalMs": [
+            1483,
+            1533
+          ],
+          "method": "pose_rule"
+        },
+        "finish": {
+          "frameIndex": 97,
+          "timeMs": 1617,
+          "intervalMs": null,
+          "method": "pose_rule"
+        }
+      },
+      "visibility": {
+        "head": 0.95,
+        "lead_shoulder": 0.95,
+        "rear_shoulder": 0.95,
+        "lead_elbow": 0.95,
+        "rear_elbow": 0.95,
+        "lead_wrist": 0.95,
+        "rear_wrist": 0.95,
+        "lead_hip": 0.95,
+        "rear_hip": 0.95,
+        "lead_knee": 0.95,
+        "rear_knee": 0.95,
+        "lead_ankle": 0.95,
+        "rear_ankle": 0.95,
+        "lead_foot": 0.95,
+        "rear_foot": 0.95
+      },
+      "trackedFraction": 1.0
+    }
+  ],
+  "frames": [
+    {
+      "frameId": "f000000",
+      "frameIndex": 0,
+      "timeMs": 0,
+      "swingIndex": 1,
+      "event": "setup",
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000060",
+      "frameIndex": 60,
+      "timeMs": 1000,
+      "swingIndex": 1,
+      "event": "load_start",
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000065",
+      "frameIndex": 65,
+      "timeMs": 1083,
+      "swingIndex": 1,
+      "event": "stride_start",
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000075",
+      "frameIndex": 75,
+      "timeMs": 1250,
+      "swingIndex": 1,
+      "event": null,
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000077",
+      "frameIndex": 77,
+      "timeMs": 1283,
+      "swingIndex": 1,
+      "event": "foot_contact",
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000084",
+      "frameIndex": 84,
+      "timeMs": 1400,
+      "swingIndex": 1,
+      "event": null,
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000086",
+      "frameIndex": 86,
+      "timeMs": 1433,
+      "swingIndex": 1,
+      "event": "swing_start",
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000088",
+      "frameIndex": 88,
+      "timeMs": 1467,
+      "swingIndex": 1,
+      "event": null,
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000090",
+      "frameIndex": 90,
+      "timeMs": 1500,
+      "swingIndex": 1,
+      "event": "contact",
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000092",
+      "frameIndex": 92,
+      "timeMs": 1533,
+      "swingIndex": 1,
+      "event": null,
+      "tracking": "tracked"
+    },
+    {
+      "frameId": "f000097",
+      "frameIndex": 97,
+      "timeMs": 1617,
+      "swingIndex": 1,
+      "event": "finish",
+      "tracking": "tracked"
+    }
+  ],
+  "releaseVisible": false
+}

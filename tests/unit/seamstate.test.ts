@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import { drill } from '@/lib/assessment/catalog/drills';
@@ -191,6 +194,15 @@ describe('capture context', () => {
 });
 
 describe('evidence packet', () => {
+  it('accepts the packet the worker builds (shared fixture from worker/tests)', () => {
+    const fixture = JSON.parse(readFileSync(join(__dirname, '../../worker/tests/fixtures/synthetic_packet.json'), 'utf8')) as unknown;
+    const parsed = parseEvidencePacket(fixture);
+    expect(parsed.swings).toHaveLength(1);
+    expect(parsed.frames.every((frame) => frame.swingIndex === 1)).toBe(true);
+    expect(mechanicEligibility(requireMechanic('foot_contact_to_swing'), parsed).timingClaims).toBe('milliseconds');
+    expect(mechanicEligibility(requireMechanic('head_movement'), parsed).status).not.toBe('unavailable');
+  });
+
   it('refuses a tee clip that claims a visible release', () => {
     expect(() => packet({ releaseVisible: true })).toThrow();
   });
