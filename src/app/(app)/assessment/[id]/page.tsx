@@ -134,7 +134,7 @@ export default async function AssessmentWorkspacePage({
             }}
           />
         ) : step === 'clips' ? (
-          <ClipsStep row={row} videoEnabled={Boolean(switches?.video_enabled)} />
+          <ClipsStep row={row} videoEnabled={Boolean(switches?.video_enabled)} relation={athlete.relation} />
         ) : step === 'reps' ? (
           <RepetitionsStep row={row} definition={definition} isCoach={isCoach} />
         ) : step === 'ratings' ? (

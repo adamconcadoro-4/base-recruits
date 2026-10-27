@@ -71,6 +71,8 @@ create table private.seamstate_settings (
     constraint seamstate_settings_daily check (per_person_daily_limit between 0 and 100),
   monthly_limit integer not null default 0
     constraint seamstate_settings_monthly check (monthly_limit between 0 and 100000),
+  -- Clips of athletes under 18 wait for counsel's review (decision L12), with a guardian's approval as well.
+  minors_enabled boolean not null default false,
   updated_at timestamptz not null default now(),
   updated_by uuid
 );
@@ -89,6 +91,18 @@ as $$
      and coalesce((select s.analysis_enabled from private.seamstate_settings s where s.id), false)
 $$;
 revoke all on function private.seamstate_enabled() from public;
+
+-- Whether SeamState is open to this athlete: adults always, minors only once switched on for them.
+create function private.seamstate_open_to(p_athlete_id uuid) returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select not private.is_minor(p_athlete_id)
+      or coalesce((select s.minors_enabled from private.seamstate_settings s where s.id), false)
+$$;
+revoke all on function private.seamstate_open_to(uuid) from public;
 
 -- -----------------------------------------------------------------------------
 -- Tables
@@ -532,7 +546,8 @@ revoke all on function private.seamstate_can_transition(text, text) from public;
 -- Switch, limits and administration
 -- -----------------------------------------------------------------------------
 create function public.seamstate_switches()
-returns table (enabled boolean, daily_limit integer, monthly_limit integer, used_today integer, used_this_month integer)
+returns table (enabled boolean, daily_limit integer, monthly_limit integer, used_today integer, used_this_month integer,
+               minors_enabled boolean)
 language sql
 stable
 security definer
@@ -546,14 +561,54 @@ as $$
          -- Site-wide usage is for administrators only.
          case when private.has_role((select auth.uid()), 'admin') then
            coalesce((select u.analyses from private.seamstate_monthly_usage u
-                      where u.month = date_trunc('month', now() at time zone 'utc')::date), 0) end
+                      where u.month = date_trunc('month', now() at time zone 'utc')::date), 0) end,
+         s.minors_enabled
     from private.seamstate_settings s
    where s.id
 $$;
 comment on function public.seamstate_switches() is
   'Whether SeamState analysis is on, the limits, and how many analyses the caller requested in the last 24 hours.';
 
-create function public.admin_set_seamstate_settings(p_enabled boolean, p_daily_limit integer, p_monthly_limit integer)
+-- Whether the athlete has allowed SeamState analysis, for people who can work on their assessments.
+create function public.seamstate_permission(p_athlete_id uuid) returns text
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+begin
+  if v_uid is null then
+    raise exception 'sign in required' using errcode = 'BR001';
+  end if;
+  if p_athlete_id is null or not private.can_work_on_assessments(v_uid, p_athlete_id) then
+    raise exception 'athlete not found' using errcode = 'BR002';
+  end if;
+  if not private.seamstate_open_to(p_athlete_id) then
+    return 'not_open_to_minors';
+  end if;
+  if private.has_active_grant(p_athlete_id, 'seamstate_analysis', 'outside_service') then
+    return 'allowed';
+  end if;
+  -- The same test as my_consent_grants.waiting_for_guardian.
+  if exists (select 1 from public.consent_grants g
+              where g.athlete_id = p_athlete_id and g.scope = 'seamstate_analysis'
+                and (g.status = 'pending_guardian'
+                     or (g.status = 'active' and (g.expires_at is null or g.expires_at > now())
+                         and private.grant_needs_guardian_approval(g.athlete_id, g.scope, g.grantee_id)
+                         and not private.has_valid_guardian_approval(g.athlete_id, g.guardian_link_id)))) then
+    return 'waiting_for_guardian';
+  end if;
+  return 'not_allowed';
+end;
+$$;
+comment on function public.seamstate_permission(uuid) is
+  'not_open_to_minors, allowed, waiting_for_guardian or not_allowed: whether SeamState can analyze this athlete''s clips.';
+
+create function public.admin_set_seamstate_settings(
+  p_enabled boolean, p_daily_limit integer, p_monthly_limit integer, p_minors_enabled boolean default false
+)
 returns void
 language plpgsql
 security definer
@@ -562,8 +617,8 @@ as $$
 declare
   v_uid uuid := private.require_admin();
 begin
-  if p_enabled is null or p_daily_limit is null or p_monthly_limit is null then
-    raise exception 'the switch and both limits need a value' using errcode = 'BR003';
+  if p_enabled is null or p_daily_limit is null or p_monthly_limit is null or p_minors_enabled is null then
+    raise exception 'the switches and both limits need a value' using errcode = 'BR003';
   end if;
   if p_daily_limit not between 0 and 100 then
     raise exception 'the daily limit per person must be 0 to 100' using errcode = 'BR003';
@@ -576,11 +631,11 @@ begin
   end if;
   update private.seamstate_settings s
      set analysis_enabled = p_enabled, per_person_daily_limit = p_daily_limit, monthly_limit = p_monthly_limit,
-         updated_at = now(), updated_by = v_uid
+         minors_enabled = p_minors_enabled, updated_at = now(), updated_by = v_uid
    where s.id;
   perform private.log_audit('seamstate.settings_changed', 'seamstate_settings', null, null,
                             jsonb_build_object('enabled', p_enabled, 'daily_limit', p_daily_limit,
-                                               'monthly_limit', p_monthly_limit), v_uid);
+                                               'monthly_limit', p_monthly_limit, 'minors_enabled', p_minors_enabled), v_uid);
 end;
 $$;
 
@@ -615,6 +670,9 @@ begin
   end if;
   if v_assessment.discipline <> 'hitting' then
     raise exception 'SeamState analyzes hitting clips only for now' using errcode = 'BR003';
+  end if;
+  if not private.seamstate_open_to(v_media.athlete_id) then
+    raise exception 'SeamState analyzes clips of hitters 18 and older for now' using errcode = 'BR004';
   end if;
   if v_media.status <> 'uploaded' then
     raise exception 'the video has not finished uploading' using errcode = 'BR004';
@@ -805,7 +863,7 @@ begin
      or v_job.state not in ('preprocessing', 'analyzing') then
     return null;
   end if;
-  if not private.seamstate_enabled() then
+  if not private.seamstate_enabled() or not private.seamstate_open_to(v_job.athlete_id) then
     update public.seamstate_jobs j
        set state = 'failed', failure_kind = 'service', failure_code = 'switched_off', finished_at = now()
      where j.id = v_job.id;
@@ -849,7 +907,7 @@ begin
   if v_job.state <> 'queued' then
     return;
   end if;
-  if not private.seamstate_enabled() or v_job.attempt_count >= 3 then
+  if not private.seamstate_enabled() or not private.seamstate_open_to(v_job.athlete_id) or v_job.attempt_count >= 3 then
     update public.seamstate_jobs j
        set state = 'failed', failure_kind = 'service',
            failure_code = case when v_job.attempt_count >= 3 then 'too_many_attempts' else 'switched_off' end,
@@ -1217,7 +1275,8 @@ $storage$;
 -- Privileges
 -- -----------------------------------------------------------------------------
 revoke all on function public.seamstate_switches() from public, anon, authenticated, service_role;
-revoke all on function public.admin_set_seamstate_settings(boolean, integer, integer) from public, anon, authenticated, service_role;
+revoke all on function public.seamstate_permission(uuid) from public, anon, authenticated, service_role;
+revoke all on function public.admin_set_seamstate_settings(boolean, integer, integer, boolean) from public, anon, authenticated, service_role;
 revoke all on function public.seamstate_request_analysis(uuid, jsonb, text) from public, anon, authenticated, service_role;
 revoke all on function public.seamstate_cancel_analysis(uuid) from public, anon, authenticated, service_role;
 revoke all on function public.seamstate_review_finding(uuid, text, text) from public, anon, authenticated, service_role;
@@ -1229,7 +1288,8 @@ revoke all on function public.seamstate_worker_due_jobs(integer, integer) from p
 revoke all on function public.seamstate_worker_artifact_path(uuid) from public, anon, authenticated, service_role;
 
 grant execute on function public.seamstate_switches() to authenticated;
-grant execute on function public.admin_set_seamstate_settings(boolean, integer, integer) to authenticated;
+grant execute on function public.seamstate_permission(uuid) to authenticated;
+grant execute on function public.admin_set_seamstate_settings(boolean, integer, integer, boolean) to authenticated;
 grant execute on function public.seamstate_request_analysis(uuid, jsonb, text) to authenticated;
 grant execute on function public.seamstate_cancel_analysis(uuid) to authenticated;
 grant execute on function public.seamstate_review_finding(uuid, text, text) to authenticated;

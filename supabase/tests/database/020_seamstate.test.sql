@@ -137,8 +137,16 @@ select tests.ok(exists (select 1 from public.audit_events where action = 'seamst
 select tests.authenticate_as('adult');
 select tests.throws($$select tests.ss_request('clip1', 'key-clip1-a')$$, 'BR004',
   'analysis needs the athlete''s permission to send stills to the analysis provider');
+select tests.ok(public.seamstate_permission(tests.id('adult')) = 'not_allowed', 'the page can tell that permission is missing');
 select tests.ok((select status = 'active' from public.grant_consent('seamstate_analysis', 'seamstate-analysis-v1')),
   'an adult athlete''s permission is active immediately');
+select tests.ok(public.seamstate_permission(tests.id('adult')) = 'allowed', 'and that it is now allowed');
+select tests.authenticate_as('dev');
+select tests.ok(public.seamstate_permission(tests.id('adult')) = 'allowed', 'the athlete''s development coach sees the permission state');
+select tests.authenticate_as('other');
+select tests.throws(format($$select public.seamstate_permission(%L)$$, tests.id('adult')), 'BR002',
+  'a stranger cannot ask about another athlete''s permission');
+select tests.authenticate_as('adult');
 select tests.ok((select expires_at between now() + interval '364 days' and now() + interval '366 days'
                    from public.consent_grants where athlete_id = auth.uid() and scope = 'seamstate_analysis'),
   'the permission lasts at most a year');
@@ -176,15 +184,30 @@ select tests.throws($$select tests.ss_request('clip2', 'key-clip1-a')$$, 'BR003'
 select tests.ok((select count(*) = 1 from public.seamstate_jobs), 'duplicates created no extra jobs');
 select tests.ok((select used_today = 1 from public.seamstate_switches()), 'only the one real request counts toward the limit');
 
--- ================================================================ minors need a parent or legal guardian
+-- ================================================================ minors: closed until counsel's review, then a guardian approves
 select tests.authenticate_as('kid');
 select tests.ok((select status = 'pending_guardian' from public.grant_consent('seamstate_analysis', 'seamstate-analysis-v1')),
   'a minor''s permission waits for a parent or legal guardian');
+select tests.ok(public.seamstate_permission(tests.id('kid')) = 'not_open_to_minors', 'SeamState starts closed to minors, and the page can say so');
+select tests.throws($$select tests.ss_request('kid_clip', 'key-kid-a')$$, 'BR004', 'a minor''s clip is not analyzed while SeamState is closed to minors');
+select tests.authenticate_as('admin');
+select public.admin_set_seamstate_settings(true, 2, 3, true);
+select tests.ok((select minors_enabled from public.seamstate_switches()), 'an administrator opens SeamState to minors');
+select tests.authenticate_as('kid');
+select tests.ok(public.seamstate_permission(tests.id('kid')) = 'waiting_for_guardian', 'the page can say a guardian''s approval is awaited');
 select tests.throws($$select tests.ss_request('kid_clip', 'key-kid-a')$$, 'BR004', 'a minor''s clip is not analyzed before a guardian approves');
 select tests.authenticate_as('parent');
 select tests.lives(format($$select public.approve_consent_as_guardian(%L)$$,
   (select id from public.consent_grants where athlete_id = tests.id('kid') and scope = 'seamstate_analysis')), 'the parent approves');
+select tests.authenticate_as('admin');
+select public.admin_set_seamstate_settings(true, 2, 3);
 select tests.authenticate_as('kid');
+select tests.throws($$select tests.ss_request('kid_clip', 'key-kid-a')$$, 'BR004',
+  'closing SeamState to minors again stops requests even with a guardian''s approval');
+select tests.authenticate_as('admin');
+select public.admin_set_seamstate_settings(true, 2, 3, true);
+select tests.authenticate_as('kid');
+select tests.ok(public.seamstate_permission(tests.id('kid')) = 'allowed', 'with SeamState open to minors and a guardian''s approval, it is allowed');
 select tests.remember_job('job_kid', tests.ss_request('kid_clip', 'key-kid-a'));
 select tests.ok(tests.job('job_kid') is not null, 'after guardian approval the minor''s clip can be analyzed');
 
@@ -212,7 +235,7 @@ select tests.authenticate_as('dev');
 select tests.throws($$select tests.ss_request('clip3', 'key-clip3-dev')$$, 'BR005', 'the site-wide monthly limit applies to everyone');
 select tests.authenticate_as('admin');
 select tests.ok((select used_this_month = 3 from public.seamstate_switches()), 'monthly usage counts real requests');
-select public.admin_set_seamstate_settings(true, 10, 20);
+select public.admin_set_seamstate_settings(true, 10, 20, true);
 
 -- ================================================================ worker callbacks
 select tests.authenticate_as('adult');
@@ -322,14 +345,14 @@ select tests.remember_job('job5b', tests.ss_request('clip5', 'key-clip5-b'));
 select tests.authenticate_as_service_role();
 select tests.remember_job('e2', (select attempt_id from public.seamstate_worker_begin_attempt(tests.job('job5b'), 'worker-1')));
 select tests.authenticate_as('admin');
-select public.admin_set_seamstate_settings(false, 10, 20);
+select public.admin_set_seamstate_settings(false, 10, 20, true);
 select tests.authenticate_as_service_role();
 select tests.ok(not public.seamstate_worker_report(tests.job('e2'), 'interpreting', '{}'), 'switching SeamState off refuses further work');
 select tests.ok(tests.ss_owner($q$select state = 'failed' and failure_kind = 'service' and failure_code = 'switched_off' from public.seamstate_jobs where id = tests.job('job5b')$q$),
   'the job fails as a service problem, not the swing''s fault');
 select tests.ok((select count(*) = 0 from public.seamstate_worker_due_jobs(600, 10)), 'nothing is dispatched while switched off');
 select tests.authenticate_as('admin');
-select public.admin_set_seamstate_settings(true, 10, 20);
+select public.admin_set_seamstate_settings(true, 10, 20, true);
 
 -- Giving an attempt back to the queue, the capture the worker receives, and where stills go.
 select tests.authenticate_as('adult');

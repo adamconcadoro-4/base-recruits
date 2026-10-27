@@ -6,7 +6,7 @@ import 'server-only';
  * signing secret only).
  *
  *   ANTHROPIC_API_KEY        the AI provider key (Anthropic organization with a monthly spend limit)
- *   SEAMSTATE_MODEL          model id, default claude-opus-5-5 (decision F31)
+ *   SEAMSTATE_MODEL          model id; DEFAULT_SEAMSTATE_MODEL when unset (decision F31)
  *   SEAMSTATE_WORKER_URL     the worker's https origin (Cloud Run)
  *   SEAMSTATE_WORKER_SECRET  shared signing secret, 32+ characters
  *   CRON_SECRET              Vercel cron bearer secret for the stall sweep

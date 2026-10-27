@@ -104,7 +104,7 @@ select tests.ok(
           'record_assessment_observation', 'record_birthdate', 'record_interval_from_markers',
           'redeem_development_coach_invite', 'redeem_family_invite', 'registry_coverage', 'remove_assessment_media',
           'remove_training_assignment', 'reopen_assessment', 'replace_training_assignment', 'retire_assessment_target', 'review_zone_round', 'review_zone_session',
-          'revoke_consent', 'save_schools', 'schools_by_slugs', 'seamstate_cancel_analysis', 'seamstate_request_analysis',
+          'revoke_consent', 'save_schools', 'schools_by_slugs', 'seamstate_cancel_analysis', 'seamstate_permission', 'seamstate_request_analysis',
           'seamstate_review_finding', 'seamstate_switches', 'search_schools', 'set_assessment_baseline',
           'set_assessment_repetition_status', 'set_assessment_status', 'set_assessment_target',
           'set_observation_quality', 'set_reassessment_date', 'set_training_plan_notes', 'set_zone_assignment', 'set_zone_stage',

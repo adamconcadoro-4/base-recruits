@@ -126,7 +126,7 @@ describe('what is saved', () => {
     const validation = validateInterpretation(raw, FIXTURE);
     const record = analysisRecord({
       packet: FIXTURE, verdict: 'suitable', reasons: [], versions: { worker: 'seamstate-worker-1', pose_model: 'm' },
-      status: 'interpreted', modelId: 'claude-opus-5-5', validation, framesShown: [setup, contact],
+      status: 'interpreted', modelId: 'test-model', validation, framesShown: [setup, contact],
     });
     expect(record.findings).toHaveLength(1);
     const saved = record.findings[0] ?? {};
@@ -136,7 +136,7 @@ describe('what is saved', () => {
       'observation', 'observed_swing_count', 'pillar', 'position', 'priority', 'reassessment', 'suggested_experiment', 'swing_indexes',
     ]);
     expect(saved.evidence_frame_ids).toEqual([setup, contact]);
-    expect(record.analysis.model_id).toBe('claude-opus-5-5');
+    expect(record.analysis.model_id).toBe('test-model');
     expect((record.analysis.result as { interpretation: string }).interpretation).toBe('interpreted');
   });
 

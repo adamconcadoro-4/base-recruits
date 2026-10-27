@@ -220,6 +220,29 @@ supporting moment, and "What this video cannot tell us". Built behind the existi
 run against the local Supabase stack and a development worker. Recording in the browser (Milestone 3) and the other
 three settings (Milestone 4) follow.
 
+### Screens as built
+
+- **Clips step** (`src/app/(app)/assessment/[id]/clips-step.tsx`, hitting assessments only). When SeamState is on, a
+  "SeamState swing analysis" panel explains the permission and lets the athlete allow it (`grant_consent`,
+  `seamstate_analysis`) or turn it off (`revoke_consent`, which cancels anything under way). A parent or coach sees
+  what the athlete still has to do. Each uploaded clip gets a swing-details form (setting first; only that setting's
+  questions are shown) and then its job status with the real stage name, refreshed every 5 seconds while it runs,
+  with a cancel button. The privacy sentence under the clips changes only while SeamState is on; with it off, the
+  approved wording ("never sent to an outside analysis service") stays exactly as it was.
+- **Swing report** (`/assessment/[id]/swing/[jobId]`): the video-check result with retake advice, then "What looks
+  effective", "Possible adjustments" (with "Also noted"), "Your next practice" (experiment, cue, catalog drills
+  labelled as not yet coach-reviewed, how to check it again) and "What this video cannot tell us". Every finding shows
+  its evidence stills (signed one-hour links, read under the person's own permission), the evidence grade with its
+  reasons and alternatives, "Show me in the Film Room" at the cited moment, and its review history. A development coach
+  approves or rejects; anyone with access can add a note. Findings are labelled provisional until approved.
+- **Admin** (`/admin`): the SeamState switch, per-person daily limit, monthly limit with this month's usage, which
+  deployment settings are still missing, and a separate switch for athletes under 18 that starts off (L12). With it
+  off, minors' clips are refused even with a guardian's approval, and a job already queued for a minor stops.
+- **Removal**: removing a clip, or deleting a draft assessment, also deletes the clip's stills and packet from
+  `seamstate-artifacts`.
+- **Not built yet**: choosing the hitter when several people are in the video (the job asks the person to cancel and
+  film again), recording in the browser (Milestone 3), and comparing reports over time.
+
 ## 8. Acceptance tests (mapped to the brief's scenarios)
 
 | # | Scenario | Test |
