@@ -1,8 +1,8 @@
 # Base Recruits Assessment
 
-Status: built on branch `feature/assessment` (draft pull request #15), **switched off**. Nothing here is live until
-the founder turns on both switches described in "Turning it on". Handoff and open decisions:
-`docs/reports/assessment.md`.
+Status: merged (pull request #15), **switched off**. Nothing here is live until the founder turns on both switches
+described in "Turning it on". Handoff and open decisions: `docs/reports/assessment.md`. 9-Zone Hitting Development
+(section 10) is built on branch `feature/zone-hitting` and is covered by the same switches.
 
 Promise shown to users: **"Understand your game, see the evidence, and know what to work on next."** No recruiting,
 admission, scholarship, injury-prevention or professional-level claims anywhere in the module.
@@ -150,3 +150,98 @@ pages where people manage them. Data is kept either way.
   ends in that window could still finish an upload, which the database then refuses to confirm, leaving an orphan
   file. A scheduled clean-up of unconfirmed uploads should be added before video is switched on.
 - Reference benchmarks: none, by design, until an approved dataset exists.
+
+## 10. 9-Zone Hitting Development
+
+Built from the founder's workbook `9_Zone_Hitting_Drills_and_Tracking.xlsx` (kept unchanged in
+`data/zone-hitting/`, SHA-256 `7e2d3e15…40cf`). It connects a hitting finding to a drill, a recorded practice session
+and a reassessment. It lives inside Assessment → Hitting, uses the same athletes, relations, switches, clips and
+plans, and **never changes an assessment score**. There is no overall zone score and no fifth pillar.
+
+### Where it lives
+
+| View | Route | Workbook content used | What happens |
+| --- | --- | --- | --- |
+| Zone Map | `/assessment/hitting/zones` | 9-Zone Map | Clickable map drawn for a right- or left-handed hitter (catcher's view, labelled); choose the metric (strike contact, correct depth, directional accuracy, hard targeted contact) and pitched balls or tee swings (never combined). Each tile shows its counts; "Not assessed", "Not recorded" or "Too few to judge" instead of zero; shading only with ≥ 8 scored attempts. Selecting a zone shows location, depth cue, lane (with the field for this hitter), cue, common misses (coaching context, not a diagnosis), current stage, results, drills, clips and "Start a focused round". Decision & Recognition is a separate panel |
+| Drill Library | `/assessment/hitting/zones/drills` | Zone Drill Library, Zone Pairings, Live BP Constraints, Progression, Baseline Tests, Session Plan, Pitcher Plan | 39 drills (filter by zone, level, word), 5 pairings, 49 constraints, 9 stages, baseline blocks, session template, Delivery Plan, source notes. Workbook download at `/assessment/hitting/zones/workbook` (signed in, site switch on; coaching content and blank logs only) |
+| Session Builder | `/assessment/hitting/zones/sessions/new` | Session Plan, Live BP Constraints, Pitcher Plan | One or two focus zones, batting side, drill or pairing, stage, delivery (tee, toss, coach, machine, live), one cue, target lane, constraint, planned repetitions, planned locations, the **predeclared swing/take assignment** (free, selective with zones, mandatory swing, forced take) and whether the hitter calls ball/strike, contact-quality definition, equipment, capture conditions, links to a hitting assessment and plan |
+| Live Tracker | `/assessment/hitting/zones/sessions/[id]` | Pitch Log, Log Coding Guide | Phone-first: entry kind (pitch, tee swing, dry rep), planned zone, where it actually arrived (nine zones, four outside locations, unknown), swing/take, contact (miss, foul, fair, not seen), optional observations (hard targeted, depth, lane, posture, call, off-plan with reason, required take, left out with reason, clip and time, note). Saves in order with announced status, retry, undo last, round totals with counts. Change the assignment mid-round (adds a version) and start the next round (one demand at a time) |
+| Session Review | `/assessment/hitting/zones/sessions/[id]/review` | Session Dashboard, Round Review, Post Session Eval | Protocol, counts, every rate with numerator/denominator and missing/left-out counts, planned vs actual delivery, results by zone, rounds with every entry (corrections with the same pad), round reviews, clips, prompts, post-session evaluation, coach approval of the next plan, stage decisions, CSV download, print |
+| Development Path | `/assessment/hitting/zones/path` | Progression, Daily Log | Stage per zone with history (reason and evidence required), the daily log generated from saved sessions, comparison only within compatible conditions |
+
+### Content import
+
+`scripts/zone-content/extract.py` reads the workbook (openpyxl, development only), checks the expected counts (15
+sheets, 9 zones, 39 drills, 9 stages, 5 pairings, 49 constraints, blank logs) and writes
+`src/lib/assessment/zones/content-v1.json` (content version `zone-v1`; every row keeps its sheet and row).
+`scripts/zone-content/seed-sql.py` writes the same content into the migration, which calls
+`private.import_zone_content`: idempotent (`on conflict do nothing`), never overwrites, records the workbook checksum.
+Content tables are read-only; coach choices live on sessions and rounds. A later workbook revision gets a new content
+version and its own migration. The workbook's numbered references have no source list, so nothing is presented as a
+verified citation; suggested volumes are planning guidance; contact-depth references are individualized cues.
+
+### Data model
+
+| Table | Holds |
+| --- | --- |
+| `zone_content_releases`, `zone_definitions`, `zone_drills`, `zone_stages`, `zone_pairings`, `zone_constraints` | Imported workbook content (read-only) |
+| `zone_sessions` | Session plan and post-session evaluation (decision, next zones, cue, constraint, volume, success criterion, coach approval) |
+| `zone_rounds` | Rounds: side, stage, delivery, drill, constraint, cue, lane, planned reps and locations, round review |
+| `zone_assignments` | Versioned swing/take assignments; each event keeps the version it was judged against |
+| `zone_events` | Pitches, tee swings and dry reps with the observations above, who recorded them and how (live or video) |
+| `zone_progress` | Stage history per athlete and zone: set, advance (+1), hold, simplify (back), reason and evidence |
+
+Writes only through checked functions (`create_zone_session`, `add_zone_round`, `set_zone_assignment`,
+`log_zone_event`, `update_zone_event`, `delete_zone_event`, `review_zone_round`, `review_zone_session`,
+`approve_zone_next_plan`, `set_zone_stage`, `delete_zone_session`); all stop while the database switch is off. The
+athlete's side cannot change or remove what the development coach recorded, cannot write the coach's assessment,
+and its changes withdraw a coach approval. Only the development coach approves a next-session plan.
+
+### Calculations (`zone-calc-v1`, `src/lib/assessment/zones/metrics.ts`)
+
+| Metric | Website | Workbook |
+| --- | --- | --- |
+| Decision rate | Correct decisions ÷ scored opportunities, judged on the actual pitch and the event's assignment | Correct among scored decision opportunities |
+| Chase rate | Swings at actual balls ÷ actual balls, in rounds where the hitter chose | Chases / actual balls received |
+| Strike-contact rate | Strike swings with contact (fouls count) ÷ strike swings | Contacts including fouls / strike swings |
+| Hard targeted contact | Met the round's definition ÷ scored strike swings (miss or foul = not met; off-plan left out) | Mean of eligible 1/0 entries |
+| Correct depth | Correct ÷ strike swings scored for depth | Mean of eligible strike-swing entries |
+| Directional accuracy | In lane ÷ fair balls in play on strikes scored for lane | Mean of eligible strike BIP entries |
+| Posture-error swings per 10 | Errors ÷ swings **scored for posture** × 10 | Affected swings per 10 swings (all swings) |
+| Recognition rate | Correct explicit calls ÷ explicit calls | Only explicitly called pitches |
+| Off-plan deliveries | Off-plan ÷ pitches delivered (a delivery measure) | Delivery quality count |
+
+Rules: zero eligible = N/A, never 0%; unknown is neither failure nor success (shown as "not recorded"); a swing at an
+unassigned strike is an assignment error, not a chase; a taken strike is correct under a selective assignment that
+does not include its zone; mandatory-swing and forced-take rounds and required takes give no decision or chase
+opportunity; recognition is never inferred from swinging or taking; off-plan pitches stay visible, still count for
+decisions, and are left out only of hard targeted, depth and lane; tee swings and dry reps are repetitions, never
+pitches. Combined rates add counts; percentages are never averaged. Deliberate change from the workbook: posture uses
+scored swings and shows the unscored ones, so missing observations cannot make a hitter look better.
+
+Comparisons group only identical kind of repetition, stage, delivery source, assignment, batting side and calculation
+version. Prompts (`suggestions.ts`) name a zone only after ≥ 8 scored strike swings with a rate under 50% (one stage
+simpler under 30%) and a decision prompt after ≥ 10 scored decisions; they are labelled planning prompts, change
+nothing by themselves and give the finding, sample, drill, stage, one cue and how to reassess. Ball-flight
+observations are not presented as biomechanical causes; observed hard contact is labelled as a coach's judgment, not
+measured exit velocity.
+
+### Tests
+
+Unit (`tests/unit/zone-*.test.ts`): zone mapping, handedness mirror and lanes, switch hitters, N/A, missing vs zero,
+foul vs fair, assignment error vs chase, selective takes, forced rounds, recognition, off-plan, posture denominator,
+count-based aggregation, tee vs pitch, voided entries, prompts, assignment-version integrity, current stage,
+comparable groups, daily log, map tiles, entry tidying, CSV (formula-safe). Database
+(`supabase/tests/019_zone_hitting.test.sql`): content counts and idempotent re-import, switch off, validation, access
+by relation, coach-entry protection, assignment versions, corrections, clips, approval rules, stage rules, deletion.
+Contract (`tests/contract/zone-hitting.test.ts`): migration seed = app content, database = TypeScript content and value
+lists. End to end (`tests/e2e/zone-hitting.spec.ts`): map, library, download, builder, phone-sized tracker with undo,
+review with corrections, evaluation, stage, history, CSV, privacy and coach approval, WCAG 2.2 AA checks.
+
+### Not built (yet)
+
+- Importing completed workbook copies (section O of the brief): the workbook is used as a content source only.
+- Measured exit velocity or sensor coordinates; a charted zone is a coach's chart, not a measurement.
+- The map, history and comparisons read an athlete's latest 5,000 entries (the page says when that limit is reached).
+- Demonstration videos: none are invented; clips come from the athlete's own uploads (video switch).
+

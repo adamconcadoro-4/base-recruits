@@ -155,6 +155,7 @@ export function FilmRoom({
   editable,
   viewerId,
   assessmentId,
+  startMs = null,
 }: {
   readonly clip: FilmClip;
   readonly compare: FilmClip | null;
@@ -164,6 +165,8 @@ export function FilmRoom({
   readonly editable: boolean;
   readonly viewerId: string;
   readonly assessmentId: string;
+  /** Open the clip at this moment (a link from a 9-Zone entry). */
+  readonly startMs?: number | null;
 }) {
   const mainRef = useRef<HTMLVideoElement | null>(null);
   const compareRef = useRef<HTMLVideoElement | null>(null);
@@ -177,6 +180,17 @@ export function FilmRoom({
   const [eventType, setEventType] = useState<string>(eventTypes[0]?.key ?? '');
   const [note, setNote] = useState('');
   const [drawShape, setDrawShape] = useState<Shape>('arrow');
+
+  useEffect(() => {
+    const video = mainRef.current;
+    if (!video || startMs === null || startMs < 0) return undefined;
+    const seek = () => {
+      video.currentTime = startMs / 1000;
+    };
+    if (video.readyState >= 1) seek();
+    else video.addEventListener('loadedmetadata', seek, { once: true });
+    return () => video.removeEventListener('loadedmetadata', seek);
+  }, [startMs]);
   const [drawColor, setDrawColor] = useState<Color>('yellow');
   const [drawing, setDrawing] = useState(false);
   const [showAllDrawings, setShowAllDrawings] = useState(false);

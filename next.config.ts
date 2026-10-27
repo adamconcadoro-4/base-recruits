@@ -48,8 +48,12 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  // Registry snapshots are read from disk by the admin import page's server action.
-  outputFileTracingIncludes: { '/admin/data': ['./data/snapshots/*.json'] },
+  // Registry snapshots are read from disk by the admin import page's server action;
+  // the 9-Zone Hitting workbook is served as a download to signed-in users.
+  outputFileTracingIncludes: {
+    '/admin/data': ['./data/snapshots/*.json'],
+    '/assessment/hitting/zones/workbook': ['./data/zone-hitting/*.xlsx'],
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
