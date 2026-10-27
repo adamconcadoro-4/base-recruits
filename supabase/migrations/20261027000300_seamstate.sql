@@ -73,11 +73,15 @@ create table private.seamstate_settings (
     constraint seamstate_settings_monthly check (monthly_limit between 0 and 100000),
   -- Clips of athletes under 18 wait for counsel's review (decision L12), with a guardian's approval as well.
   minors_enabled boolean not null default false,
+  -- The site promises that video is never sent to an outside analysis service (F23, kept by the founder on
+  -- 2026-10-27). SeamState cannot run while that promise stands. No function changes this: only a migration,
+  -- shipped together with replacement wording the founder has approved, may set it to true.
+  outside_analysis_disclosed boolean not null default false,
   updated_at timestamptz not null default now(),
   updated_by uuid
 );
 comment on table private.seamstate_settings is
-  'SeamState switch and spending limits. Off, with a monthly limit of 0, until an administrator changes them.';
+  'SeamState switch and spending limits. Off, with a monthly limit of 0, until an administrator changes them, and locked off while the site promises video is never sent to an outside analysis service.';
 insert into private.seamstate_settings (id) values (true);
 revoke all on table private.seamstate_settings from public, anon, authenticated, service_role;
 
@@ -88,7 +92,7 @@ security definer
 set search_path = ''
 as $$
   select private.assessment_video_enabled()
-     and coalesce((select s.analysis_enabled from private.seamstate_settings s where s.id), false)
+     and coalesce((select s.analysis_enabled and s.outside_analysis_disclosed from private.seamstate_settings s where s.id), false)
 $$;
 revoke all on function private.seamstate_enabled() from public;
 
@@ -547,7 +551,7 @@ revoke all on function private.seamstate_can_transition(text, text) from public;
 -- -----------------------------------------------------------------------------
 create function public.seamstate_switches()
 returns table (enabled boolean, daily_limit integer, monthly_limit integer, used_today integer, used_this_month integer,
-               minors_enabled boolean)
+               minors_enabled boolean, outside_analysis_disclosed boolean)
 language sql
 stable
 security definer
@@ -562,7 +566,8 @@ as $$
          case when private.has_role((select auth.uid()), 'admin') then
            coalesce((select u.analyses from private.seamstate_monthly_usage u
                       where u.month = date_trunc('month', now() at time zone 'utc')::date), 0) end,
-         s.minors_enabled
+         s.minors_enabled,
+         s.outside_analysis_disclosed
     from private.seamstate_settings s
    where s.id
 $$;
@@ -628,6 +633,10 @@ begin
   end if;
   if p_enabled and not private.assessment_video_enabled() then
     raise exception 'turn on Assessment and its video uploads first' using errcode = 'BR003';
+  end if;
+  if p_enabled and not coalesce((select s.outside_analysis_disclosed from private.seamstate_settings s where s.id), false) then
+    raise exception 'SeamState cannot be turned on while the site promises video is never sent to an outside analysis service'
+      using errcode = 'BR004';
   end if;
   update private.seamstate_settings s
      set analysis_enabled = p_enabled, per_person_daily_limit = p_daily_limit, monthly_limit = p_monthly_limit,

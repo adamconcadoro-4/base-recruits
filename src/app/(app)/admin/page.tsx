@@ -184,6 +184,12 @@ export default async function AdminPage() {
                   People see “Swing analysis isn’t available yet” until then.
                 </Notice>
               ) : null}
+              {seamstate && !seamstate.outsideAnalysisDisclosed ? (
+                <Notice tone="attention" title="Locked off">
+                  The site promises that video is never sent to an outside analysis service, and SeamState sends still frames to an
+                  AI provider. It cannot be turned on until that wording is replaced through an approved site update.
+                </Notice>
+              ) : null}
               {seamstate ? (
                 <>
                   <p>
@@ -191,7 +197,13 @@ export default async function AdminPage() {
                   </p>
                   <ActionForm action={setSeamstateSettingsAction} submitLabel="Save SeamState settings" variant="secondary">
                     <label className="flex min-h-11 items-center gap-3">
-                      <input type="checkbox" name="seamstate_enabled" defaultChecked={seamstate.enabled} className="size-5" />
+                      <input
+                        type="checkbox"
+                        name="seamstate_enabled"
+                        defaultChecked={seamstate.enabled}
+                        disabled={!seamstate.outsideAnalysisDisclosed}
+                        className="size-5"
+                      />
                       SeamState analysis is on (needs Assessment and video uploads on)
                     </label>
                     <label className="flex min-h-11 items-center gap-3">

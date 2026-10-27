@@ -128,6 +128,13 @@ select tests.clear_authentication();
 select tests.enable_assessment(true);
 select tests.authenticate_as('admin');
 select tests.throws($$select public.admin_set_seamstate_settings(true, 101, 3)$$, 'BR003', 'the daily limit is capped');
+select tests.throws($$select public.admin_set_seamstate_settings(true, 2, 3)$$, 'BR004',
+  'SeamState cannot be switched on while the site promises video is never sent to an outside analysis service');
+select tests.ok((select not enabled and not outside_analysis_disclosed from public.seamstate_switches()), 'and it stays off');
+-- Only a migration that also changes the site's wording may lift that lock; the rest of this file runs as if one had.
+select tests.clear_authentication();
+update private.seamstate_settings set outside_analysis_disclosed = true where id;
+select tests.authenticate_as('admin');
 select tests.lives($$select public.admin_set_seamstate_settings(true, 2, 3)$$, 'an administrator switches SeamState on with limits');
 select tests.ok((select enabled and daily_limit = 2 and monthly_limit = 3 and used_this_month = 0 from public.seamstate_switches()),
   'administrators see the settings and site-wide usage');

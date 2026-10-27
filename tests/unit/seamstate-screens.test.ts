@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import { captureFromForm } from '@/lib/seamstate/capture-form';
@@ -64,5 +67,27 @@ describe('plain words for results', () => {
     expect(interpretationNotice('provider_error')).toContain('nothing to do with your swing');
     expect(failureReason('footage', 'clip_too_long')).toContain('two minutes');
     expect(failureReason('service', 'unknown_code')).toBeNull();
+  });
+});
+
+describe('the privacy promise and the SeamState lock', () => {
+  const root = join(__dirname, '../..');
+  const read = (path: string) => readFileSync(join(root, path), 'utf8');
+  const PROMISE = 'never sent to an outside analysis service';
+  const PROMISE_PAGES = ['src/app/(app)/assessment/[id]/clips-step.tsx', 'src/app/(site)/player-assessment/page.tsx'];
+
+  it('keep SeamState locked off for as long as the site makes the promise', () => {
+    const migrations = readdirSync(join(root, 'supabase/migrations')).map((file) => read(`supabase/migrations/${file}`));
+    const unlocked = migrations.some((sql) => /set\s+outside_analysis_disclosed\s*=\s*true/i.test(sql));
+    const promised = PROMISE_PAGES.some((page) => read(page).includes(PROMISE));
+    // Lifting the lock needs a migration shipped with replacement wording on every page that makes the promise.
+    expect(unlocked && promised).toBe(false);
+    expect(migrations.some((sql) => /outside_analysis_disclosed boolean not null default false/.test(sql))).toBe(true);
+  });
+
+  it('show the approved wording on the clips step exactly as written', () => {
+    expect(read(PROMISE_PAGES[0] ?? '')).toContain(
+      'Video is stored privately. It is never sent to an outside analysis service, and you can delete a clip at any time.',
+    );
   });
 });

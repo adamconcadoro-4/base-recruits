@@ -227,8 +227,13 @@ three settings (Milestone 4) follow.
   `seamstate_analysis`) or turn it off (`revoke_consent`, which cancels anything under way). A parent or coach sees
   what the athlete still has to do. Each uploaded clip gets a swing-details form (setting first; only that setting's
   questions are shown) and then its job status with the real stage name, refreshed every 5 seconds while it runs,
-  with a cancel button. The privacy sentence under the clips changes only while SeamState is on; with it off, the
-  approved wording ("never sent to an outside analysis service") stays exactly as it was.
+  with a cancel button. The privacy sentence under the clips is unchanged ("never sent to an outside analysis
+  service", F36).
+- **Locked off while that sentence stands** (F36). `private.seamstate_settings.outside_analysis_disclosed` is false,
+  `seamstate_enabled()` requires it, and `admin_set_seamstate_settings` refuses to switch SeamState on without it. No
+  function sets it; only a migration can, and a unit test (`tests/unit/seamstate-screens.test.ts`) fails if a
+  migration sets it while either page still makes the promise. Unlocking is one change: new approved wording on the
+  clips step and the public Player Assessment page plus that migration.
 - **Swing report** (`/assessment/[id]/swing/[jobId]`): the video-check result with retake advice, then "What looks
   effective", "Possible adjustments" (with "Also noted"), "Your next practice" (experiment, cue, catalog drills
   labelled as not yet coach-reviewed, how to check it again) and "What this video cannot tell us". Every finding shows
@@ -289,7 +294,7 @@ SeamState pages simply do not use the word.
 
 | # | Needed | From | Blocks |
 | --- | --- | --- | --- |
-| 1 | Reverse F23's "never sent to an analysis service" for SeamState, with consent wording and counsel's review of minors' footage going to the provider (L9, L12) | Founder + counsel | Any real analysis of a real athlete |
+| 1 | Replace the "never sent to an outside analysis service" line on both pages with approved wording (the founder kept it on 2026-10-27, F36, so SeamState is locked off), plus consent wording and counsel's review of minors' footage going to the provider (L9, L12) | Founder + counsel | Any real analysis of a real athlete |
 | 2 | Anthropic API account, key in Vercel, monthly spend limit | Founder | Milestone 2's real model run |
 | 3 | Worker host account (recommended: Google Cloud Run; alternatives Railway or Fly.io) | Founder | Milestone 2 in a deployed environment (local development works without it) |
 | 4 | Authorized swing clips: 3–5 to start (side view, tee), later about 40+ across settings for evaluation, with written permission | Founder | Milestone 2 real run; §9 |

@@ -274,7 +274,7 @@ race "two people advancing one zone at once move it up one stage, not two" \
 local_psql "${BR_TEST_DB}" >/dev/null <<'SQL'
 select tests.create_user('ss_' || x, 'athlete', p_date_of_birth => date '2000-01-01') from unnest(array['a', 'b']) as x;
 select tests.enable_assessment(true);
-update private.seamstate_settings set analysis_enabled = true, per_person_daily_limit = 5, monthly_limit = 1 where id;
+update private.seamstate_settings set analysis_enabled = true, outside_analysis_disclosed = true, per_person_daily_limit = 5, monthly_limit = 1 where id;
 begin;
 select tests.authenticate_as('ss_a');
 select public.grant_consent('seamstate_analysis', 'seamstate-analysis-v1');

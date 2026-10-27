@@ -21,6 +21,8 @@ export interface SeamstateSwitches {
   readonly usedThisMonth: number | null;
   /** Clips of athletes under 18 can be analyzed (off until counsel's review, decision L12). */
   readonly minorsEnabled: boolean;
+  /** False while the site promises video is never sent to an outside analysis service; SeamState stays off. */
+  readonly outsideAnalysisDisclosed: boolean;
 }
 
 export const getSeamstateSwitches = cache(async (): Promise<SeamstateSwitches | null> => {
@@ -34,6 +36,7 @@ export const getSeamstateSwitches = cache(async (): Promise<SeamstateSwitches | 
         used_today: number;
         used_this_month: number | null;
         minors_enabled: boolean;
+        outside_analysis_disclosed: boolean;
       }
     | null
     | undefined;
@@ -45,6 +48,7 @@ export const getSeamstateSwitches = cache(async (): Promise<SeamstateSwitches | 
     usedToday: row.used_today,
     usedThisMonth: row.used_this_month,
     minorsEnabled: Boolean(row.minors_enabled),
+    outsideAnalysisDisclosed: Boolean(row.outside_analysis_disclosed),
   };
 });
 
