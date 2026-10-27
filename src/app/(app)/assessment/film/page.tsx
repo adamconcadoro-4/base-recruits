@@ -48,6 +48,8 @@ export default async function FilmRoomPage({ searchParams }: { readonly searchPa
   const [{ options, selected, query }, account] = await Promise.all([athleteContext(searchParams), getAccount()]);
   const clipId = single(query.clip);
   const compareId = single(query.compare);
+  const startText = single(query.t);
+  const startMs = startText && /^\d{1,7}$/.test(startText) ? Number(startText) : null;
 
   const requestedClip = isUuid(clipId) ? await getMedia(clipId) : null;
   const athleteId = requestedClip?.athlete_id ?? selected?.athlete_id ?? null;
@@ -91,6 +93,7 @@ export default async function FilmRoomPage({ searchParams }: { readonly searchPa
           key={`${media.id}:${compare?.id ?? ''}`}
           clip={clip}
           compare={compare}
+          startMs={startMs}
           assessmentId={assessment.id}
           editable={assessment.status !== 'published'}
           viewerId={account.userId ?? ''}

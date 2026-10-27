@@ -1,0 +1,1994 @@
+{
+  "version": "zone-v1",
+  "source": {
+    "file": "9_Zone_Hitting_Drills_and_Tracking.xlsx",
+    "sha256": "7e2d3e151a7213bdc39985a3f5e72bded643d0d5f7969c878eb5862bec9140cf",
+    "sheets": [
+      "Start Here",
+      "9-Zone Map",
+      "Zone Drill Library",
+      "Progression",
+      "Zone Pairings",
+      "Live BP Constraints",
+      "Baseline Tests",
+      "Session Plan",
+      "Pitch Log",
+      "Log Coding Guide",
+      "Session Dashboard",
+      "Round Review",
+      "Post Session Eval",
+      "Pitcher Plan",
+      "Daily Log"
+    ]
+  },
+  "startHere": [
+    {
+      "topic": "Workbook scope",
+      "text": "Compiled from the training system and drills discussed in this conversation. Includes nine-zone work, progression drills, live-BP constraints, and blank tracking tools.",
+      "sourceRow": 2
+    },
+    {
+      "topic": "Source status",
+      "text": "The original document contained numbered citations without a source list. This workbook does not treat those references as verified sources. Coaching cues and numerical advancement targets are planning suggestions, not validated universal standards.",
+      "sourceRow": 3
+    },
+    {
+      "topic": "Zone orientation",
+      "text": "Inside/outside are relative to the hitter. Pull and opposite-field lanes reverse for left-handed and right-handed hitters. Zone numbering remains unchanged.",
+      "sourceRow": 4
+    },
+    {
+      "topic": "Contact references",
+      "text": "Contact-depth descriptions reproduce the supplied coaching framework. Treat foot/toe/back-hip references as individualized starting cues rather than fixed measurements.",
+      "sourceRow": 5
+    },
+    {
+      "topic": "Using the drills",
+      "text": "Select two priority zones and one cue. Begin at the level where the hitter can perform the assignment. Add one demand at a time; review results between rounds.",
+      "sourceRow": 6
+    },
+    {
+      "topic": "Pitch delivery and safety",
+      "text": "Use appropriate protective equipment, screens, supervision, and age-appropriate speeds. Live pitchers should follow applicable workload and rest limits; this workbook is not a pitcher workload prescription. Do not shorten live-pitch distance to increase challenge.",
+      "sourceRow": 7
+    },
+    {
+      "topic": "Scoring missed deliveries",
+      "text": "Record actual pitch location. Mark an unintended delivery as off-plan; exclude it from assignment-specific measures when the assignment cannot reasonably be executed. Evaluate swing/take decisions using actual ball/strike location.",
+      "sourceRow": 8
+    },
+    {
+      "topic": "Metrics",
+      "text": "Use N/A when a denominator is zero. Recognition requires an explicit recorded ball/strike call. A taken strike is a decision error only when the round assignment calls for swinging at that strike.",
+      "sourceRow": 9
+    },
+    {
+      "topic": "Tracking",
+      "text": "Enter one pitch per row in Pitch Log. Dashboard formulas use rows 2–501 and assume one session per copy of the workbook. Rates on Daily Log are entered manually from the session dashboard.",
+      "sourceRow": 10
+    }
+  ],
+  "zones": [
+    {
+      "zone": 1,
+      "location": "High inside",
+      "placement": "Upper third, inner third",
+      "depthCue": "Farthest forward",
+      "targetLane": "Pull-side gap",
+      "cue": "Get it out front.",
+      "desiredResult": "Controlled hard pull-side contact",
+      "commonMisses": "Jammed contact; hook fouls",
+      "sourceRow": 2
+    },
+    {
+      "zone": 2,
+      "location": "High middle",
+      "placement": "Upper third, center",
+      "depthCue": "Standard to slightly forward",
+      "targetLane": "Center field",
+      "cue": "Stay tall through center.",
+      "desiredResult": "Firm line through center",
+      "commonMisses": "Popups; dropping under ball",
+      "sourceRow": 3
+    },
+    {
+      "zone": 3,
+      "location": "High outside",
+      "placement": "Upper third, outer third",
+      "depthCue": "Deeper than middle; still in front",
+      "targetLane": "Opposite-field gap",
+      "cue": "Let it travel.",
+      "desiredResult": "Opposite-field line drive",
+      "commonMisses": "Weak flares; early pull contact",
+      "sourceRow": 4
+    },
+    {
+      "zone": 4,
+      "location": "Middle inside",
+      "placement": "Belt high, inner third",
+      "depthCue": "Out front near/ahead of lead-foot reference",
+      "targetLane": "Pull-side gap",
+      "cue": "Hands inside, turn it out front.",
+      "desiredResult": "Hard pull-side line drive",
+      "commonMisses": "Jams; hook fouls; early opening",
+      "sourceRow": 5
+    },
+    {
+      "zone": 5,
+      "location": "Middle middle",
+      "placement": "Belt high, center",
+      "depthCue": "Around lead-foot/toe reference",
+      "targetLane": "Center field",
+      "cue": "See it, meet it, drive through center.",
+      "desiredResult": "Firm center-field contact",
+      "commonMisses": "Pulled early contact; deep weak flares",
+      "sourceRow": 6
+    },
+    {
+      "zone": 6,
+      "location": "Middle outside",
+      "placement": "Belt high, outer third",
+      "depthCue": "Deeper than middle-middle; still in front",
+      "targetLane": "Opposite-field gap",
+      "cue": "Wait, stay inside, drive through the gap.",
+      "desiredResult": "Firm opposite-field contact",
+      "commonMisses": "Early rollover; overly deep contact",
+      "sourceRow": 7
+    },
+    {
+      "zone": 7,
+      "location": "Low inside",
+      "placement": "Low strike, inner third",
+      "depthCue": "Forward; slightly deeper than belt-high inside",
+      "targetLane": "Low pull-side gap",
+      "cue": "Hips back, chest over, turn it out front.",
+      "desiredResult": "Firm low pull-side ball",
+      "commonMisses": "Posture loss; hooks; jams",
+      "sourceRow": 8
+    },
+    {
+      "zone": 8,
+      "location": "Low middle",
+      "placement": "Low strike, center",
+      "depthCue": "Near toe reference; slightly deeper than middle-middle",
+      "targetLane": "Low center lane",
+      "cue": "Hips back, chest over, through center.",
+      "desiredResult": "Low line or firm ground ball through center",
+      "commonMisses": "Standing up; steep grounders; early opening",
+      "sourceRow": 9
+    },
+    {
+      "zone": 9,
+      "location": "Low outside",
+      "placement": "Low strike, outer third",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "desiredResult": "Firm low opposite-field contact",
+      "commonMisses": "Early rollover; late contact; guided flare",
+      "sourceRow": 10
+    }
+  ],
+  "drills": [
+    {
+      "sourceId": "Z1-01",
+      "key": "z1-01",
+      "version": 1,
+      "zone": 1,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at upper third, inner third; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Farthest forward",
+      "targetLane": "Pull-side gap",
+      "cue": "Get it out front.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Jammed contact; hook fouls",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 2
+    },
+    {
+      "sourceId": "Z1-02",
+      "key": "z1-02",
+      "version": 1,
+      "zone": 1,
+      "name": "Announced zone soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 1; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Farthest forward",
+      "targetLane": "Pull-side gap",
+      "cue": "Get it out front.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Jammed contact; hook fouls",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 3
+    },
+    {
+      "sourceId": "Z1-03",
+      "key": "z1-03",
+      "version": 1,
+      "zone": 1,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 1 strikes with obvious balls above zone or farther inside.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Farthest forward",
+      "targetLane": "Pull-side gap",
+      "cue": "Get it out front.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Jammed contact; hook fouls",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 4
+    },
+    {
+      "sourceId": "Z2-01",
+      "key": "z2-01",
+      "version": 1,
+      "zone": 2,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at upper third, center; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Standard to slightly forward",
+      "targetLane": "Center field",
+      "cue": "Stay tall through center.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Popups; dropping under ball",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 5
+    },
+    {
+      "sourceId": "Z2-02",
+      "key": "z2-02",
+      "version": 1,
+      "zone": 2,
+      "name": "Announced zone soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 2; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Standard to slightly forward",
+      "targetLane": "Center field",
+      "cue": "Stay tall through center.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Popups; dropping under ball",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 6
+    },
+    {
+      "sourceId": "Z2-03",
+      "key": "z2-03",
+      "version": 1,
+      "zone": 2,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 2 strikes with obvious balls above zone.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Standard to slightly forward",
+      "targetLane": "Center field",
+      "cue": "Stay tall through center.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Popups; dropping under ball",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 7
+    },
+    {
+      "sourceId": "Z3-01",
+      "key": "z3-01",
+      "version": 1,
+      "zone": 3,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at upper third, outer third; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Deeper than middle; still in front",
+      "targetLane": "Opposite-field gap",
+      "cue": "Let it travel.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Weak flares; early pull contact",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 8
+    },
+    {
+      "sourceId": "Z3-02",
+      "key": "z3-02",
+      "version": 1,
+      "zone": 3,
+      "name": "Announced zone soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 3; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Deeper than middle; still in front",
+      "targetLane": "Opposite-field gap",
+      "cue": "Let it travel.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Weak flares; early pull contact",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 9
+    },
+    {
+      "sourceId": "Z3-03",
+      "key": "z3-03",
+      "version": 1,
+      "zone": 3,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 3 strikes with obvious balls off plate away.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Deeper than middle; still in front",
+      "targetLane": "Opposite-field gap",
+      "cue": "Let it travel.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Weak flares; early pull contact",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 10
+    },
+    {
+      "sourceId": "Z4-01",
+      "key": "z4-01",
+      "version": 1,
+      "zone": 4,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at belt high, inner third; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Out front near/ahead of lead-foot reference",
+      "targetLane": "Pull-side gap",
+      "cue": "Hands inside, turn it out front.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Jams; hook fouls; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 11
+    },
+    {
+      "sourceId": "Z4-02",
+      "key": "z4-02",
+      "version": 1,
+      "zone": 4,
+      "name": "Turn-and-drive soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 4; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Out front near/ahead of lead-foot reference",
+      "targetLane": "Pull-side gap",
+      "cue": "Hands inside, turn it out front.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Jams; hook fouls; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 12
+    },
+    {
+      "sourceId": "Z4-03",
+      "key": "z4-03",
+      "version": 1,
+      "zone": 4,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 4 strikes with obvious balls farther inside.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Out front near/ahead of lead-foot reference",
+      "targetLane": "Pull-side gap",
+      "cue": "Hands inside, turn it out front.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Jams; hook fouls; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 13
+    },
+    {
+      "sourceId": "Z5-01",
+      "key": "z5-01",
+      "version": 1,
+      "zone": 5,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at belt high, center; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Around lead-foot/toe reference",
+      "targetLane": "Center field",
+      "cue": "See it, meet it, drive through center.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Pulled early contact; deep weak flares",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 14
+    },
+    {
+      "sourceId": "Z5-02",
+      "key": "z5-02",
+      "version": 1,
+      "zone": 5,
+      "name": "Center-drive soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 5; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Around lead-foot/toe reference",
+      "targetLane": "Center field",
+      "cue": "See it, meet it, drive through center.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Pulled early contact; deep weak flares",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 15
+    },
+    {
+      "sourceId": "Z5-03",
+      "key": "z5-03",
+      "version": 1,
+      "zone": 5,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 5 strikes with obvious balls clearly outside zone boundaries.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Around lead-foot/toe reference",
+      "targetLane": "Center field",
+      "cue": "See it, meet it, drive through center.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Pulled early contact; deep weak flares",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 16
+    },
+    {
+      "sourceId": "Z6-01",
+      "key": "z6-01",
+      "version": 1,
+      "zone": 6,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at belt high, outer third; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Deeper than middle-middle; still in front",
+      "targetLane": "Opposite-field gap",
+      "cue": "Wait, stay inside, drive through the gap.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Early rollover; overly deep contact",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 17
+    },
+    {
+      "sourceId": "Z6-02",
+      "key": "z6-02",
+      "version": 1,
+      "zone": 6,
+      "name": "Stay-through soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 6; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Deeper than middle-middle; still in front",
+      "targetLane": "Opposite-field gap",
+      "cue": "Wait, stay inside, drive through the gap.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Early rollover; overly deep contact",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 18
+    },
+    {
+      "sourceId": "Z6-03",
+      "key": "z6-03",
+      "version": 1,
+      "zone": 6,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 6 strikes with obvious balls off plate away.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Deeper than middle-middle; still in front",
+      "targetLane": "Opposite-field gap",
+      "cue": "Wait, stay inside, drive through the gap.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Early rollover; overly deep contact",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 19
+    },
+    {
+      "sourceId": "Z7-01",
+      "key": "z7-01",
+      "version": 1,
+      "zone": 7,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at low strike, inner third; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Forward; slightly deeper than belt-high inside",
+      "targetLane": "Low pull-side gap",
+      "cue": "Hips back, chest over, turn it out front.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Posture loss; hooks; jams",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 20
+    },
+    {
+      "sourceId": "Z7-02",
+      "key": "z7-02",
+      "version": 1,
+      "zone": 7,
+      "name": "Hinge-and-turn soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 7; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Forward; slightly deeper than belt-high inside",
+      "targetLane": "Low pull-side gap",
+      "cue": "Hips back, chest over, turn it out front.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Posture loss; hooks; jams",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 21
+    },
+    {
+      "sourceId": "Z7-03",
+      "key": "z7-03",
+      "version": 1,
+      "zone": 7,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 7 strikes with obvious balls below zone.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Forward; slightly deeper than belt-high inside",
+      "targetLane": "Low pull-side gap",
+      "cue": "Hips back, chest over, turn it out front.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Posture loss; hooks; jams",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 22
+    },
+    {
+      "sourceId": "Z8-01",
+      "key": "z8-01",
+      "version": 1,
+      "zone": 8,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at low strike, center; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Near toe reference; slightly deeper than middle-middle",
+      "targetLane": "Low center lane",
+      "cue": "Hips back, chest over, through center.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Standing up; steep grounders; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 23
+    },
+    {
+      "sourceId": "Z8-02",
+      "key": "z8-02",
+      "version": 1,
+      "zone": 8,
+      "name": "Announced zone soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 8; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Near toe reference; slightly deeper than middle-middle",
+      "targetLane": "Low center lane",
+      "cue": "Hips back, chest over, through center.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Standing up; steep grounders; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 24
+    },
+    {
+      "sourceId": "Z8-03",
+      "key": "z8-03",
+      "version": 1,
+      "zone": 8,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 8 strikes with obvious balls below zone.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Near toe reference; slightly deeper than middle-middle",
+      "targetLane": "Low center lane",
+      "cue": "Hips back, chest over, through center.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Standing up; steep grounders; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 25
+    },
+    {
+      "sourceId": "Z9-01",
+      "key": "z9-01",
+      "version": 1,
+      "zone": 9,
+      "name": "Contact-point tee work",
+      "level": "Tee",
+      "setup": "Tee at low strike, outer third; mark target lane.",
+      "suggestedVolume": "Suggested: 2–3 sets of 6–8",
+      "execution": "Set depth before swinging. Hit toward assigned lane; check posture between sets.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Correct depth; correct lane; firm contact",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 26
+    },
+    {
+      "sourceId": "Z9-02",
+      "key": "z9-02",
+      "version": 1,
+      "zone": 9,
+      "name": "Announced zone soft toss",
+      "level": "Announced moving ball",
+      "setup": "Announce Zone 9; deliver repeatable strikes.",
+      "suggestedVolume": "8 announced strikes; Zones 8–9 may use 10",
+      "execution": "Keep location and tempo consistent. Transfer the tee contact plan to a moving ball.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Depth; lane; contact quality; posture",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 27
+    },
+    {
+      "sourceId": "Z9-03",
+      "key": "z9-03",
+      "version": 1,
+      "zone": 9,
+      "name": "Zone strike-versus-chase round",
+      "level": "Front toss / decisions",
+      "setup": "Mix Zone 9 strikes with obvious balls below or off plate away.",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Swing at assigned strikes; take balls. Record actual location and decision.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Decision rate; chase rate; depth on strike swings",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 28
+    },
+    {
+      "sourceId": "Z8-04",
+      "key": "z8-04",
+      "version": 1,
+      "zone": 8,
+      "name": "Posture rehearsal freezes",
+      "level": "Dry rehearsal",
+      "setup": "Low-middle contact reference; no ball",
+      "suggestedVolume": "6 dry freezes",
+      "execution": "Rehearse hinge and contact posture; pause for a controlled check.",
+      "depthCue": "Near toe reference; slightly deeper than middle-middle",
+      "targetLane": "Low center lane",
+      "cue": "Hips back, chest over, through center.",
+      "track": "Stable posture",
+      "watchFor": "Standing up; steep grounders; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 29
+    },
+    {
+      "sourceId": "Z8-05",
+      "key": "z8-05",
+      "version": 1,
+      "zone": 8,
+      "name": "Low-line target constraint",
+      "level": "Tee / toss",
+      "setup": "Use a safe visual low target; keep objects out of swing path",
+      "suggestedVolume": "Suggested: 8–10 swings",
+      "execution": "Drive low-middle strikes through low center target without scooping.",
+      "depthCue": "Near toe reference; slightly deeper than middle-middle",
+      "targetLane": "Low center lane",
+      "cue": "Hips back, chest over, through center.",
+      "track": "Low targeted contact; posture",
+      "watchFor": "Standing up; steep grounders; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 30
+    },
+    {
+      "sourceId": "Z8-06",
+      "key": "z8-06",
+      "version": 1,
+      "zone": 8,
+      "name": "Low-middle take-or-hit",
+      "level": "Decision toss",
+      "setup": "Mix low-middle strikes, below-zone balls, neighboring low strikes",
+      "suggestedVolume": "Suggested: 12–15 pitches",
+      "execution": "Specify whether neighboring strikes are green-light pitches before round.",
+      "depthCue": "Near toe reference; slightly deeper than middle-middle",
+      "targetLane": "Low center lane",
+      "cue": "Hips back, chest over, through center.",
+      "track": "Assignment decisions; chase rate",
+      "watchFor": "Standing up; steep grounders; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 31
+    },
+    {
+      "sourceId": "Z8-07",
+      "key": "z8-07",
+      "version": 1,
+      "zone": 8,
+      "name": "Low-row transfer",
+      "level": "Random front toss",
+      "setup": "Randomize Zones 7, 8, 9",
+      "suggestedVolume": "Suggested: 12–15 pitches",
+      "execution": "Adjust depth and direction while maintaining hinge.",
+      "depthCue": "Near toe reference; slightly deeper than middle-middle",
+      "targetLane": "Low center lane",
+      "cue": "Hips back, chest over, through center.",
+      "track": "Depth; lane; posture",
+      "watchFor": "Standing up; steep grounders; early opening",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 32
+    },
+    {
+      "sourceId": "Z9-04",
+      "key": "z9-04",
+      "version": 1,
+      "zone": 9,
+      "name": "Posture and depth freezes",
+      "level": "Dry rehearsal",
+      "setup": "Mark low-away reference without obstructing swing",
+      "suggestedVolume": "Suggested: 6 dry freezes",
+      "execution": "Rehearse deep contact ahead of back hip with stable hinge.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Depth reference; posture",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 33
+    },
+    {
+      "sourceId": "Z9-05",
+      "key": "z9-05",
+      "version": 1,
+      "zone": 9,
+      "name": "Chest-to-plate constraint",
+      "level": "Tee / announced toss",
+      "setup": "Low-away strike; use verbal posture cue, not restraint",
+      "suggestedVolume": "Suggested: 8–10 swings",
+      "execution": "Maintain posture through low-away contact; avoid forced restriction.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Posture; opposite lane",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 34
+    },
+    {
+      "sourceId": "Z9-06",
+      "key": "z9-06",
+      "version": 1,
+      "zone": 9,
+      "name": "Two-ball depth reference",
+      "level": "Tee",
+      "setup": "Two visual depth references; remove unused ball before swinging",
+      "suggestedVolume": "Suggested: 8–10 swings",
+      "execution": "Use forward/back reference to locate suitable low-away contact, then hit one ball.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Correct depth",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 35
+    },
+    {
+      "sourceId": "Z9-07",
+      "key": "z9-07",
+      "version": 1,
+      "zone": 9,
+      "name": "Low-row randomizer",
+      "level": "Front toss",
+      "setup": "Random Zones 7–9 strikes",
+      "suggestedVolume": "Suggested: 12–15 pitches",
+      "execution": "React to actual location without predicting order.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Depth adjustment; lane",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 36
+    },
+    {
+      "sourceId": "Z9-08",
+      "key": "z9-08",
+      "version": 1,
+      "zone": 9,
+      "name": "Variable timing front toss",
+      "level": "Front toss",
+      "setup": "Keep safe screened setup; vary one timing demand only",
+      "suggestedVolume": "Suggested: 12–18 pitches",
+      "execution": "Change tempo or controlled speed between blocks; retain away-pitch plan.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Timing; depth; posture",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 37
+    },
+    {
+      "sourceId": "Z9-09",
+      "key": "z9-09",
+      "version": 1,
+      "zone": 9,
+      "name": "Low-away versus chase game",
+      "level": "Decision toss / live",
+      "setup": "Mix low-away strikes with clear below/away balls",
+      "suggestedVolume": "Suggested: 10–15 pitches",
+      "execution": "Reward correct takes and firm opposite-lane strike contact.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Decisions; chase; hard targeted contact",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 38
+    },
+    {
+      "sourceId": "Z9-10",
+      "key": "z9-10",
+      "version": 1,
+      "zone": 9,
+      "name": "Controlled BP transfer",
+      "level": "Controlled BP",
+      "setup": "Location bias to low-away with nearby strikes",
+      "suggestedVolume": "Suggested: 8–12 pitches",
+      "execution": "Transfer cue to live release; review only between blocks.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Depth; lane; decisions",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 39
+    },
+    {
+      "sourceId": "Z9-11",
+      "key": "z9-11",
+      "version": 1,
+      "zone": 9,
+      "name": "Pressure finish / graduation",
+      "level": "Controlled live",
+      "setup": "Predeclare low-away assignment and fixed finish length",
+      "suggestedVolume": "4–6 pitches; do not extend for a hit",
+      "execution": "Score process within fixed pitch limit. Review repeatability across sessions.",
+      "depthCue": "Deepest reference; still ahead of back hip",
+      "targetLane": "Low opposite-field gap",
+      "cue": "Hinge, wait, stay through the opposite gap.",
+      "track": "Process success; no chase",
+      "watchFor": "Early rollover; late contact; guided flare",
+      "sourceSheet": "Zone Drill Library",
+      "sourceRow": 40
+    }
+  ],
+  "stages": [
+    {
+      "stage": 1,
+      "name": "Static tee map",
+      "source": "Tee; one zone",
+      "newDemand": "Depth, posture, lane",
+      "suggestedVolume": "2–3 sets of 6–8 per selected zone",
+      "instructions": "Two weak zones; finish with 6 alternating reps",
+      "measures": "Depth / lane / posture",
+      "nextStep": "Moving ball with location announced",
+      "sourceRow": 2
+    },
+    {
+      "stage": 2,
+      "name": "Announced moving ball",
+      "source": "Side toss or screened front toss",
+      "newDemand": "Moving-ball timing",
+      "suggestedVolume": "2 sets of 8–10 per weak zone",
+      "instructions": "Known strikes; steady tempo",
+      "measures": "Depth / lane / quality",
+      "nextStep": "Alternate two announced locations",
+      "sourceRow": 3
+    },
+    {
+      "stage": 3,
+      "name": "Announced alternating locations",
+      "source": "Toss; two zones",
+      "newDemand": "Depth adjustment",
+      "suggestedVolume": "12–16 pitches per pairing",
+      "instructions": "Random order; announce location before delivery",
+      "measures": "Depth by zone / lane",
+      "nextStep": "Remove location announcement",
+      "sourceRow": 4
+    },
+    {
+      "stage": 4,
+      "name": "Mixed strikes",
+      "source": "Front toss; unannounced strikes",
+      "newDemand": "Location recognition",
+      "suggestedVolume": "15–20 pitches",
+      "instructions": "Start with one row; expand gradually",
+      "measures": "Depth / timing / lane",
+      "nextStep": "Add obvious balls",
+      "sourceRow": 5
+    },
+    {
+      "stage": 5,
+      "name": "Decision rounds",
+      "source": "Front toss; strikes and balls",
+      "newDemand": "Swing/take decisions",
+      "suggestedVolume": "15–18 pitches",
+      "instructions": "Begin with obvious balls; define swing assignment",
+      "measures": "Decisions / chase / strike contact",
+      "nextStep": "Add one timing variable",
+      "sourceRow": 6
+    },
+    {
+      "stage": 6,
+      "name": "Variable timing",
+      "source": "Front toss with safe fixed setup",
+      "newDemand": "Timing adaptability",
+      "suggestedVolume": "18–24 pitches if appropriate",
+      "instructions": "Vary tempo or speed one at a time; do not use reduced live-pitch distance",
+      "measures": "Decisions / timing / posture",
+      "nextStep": "Controlled BP",
+      "sourceRow": 7
+    },
+    {
+      "stage": 7,
+      "name": "Controlled BP",
+      "source": "Coach / machine / controlled arm",
+      "newDemand": "More realistic flight and speed",
+      "suggestedVolume": "3 blocks of 8–12 if appropriate",
+      "instructions": "Weak zones, then mixed strikes, then decisions",
+      "measures": "Depth / lane / decisions",
+      "nextStep": "Constrained live BP",
+      "sourceRow": 8
+    },
+    {
+      "stage": 8,
+      "name": "Live BP with constraints",
+      "source": "Live pitcher; planned round",
+      "newDemand": "Live release and uncertainty",
+      "suggestedVolume": "Short blocks within pitcher workload plan",
+      "instructions": "One constraint per block; feedback between blocks",
+      "measures": "Decisions / depth / posture",
+      "nextStep": "Game-transfer at-bats",
+      "sourceRow": 9
+    },
+    {
+      "stage": 9,
+      "name": "Game-transfer BP",
+      "source": "Live at-bats / scrimmage",
+      "newDemand": "Competitive transfer",
+      "suggestedVolume": "At-bats within planned workload",
+      "instructions": "Unannounced mix; chart then review",
+      "measures": "Decisions / chase / zone trends",
+      "nextStep": "Use evaluation to select next practice",
+      "sourceRow": 10
+    }
+  ],
+  "pairings": [
+    {
+      "key": "pair-4-6",
+      "zones": [
+        4,
+        6
+      ],
+      "name": "Middle inside / outside",
+      "purpose": "Depth adjustment",
+      "sourceRow": 2
+    },
+    {
+      "key": "pair-7-9",
+      "zones": [
+        7,
+        9
+      ],
+      "name": "Low inside / outside",
+      "purpose": "Hinge plus depth",
+      "sourceRow": 3
+    },
+    {
+      "key": "pair-1-3",
+      "zones": [
+        1,
+        3
+      ],
+      "name": "High inside / outside",
+      "purpose": "Tall posture plus depth",
+      "sourceRow": 4
+    },
+    {
+      "key": "pair-5-8",
+      "zones": [
+        5,
+        8
+      ],
+      "name": "Middle-middle / low-middle",
+      "purpose": "Height and posture",
+      "sourceRow": 5
+    },
+    {
+      "key": "pair-2-5",
+      "zones": [
+        2,
+        5
+      ],
+      "name": "High-middle / middle-middle",
+      "purpose": "Height control",
+      "sourceRow": 6
+    }
+  ],
+  "constraints": [
+    {
+      "key": "location-inside-third",
+      "category": "Location",
+      "name": "Inside third",
+      "deliverySetup": "Bias Zones 1/4/7",
+      "hitterAssignment": "Out-front contact; pull gap",
+      "measure": "Depth / lane",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 2
+    },
+    {
+      "key": "location-middle-third",
+      "category": "Location",
+      "name": "Middle third",
+      "deliverySetup": "Bias Zones 2/5/8",
+      "hitterAssignment": "Drive center",
+      "measure": "Lane / quality",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 3
+    },
+    {
+      "key": "location-outside-third",
+      "category": "Location",
+      "name": "Outside third",
+      "deliverySetup": "Bias Zones 3/6/9",
+      "hitterAssignment": "Let travel; opposite gap",
+      "measure": "Depth / lane",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 4
+    },
+    {
+      "key": "location-high-row",
+      "category": "Location",
+      "name": "High row",
+      "deliverySetup": "Zones 1–3",
+      "hitterAssignment": "Control high strikes with stable posture",
+      "measure": "Posture / quality",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 5
+    },
+    {
+      "key": "location-middle-row",
+      "category": "Location",
+      "name": "Middle row",
+      "deliverySetup": "Zones 4–6",
+      "hitterAssignment": "Adjust depth across row",
+      "measure": "Depth / lane",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 6
+    },
+    {
+      "key": "location-low-row",
+      "category": "Location",
+      "name": "Low row",
+      "deliverySetup": "Zones 7–9",
+      "hitterAssignment": "Maintain hinge; low target lanes",
+      "measure": "Posture / lane",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 7
+    },
+    {
+      "key": "location-two-zone-contrast",
+      "category": "Location",
+      "name": "Two-zone contrast",
+      "deliverySetup": "Two zones, random order",
+      "hitterAssignment": "Adjust without guessing",
+      "measure": "Depth by zone",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 8
+    },
+    {
+      "key": "location-weak-zone-emphasis",
+      "category": "Location",
+      "name": "Weak-zone emphasis",
+      "deliverySetup": "Bias selected weak zones; nearby strikes for transfer",
+      "hitterAssignment": "Apply one established cue",
+      "measure": "Weak-zone process",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 9
+    },
+    {
+      "key": "pitch-type-fastball-only",
+      "category": "Pitch type",
+      "name": "Fastball only",
+      "deliverySetup": "Only controlled fastballs",
+      "hitterAssignment": "Location and timing",
+      "measure": "Depth / decisions",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 10
+    },
+    {
+      "key": "pitch-type-fastball-plus-one-secondary",
+      "category": "Pitch type",
+      "name": "Fastball plus one secondary",
+      "deliverySetup": "Add one age-appropriate secondary pitch",
+      "hitterAssignment": "Recognize speed and location",
+      "measure": "Decision / timing",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 11
+    },
+    {
+      "key": "pitch-type-announced-secondary",
+      "category": "Pitch type",
+      "name": "Announced secondary",
+      "deliverySetup": "Announce pitch type before delivery",
+      "hitterAssignment": "Rehearse timing adaptation",
+      "measure": "Timing / posture",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 12
+    },
+    {
+      "key": "pitch-type-unannounced-secondary",
+      "category": "Pitch type",
+      "name": "Unannounced secondary",
+      "deliverySetup": "Mix two types without announcement",
+      "hitterAssignment": "Compete with recognition",
+      "measure": "Chase / decision",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 13
+    },
+    {
+      "key": "pitch-type-fastball-in-secondary-away",
+      "category": "Pitch type",
+      "name": "Fastball-in / secondary-away",
+      "deliverySetup": "Planned two-type location pairing",
+      "hitterAssignment": "Avoid guessing; adjust to actual pitch",
+      "measure": "Depth / decision",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 14
+    },
+    {
+      "key": "pitch-type-same-zone-two-types",
+      "category": "Pitch type",
+      "name": "Same zone, two types",
+      "deliverySetup": "One location with two pitch types",
+      "hitterAssignment": "Adjust timing without forcing depth",
+      "measure": "Timing / quality",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 15
+    },
+    {
+      "key": "decision-take-until-first-strike",
+      "category": "Decision",
+      "name": "Take until first strike",
+      "deliverySetup": "Include clear balls and strikes",
+      "hitterAssignment": "Track; take until first strike, then activate swing assignment",
+      "measure": "Recognition; separate forced takes",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 16
+    },
+    {
+      "key": "decision-take-first-pitch",
+      "category": "Decision",
+      "name": "Take first pitch",
+      "deliverySetup": "First pitch is an automatic take",
+      "hitterAssignment": "Track then compete",
+      "measure": "Readiness; forced take excluded from decisions",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 17
+    },
+    {
+      "key": "decision-two-strike-round",
+      "category": "Decision",
+      "name": "Two-strike round",
+      "deliverySetup": "Start simulated count with two strikes",
+      "hitterAssignment": "Compete using declared zone standard",
+      "measure": "Decisions / contact",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 18
+    },
+    {
+      "key": "decision-no-chase-round",
+      "category": "Decision",
+      "name": "No-chase round",
+      "deliverySetup": "Mix strikes with obvious balls",
+      "hitterAssignment": "Avoid chase; finish at fixed pitch cap",
+      "measure": "Chase",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 19
+    },
+    {
+      "key": "decision-strike-zone-game",
+      "category": "Decision",
+      "name": "Strike-zone game",
+      "deliverySetup": "Mix strikes and balls",
+      "hitterAssignment": "Earn decision points; bonus quality",
+      "measure": "Decision / quality",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 20
+    },
+    {
+      "key": "decision-borderline-takes",
+      "category": "Decision",
+      "name": "Borderline takes",
+      "deliverySetup": "Target edges and clear strikes",
+      "hitterAssignment": "Use predeclared selective swing rule",
+      "measure": "Assignment decisions",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 21
+    },
+    {
+      "key": "decision-green-light-zones",
+      "category": "Decision",
+      "name": "Green-light zones",
+      "deliverySetup": "Define attack zones before round",
+      "hitterAssignment": "Swing only in assigned zones",
+      "measure": "Assignment decisions",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 22
+    },
+    {
+      "key": "decision-hunt-and-adjust",
+      "category": "Decision",
+      "name": "Hunt and adjust",
+      "deliverySetup": "Early-count zone plan; expand at two strikes",
+      "hitterAssignment": "Follow count-specific plan",
+      "measure": "Assignment decisions",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 23
+    },
+    {
+      "key": "direction-pull-gap-round",
+      "category": "Direction",
+      "name": "Pull-gap round",
+      "deliverySetup": "Inside strikes",
+      "hitterAssignment": "Drive assigned pull lane",
+      "measure": "Lane / depth",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 24
+    },
+    {
+      "key": "direction-center-field-round",
+      "category": "Direction",
+      "name": "Center-field round",
+      "deliverySetup": "Middle strikes",
+      "hitterAssignment": "Drive through center",
+      "measure": "Lane",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 25
+    },
+    {
+      "key": "direction-opposite-gap-round",
+      "category": "Direction",
+      "name": "Opposite-gap round",
+      "deliverySetup": "Outside strikes",
+      "hitterAssignment": "Deep contact to opposite gap",
+      "measure": "Depth / lane",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 26
+    },
+    {
+      "key": "direction-low-line-round",
+      "category": "Direction",
+      "name": "Low-line round",
+      "deliverySetup": "Low strikes; safe visual target",
+      "hitterAssignment": "Low firm flight without scoop",
+      "measure": "Quality / posture",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 27
+    },
+    {
+      "key": "direction-firm-contact-round",
+      "category": "Direction",
+      "name": "Firm-contact round",
+      "deliverySetup": "Assigned strikes",
+      "hitterAssignment": "Line drives and firm grounders",
+      "measure": "Hard targeted contact",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 28
+    },
+    {
+      "key": "direction-no-hook-away",
+      "category": "Direction",
+      "name": "No-hook away",
+      "deliverySetup": "Outer-third strikes",
+      "hitterAssignment": "Avoid early pulled rollover",
+      "measure": "Depth / lane",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 29
+    },
+    {
+      "key": "direction-no-flare-away",
+      "category": "Direction",
+      "name": "No-flare away",
+      "deliverySetup": "Outer-third strikes",
+      "hitterAssignment": "Firm contact rather than guided flare",
+      "measure": "Quality / depth",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 30
+    },
+    {
+      "key": "posture-low-zone-posture",
+      "category": "Posture",
+      "name": "Low-zone posture",
+      "deliverySetup": "Low strikes at manageable speed",
+      "hitterAssignment": "Maintain comfortable hinge",
+      "measure": "Posture",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 31
+    },
+    {
+      "key": "posture-freeze-and-check",
+      "category": "Posture",
+      "name": "Freeze and check",
+      "deliverySetup": "Selected predictable strikes",
+      "hitterAssignment": "Hold balanced finish briefly",
+      "measure": "Balance",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 32
+    },
+    {
+      "key": "posture-chest-to-plate-cue",
+      "category": "Posture",
+      "name": "Chest-to-plate cue",
+      "deliverySetup": "Low-away strikes",
+      "hitterAssignment": "Retain posture; do not physically restrain",
+      "measure": "Posture / lane",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 33
+    },
+    {
+      "key": "posture-reduced-stride-diagnostic",
+      "category": "Posture",
+      "name": "Reduced-stride diagnostic",
+      "deliverySetup": "Controlled predictable strikes",
+      "hitterAssignment": "Use only if coach intentionally tests stride",
+      "measure": "Balance / timing",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 34
+    },
+    {
+      "key": "posture-quiet-head-cue",
+      "category": "Posture",
+      "name": "Quiet-head cue",
+      "deliverySetup": "Predictable strikes",
+      "hitterAssignment": "Limit excessive movement without rigidity",
+      "measure": "Posture / tracking",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 35
+    },
+    {
+      "key": "posture-balanced-finish",
+      "category": "Posture",
+      "name": "Balanced finish",
+      "deliverySetup": "Controlled strikes",
+      "hitterAssignment": "Finish under control",
+      "measure": "Balance",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 36
+    },
+    {
+      "key": "posture-low-away-depth-reference",
+      "category": "Posture",
+      "name": "Low-away depth reference",
+      "deliverySetup": "Low-away strikes; visual reference outside swing path",
+      "hitterAssignment": "Apply individualized deep-contact cue",
+      "measure": "Depth",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 37
+    },
+    {
+      "key": "timing-consistent-tempo",
+      "category": "Timing",
+      "name": "Consistent tempo",
+      "deliverySetup": "Repeatable safe delivery rhythm",
+      "hitterAssignment": "Establish timing",
+      "measure": "Timing",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 38
+    },
+    {
+      "key": "timing-pace-pressure-round",
+      "category": "Timing",
+      "name": "Pace-pressure round",
+      "deliverySetup": "Slightly vary between-pitch interval only when hitter ready",
+      "hitterAssignment": "Reset routine; never rush safety",
+      "measure": "Readiness / decisions",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 39
+    },
+    {
+      "key": "timing-hold-and-go",
+      "category": "Timing",
+      "name": "Hold and go",
+      "deliverySetup": "Vary legal set time; hitter remains ready",
+      "hitterAssignment": "Avoid rushing commitment",
+      "measure": "Timing",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 40
+    },
+    {
+      "key": "timing-velocity-ladder",
+      "category": "Timing",
+      "name": "Velocity ladder",
+      "deliverySetup": "Same safe pitching distance; gradual speed changes",
+      "hitterAssignment": "Preserve depth as speed rises",
+      "measure": "Depth / quality",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 41
+    },
+    {
+      "key": "timing-visual-timing-transfer",
+      "category": "Timing",
+      "name": "Visual timing transfer",
+      "deliverySetup": "Progress from screened toss to regulation-distance live within readiness",
+      "hitterAssignment": "Adapt to changing visual flight; no shortened live distance",
+      "measure": "Timing",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 42
+    },
+    {
+      "key": "timing-unannounced-location",
+      "category": "Timing",
+      "name": "Unannounced location",
+      "deliverySetup": "No location cues; allow normal preparation",
+      "hitterAssignment": "Read actual delivery",
+      "measure": "Decision / depth",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 43
+    },
+    {
+      "key": "competition-quality-at-bat-game",
+      "category": "Competition",
+      "name": "Quality-at-bat game",
+      "deliverySetup": "Declared process rubric",
+      "hitterAssignment": "Earn decisions, depth, lane, quality points",
+      "measure": "Process components",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 44
+    },
+    {
+      "key": "competition-three-pitch-at-bat",
+      "category": "Competition",
+      "name": "Three-pitch at-bat",
+      "deliverySetup": "Fixed 3-pitch block",
+      "hitterAssignment": "Execute assignment on each pitch",
+      "measure": "Decision / quality",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 45
+    },
+    {
+      "key": "competition-win-the-zone",
+      "category": "Competition",
+      "name": "Win the zone",
+      "deliverySetup": "Declared zone cluster and target",
+      "hitterAssignment": "Reach process goal within fixed cap",
+      "measure": "Zone process",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 46
+    },
+    {
+      "key": "competition-pressure-finish",
+      "category": "Competition",
+      "name": "Pressure finish",
+      "deliverySetup": "Fixed final 4–6 pitches",
+      "hitterAssignment": "Repeat skill under score pressure",
+      "measure": "Process",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 47
+    },
+    {
+      "key": "competition-consecutive-success",
+      "category": "Competition",
+      "name": "Consecutive success",
+      "deliverySetup": "Set success target within fixed cap",
+      "hitterAssignment": "Chain correct reps; no extra workload to force finish",
+      "measure": "Repeatability",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 48
+    },
+    {
+      "key": "competition-comeback-round",
+      "category": "Competition",
+      "name": "Comeback round",
+      "deliverySetup": "Normal plan after miss",
+      "hitterAssignment": "Reset and make next sound decision",
+      "measure": "Recovery / decisions",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 49
+    },
+    {
+      "key": "competition-team-relay",
+      "category": "Competition",
+      "name": "Team relay",
+      "deliverySetup": "Shared process-point target",
+      "hitterAssignment": "Contribute quality decisions, not just hits",
+      "measure": "Process",
+      "volumeNote": "Suggested: 8–12 pitches unless a shorter finish is specified; fit to workload plan",
+      "sourceRow": 50
+    }
+  ],
+  "baselineTests": [
+    {
+      "block": "Warm-up",
+      "setup": "Movement; tracking; dry rehearsals",
+      "volume": "About 10 minutes",
+      "measure": "Readiness",
+      "notes": "Adapt volume to age and workload",
+      "sourceRow": 2
+    },
+    {
+      "block": "Tee map",
+      "setup": "Five swings per zone",
+      "volume": "45 swings",
+      "measure": "Depth / lane / posture",
+      "notes": "Can split across sessions",
+      "sourceRow": 3
+    },
+    {
+      "block": "A: Announced toss",
+      "setup": "Six strikes per zone",
+      "volume": "54 swings",
+      "measure": "Depth / lane / quality / posture",
+      "notes": "No decision score for announced mandatory swings",
+      "sourceRow": 4
+    },
+    {
+      "block": "B: Depth adjustment",
+      "setup": "Middle, low, high; each row 4 in + 4 away random",
+      "volume": "24 swings",
+      "measure": "Depth adjustment / lane",
+      "notes": "No predictable alternation",
+      "sourceRow": 5
+    },
+    {
+      "block": "C: Front-toss transfer",
+      "setup": "9 zone-covering strikes + 6 weak-zone strikes + 3 obvious balls",
+      "volume": "18 pitches",
+      "measure": "Decisions / timing / quality",
+      "notes": "Only 3 balls: chase estimate is highly variable",
+      "sourceRow": 6
+    },
+    {
+      "block": "Retest",
+      "setup": "Repeat comparable setup and definitions",
+      "volume": "Planned at suitable intervals",
+      "measure": "Compare repeated patterns",
+      "notes": "Do not force all baseline volume into one session",
+      "sourceRow": 7
+    }
+  ],
+  "sessionPlan": [
+    {
+      "segment": "Preparation",
+      "time": "8 minutes",
+      "volume": "No fixed throws",
+      "task": "Movement and tracking; pitcher warms up independently",
+      "review": "Check readiness and workload",
+      "sourceRow": 2
+    },
+    {
+      "segment": "Dry rehearsal",
+      "time": "5 minutes",
+      "volume": "8–10 dry reps",
+      "task": "Two priority zones; one cue",
+      "review": "Confirm target lanes",
+      "sourceRow": 3
+    },
+    {
+      "segment": "Round 1",
+      "time": "8–10 minutes",
+      "volume": "8–12 pitches",
+      "task": "Controlled fastballs; weak-zone emphasis",
+      "review": "Depth / lane / posture",
+      "sourceRow": 4
+    },
+    {
+      "segment": "Review 1",
+      "time": "2–3 minutes",
+      "volume": "—",
+      "task": "Hitter assessment; identify repeatable issue",
+      "review": "Hold or simplify",
+      "sourceRow": 5
+    },
+    {
+      "segment": "Round 2",
+      "time": "8–10 minutes",
+      "volume": "8–12 pitches",
+      "task": "Mixed strikes in one row or contrasting pair",
+      "review": "Depth adjustment",
+      "sourceRow": 6
+    },
+    {
+      "segment": "Review 2",
+      "time": "2–3 minutes",
+      "volume": "—",
+      "task": "Decide if ready for ball/strike uncertainty",
+      "review": "Add one demand only",
+      "sourceRow": 7
+    },
+    {
+      "segment": "Round 3",
+      "time": "8–10 minutes",
+      "volume": "8–12 pitches",
+      "task": "Mix strikes and obvious balls; secondary only if ready",
+      "review": "Decision / chase / depth",
+      "sourceRow": 8
+    },
+    {
+      "segment": "Optional finish",
+      "time": "3–4 minutes",
+      "volume": "4–6 pitches",
+      "task": "Fixed process challenge; omit if workload/fatigue dictates",
+      "review": "No extra pitches to force a win",
+      "sourceRow": 9
+    },
+    {
+      "segment": "Debrief",
+      "time": "3–5 minutes",
+      "volume": "—",
+      "task": "Record results and next-session prescription",
+      "review": "Separate hitter and delivery issues",
+      "sourceRow": 10
+    }
+  ],
+  "codingGuide": [
+    {
+      "field": "Decision correct",
+      "rule": "1 if swing/take matched actual pitch and predeclared assignment; 0 otherwise. Leave blank for forced takes or nondecision rounds.",
+      "sourceRow": 2
+    },
+    {
+      "field": "Strike swing",
+      "rule": "1 only when pitch was an actual strike and hitter swung. Record 0 otherwise.",
+      "sourceRow": 3
+    },
+    {
+      "field": "Chase",
+      "rule": "1 only for swing at actual ball. Selective assignment errors on strikes are not chases.",
+      "sourceRow": 4
+    },
+    {
+      "field": "Ball in play on strike",
+      "rule": "1 for fair ball in play from swing at strike; 0 for foul, miss, or no swing.",
+      "sourceRow": 5
+    },
+    {
+      "field": "Contact on strike",
+      "rule": "1 for any bat contact on strike swing, including foul.",
+      "sourceRow": 6
+    },
+    {
+      "field": "Hard targeted on strike",
+      "rule": "1 for agreed hard contact in assigned lane on strike swing; 0 for other eligible strike swings; blank if ineligible.",
+      "sourceRow": 7
+    },
+    {
+      "field": "Depth correct",
+      "rule": "1/0 on strike swings only; blank on balls and takes. Use agreed individualized reference.",
+      "sourceRow": 8
+    },
+    {
+      "field": "Lane correct",
+      "rule": "1/0 for balls in play on strikes only; blank otherwise.",
+      "sourceRow": 9
+    },
+    {
+      "field": "Posture error",
+      "rule": "1 for swing with one or more observed posture errors; 0 for stable swing; blank for takes. This counts affected swings, not individual faults.",
+      "sourceRow": 10
+    },
+    {
+      "field": "Recognition",
+      "rule": "Only enter if explicit ball/strike call was recorded. Use 1 correct, 0 incorrect.",
+      "sourceRow": 11
+    },
+    {
+      "field": "Off-plan",
+      "rule": "1 if delivery missed planned training condition; do not automatically label hitter outcome a failure.",
+      "sourceRow": 12
+    },
+    {
+      "field": "Small samples",
+      "rule": "Keep counts alongside rates. Zero balls means chase rate N/A, not 0%. Do not rank zones from a handful of pitches.",
+      "sourceRow": 13
+    }
+  ],
+  "dashboard": [
+    {
+      "metric": "Total logged pitches",
+      "formula": "=COUNTA('Pitch Log'!G2:G501)",
+      "definition": "Actual classified pitches",
+      "sourceRow": 2
+    },
+    {
+      "metric": "Total swings",
+      "formula": "=COUNTIF('Pitch Log'!H2:H501,\"SW\")",
+      "definition": "All swing rows",
+      "sourceRow": 3
+    },
+    {
+      "metric": "Decision rate",
+      "formula": "=IFERROR(AVERAGE('Pitch Log'!I2:I501),\"N/A\")",
+      "definition": "Correct among scored decision opportunities",
+      "sourceRow": 4
+    },
+    {
+      "metric": "Chase rate",
+      "formula": "=IFERROR(SUM('Pitch Log'!K2:K501)/COUNTIF('Pitch Log'!G2:G501,\"B\"),\"N/A\")",
+      "definition": "Chases / actual balls received",
+      "sourceRow": 5
+    },
+    {
+      "metric": "Strike contact rate",
+      "formula": "=IFERROR(SUM('Pitch Log'!M2:M501)/SUM('Pitch Log'!J2:J501),\"N/A\")",
+      "definition": "Contacts including fouls / strike swings",
+      "sourceRow": 6
+    },
+    {
+      "metric": "Hard targeted contact rate",
+      "formula": "=IFERROR(AVERAGE('Pitch Log'!N2:N501),\"N/A\")",
+      "definition": "Mean of eligible 1/0 entries",
+      "sourceRow": 7
+    },
+    {
+      "metric": "Correct depth rate",
+      "formula": "=IFERROR(AVERAGE('Pitch Log'!O2:O501),\"N/A\")",
+      "definition": "Mean of eligible strike-swing entries",
+      "sourceRow": 8
+    },
+    {
+      "metric": "Directional accuracy",
+      "formula": "=IFERROR(AVERAGE('Pitch Log'!P2:P501),\"N/A\")",
+      "definition": "Mean of eligible strike balls-in-play entries",
+      "sourceRow": 9
+    },
+    {
+      "metric": "Posture-error swings per 10",
+      "formula": "=IFERROR(10*SUM('Pitch Log'!Q2:Q501)/COUNTIF('Pitch Log'!H2:H501,\"SW\"),\"N/A\")",
+      "definition": "Affected swings per 10 swings",
+      "sourceRow": 10
+    },
+    {
+      "metric": "Recognition rate",
+      "formula": "=IFERROR(AVERAGE('Pitch Log'!R2:R501),\"N/A\")",
+      "definition": "Only explicitly called pitches",
+      "sourceRow": 11
+    },
+    {
+      "metric": "Off-plan deliveries",
+      "formula": "=SUM('Pitch Log'!S2:S501)",
+      "definition": "Delivery quality count",
+      "sourceRow": 12
+    }
+  ],
+  "roundReview": [
+    {
+      "step": "Confirm assignment",
+      "prompt": "Target zones? Lane? One cue? Active constraint?",
+      "sourceRow": 2
+    },
+    {
+      "step": "Ask hitter",
+      "prompt": "Early, late, on time? Hardest location? What worked?",
+      "sourceRow": 3
+    },
+    {
+      "step": "Review counts",
+      "prompt": "Actual strikes/balls; swings; decisions; depth; lane; posture",
+      "sourceRow": 4
+    },
+    {
+      "step": "Identify pattern",
+      "prompt": "Recognition, decision, timing, depth, posture, direction, quality. Categories interact; do not infer cause from ball flight alone.",
+      "sourceRow": 5
+    },
+    {
+      "step": "Check delivery",
+      "prompt": "Was pitch plan delivered accurately enough to evaluate?",
+      "sourceRow": 6
+    },
+    {
+      "step": "Choose response",
+      "prompt": "Advance one variable / hold / simplify / stop for safety or fatigue",
+      "sourceRow": 7
+    },
+    {
+      "step": "State next cue",
+      "prompt": "One short cue only",
+      "sourceRow": 8
+    },
+    {
+      "step": "State next constraint",
+      "prompt": "Pitch types, actual target locations, fixed volume",
+      "sourceRow": 9
+    }
+  ],
+  "postSessionEval": [
+    {
+      "field": "Hitter / date",
+      "sourceRow": 2
+    },
+    {
+      "field": "Session goal and cue",
+      "sourceRow": 3
+    },
+    {
+      "field": "Total pitches and swings",
+      "sourceRow": 4
+    },
+    {
+      "field": "Decision rate with counts",
+      "sourceRow": 5
+    },
+    {
+      "field": "Chase rate with balls seen",
+      "sourceRow": 6
+    },
+    {
+      "field": "Strike contact rate",
+      "sourceRow": 7
+    },
+    {
+      "field": "Hard targeted contact rate",
+      "sourceRow": 8
+    },
+    {
+      "field": "Correct depth rate",
+      "sourceRow": 9
+    },
+    {
+      "field": "Directional accuracy",
+      "sourceRow": 10
+    },
+    {
+      "field": "Posture-error swings per 10",
+      "sourceRow": 11
+    },
+    {
+      "field": "Delivery accuracy / off-plan pitches",
+      "sourceRow": 12
+    },
+    {
+      "field": "Best process win",
+      "sourceRow": 13
+    },
+    {
+      "field": "Weakest zones with sample counts",
+      "sourceRow": 14
+    },
+    {
+      "field": "First repeated breakdown and evidence",
+      "sourceRow": 15
+    },
+    {
+      "field": "Hitter self-assessment",
+      "sourceRow": 16
+    },
+    {
+      "field": "Coach assessment",
+      "sourceRow": 17
+    },
+    {
+      "field": "Advance / hold / simplify",
+      "sourceRow": 18
+    },
+    {
+      "field": "Next-session zones",
+      "sourceRow": 19
+    },
+    {
+      "field": "Next-session one cue",
+      "sourceRow": 20
+    },
+    {
+      "field": "Next-session constraint",
+      "sourceRow": 21
+    },
+    {
+      "field": "Next-session volume and workload check",
+      "sourceRow": 22
+    },
+    {
+      "field": "Success criterion chosen for this hitter",
+      "sourceRow": 23
+    }
+  ],
+  "deliveryPlan": [
+    {
+      "finding": "Weak inside contact",
+      "plan": "Repeatable inside strikes at manageable speed; then nearby middle strikes",
+      "guardrail": "Use actual location; do not assume every jam is only a depth issue",
+      "sourceRow": 2
+    },
+    {
+      "finding": "Weak outside contact",
+      "plan": "Repeatable away strikes; later pair with clear balls away",
+      "guardrail": "Do not force all contact toward opposite field if actual pitch is inside",
+      "sourceRow": 3
+    },
+    {
+      "finding": "High chase rate",
+      "plan": "Keep speed/type manageable; deliberate clear balls and strikes",
+      "guardrail": "Random misses still count as actual balls for decision scoring",
+      "sourceRow": 4
+    },
+    {
+      "finding": "Low depth accuracy",
+      "plan": "Narrow location band and pitch mix",
+      "guardrail": "Diagnose timing and delivery quality before mechanical changes",
+      "sourceRow": 5
+    },
+    {
+      "finding": "Posture errors",
+      "plan": "Predictable strikes at manageable intensity; review between blocks",
+      "guardrail": "Avoid physical restraints and unsafe obstacles",
+      "sourceRow": 6
+    },
+    {
+      "finding": "Strong process",
+      "plan": "Add one new demand",
+      "guardrail": "Maintain pitcher workload/rest limits",
+      "sourceRow": 7
+    },
+    {
+      "finding": "Delivery inconsistency",
+      "plan": "Simplify pitcher target or use controlled coach feed",
+      "guardrail": "Do not penalize hitter for failure of assigned location",
+      "sourceRow": 8
+    },
+    {
+      "finding": "Fatigue or pain",
+      "plan": "Stop or shorten; follow applicable medical/workload guidance",
+      "guardrail": "No pressure challenge requiring extra pitches",
+      "sourceRow": 9
+    }
+  ],
+  "pitchLogColumns": [
+    "Session date",
+    "Hitter",
+    "Round",
+    "Intended zone",
+    "Actual zone",
+    "Pitch type",
+    "Strike/Ball (S/B)",
+    "Swing/Take (SW/T)",
+    "Decision correct (1/0)",
+    "Strike swing (1/0)",
+    "Chase (1/0)",
+    "Ball in play on strike (1/0)",
+    "Contact on strike (1/0)",
+    "Hard targeted on strike (1/0)",
+    "Depth correct on strike swing (1/0)",
+    "Lane correct on strike BIP (1/0)",
+    "Posture error on swing (1/0)",
+    "Recognition correct (1/0/blank)",
+    "Off-plan delivery (1/0)",
+    "Notes"
+  ],
+  "dailyLogColumns": [
+    "Date",
+    "Hitter",
+    "Focus zones",
+    "Level",
+    "Pitches",
+    "Swings",
+    "Hard targeted %",
+    "Correct depth %",
+    "Decision %",
+    "Chase %",
+    "Posture-error swings per 10",
+    "One cue",
+    "Next adjustment"
+  ]
+}

@@ -37,6 +37,17 @@ export async function DisciplinePage({ discipline, searchParams }: { readonly di
         <div>
           <ButtonLink href={`/assessment/new?discipline=${discipline}${athleteQuery(selected, '&')}`}>New {discipline} assessment</ButtonLink>
         </div>
+        {discipline === 'hitting' ? (
+          <DashboardSection
+            id="zone-hitting"
+            title="9-Zone Hitting"
+            description="Zone-by-zone practice: a clickable zone map, the workbook’s drill library, session builder, live pitch tracker, session review and development path. It adds evidence to the hitting assessment and never changes a score."
+          >
+            <ButtonLink href={`/assessment/hitting/zones${athleteQuery(selected)}`} variant="secondary" data-testid="open-zone-hitting">
+              Open 9-Zone Hitting
+            </ButtonLink>
+          </DashboardSection>
+        ) : null}
         <DashboardSection id="latest-report" title="Latest report">
           {latest ? <ReportCard revision={latest} /> : <p className="text-slate">No published {discipline} report yet.</p>}
         </DashboardSection>
