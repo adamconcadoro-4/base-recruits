@@ -16,6 +16,7 @@ import { laneLabel } from '@/lib/assessment/zones/geometry';
 import { currentStages, zoneList } from '@/lib/assessment/zones/records';
 import { getZoneProgress, listZoneSessions } from '@/lib/assessment/zones/server/queries';
 import { isZoneId, type ZoneId, type ZoneSide } from '@/lib/assessment/zones/types';
+import { SITE_TIME_ZONE } from '@/lib/time';
 
 export const metadata: Metadata = { title: 'Start a session' };
 
@@ -57,7 +58,8 @@ export default async function NewZoneSessionPage({ searchParams }: { readonly se
   const hittingAssessments = assessments.data.filter((row) => row.discipline === 'hitting');
   const hittingPlans = plans.data.filter((row) => row.discipline === 'hitting' && row.status === 'active');
   const athleteQuery = selected.relation === 'athlete' ? '' : selected.athlete_id;
-  const today = new Date().toISOString().slice(0, 10);
+  // Today in the site's time zone (an evening practice is not dated tomorrow); the database allows ±1 day.
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: SITE_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 
   return (
     <>
@@ -92,7 +94,7 @@ export default async function NewZoneSessionPage({ searchParams }: { readonly se
           </h2>
           <ActionForm action={createZoneSessionAction} fields={{ athleteId: selected.athlete_id, athleteQuery }} submitLabel="Start session" pendingLabel="Starting…" testId="zone-session-form">
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextField id="session-date" name="session_date" label="Session date" type="date" defaultValue={today} max={today} required />
+              <TextField id="session-date" name="session_date" label="Session date" type="date" defaultValue={today} required />
             </div>
             <ZoneCheckboxes name="focus_zones" idPrefix="session" legend="Focus zones (one or two)" checked={focus} testId="focus-zones" />
             <SelectField id="session-pairing" name="pairing_key" label="Zone pairing (optional)" defaultValue="" className="max-w-xl">

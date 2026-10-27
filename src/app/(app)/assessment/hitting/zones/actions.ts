@@ -178,7 +178,7 @@ export async function setZoneStageAction(_previous: ActionState, formData: FormD
       p_stage: stage,
       p_decision: decision,
       p_reason: field(formData, 'reason'),
-      p_evidence: textOrNull(formData, 'evidence'),
+      p_evidence: field(formData, 'evidence'),
       p_session_id: textOrNull(formData, 'sessionId'),
     },
     'Stage saved.',

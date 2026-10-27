@@ -30,9 +30,25 @@ import { PITCH_METRIC_INFO, REP_METRIC_INFO, summarizeZoneEvents } from '@/lib/a
 import { DELIVERY_LABELS, currentStages, zoneList } from '@/lib/assessment/zones/records';
 import { getAthleteZoneData } from '@/lib/assessment/zones/server/queries';
 import { MIN_ZONE_SAMPLE } from '@/lib/assessment/zones/suggestions';
-import { DELIVERY_SOURCES, ZONE_IDS, isZoneId, type DeliverySource, type ZoneId, type ZoneSide } from '@/lib/assessment/zones/types';
+import {
+  ASSIGNMENT_KINDS,
+  DELIVERY_SOURCES,
+  ZONE_IDS,
+  isZoneId,
+  type AssignmentKind,
+  type DeliverySource,
+  type ZoneId,
+  type ZoneSide,
+} from '@/lib/assessment/zones/types';
 
 export const metadata: Metadata = { title: 'Zone Map' };
+
+const ASSIGNMENT_SHORT: Readonly<Record<AssignmentKind, string>> = {
+  free: 'Free decisions',
+  selective: 'Selective zones',
+  mandatory_swing: 'Mandatory swing',
+  forced_take: 'Forced take',
+};
 
 const PILLAR_LINKS: ReadonlyArray<{ readonly pillar: string; readonly evidence: string }> = [
   { pillar: 'Load & Timing', evidence: 'Timing notes, adjustment across locations, announced versus unannounced rounds.' },
@@ -65,14 +81,26 @@ export default async function ZoneMapPage({ searchParams }: { readonly searchPar
   const delivery = context === 'pitch' && (DELIVERY_SOURCES as readonly string[]).includes(deliveryText ?? '') ? (deliveryText as DeliverySource) : null;
   const zoneText = Number(single(query.zone));
   const zone: ZoneId | null = isZoneId(zoneText) ? zoneText : null;
+  const stageText = Number(single(query.stage));
+  const stageFilter = Number.isInteger(stageText) && stageText >= 1 && stageText <= 9 ? stageText : null;
+  const assignmentText = single(query.assignment);
+  const assignmentFilter = (ASSIGNMENT_KINDS as readonly string[]).includes(assignmentText ?? '') ? (assignmentText as AssignmentKind) : null;
 
-  const sideItems = data.items.filter((item) => item.event.battingSide === side);
-  const pitchItems = sideItems.filter((item) => item.event.kind === 'pitch' && (delivery === null || item.deliverySource === delivery));
+  // Narrowed to one stage and one assignment type when chosen, so a rate describes one protocol.
+  const sideItems = data.items.filter(
+    (item) =>
+      item.event.battingSide === side &&
+      (stageFilter === null || item.stage === stageFilter) &&
+      (assignmentFilter === null || item.assignmentKind === assignmentFilter),
+  );
+  const pitchItems = sideItems.filter(
+    (item) => item.event.kind === 'pitch' && item.deliverySource !== 'tee' && (delivery === null || item.deliverySource === delivery),
+  );
   const mapItems = context === 'tee' ? sideItems.filter((item) => item.event.kind === 'tee_swing') : pitchItems;
   const summary = summarizeZoneEvents(mapItems.map((item) => item.event));
   const pitchSummary = context === 'pitch' ? summary : summarizeZoneEvents(pitchItems.map((item) => item.event));
   const stages = currentStages(data.progress);
-  const base = { side, context, metric, delivery: delivery ?? undefined };
+  const base = { side, context, metric, delivery: delivery ?? undefined, stage: stageFilter ?? undefined, assignment: assignmentFilter ?? undefined };
 
   const cells = Object.fromEntries(
     ZONE_IDS.map((id): [ZoneId, ZoneCell] => {
@@ -147,6 +175,22 @@ export default async function ZoneMapPage({ searchParams }: { readonly searchPar
               ))}
             </MapSelect>
           ) : null}
+          <MapSelect id="map-stage" name="stage" label="Stage" value={stageFilter ? String(stageFilter) : ''}>
+            <option value="">All stages</option>
+            {ZONE_IDS.map((item) => (
+              <option key={item} value={item}>
+                Stage {item}
+              </option>
+            ))}
+          </MapSelect>
+          <MapSelect id="map-assignment" name="assignment" label="Assignment" value={assignmentFilter ?? ''}>
+            <option value="">All assignments</option>
+            {ASSIGNMENT_KINDS.map((item) => (
+              <option key={item} value={item}>
+                {ASSIGNMENT_SHORT[item]}
+              </option>
+            ))}
+          </MapSelect>
           <button type="submit" className="min-h-11 rounded-md border-2 border-navy bg-white px-4 font-semibold text-navy hover:bg-ice">
             Update map
           </button>
@@ -158,7 +202,13 @@ export default async function ZoneMapPage({ searchParams }: { readonly searchPar
               side={side}
               cells={cells}
               outside={context === 'pitch' ? summary.outside : undefined}
-              caption={`${metricName(context, metric)} — ${context === 'tee' ? 'tee swings' : delivery ? DELIVERY_LABELS[delivery].toLowerCase() : 'all pitched balls'}`}
+              caption={[
+                `${metricName(context, metric)} — ${context === 'tee' ? 'tee swings' : delivery ? DELIVERY_LABELS[delivery].toLowerCase() : 'all pitched balls'}`,
+                stageFilter ? `stage ${stageFilter}` : null,
+                assignmentFilter ? ASSIGNMENT_SHORT[assignmentFilter].toLowerCase() : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
               testId="zone-map"
             />
             <p className="text-sm text-slate">
@@ -264,7 +314,7 @@ export default async function ZoneMapPage({ searchParams }: { readonly searchPar
         <DashboardSection
           id="decisions"
           title="Decision & Recognition"
-          description="A separate panel: decisions and recognition are not a mechanical pillar and never lower a mechanics score. Pitched balls only, for the hitter and delivery chosen above."
+          description="A separate panel: decisions and recognition are not a mechanical pillar and never lower a mechanics score. Pitched balls only, for the hitter, delivery, stage and assignment chosen above; choose one stage and assignment to compare like with like."
         >
           <p className="mb-4 text-slate">
             {countOf(pitchSummary.counts.pitches, 'pitch', 'pitches')} · {countOf(pitchSummary.counts.swings, 'swing')} ·{' '}

@@ -55,6 +55,9 @@ export default async function ZoneSessionPage({ params, searchParams }: { readon
   const reviewHref = zoneHref(`/assessment/hitting/zones/sessions/${session.id}/review`, athlete, {}, `round-${round.seq}`);
   const correctHref = zoneHref(`/assessment/hitting/zones/sessions/${session.id}/review`, athlete);
   const athleteQuery = athlete.relation === 'athlete' ? '' : athlete.athlete_id;
+  const isCoach = athlete.relation === 'development_coach';
+  // The athlete's side cannot change the assignment of a round the coach started.
+  const canChangeAssignment = editable && (isCoach || round.source_kind === 'self');
   const stageInfo = zoneStage(round.stage);
   const nextStage = proposedStage(round.stage, round.response);
 
@@ -113,7 +116,7 @@ export default async function ZoneSessionPage({ params, searchParams }: { readon
           />
         </section>
 
-        {editable ? (
+        {canChangeAssignment ? (
           <details className="rounded-md border-2 border-rule p-4">
             <summary className="cursor-pointer font-semibold text-royal-ink">Change this round’s assignment</summary>
             <ActionForm action={setZoneAssignmentAction} fields={{ roundId: round.id }} submitLabel="Change assignment" className="mt-4" testId="change-assignment">

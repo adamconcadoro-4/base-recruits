@@ -241,6 +241,7 @@ create table public.zone_rounds (
   coach_notes text constraint zone_rounds_notes check (char_length(coach_notes) <= 1000),
   response text constraint zone_rounds_response check (response in ('advance', 'hold', 'simplify', 'stop')),
   reviewed_at timestamptz,
+  source_kind text not null constraint zone_rounds_source check (source_kind in ('self', 'development_coach')),
   created_by uuid references auth.users (id) on delete set null,
   created_at timestamptz not null default now(),
   unique (session_id, seq),
@@ -328,7 +329,7 @@ create table public.zone_progress (
   stage smallint not null references public.zone_stages (stage),
   decision text not null constraint zone_progress_decision check (decision in ('set', 'advance', 'hold', 'simplify')),
   reason text not null constraint zone_progress_reason check (char_length(btrim(reason)) between 3 and 500),
-  evidence text constraint zone_progress_evidence check (char_length(evidence) <= 500),
+  evidence text not null constraint zone_progress_evidence check (char_length(btrim(evidence)) between 3 and 500),
   session_id uuid references public.zone_sessions (id) on delete set null,
   source_kind text not null constraint zone_progress_source check (source_kind in ('self', 'development_coach')),
   decided_by uuid references auth.users (id) on delete set null,
@@ -727,11 +728,12 @@ begin
   returning id into v_id;
 
   insert into public.zone_rounds (session_id, athlete_id, seq, batting_side, stage, delivery_source, drill_key, drill_version,
-                                  constraint_key, primary_cue, target_lane, planned_reps, intended_zones, created_by)
+                                  constraint_key, primary_cue, target_lane, planned_reps, intended_zones, source_kind, created_by)
   values (v_id, p_athlete_id, 1, v_round_values.batting_side, v_round_values.stage, v_round_values.delivery_source,
           v_round_values.drill_key, v_round_values.drill_version, v_round_values.constraint_key, v_round_values.primary_cue,
           v_round_values.target_lane, v_round_values.planned_reps,
-          case when cardinality(v_round_values.intended_zones) > 0 then v_round_values.intended_zones else v_focus end, v_uid)
+          case when cardinality(v_round_values.intended_zones) > 0 then v_round_values.intended_zones else v_focus end,
+          private.assessment_source_kind(p_athlete_id), v_uid)
   returning * into v_round;
   perform private.zone_add_assignment(v_round, coalesce(p_session -> 'assignment', '{}'::jsonb));
 
@@ -762,10 +764,10 @@ begin
     raise exception 'a session has at most 50 rounds' using errcode = 'BR004';
   end if;
   insert into public.zone_rounds (session_id, athlete_id, seq, batting_side, stage, delivery_source, drill_key, drill_version,
-                                  constraint_key, primary_cue, target_lane, planned_reps, intended_zones, created_by)
+                                  constraint_key, primary_cue, target_lane, planned_reps, intended_zones, source_kind, created_by)
   values (p_session_id, v_session.athlete_id, v_seq, v_values.batting_side, v_values.stage, v_values.delivery_source,
           v_values.drill_key, v_values.drill_version, v_values.constraint_key, v_values.primary_cue, v_values.target_lane,
-          v_values.planned_reps, v_values.intended_zones, v_uid)
+          v_values.planned_reps, v_values.intended_zones, private.assessment_source_kind(v_session.athlete_id), v_uid)
   returning * into v_round;
   perform private.zone_add_assignment(v_round, coalesce(p_round -> 'assignment', '{}'::jsonb));
   update public.zone_sessions s set updated_at = now() where s.id = p_session_id;
@@ -774,6 +776,7 @@ end;
 $$;
 
 -- Changing a round's assignment adds a version; events already logged keep theirs.
+-- The athlete's side cannot change the assignment of a round the coach started.
 create function public.set_zone_assignment(p_round_id uuid, p_assignment jsonb) returns uuid
 language plpgsql
 security definer
@@ -783,6 +786,9 @@ declare
   v_round public.zone_rounds%rowtype;
 begin
   v_round := private.zone_round_for_work(p_round_id);
+  if v_round.source_kind = 'development_coach' and private.assessment_source_kind(v_round.athlete_id) = 'self' then
+    raise exception 'only the development coach can change the assignment of a round they started' using errcode = 'BR002';
+  end if;
   return private.zone_add_assignment(v_round, coalesce(p_assignment, '{}'::jsonb));
 end;
 $$;
@@ -794,20 +800,26 @@ set search_path = ''
 as $$
 declare
   v_round public.zone_rounds%rowtype;
+  v_coach boolean;
 begin
   v_round := private.zone_round_for_work(p_round_id);
+  v_coach := private.assessment_source_kind(v_round.athlete_id) = 'development_coach';
+  -- Coach notes are the coach's; the next step of a round the coach started is the coach's call.
   update public.zone_rounds r
      set hitter_feedback = private.zone_text(p_review, 'hitter_feedback', 500, 'Hitter feedback'),
-         coach_notes = private.zone_text(p_review, 'coach_notes', 1000, 'Coach notes'),
-         response = private.zone_choice(p_review, 'response', array['advance', 'hold', 'simplify', 'stop'], 'the next step'),
+         coach_notes = case when v_coach then private.zone_text(p_review, 'coach_notes', 1000, 'Coach notes') else r.coach_notes end,
+         response = case when v_coach or r.source_kind = 'self'
+                         then private.zone_choice(p_review, 'response', array['advance', 'hold', 'simplify', 'stop'], 'the next step')
+                         else r.response end,
          reviewed_at = now()
    where r.id = p_round_id;
 end;
 $$;
 
--- The post-session evaluation. Only the development coach writes the coach's
--- assessment; an athlete-side change after the coach approved the next-session
--- plan withdraws that approval.
+-- The post-session evaluation. The hitter's self-assessment is written by the
+-- athlete's side and the coach's assessment by the development coach; any other
+-- person's change after the coach approved the next-session plan withdraws that
+-- approval (the approving coach's own edits keep it).
 create function public.review_zone_session(p_session_id uuid, p_review jsonb) returns void
 language plpgsql
 security definer
@@ -826,7 +838,8 @@ begin
     raise exception 'choose the next constraint from the list' using errcode = 'BR003';
   end if;
   update public.zone_sessions s
-     set hitter_self_assessment = private.zone_text(p_review, 'hitter_self_assessment', 1000, 'The hitter''s self-assessment'),
+     set hitter_self_assessment = case when v_coach then s.hitter_self_assessment
+                                       else private.zone_text(p_review, 'hitter_self_assessment', 1000, 'The hitter''s self-assessment') end,
          coach_assessment = case when v_coach then private.zone_text(p_review, 'coach_assessment', 1000, 'The coach''s assessment')
                                  else s.coach_assessment end,
          best_process_win = private.zone_text(p_review, 'best_process_win', 300, 'Best process win'),
@@ -840,8 +853,8 @@ begin
          status = 'reviewed',
          reviewed_by = v_uid,
          reviewed_at = now(),
-         next_plan_approved_by = case when v_coach then s.next_plan_approved_by end,
-         next_plan_approved_at = case when v_coach then s.next_plan_approved_at end,
+         next_plan_approved_by = case when s.next_plan_approved_by = v_uid then s.next_plan_approved_by end,
+         next_plan_approved_at = case when s.next_plan_approved_by = v_uid then s.next_plan_approved_at end,
          updated_at = now()
    where s.id = p_session_id;
 end;
@@ -870,7 +883,8 @@ end;
 $$;
 
 -- Deleting a session removes its rounds and events. The athlete's side cannot
--- delete a session the development coach started.
+-- delete a session that holds anything the development coach recorded: a session
+-- or round the coach started, a coach entry, the coach's assessment or approval.
 create function public.delete_zone_session(p_session_id uuid) returns void
 language plpgsql
 security definer
@@ -881,9 +895,13 @@ declare
   v_session public.zone_sessions%rowtype;
 begin
   v_session := private.zone_session_for_work(p_session_id);
-  if v_session.source_kind = 'development_coach'
-     and private.assessment_relation(v_uid, v_session.athlete_id) is distinct from 'development_coach' then
-    raise exception 'only the development coach can delete a session they started' using errcode = 'BR002';
+  if private.assessment_source_kind(v_session.athlete_id) = 'self' and (
+       v_session.source_kind = 'development_coach'
+       or v_session.coach_assessment is not null
+       or v_session.next_plan_approved_at is not null
+       or exists (select 1 from public.zone_rounds r where r.session_id = p_session_id and r.source_kind = 'development_coach')
+       or exists (select 1 from public.zone_events e where e.session_id = p_session_id and e.source_kind = 'development_coach')) then
+    raise exception 'this session holds the development coach''s work; only the coach can delete it' using errcode = 'BR002';
   end if;
   delete from public.zone_sessions s where s.id = p_session_id;
   perform private.log_audit('zone.session_deleted', 'zone_session', p_session_id::text, v_session.athlete_id, '{}'::jsonb, v_uid);
@@ -957,6 +975,9 @@ begin
   v.note := private.zone_text(p, 'note', 300, 'The note');
   v.evidence_method := coalesce(private.zone_choice(p, 'evidence_method', array['live', 'video'], 'live or video'), 'live');
 
+  if v.kind = 'pitch' and p_round.delivery_source = 'tee' then
+    raise exception 'this is a tee round: log tee swings or dry reps, not pitches' using errcode = 'BR003';
+  end if;
   if v.kind = 'tee_swing' then
     v.response := 'swing';
   end if;
@@ -1114,7 +1135,7 @@ create function public.set_zone_stage(
   p_stage integer,
   p_decision text,
   p_reason text,
-  p_evidence text default null,
+  p_evidence text,
   p_session_id uuid default null
 ) returns uuid
 language plpgsql
@@ -1123,7 +1144,8 @@ set search_path = ''
 as $$
 declare
   v_uid uuid := (select auth.uid());
-  v_current smallint;
+  v_current public.zone_progress%rowtype;
+  v_side text;
   v_id uuid;
 begin
   if v_uid is null then
@@ -1133,33 +1155,44 @@ begin
   if not private.can_work_on_assessments(v_uid, p_athlete_id) then
     raise exception 'athlete not found' using errcode = 'BR003';
   end if;
+  if p_decision is null or p_decision not in ('set', 'advance', 'hold', 'simplify') then
+    raise exception 'choose set, advance, hold or simplify' using errcode = 'BR003';
+  end if;
   if p_zone is null or p_zone not between 1 and 9 or p_stage is null or p_stage not between 1 and 9 then
     raise exception 'choose a zone and a stage from 1 to 9' using errcode = 'BR003';
   end if;
   if char_length(coalesce(btrim(p_reason), '')) not between 3 and 500 then
     raise exception 'give the reason for this decision (3 to 500 characters)' using errcode = 'BR003';
   end if;
-  if char_length(coalesce(p_evidence, '')) > 500 then
-    raise exception 'the evidence note is longer than 500 characters' using errcode = 'BR003';
+  if char_length(coalesce(btrim(p_evidence), '')) not between 3 and 500 then
+    raise exception 'give the evidence for this decision, such as the counts it is based on (3 to 500 characters)' using errcode = 'BR003';
   end if;
   if p_session_id is not null and not exists (
        select 1 from public.zone_sessions s where s.id = p_session_id and s.athlete_id = p_athlete_id) then
     raise exception 'link one of this athlete''s sessions' using errcode = 'BR003';
   end if;
+  v_side := private.assessment_source_kind(p_athlete_id);
   perform 1 from public.athletes a where a.user_id = p_athlete_id for update;
-  select p.stage into v_current from public.zone_progress p
+  select * into v_current from public.zone_progress p
    where p.athlete_id = p_athlete_id and p.zone = p_zone order by p.created_at desc, p.id desc limit 1;
-  if v_current is null and p_decision is distinct from 'set' then
+  if not found and p_decision <> 'set' then
     raise exception 'set a starting stage for this zone first' using errcode = 'BR004';
-  elsif v_current is not null and not (
-          (p_decision = 'advance' and p_stage = v_current + 1)
-       or (p_decision = 'hold' and p_stage = v_current)
-       or (p_decision = 'simplify' and p_stage < v_current)) then
-    raise exception 'advance moves up one stage, hold keeps the stage, simplify moves to an earlier stage' using errcode = 'BR003';
+  end if;
+  if found then
+    -- A stage the development coach decided is changed only by the coach.
+    if v_current.source_kind = 'development_coach' and v_side = 'self' then
+      raise exception 'the development coach set this zone''s stage; ask them to change it' using errcode = 'BR002';
+    end if;
+    -- "Set" is a deliberate reset to any stage, with its reason and evidence.
+    if not ((p_decision = 'set')
+         or (p_decision = 'advance' and p_stage = v_current.stage + 1)
+         or (p_decision = 'hold' and p_stage = v_current.stage)
+         or (p_decision = 'simplify' and p_stage < v_current.stage)) then
+      raise exception 'advance moves up one stage, hold keeps the stage, simplify moves to an earlier stage' using errcode = 'BR003';
+    end if;
   end if;
   insert into public.zone_progress (athlete_id, zone, stage, decision, reason, evidence, session_id, source_kind, decided_by)
-  values (p_athlete_id, p_zone, p_stage, p_decision, btrim(p_reason), nullif(btrim(p_evidence), ''), p_session_id,
-          private.assessment_source_kind(p_athlete_id), v_uid)
+  values (p_athlete_id, p_zone, p_stage, p_decision, btrim(p_reason), btrim(p_evidence), p_session_id, v_side, v_uid)
   returning id into v_id;
   perform private.log_audit('zone.stage_changed', 'zone_progress', v_id::text, p_athlete_id, '{}'::jsonb, v_uid);
   return v_id;

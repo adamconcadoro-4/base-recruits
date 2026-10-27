@@ -84,6 +84,7 @@ export interface ZoneRoundRow {
   readonly coach_notes: string | null;
   readonly response: RoundResponse | null;
   readonly reviewed_at: string | null;
+  readonly source_kind: 'self' | 'development_coach';
   readonly created_at: string;
 }
 
@@ -243,6 +244,9 @@ export interface ContextEvent {
   readonly deliverySource: DeliverySource;
   readonly assignmentKind: AssignmentKind;
   readonly sessionDate: string;
+  /** The round's active constraint and the session's contact-quality definition (part of what makes sessions comparable). */
+  readonly constraintKey: string | null;
+  readonly qualityDefinition: string | null;
 }
 
 function zoneIds(values: readonly number[]): ZoneId[] {
@@ -276,9 +280,9 @@ export function toZoneEvent(row: ZoneEventRow, assignment: Pick<ZoneAssignmentRo
 /** Joins events to their rounds, assignments and sessions; events whose parents are missing are dropped. */
 export function contextEvents(
   events: readonly ZoneEventRow[],
-  rounds: readonly Pick<ZoneRoundRow, 'id' | 'stage' | 'delivery_source'>[],
+  rounds: readonly Pick<ZoneRoundRow, 'id' | 'stage' | 'delivery_source' | 'constraint_key'>[],
   assignments: readonly Pick<ZoneAssignmentRow, 'id' | 'kind' | 'swing_zones' | 'recognition_required'>[],
-  sessions: readonly Pick<ZoneSessionRow, 'id' | 'session_date'>[],
+  sessions: readonly Pick<ZoneSessionRow, 'id' | 'session_date' | 'contact_quality_definition'>[],
 ): ContextEvent[] {
   const roundMap = new Map(rounds.map((round) => [round.id, round]));
   const assignmentMap = new Map(assignments.map((assignment) => [assignment.id, assignment]));
@@ -296,6 +300,8 @@ export function contextEvents(
       deliverySource: round.delivery_source,
       assignmentKind: assignment.kind,
       sessionDate: session.session_date,
+      constraintKey: round.constraint_key,
+      qualityDefinition: session.contact_quality_definition,
     });
   }
   return result;
@@ -309,6 +315,8 @@ export interface CurrentStage {
   readonly decision: StageDecision;
   readonly reason: string;
   readonly decidedAt: string;
+  /** Who decided it; a coach's decision is changed only by the coach. */
+  readonly sourceKind: 'self' | 'development_coach';
 }
 
 /** The newest stage decision per zone (rows in any order). */
@@ -317,7 +325,14 @@ export function currentStages(progress: readonly ZoneProgressRow[]): ReadonlyMap
   const result = new Map<ZoneId, CurrentStage>();
   for (const row of sorted) {
     if (!isZoneId(row.zone) || result.has(row.zone)) continue;
-    result.set(row.zone, { zone: row.zone, stage: row.stage, decision: row.decision, reason: row.reason, decidedAt: row.created_at });
+    result.set(row.zone, {
+      zone: row.zone,
+      stage: row.stage,
+      decision: row.decision,
+      reason: row.reason,
+      decidedAt: row.created_at,
+      sourceKind: row.source_kind,
+    });
   }
   return result;
 }
@@ -332,17 +347,21 @@ export function proposedStage(current: number, response: RoundResponse | null): 
 // ----------------------------------------------------------------------------- comparable groups
 
 /**
- * Sessions are compared only within the same stage, delivery source,
- * assignment, batting side, kind of repetition and calculation version, so
- * tee contact never mixes with live-pitch contact and forced rounds never mix
- * with free decisions.
+ * Sessions are compared only within the same kind of repetition, stage,
+ * delivery source, assignment, active constraint, batting side, evidence
+ * method (live or video), contact-quality definition and calculation version,
+ * so tee contact never mixes with live-pitch contact, forced rounds never mix
+ * with free decisions, and "hard contact" is only added up under one definition.
  */
 export interface ComparableKey {
   readonly kind: EventKind;
   readonly stage: number;
   readonly deliverySource: DeliverySource;
   readonly assignmentKind: AssignmentKind;
+  readonly constraintKey: string | null;
   readonly battingSide: ZoneSide;
+  readonly evidenceMethod: 'live' | 'video';
+  readonly qualityDefinition: string | null;
   readonly calcVersion: string;
 }
 
@@ -352,19 +371,42 @@ export function comparableKey(item: ContextEvent): ComparableKey {
     stage: item.stage,
     deliverySource: item.deliverySource,
     assignmentKind: item.assignmentKind,
+    constraintKey: item.constraintKey,
     battingSide: item.event.battingSide,
+    evidenceMethod: item.row.evidence_method,
+    qualityDefinition: item.qualityDefinition?.trim().toLowerCase() || null,
     calcVersion: ZONE_CALC_VERSION,
   };
 }
 
 export function comparableKeyId(key: ComparableKey): string {
-  return [key.kind, key.stage, key.deliverySource, key.assignmentKind, key.battingSide, key.calcVersion].join('|');
+  return JSON.stringify([
+    key.kind,
+    key.stage,
+    key.deliverySource,
+    key.assignmentKind,
+    key.constraintKey,
+    key.battingSide,
+    key.evidenceMethod,
+    key.qualityDefinition,
+    key.calcVersion,
+  ]);
 }
 
 export function comparableLabel(key: ComparableKey): string {
   const assignment = key.assignmentKind === 'free' ? 'free decisions' : key.assignmentKind.replace('_', ' ');
   const kinds: Readonly<Record<EventKind, string>> = { pitch: 'Pitches', tee_swing: 'Tee swings', dry_rep: 'Dry reps' };
-  return `${kinds[key.kind]} · stage ${key.stage} · ${DELIVERY_LABELS[key.deliverySource].toLowerCase()} · ${assignment} · ${SIDE_LABELS[key.battingSide].toLowerCase()}`;
+  const parts = [
+    kinds[key.kind],
+    `stage ${key.stage}`,
+    DELIVERY_LABELS[key.deliverySource].toLowerCase(),
+    assignment,
+    SIDE_LABELS[key.battingSide].toLowerCase(),
+  ];
+  if (key.constraintKey) parts.push(`constraint: ${constraintLabel(key.constraintKey) ?? key.constraintKey}`);
+  if (key.evidenceMethod === 'video') parts.push('scored from video');
+  if (key.qualityDefinition) parts.push(`hard contact = “${key.qualityDefinition}”`);
+  return parts.join(' · ');
 }
 
 export interface ComparableGroup {

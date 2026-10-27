@@ -76,6 +76,14 @@ export default async function ZoneSessionReviewPage({ params, searchParams }: { 
   const { detail, athlete, editable } = await loadSession(params, searchParams);
   const { session, rounds, assignments, events, items } = detail;
   const isCoach = athlete.relation === 'development_coach';
+  // The athlete's side cannot delete a session that holds the coach's work (the database refuses it too).
+  const holdsCoachWork =
+    session.source_kind === 'development_coach' ||
+    session.coach_assessment !== null ||
+    session.next_plan_approved_at !== null ||
+    rounds.some((round) => round.source_kind === 'development_coach') ||
+    events.some((row) => row.source_kind === 'development_coach');
+  const canDelete = editable && (isCoach || !holdsCoachWork);
   const [media, progress, linkedAssessment] = await Promise.all([
     getMediaForAthlete(session.athlete_id),
     getZoneProgress(session.athlete_id),
@@ -288,15 +296,28 @@ export default async function ZoneSessionReviewPage({ params, searchParams }: { 
                     {editable ? (
                       <ActionForm action={reviewZoneRoundAction} fields={{ roundId: round.id }} submitLabel="Save round review" testId={`round-review-${round.seq}`}>
                         <TextAreaField id={`round-${round.seq}-feedback`} name="hitter_feedback" label="What the hitter said" maxLength={500} defaultValue={round.hitter_feedback ?? ''} />
-                        <TextAreaField id={`round-${round.seq}-notes`} name="coach_notes" label="Coach notes" maxLength={1000} defaultValue={round.coach_notes ?? ''} />
-                        <SelectField id={`round-${round.seq}-response`} name="response" label="Next step" defaultValue={round.response ?? ''} className="max-w-xs">
-                          <option value="">Not decided</option>
-                          {ROUND_RESPONSES.map((response) => (
-                            <option key={response} value={response}>
-                              {ROUND_RESPONSE_LABELS[response]}
-                            </option>
-                          ))}
-                        </SelectField>
+                        {isCoach ? (
+                          <TextAreaField id={`round-${round.seq}-notes`} name="coach_notes" label="Coach notes" maxLength={1000} defaultValue={round.coach_notes ?? ''} />
+                        ) : round.coach_notes ? (
+                          <p>
+                            <span className="font-semibold">Coach notes:</span> {round.coach_notes}
+                          </p>
+                        ) : null}
+                        {isCoach || round.source_kind === 'self' ? (
+                          <SelectField id={`round-${round.seq}-response`} name="response" label="Next step" defaultValue={round.response ?? ''} className="max-w-xs">
+                            <option value="">Not decided</option>
+                            {ROUND_RESPONSES.map((response) => (
+                              <option key={response} value={response}>
+                                {ROUND_RESPONSE_LABELS[response]}
+                              </option>
+                            ))}
+                          </SelectField>
+                        ) : (
+                          <p>
+                            <span className="font-semibold">Next step (the coach’s call):</span>{' '}
+                            {round.response ? ROUND_RESPONSE_LABELS[round.response] : 'Not decided yet'}
+                          </p>
+                        )}
                       </ActionForm>
                     ) : (
                       <p>
@@ -365,7 +386,14 @@ export default async function ZoneSessionReviewPage({ params, searchParams }: { 
           </div>
           {editable ? (
             <ActionForm action={reviewZoneSessionAction} fields={{ sessionId: session.id }} submitLabel="Save evaluation" testId="session-evaluation">
-              <TextAreaField id="eval-self" name="hitter_self_assessment" label="Hitter’s self-assessment" maxLength={1000} defaultValue={session.hitter_self_assessment ?? ''} />
+              {isCoach ? (
+                <div>
+                  <p className="font-semibold">Hitter’s self-assessment</p>
+                  <p className="text-slate">{session.hitter_self_assessment ?? 'Written by the hitter or their family.'}</p>
+                </div>
+              ) : (
+                <TextAreaField id="eval-self" name="hitter_self_assessment" label="Hitter’s self-assessment" maxLength={1000} defaultValue={session.hitter_self_assessment ?? ''} />
+              )}
               {isCoach ? (
                 <TextAreaField id="eval-coach" name="coach_assessment" label="Coach’s assessment" maxLength={1000} defaultValue={session.coach_assessment ?? ''} />
               ) : (
@@ -431,12 +459,21 @@ export default async function ZoneSessionReviewPage({ params, searchParams }: { 
         <DashboardSection id="stages" title="Stage decisions for the focus zones" description="Advance moves up one stage, hold keeps it, simplify moves back. Give the reason and the evidence.">
           <div className="grid gap-6 md:grid-cols-2">
             {focus.map((zone) => (
-              <StageForm key={zone} zone={zone} current={stages.get(zone)?.stage ?? null} athleteId={session.athlete_id} sessionId={session.id} editable={editable} evidence={zoneEvidence(summary, zone)} />
+              <StageForm
+                key={zone}
+                zone={zone}
+                current={stages.get(zone)?.stage ?? null}
+                lockedByCoach={!isCoach && stages.get(zone)?.sourceKind === 'development_coach'}
+                athleteId={session.athlete_id}
+                sessionId={session.id}
+                editable={editable}
+                evidence={zoneEvidence(summary, zone)}
+              />
             ))}
           </div>
         </DashboardSection>
 
-        {editable ? (
+        {canDelete ? (
           <details className="rounded-md border-2 border-danger p-4 print:hidden">
             <summary className="cursor-pointer font-semibold text-danger">Delete this session</summary>
             <p className="mt-2 text-slate">Removes the session, its rounds and every entry. Stage history stays.</p>

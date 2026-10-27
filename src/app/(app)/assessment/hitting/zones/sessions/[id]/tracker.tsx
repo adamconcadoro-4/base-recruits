@@ -68,7 +68,9 @@ export function Tracker({
   const [draft, setDraft] = useState<ZoneEntryInput>(() => fresh(defaultKind));
   const [status, setStatus] = useState<Status>({ tone: 'idle', text: '' });
   const [problem, setProblem] = useState<string | null>(null);
-  const queue = useRef<Array<{ key: string; input: ZoneEntryInput }>>([]);
+  // Entries save strictly in order. A failed entry stays at the front, and the
+  // ones logged after it wait, until it is retried or discarded.
+  const queue = useRef<Array<{ key: string; input: ZoneEntryInput; failed: boolean }>>([]);
   const running = useRef(false);
 
   const process = useCallback(async () => {
@@ -77,6 +79,14 @@ export function Tracker({
     while (queue.current.length > 0) {
       const job = queue.current[0];
       if (!job) break;
+      if (job.failed) {
+        const waiting = queue.current.length - 1;
+        setStatus({
+          tone: 'error',
+          text: `${entrySummary(job.input, null)} wasn’t saved. Try again or discard it${waiting > 0 ? `; ${waiting} later ${waiting === 1 ? 'entry is' : 'entries are'} waiting` : ''}.`,
+        });
+        break;
+      }
       setStatus({ tone: 'saving', text: 'Saving…' });
       let result: Awaited<ReturnType<typeof logZoneEntryAction>>;
       try {
@@ -84,8 +94,8 @@ export function Tracker({
       } catch {
         result = { ok: false, message: 'No connection. The entry is kept here; try again.' };
       }
-      queue.current.shift();
       if (result.ok) {
+        queue.current.shift();
         const saved = result;
         setEntries((list) =>
           list.map((entry) =>
@@ -95,9 +105,9 @@ export function Tracker({
         setStatus({ tone: 'saved', text: `Saved ${entrySummary(tidyEntry(job.input), saved.seq)}.` });
       } else {
         const message = result.message;
+        job.failed = true;
         setEntries((list) => list.map((entry) => (entry.key === job.key ? { ...entry, status: 'failed', message } : entry)));
         setStatus({ tone: 'error', text: `Not saved: ${message}` });
-        // Later entries wait until this one is retried or discarded, so the order is kept.
         break;
       }
     }
@@ -123,16 +133,16 @@ export function Tracker({
     const key = nextKey();
     const event = entryToEvent(tidy, assignment, key, 0);
     setEntries((list) => [...list, { key, id: null, seq: null, status: 'saving', event, input: tidy }]);
-    queue.current.push({ key, input: tidy });
+    queue.current.push({ key, input: tidy, failed: false });
     setDraft(fresh(draft.kind));
     void process();
   };
 
   const retry = (key: string) => {
-    const entry = entries.find((item) => item.key === key);
-    if (!entry?.input) return;
+    const job = queue.current.find((item) => item.key === key);
+    if (!job) return;
+    job.failed = false;
     setEntries((list) => list.map((item) => (item.key === key ? { ...item, status: 'saving', message: undefined } : item)));
-    queue.current = [{ key, input: entry.input }, ...queue.current.filter((job) => job.key !== key)];
     void process();
   };
 
@@ -169,7 +179,14 @@ export function Tracker({
     <div className="space-y-6" data-testid="zone-tracker">
       {editable ? (
         <div className="space-y-4">
-          <EntryPad value={draft} onChange={setDraft} intendedZones={intendedZones} clips={clips} showRecognition={assignment.recognitionRequired || draft.recognition_call !== null} />
+          <EntryPad
+            value={draft}
+            onChange={setDraft}
+            intendedZones={intendedZones}
+            clips={clips}
+            kinds={delivery === 'tee' ? ['tee_swing', 'dry_rep'] : ['pitch', 'tee_swing', 'dry_rep']}
+            showRecognition={assignment.recognitionRequired || draft.recognition_call !== null}
+          />
           {problem ? (
             <p role="alert" className="font-semibold text-danger">
               {problem}

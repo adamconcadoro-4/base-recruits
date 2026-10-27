@@ -127,6 +127,7 @@ export function EntryPad({
   intendedZones,
   clips,
   kindLocked = false,
+  kinds = ['pitch', 'tee_swing', 'dry_rep'],
   showRecognition,
 }: {
   readonly value: ZoneEntryInput;
@@ -134,6 +135,8 @@ export function EntryPad({
   readonly intendedZones: readonly number[];
   readonly clips: readonly PadClip[];
   readonly kindLocked?: boolean;
+  /** Kinds this round accepts (a tee round has no pitches). */
+  readonly kinds?: readonly EventKind[];
   readonly showRecognition: boolean;
 }) {
   const id = useId();
@@ -163,11 +166,13 @@ export function EntryPad({
               location: kind !== 'pitch' && value.location?.startsWith('out_') ? null : value.location,
             })
           }
-          options={[
-            { value: 'pitch', label: 'Pitch' },
-            { value: 'tee_swing', label: 'Tee swing' },
-            { value: 'dry_rep', label: 'Dry rep' },
-          ]}
+          options={(
+            [
+              { value: 'pitch', label: 'Pitch' },
+              { value: 'tee_swing', label: 'Tee swing' },
+              { value: 'dry_rep', label: 'Dry rep' },
+            ] as const
+          ).filter((option) => kinds.includes(option.value))}
         />
       )}
 

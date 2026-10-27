@@ -237,6 +237,38 @@ race "two training plans started at once leave one active plan per discipline" \
       and (select count(*) from public.assessment_training_plans where athlete_id = tests.id('assess_athlete')) = 2" \
   b_must_succeed
 
+# 9-Zone Hitting: 29 sessions started this hour (30 allowed), one round to log
+# into from two devices, and a zone at stage 2 that two people advance at once.
+local_psql "${BR_TEST_DB}" >/dev/null <<'SQL'
+begin;
+select tests.authenticate_as('assess_athlete');
+select tests.remember_job('zone_s', public.create_zone_session(auth.uid(),
+  '{"session_date": "2026-10-01", "focus_zones": [4], "batting_side": "right", "stage": 2, "delivery_source": "toss", "assignment": {"kind": "free"}}'));
+select public.create_zone_session(auth.uid(),
+  '{"session_date": "2026-10-01", "focus_zones": [5], "batting_side": "right", "stage": 1, "delivery_source": "tee", "assignment": {"kind": "mandatory_swing"}}')
+  from generate_series(1, 28);
+select tests.remember_job('zone_r', (select id from public.zone_rounds where session_id = tests.job('zone_s')));
+select public.set_zone_stage(auth.uid(), 4, 2, 'set', 'Race test baseline', 'Tee map 4 of 5');
+commit;
+SQL
+
+race "concurrent 9-Zone sessions cannot exceed thirty started in an hour" \
+  "select tests.authenticate_as('assess_athlete'); select public.create_zone_session(auth.uid(), '{\"session_date\": \"2026-10-01\", \"focus_zones\": [6], \"batting_side\": \"right\", \"stage\": 1, \"delivery_source\": \"tee\", \"assignment\": {\"kind\": \"mandatory_swing\"}}');" \
+  "select tests.authenticate_as('assess_coach'); select public.create_zone_session(tests.id('assess_athlete'), '{\"session_date\": \"2026-10-01\", \"focus_zones\": [6], \"batting_side\": \"right\", \"stage\": 1, \"delivery_source\": \"tee\", \"assignment\": {\"kind\": \"mandatory_swing\"}}');" \
+  "select count(*) = 30 from public.zone_sessions where athlete_id = tests.id('assess_athlete')"
+
+race "two devices logging into one round get distinct entry numbers" \
+  "select tests.authenticate_as('assess_athlete'); select * from public.log_zone_event(tests.job('zone_r'), '{\"location\": \"z4\", \"response\": \"take\"}');" \
+  "select tests.authenticate_as('assess_coach'); select * from public.log_zone_event(tests.job('zone_r'), '{\"location\": \"z5\", \"response\": \"swing\", \"contact\": \"fair\"}');" \
+  "select array_agg(seq order by seq) = array[1, 2] from public.zone_events where round_id = tests.job('zone_r')" \
+  b_must_succeed
+
+race "two people advancing one zone at once move it up one stage, not two" \
+  "select tests.authenticate_as('assess_athlete'); select public.set_zone_stage(auth.uid(), 4, 3, 'advance', 'Race test A', 'Depth 9 of 12');" \
+  "select tests.authenticate_as('assess_athlete'); select public.set_zone_stage(auth.uid(), 4, 3, 'advance', 'Race test B', 'Depth 9 of 12');" \
+  "select (select count(*) from public.zone_progress where athlete_id = tests.id('assess_athlete') and zone = 4 and decision = 'advance') = 1
+      and (select stage from public.zone_progress where athlete_id = tests.id('assess_athlete') and zone = 4 order by created_at desc limit 1) = 3"
+
 local_psql postgres -c "drop database if exists ${BR_TEST_DB} with (force);" >/dev/null
 
 echo

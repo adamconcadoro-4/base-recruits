@@ -21,7 +21,7 @@ import { createClient } from '@/lib/supabase/server';
 const SESSION_COLUMNS =
   'id, athlete_id, session_date, batting_side, assessment_id, plan_id, focus_zones, drill_key, drill_version, pairing_key, stage, delivery_source, primary_cue, target_lane, constraint_key, planned_reps, contact_quality_definition, equipment, capture_conditions, notes, status, hitter_self_assessment, coach_assessment, best_process_win, repeated_breakdown, decision, next_zones, next_cue, next_constraint_key, next_volume, success_criterion, reviewed_by, reviewed_at, next_plan_approved_by, next_plan_approved_at, source_kind, created_by, created_at, updated_at';
 const ROUND_COLUMNS =
-  'id, session_id, seq, batting_side, stage, delivery_source, drill_key, drill_version, constraint_key, primary_cue, target_lane, planned_reps, intended_zones, hitter_feedback, coach_notes, response, reviewed_at, created_at';
+  'id, session_id, seq, batting_side, stage, delivery_source, drill_key, drill_version, constraint_key, primary_cue, target_lane, planned_reps, intended_zones, hitter_feedback, coach_notes, response, reviewed_at, source_kind, created_at';
 const ASSIGNMENT_COLUMNS = 'id, round_id, version, kind, swing_zones, recognition_required, created_at';
 const PROGRESS_COLUMNS = 'id, zone, stage, decision, reason, evidence, session_id, source_kind, created_at';
 
@@ -122,9 +122,15 @@ export async function getAthleteZoneData(athleteId: string): Promise<AthleteZone
   const supabase = await createClient();
   const [sessions, rounds, assignments, events, progress] = await Promise.all([
     listZoneSessions(athleteId),
-    readAll<Pick<ZoneRoundRow, 'id' | 'stage' | 'delivery_source'>>(
+    readAll<Pick<ZoneRoundRow, 'id' | 'stage' | 'delivery_source' | 'constraint_key'>>(
       (from, to) =>
-        supabase.from('zone_rounds').select('id, stage, delivery_source').eq('athlete_id', athleteId).order('created_at').order('id').range(from, to),
+        supabase
+          .from('zone_rounds')
+          .select('id, stage, delivery_source, constraint_key')
+          .eq('athlete_id', athleteId)
+          .order('created_at')
+          .order('id')
+          .range(from, to),
       50000,
     ),
     readAll<Pick<ZoneAssignmentRow, 'id' | 'kind' | 'swing_zones' | 'recognition_required'>>(

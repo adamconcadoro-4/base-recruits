@@ -83,7 +83,13 @@ export default async function DevelopmentPathPage({ searchParams }: { readonly s
           <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {ZONE_IDS.map((zone) => (
               <div key={zone} id={`zone-${zone}`} className="scroll-mt-24">
-                <StageForm zone={zone} current={stages.get(zone)?.stage ?? null} athleteId={selected.athlete_id} editable={editable} />
+                <StageForm
+                  zone={zone}
+                  current={stages.get(zone)?.stage ?? null}
+                  lockedByCoach={selected.relation !== 'development_coach' && stages.get(zone)?.sourceKind === 'development_coach'}
+                  athleteId={selected.athlete_id}
+                  editable={editable}
+                />
               </div>
             ))}
           </div>

@@ -196,8 +196,22 @@ select tests.ok((select seq from public.zone_rounds where id = tests.job('r2')) 
   'a second round starts with its own assignment');
 select tests.throws(format($$select public.review_zone_round(%L, '{"response": "promote"}')$$, tests.job('r1')),
   'BR003', 'a round ends with advance, hold, simplify or stop');
-select tests.lives(format($$select public.review_zone_round(%L, '{"response": "hold", "hitter_feedback": "Late on inside"}')$$, tests.job('r1')),
+select tests.lives(format($$select public.review_zone_round(%L, '{"response": "hold", "hitter_feedback": "Late on inside", "coach_notes": "Not mine"}')$$, tests.job('r1')),
   'a round is reviewed');
+select tests.ok((select response || '|' || hitter_feedback || '|' || (coach_notes is null) from public.zone_rounds where id = tests.job('r1')) = 'hold|Late on inside|true',
+  'the athlete''s side sets the next step of its own round but never writes coach notes');
+select tests.authenticate_as('dev');
+select tests.remember_job('r3', public.add_zone_round(tests.job('s1'),
+  '{"batting_side": "right", "stage": 3, "delivery_source": "coach", "assignment": {"kind": "selective", "swing_zones": [4]}}'));
+select public.review_zone_round(tests.job('r3'), '{"response": "simplify", "coach_notes": "Rushing the load"}');
+select tests.ok((select source_kind || '|' || coach_notes from public.zone_rounds where id = tests.job('r3')) = 'development_coach|Rushing the load',
+  'a round the coach starts is marked as the coach''s, with the coach''s notes');
+select tests.authenticate_as('athlete');
+select tests.throws(format($$select public.set_zone_assignment(%L, '{"kind": "free"}')$$, tests.job('r3')),
+  'BR002', 'the athlete''s side cannot change the assignment of a round the coach started');
+select public.review_zone_round(tests.job('r3'), '{"response": "advance", "coach_notes": "", "hitter_feedback": "Felt on time"}');
+select tests.ok((select response || '|' || coach_notes || '|' || hitter_feedback from public.zone_rounds where id = tests.job('r3')) = 'simplify|Rushing the load|Felt on time',
+  'nor the coach''s notes or next step; it can add the hitter''s feedback');
 
 select tests.lives(format($$select public.review_zone_session(%L, '{"decision": "hold", "hitter_self_assessment": "Better depth", "coach_assessment": "Not mine to write", "next_zones": [4], "next_cue": "Catch it deep"}')$$, tests.job('s1')),
   'the athlete completes the post-session evaluation');
@@ -205,30 +219,50 @@ select tests.ok((select status || '|' || decision || '|' || (coach_assessment is
   'the athlete''s side cannot write the coach''s assessment');
 select tests.throws(format($$select public.approve_zone_next_plan(%L)$$, tests.job('s1')), 'BR002', 'an athlete cannot approve their own next plan');
 select tests.authenticate_as('dev');
-select tests.lives(format($$select public.review_zone_session(%L, '{"decision": "hold", "hitter_self_assessment": "Better depth", "coach_assessment": "Depth improved on 4", "next_zones": [4]}')$$, tests.job('s1')),
+select tests.lives(format($$select public.review_zone_session(%L, '{"decision": "hold", "hitter_self_assessment": "Rewritten by the coach", "coach_assessment": "Depth improved on 4", "next_zones": [4]}')$$, tests.job('s1')),
   'the coach adds the coach''s assessment');
+select tests.ok((select hitter_self_assessment from public.zone_sessions where id = tests.job('s1')) = 'Better depth',
+  'the coach cannot rewrite the hitter''s own self-assessment');
 select tests.lives(format($$select public.approve_zone_next_plan(%L)$$, tests.job('s1')), 'the coach approves the next-session plan');
+select public.review_zone_session(tests.job('s1'), '{"decision": "hold", "coach_assessment": "Depth improved on 4; keep zone 4", "next_zones": [4]}');
+select tests.ok((select next_plan_approved_by from public.zone_sessions where id = tests.job('s1')) = tests.id('dev'),
+  'the approving coach''s own edit keeps the approval');
+select tests.clear_authentication();
+select tests.link_development_coach('athlete', 'dev2');
+select tests.authenticate_as('dev2');
+select public.review_zone_session(tests.job('s1'), '{"decision": "advance", "coach_assessment": "Ready to advance", "next_zones": [4]}');
+select tests.ok((select next_plan_approved_at is null from public.zone_sessions where id = tests.job('s1')),
+  'another coach''s edit withdraws the first coach''s approval');
+select tests.authenticate_as('dev');
+select public.approve_zone_next_plan(tests.job('s1'));
 select tests.authenticate_as('athlete');
 select public.review_zone_session(tests.job('s1'), '{"decision": "advance", "hitter_self_assessment": "Ready", "next_zones": [4, 6]}');
 select tests.ok((select (next_plan_approved_at is null) || '|' || coach_assessment from public.zone_sessions where id = tests.job('s1'))
-  = 'true|Depth improved on 4', 'a change by the athlete''s side withdraws the approval and keeps the coach''s assessment');
+  = 'true|Ready to advance', 'a change by the athlete''s side withdraws the approval and keeps the coach''s assessment');
 
 -- ================================================================ progression
-select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 2, 'advance', 'Ready')$$), 'BR004', 'a zone gets a starting stage first');
-select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 2, 'set', 'Baseline tee test')$$), 'a starting stage is set');
-select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 4, 'advance', 'Skipping ahead')$$), 'BR003', 'advance moves up one stage');
-select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 3, 'advance', 'ok')$$), 'BR003', 'a decision needs a reason');
-select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 3, 'advance', 'Depth 9 of 12 on two comparable rounds', null, %L)$$, tests.job('s1')),
-  'a zone advances with its evidence');
-select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 3, 'simplify', 'Too hard')$$), 'BR003', 'simplify moves to an earlier stage');
-select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 1, 'simplify', 'Posture breaking down at full speed')$$), 'a zone is simplified');
-select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 1, 'hold', 'Repeat before moving on')$$), 'and held');
+select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 2, 'advance', 'Ready', 'Tee map 4 of 5')$$), 'BR004', 'a zone gets a starting stage first');
+select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 2, 'set', 'Baseline tee test', 'Tee map 4 of 5 at depth')$$), 'a starting stage is set');
+select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 4, 'advance', 'Skipping ahead', 'Looked good')$$), 'BR003', 'advance moves up one stage');
+select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 3, 'advance', 'ok', 'Depth 9 of 12')$$), 'BR003', 'a decision needs a reason');
+select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 3, 'advance', 'Ready for moving balls', null)$$), 'BR003', 'and evidence');
+select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 3, 'advance', 'Ready for moving balls', 'Depth 9 of 12 on two comparable rounds', %L)$$, tests.job('s1')),
+  'a zone advances with its reason and evidence');
+select tests.throws(format($$select public.set_zone_stage(auth.uid(), 4, 3, 'simplify', 'Too hard', 'Contact 2 of 10')$$), 'BR003', 'simplify moves to an earlier stage');
+select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 1, 'simplify', 'Posture breaking down at full speed', 'Posture errors 4 per 10')$$), 'a zone is simplified');
+select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 1, 'hold', 'Repeat before moving on', 'Depth 5 of 9')$$), 'and held');
+select tests.lives(format($$select public.set_zone_stage(auth.uid(), 4, 5, 'set', 'Baseline retest placed the hitter at decisions', 'Retest: 11 of 12 strike contact')$$),
+  'a deliberate reset to another stage is recorded as "set"');
 select tests.ok((select array_agg(decision || ':' || stage order by created_at, id) from public.zone_progress where athlete_id = auth.uid() and zone = 4)
-  @> array['set:2', 'advance:3', 'simplify:1', 'hold:1']
-  and (select count(*) from public.zone_progress where athlete_id = auth.uid() and zone = 4) = 4,
-  'every stage decision is kept with its reason');
+  = array['set:2', 'advance:3', 'simplify:1', 'hold:1', 'set:5'],
+  'every stage decision is kept with its reason and evidence');
+select tests.authenticate_as('dev');
+select tests.lives(format($$select public.set_zone_stage(%L, 9, 3, 'set', 'Coach baseline', 'Toss round: 6 of 10')$$, tests.id('athlete')), 'the coach sets a stage');
+select tests.authenticate_as('athlete');
+select tests.throws(format($$select public.set_zone_stage(auth.uid(), 9, 4, 'advance', 'I feel ready', 'Felt good today')$$),
+  'BR002', 'the athlete''s side cannot override a stage the coach decided');
 select tests.clear_authentication();
-select tests.ok((select count(*) from public.audit_events where action = 'zone.stage_changed' and subject_user_id = tests.id('athlete') and metadata = '{}') = 4,
+select tests.ok((select count(*) from public.audit_events where action = 'zone.stage_changed' and subject_user_id = tests.id('athlete') and metadata = '{}') = 6,
   'stage changes are audited without values');
 
 -- ================================================================ paused
@@ -245,17 +279,31 @@ delete from public.assessment_media where id = '00000000-0000-4000-8000-00000000
 select tests.ok((select media_id is null from public.zone_events where round_id = tests.job('r1') and seq = 6),
   'deleting a clip unlinks it from entries and keeps the entry');
 
--- ================================================================ deleting
+-- ================================================================ tee rounds and deleting
+select tests.authenticate_as('athlete');
+select tests.remember_job('s3', public.create_zone_session(auth.uid(),
+  (select value from t_values where name = 'base')::jsonb - 'assessment_id' - 'drill_key' || '{"delivery_source": "tee", "stage": 1, "focus_zones": [7], "assignment": {"kind": "mandatory_swing"}}'));
+select tests.remember_job('r_tee', (select id from public.zone_rounds where session_id = tests.job('s3')));
+select tests.throws(format($$select * from public.log_zone_event(%L, '{"kind": "pitch", "location": "z7", "response": "swing"}')$$, tests.job('r_tee')),
+  'BR003', 'a tee round records tee swings and dry reps, never pitches');
+select tests.lives(format($$select * from public.log_zone_event(%L, '{"kind": "tee_swing", "location": "z7", "contact": "fair"}')$$, tests.job('r_tee')),
+  'a tee swing is logged in a tee round');
+select tests.throws(format($$select public.delete_zone_session(%L)$$, tests.job('s1')),
+  'BR002', 'the athlete''s side cannot delete a session holding the coach''s entries, rounds or assessment');
+select tests.lives(format($$select public.delete_zone_session(%L)$$, tests.job('s3')), 'the athlete deletes a session that is only theirs');
+select tests.clear_authentication();
+select tests.ok((select count(*) from public.zone_events where session_id = tests.job('s3')) = 0
+  and (select count(*) from public.zone_rounds where session_id = tests.job('s3')) = 0
+  and (select count(*) from public.zone_assignments a where not exists (select 1 from public.zone_rounds r where r.id = a.round_id)) = 0,
+  'its rounds, assignments and entries go with it');
 select tests.authenticate_as('dev');
 select tests.remember_job('s2', public.create_zone_session(tests.id('athlete'), (select value from t_values where name = 'base')::jsonb - 'assessment_id'));
 select tests.authenticate_as('athlete');
-select tests.throws(format($$select public.delete_zone_session(%L)$$, tests.job('s2')), 'BR002', 'the athlete''s side cannot delete a session the coach started');
-select tests.lives(format($$select public.delete_zone_session(%L)$$, tests.job('s1')), 'the athlete deletes their own session');
+select tests.throws(format($$select public.delete_zone_session(%L)$$, tests.job('s2')), 'BR002', 'nor a session the coach started');
+select tests.authenticate_as('dev');
+select tests.lives(format($$select public.delete_zone_session(%L)$$, tests.job('s1')), 'the development coach can delete it');
 select tests.clear_authentication();
 select tests.ok((select count(*) from public.zone_events where session_id = tests.job('s1')) = 0
-  and (select count(*) from public.zone_rounds where session_id = tests.job('s1')) = 0
-  and (select count(*) from public.zone_assignments a where not exists (select 1 from public.zone_rounds r where r.id = a.round_id)) = 0,
-  'its rounds, assignments and entries go with it');
-select tests.ok((select count(*) from public.zone_progress where athlete_id = tests.id('athlete') and zone = 4) = 4
+  and (select count(*) from public.zone_progress where athlete_id = tests.id('athlete') and zone = 4) = 5
   and (select count(*) from public.zone_progress where session_id is not null and athlete_id = tests.id('athlete')) = 0,
   'stage history stays, unlinked from the deleted session');

@@ -60,10 +60,11 @@ function row(overrides: Partial<ZoneEventRow> = {}): ZoneEventRow {
   };
 }
 
-const ROUNDS: Pick<ZoneRoundRow, 'id' | 'seq' | 'stage' | 'delivery_source'>[] = [
-  { id: 'r1', seq: 1, stage: 2, delivery_source: 'toss' },
-  { id: 'r2', seq: 2, stage: 2, delivery_source: 'toss' },
-  { id: 'r3', seq: 1, stage: 1, delivery_source: 'tee' },
+const ROUNDS: Pick<ZoneRoundRow, 'id' | 'seq' | 'stage' | 'delivery_source' | 'constraint_key'>[] = [
+  { id: 'r1', seq: 1, stage: 2, delivery_source: 'toss', constraint_key: null },
+  { id: 'r2', seq: 2, stage: 2, delivery_source: 'toss', constraint_key: null },
+  { id: 'r3', seq: 1, stage: 1, delivery_source: 'tee', constraint_key: null },
+  { id: 'r4', seq: 3, stage: 2, delivery_source: 'toss', constraint_key: 'decision-take-first-pitch' },
 ];
 const ASSIGNMENTS: Pick<ZoneAssignmentRow, 'id' | 'version' | 'kind' | 'swing_zones' | 'recognition_required'>[] = [
   { id: 'a1', version: 1, kind: 'free', swing_zones: [], recognition_required: false },
@@ -212,6 +213,21 @@ describe('stored records', () => {
     expect(main?.sessions.map((item) => item.date)).toEqual(['2026-10-01', '2026-10-03']);
     // 4 of 6 (66.7%), not the mean of 50% and 75%.
     expect(main?.total.pitch.strike_contact).toMatchObject({ numerator: 4, denominator: 6, value: 66.7 });
+  });
+
+  it('keeps different constraints, evidence methods and contact definitions apart', () => {
+    const sessions = [session('s1', '2026-10-01', { contact_quality_definition: 'Hard line drive' }), session('s2', '2026-10-03', { contact_quality_definition: 'Any hard contact' })];
+    const events = [
+      row({ session_id: 's1', round_id: 'r1' }),
+      row({ session_id: 's2', round_id: 'r2' }),
+      row({ session_id: 's1', round_id: 'r4' }),
+      row({ session_id: 's1', round_id: 'r1', evidence_method: 'video' }),
+    ];
+    const groups = comparableGroups(contextEvents(events, ROUNDS, ASSIGNMENTS, sessions));
+    expect(groups).toHaveLength(4);
+    expect(groups.map((group) => group.label).join('\n')).toContain('constraint:');
+    expect(groups.map((group) => group.label).join('\n')).toContain('scored from video');
+    expect(groups.map((group) => group.label).join('\n')).toContain('hard contact = “hard line drive”');
   });
 
   it('generates the daily log from sessions without mixing tee swings into pitch rates', () => {

@@ -193,9 +193,18 @@ verified citation; suggested volumes are planning guidance; contact-depth refere
 
 Writes only through checked functions (`create_zone_session`, `add_zone_round`, `set_zone_assignment`,
 `log_zone_event`, `update_zone_event`, `delete_zone_event`, `review_zone_round`, `review_zone_session`,
-`approve_zone_next_plan`, `set_zone_stage`, `delete_zone_session`); all stop while the database switch is off. The
-athlete's side cannot change or remove what the development coach recorded, cannot write the coach's assessment,
-and its changes withdraw a coach approval. Only the development coach approves a next-session plan.
+`approve_zone_next_plan`, `set_zone_stage`, `delete_zone_session`); all stop while the database switch is off. Who
+may change what:
+
+- The athlete's side (athlete or linked parent) cannot change or remove the coach's entries, write coach notes or the
+  coach's assessment, change the assignment or next step of a round the coach started, override a stage the coach
+  decided, or delete a session holding any of the coach's work.
+- The coach cannot rewrite the hitter's self-assessment.
+- Only the development coach approves a next-session plan; any later change by someone other than the approving coach
+  withdraws the approval.
+- A stage change always needs a reason and evidence. "Set" is a deliberate reset to any stage; advance is one stage
+  up, hold keeps it, simplify moves back.
+- Tee rounds accept tee swings and dry reps only, never pitches.
 
 ### Calculations (`zone-calc-v1`, `src/lib/assessment/zones/metrics.ts`)
 
@@ -219,8 +228,9 @@ decisions, and are left out only of hard targeted, depth and lane; tee swings an
 pitches. Combined rates add counts; percentages are never averaged. Deliberate change from the workbook: posture uses
 scored swings and shows the unscored ones, so missing observations cannot make a hitter look better.
 
-Comparisons group only identical kind of repetition, stage, delivery source, assignment, batting side and calculation
-version. Prompts (`suggestions.ts`) name a zone only after ≥ 8 scored strike swings with a rate under 50% (one stage
+Comparisons group only identical kind of repetition, stage, delivery source, assignment, active constraint, batting
+side, evidence method (live or video), contact-quality definition and calculation version. The map and Decision &
+Recognition panel can be narrowed to one stage and one assignment type. Prompts (`suggestions.ts`) name a zone only after ≥ 8 scored strike swings with a rate under 50% (one stage
 simpler under 30%) and a decision prompt after ≥ 10 scored decisions; they are labelled planning prompts, change
 nothing by themselves and give the finding, sample, drill, stage, one cue and how to reassess. Ball-flight
 observations are not presented as biomechanical causes; observed hard contact is labelled as a coach's judgment, not
@@ -233,7 +243,9 @@ foul vs fair, assignment error vs chase, selective takes, forced rounds, recogni
 count-based aggregation, tee vs pitch, voided entries, prompts, assignment-version integrity, current stage,
 comparable groups, daily log, map tiles, entry tidying, CSV (formula-safe). Database
 (`supabase/tests/019_zone_hitting.test.sql`): content counts and idempotent re-import, switch off, validation, access
-by relation, coach-entry protection, assignment versions, corrections, clips, approval rules, stage rules, deletion.
+by relation, coach-data protection (entries, rounds, notes, assessment, approval, stages, deletion), assignment
+versions, corrections, clips, tee rounds, approval rules, stage rules. Concurrency (`scripts/db/race-test.sh`): the
+hourly session limit, two devices logging into one round, two people advancing one zone.
 Contract (`tests/contract/zone-hitting.test.ts`): migration seed = app content, database = TypeScript content and value
 lists. End to end (`tests/e2e/zone-hitting.spec.ts`): map, library, download, builder, phone-sized tracker with undo,
 review with corrections, evaluation, stage, history, CSV, privacy and coach approval, WCAG 2.2 AA checks.
@@ -242,6 +254,7 @@ review with corrections, evaluation, stage, history, CSV, privacy and coach appr
 
 - Importing completed workbook copies (section O of the brief): the workbook is used as a content source only.
 - Measured exit velocity or sensor coordinates; a charted zone is a coach's chart, not a measurement.
-- The map, history and comparisons read an athlete's latest 5,000 entries (the page says when that limit is reached).
+- The map, history and comparisons read an athlete's latest 5,000 entries (read in pages past the API's 1,000-row
+  limit; the page says when the 5,000 limit is reached).
 - Demonstration videos: none are invented; clips come from the athlete's own uploads (video switch).
 
