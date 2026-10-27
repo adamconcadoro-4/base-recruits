@@ -60,28 +60,44 @@ lab measurements need lab equipment; a phone clip cannot reproduce them, and Sea
 New migration(s), following every rule in `CONTRIBUTING.md` (RLS on, privileges revoked, writes only through checked
 functions, audits that record a change and never the value, race tests for check-then-write).
 
+As built in `supabase/migrations/20261027000200_seamstate_enum_values.sql` and `…000300_seamstate.sql` (tests in
+`supabase/tests/database/020_seamstate.test.sql`):
+
 | Table | Holds |
 | --- | --- |
-| `seamstate_captures` | One clip's context: assessment, media, athlete, setting (`tee`/`front_toss`/`overhand_bp`/`machine`), setting fields (validated by a versioned schema), batting side (confirmed by the user, never guessed from pixels), camera view, optional complementary-view link, capture protocol version |
-| `seamstate_media_inspections` | Decoded facts about a clip: SHA-256, container, codec, width, height, rotation, display aspect, nominal and measured frame rate, variable-frame-rate flag, frame count, duration, timing basis and slow-motion factor as entered, inspector version |
-| `seamstate_jobs` | One analysis request: capture, status (`queued`, `preprocessing`, `analyzing`, `needs_input`, `complete`, `partial`, `failed`, `cancelled`), idempotency key (unique per requester), pipeline version, current attempt, failure kind (`service` vs `footage`), cancelled/deleted flags, requested by |
-| `seamstate_job_attempts` | Attempt number, worker version, stage reached, per-stage timings and frame counts (no media, no prompt text), error code |
-| `seamstate_analyses` | Immutable revision: job, revision number, parent revision, cause (`initial`, `correction`, `reanalysis`), pipeline/model/catalog/policy versions, quality summary, unavailable items, scoring snapshot |
-| `seamstate_subject_tracks` | Candidate people and the selected athlete track (who selected it: system or user) |
-| `seamstate_swings` | Per-swing boundaries, assessable flag and reason |
-| `seamstate_events` | Event type, frame index and time, uncertainty interval, method (`pose_rule`, `model`, `human`), evidence quality, review state |
-| `seamstate_evidence_frames` | Decoded frame index, presentation time, storage path of the extracted still, swing, tracking state |
-| `seamstate_features` | Feature key, value, unit, provenance category (`image_plane`, `video_estimate`), method version, swing, inputs and limits |
-| `seamstate_findings` | Mechanic key, category (`strength`, `adjustment`, `neutral`, `unable_to_assess`), pillar, observation, interpretation, suggested experiment, reassessment evidence, evidence references, eligible and observed swing counts, evidence grade and reason, limitations and alternative explanations, cue, drill IDs, review status |
-| `seamstate_reviews` | Append-only review and correction events (approve, reject, edit wording, correct an event, boundary or subject). Corrections that change calculations create a new analysis revision; the original AI result is never edited |
+| `seamstate_captures` | One clip's context: assessment, media, athlete, setting (`tee`/`front_toss`/`overhand_bp`/`machine`), the setting's own answers (checked by `private.seamstate_context_problem`, which mirrors `src/lib/seamstate/capture.ts`), batting side (confirmed by the person, never guessed from pixels), camera view, task, devices, filming notes, capture protocol version |
+| `seamstate_media_inspections` | Decoded facts about a clip: SHA-256, container, codec, width, height, rotation, measured frame rate, variable-frame-rate flag, frame count, duration, inspector version |
+| `seamstate_jobs` | One analysis request: capture, state (`queued`, `preprocessing`, `analyzing`, `needs_input`, `complete`, `partial`, `failed`, `cancelled`), idempotency key (unique per requester), pipeline version, current attempt, attempt count, failure kind (`service` vs `footage`) and code |
+| `seamstate_job_attempts` | Attempt number, worker version, stage reached, per-stage timings and counts (no media, prompt text or model output), error code, last report time |
+| `seamstate_analyses` | Immutable revision: job, revision, parent revision, cause (`initial`, `correction`, `reanalysis`), clip verdict, pipeline/model/catalog/policy/schema versions, the **evidence packet** (swings, events, evidence stills and visibility, as defined in `src/lib/seamstate/packet.ts`) and the **result** (eligibility, unable-to-assess items, rejection counts) |
+| `seamstate_findings` | Validated findings: mechanic, pillar, category, priority, swings, observation, interpretation, experiment, reassessment, cue, cited stills, limitations, alternative explanations, eligible and observed swing counts, evidence grade and reasons, drill suggestions, review state. Only the review state can change |
+| `seamstate_reviews` | Append-only review history (approve, reject, note) |
 
-Large data (per-frame landmarks, stills) lives in a new private bucket `seamstate-artifacts`, path
-`athlete/job/attempt/…`, readable only through the same relation checks as clips. Deleting a clip or a draft deletes its
-artifacts; a cancelled or deleted job refuses late callbacks.
+Changes from the Milestone 1 proposal, made while building:
 
-Consent: a new consent scope `seamstate_external_analysis` (athlete; a linked guardian's approval for under-18s), shown
-before the first analysis with the provider named. It is separate from any permission to reuse footage for model
-training, which SeamState does not request.
+- **Swings, events and evidence stills are stored in the analysis's `packet`**, not in separate tables. They are only
+  ever read together with their analysis, they must be frozen with it, and the database still checks that every still a
+  finding cites is in that packet. Subject tracks and per-frame features stay in the worker's artifacts until the
+  correction and subject-selection steps need them in the database.
+- **Five worker callback functions are callable by the service role** (`seamstate_worker_begin_attempt`, `_report`,
+  `_record_inspection`, `_save_analysis`, `_due_jobs`). This is a deliberate widening of the security model: before
+  SeamState, the service role could call exactly one function. The worker itself still has no database credentials; the
+  app server calls these only after verifying the worker's signature, and every one refuses an attempt that is no longer
+  the job's current one, a job that was cancelled or finished, a job whose athlete withdrew permission (it is cancelled,
+  so no stills go to the provider), and any job while SeamState is switched off (it fails as a service problem).
+  `007_privileges_and_exposure.test.sql` pins the exact list.
+- **Spending limits** live in `private.seamstate_settings` (off, per-person daily limit 5, site-wide monthly limit 0 until
+  an administrator raises it) and are counted in private usage records that removing a clip never gives back.
+
+Large data (stills, the packet file, landmarks) lives in the private bucket `seamstate-artifacts`, path
+`athlete/media/job/attempt/file`, readable only by people who can work on the athlete's assessments. Only the server
+writes there. Removing a clip deletes its SeamState records in the database (a trigger on `assessment_media`); the app
+deletes the clip's artifacts under `athlete/media/`.
+
+Consent: scope `seamstate_analysis` with the new audience `outside_service` (no person receives access), reusing the
+existing grant and guardian-approval flow: active immediately for adults, waits for a parent or legal guardian for
+under-18s, at most 365 days, revocable. It is separate from any permission to reuse footage for model training, which
+SeamState does not request. Wording is pending counsel (L12).
 
 ### Job flow
 

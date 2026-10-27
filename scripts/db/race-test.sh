@@ -269,6 +269,47 @@ race "two people advancing one zone at once move it up one stage, not two" \
   "select (select count(*) from public.zone_progress where athlete_id = tests.id('assess_athlete') and zone = 4 and decision = 'advance') = 1
       and (select stage from public.zone_progress where athlete_id = tests.id('assess_athlete') and zone = 4 order by created_at desc limit 1) = 3"
 
+# SeamState: two adult athletes with permission and uploaded clips; the
+# site-wide monthly limit allows exactly one more analysis.
+local_psql "${BR_TEST_DB}" >/dev/null <<'SQL'
+select tests.create_user('ss_' || x, 'athlete', p_date_of_birth => date '2000-01-01') from unnest(array['a', 'b']) as x;
+select tests.enable_assessment(true);
+update private.seamstate_settings set analysis_enabled = true, per_person_daily_limit = 5, monthly_limit = 1 where id;
+begin;
+select tests.authenticate_as('ss_a');
+select public.grant_consent('seamstate_analysis', 'seamstate-analysis-v1');
+select tests.remember_job('ss_a_hit', public.create_assessment(auth.uid(), 'hitting-video', 1, private.today_utc(), '{"rep_goal": 5}'));
+select tests.authenticate_as('ss_b');
+select public.grant_consent('seamstate_analysis', 'seamstate-analysis-v1');
+select tests.remember_job('ss_b_hit', public.create_assessment(auth.uid(), 'hitting-video', 1, private.today_utc(), '{"rep_goal": 5}'));
+commit;
+insert into public.assessment_media (id, assessment_id, athlete_id, storage_path, mime_type, byte_size, timing_basis, status, uploaded_at)
+select tests.remember_job(c.name, gen_random_uuid()), tests.job(c.assessment), tests.id(c.athlete),
+       tests.id(c.athlete) || '/' || c.name || '.mp4', 'video/mp4', 1000, 'real_time', 'uploaded', now()
+  from (values ('ss_clip_a1', 'ss_a_hit', 'ss_a'), ('ss_clip_a2', 'ss_a_hit', 'ss_a'), ('ss_clip_b1', 'ss_b_hit', 'ss_b')) c(name, assessment, athlete);
+SQL
+
+race "two athletes requesting at once cannot exceed the monthly SeamState limit" \
+  "select tests.authenticate_as('ss_a'); select * from public.seamstate_request_analysis(tests.job('ss_clip_a1'), '{\"protocolVersion\": \"seamstate-capture-v1\", \"battingSide\": \"right\", \"cameraView\": \"side_facing\", \"setting\": {\"setting\": \"tee\"}}', 'race-key-a1');" \
+  "select tests.authenticate_as('ss_b'); select * from public.seamstate_request_analysis(tests.job('ss_clip_b1'), '{\"protocolVersion\": \"seamstate-capture-v1\", \"battingSide\": \"left\", \"cameraView\": \"side_facing\", \"setting\": {\"setting\": \"tee\"}}', 'race-key-b1');" \
+  "select (select count(*) from public.seamstate_jobs) = 1 and (select analyses from private.seamstate_monthly_usage) = 1"
+
+local_psql "${BR_TEST_DB}" -c "update private.seamstate_settings set monthly_limit = 10 where id;" >/dev/null
+
+race "a request sent twice at once creates one SeamState job" \
+  "select tests.authenticate_as('ss_a'); select * from public.seamstate_request_analysis(tests.job('ss_clip_a2'), '{\"protocolVersion\": \"seamstate-capture-v1\", \"battingSide\": \"right\", \"cameraView\": \"side_facing\", \"setting\": {\"setting\": \"tee\"}}', 'race-key-a2');" \
+  "select tests.authenticate_as('ss_a'); select * from public.seamstate_request_analysis(tests.job('ss_clip_a2'), '{\"protocolVersion\": \"seamstate-capture-v1\", \"battingSide\": \"right\", \"cameraView\": \"side_facing\", \"setting\": {\"setting\": \"tee\"}}', 'race-key-a2');" \
+  "select count(*) = 1 from public.seamstate_jobs j join public.seamstate_captures c on c.id = j.capture_id where c.media_id = tests.job('ss_clip_a2')" \
+  b_must_succeed
+
+local_psql "${BR_TEST_DB}" -c "select tests.remember_job('ss_job_a2', (select j.id from public.seamstate_jobs j join public.seamstate_captures c on c.id = j.capture_id where c.media_id = tests.job('ss_clip_a2')));" >/dev/null
+
+race "two dispatchers starting one SeamState job at once start one attempt" \
+  "select tests.authenticate_as_service_role(); select * from public.seamstate_worker_begin_attempt(tests.job('ss_job_a2'), 'race-1');" \
+  "select tests.authenticate_as_service_role(); select * from public.seamstate_worker_begin_attempt(tests.job('ss_job_a2'), 'race-2');" \
+  "select count(*) = 1 from public.seamstate_job_attempts" \
+  b_must_succeed
+
 local_psql postgres -c "drop database if exists ${BR_TEST_DB} with (force);" >/dev/null
 
 echo

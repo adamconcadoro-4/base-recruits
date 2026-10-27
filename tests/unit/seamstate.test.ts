@@ -504,6 +504,8 @@ describe('analysis jobs', () => {
     expect(canTransition('queued', 'preprocessing')).toBe(true);
     expect(canTransition('complete', 'analyzing')).toBe(false);
     expect(canTransition('needs_input', 'queued')).toBe(true);
+    expect(canTransition('analyzing', 'queued')).toBe(true);
+    expect(canTransition('cancelled', 'queued')).toBe(false);
   });
 
   it('refuses stale, late and post-deletion callbacks', () => {

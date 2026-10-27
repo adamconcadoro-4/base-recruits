@@ -18,10 +18,12 @@ export const CONSENT_SCOPE_KEYS = [
   'development_coach_access',
   'family_assessments',
   'coach_assessment_reports',
+  'seamstate_analysis',
 ] as const;
 export type ConsentScope = (typeof CONSENT_SCOPE_KEYS)[number];
 
-export type ConsentAudience = 'verified_coaches' | 'specific_user';
+/** outside_service: a named outside service Base Recruits uses for the athlete; no person receives access. */
+export type ConsentAudience = 'verified_coaches' | 'specific_user' | 'outside_service';
 export type GranteeKind = 'verified_coach' | 'linked_guardian' | 'verified_coach_or_linked_guardian' | 'development_coach';
 
 export interface ConsentScopeRule {
@@ -134,6 +136,17 @@ export const CONSENT_SCOPES: Readonly<Record<ConsentScope, ConsentScopeRule>> = 
     textVersion: 'coach-assessment-reports-v1',
     label: 'Published assessment reports',
     description: 'Let one named verified college coach see your published assessment reports. Video is never shared.',
+  },
+  seamstate_analysis: {
+    audience: 'outside_service',
+    granteeKind: null,
+    requiresGuardianApprovalForMinor: true,
+    maxDurationDays: 365,
+    // Wording pending counsel review (decision L12).
+    textVersion: 'seamstate-analysis-v1',
+    label: 'SeamState swing analysis',
+    description:
+      'Let Base Recruits send still frames from your swing videos, cropped to the hitter and without your name, to its AI analysis provider to create SeamState swing reports.',
   },
 };
 

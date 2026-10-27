@@ -13,6 +13,8 @@ import { COACH_STATUS_TRANSITIONS, COACH_VERIFICATION_STATUSES } from '@/lib/aut
 import { APP_ROLES } from '@/lib/auth/roles';
 import { CONSENT_SCOPES, CONSENT_SCOPE_KEYS } from '@/lib/consent/scopes';
 import { CAPABILITIES, CAPABILITY_KEYS } from '@/lib/entitlements/capabilities';
+import { canTransition } from '@/lib/seamstate/jobs';
+import { JOB_STATES } from '@/lib/seamstate/types';
 import {
   APPLICANT_TYPES,
   CONTROLS,
@@ -117,5 +119,18 @@ describe.skipIf(!DATABASE_URL)('database and TypeScript catalogs agree', () => {
   it('admissions policies and correction reports', () => {
     expect(enumValues('applicant_type')).toEqual([...APPLICANT_TYPES]);
     expect(enumValues('correction_topic')).toEqual(Object.keys(CORRECTION_TOPICS));
+  });
+
+  it('SeamState job transitions', () => {
+    const db = rows<{ from_state: string; to_state: string }>(
+      `select f as from_state, t as to_state
+         from unnest(array[${JOB_STATES.map((state) => `'${state}'`).join(', ')}]) f,
+              unnest(array[${JOB_STATES.map((state) => `'${state}'`).join(', ')}]) t
+        where private.seamstate_can_transition(f, t)`,
+    );
+    const ts = JOB_STATES.flatMap((from) =>
+      JOB_STATES.filter((to) => canTransition(from, to)).map((to) => ({ from_state: from, to_state: to })),
+    );
+    expect(canonical(db)).toEqual(canonical(ts));
   });
 });

@@ -89,7 +89,7 @@ select tests.ok(
           'admin_publish_import_job', 'admin_resolve_correction_report', 'admin_restage_import_job',
           'admin_retire_admissions_policy', 'admin_review_coach', 'admin_revoke_role', 'admin_set_admissions_policy',
           'admin_set_assessment_switches', 'admin_set_benchmark_release_status',
-          'admin_set_import_decision', 'admin_set_institution_listing', 'admin_stage_import_rows',
+          'admin_set_import_decision', 'admin_set_institution_listing', 'admin_set_seamstate_settings', 'admin_stage_import_rows',
           'admin_update_baseball_program', 'approve_consent_as_guardian', 'approve_development_coach_link',
           'approve_family_link', 'approve_training_plan', 'approve_zone_next_plan', 'assessment_athletes', 'assessment_family_access',
           'assessment_switches', 'begin_assessment_deletion', 'begin_assessment_upload', 'cancel_development_coach_invite', 'cancel_family_invite',
@@ -104,7 +104,8 @@ select tests.ok(
           'record_assessment_observation', 'record_birthdate', 'record_interval_from_markers',
           'redeem_development_coach_invite', 'redeem_family_invite', 'registry_coverage', 'remove_assessment_media',
           'remove_training_assignment', 'reopen_assessment', 'replace_training_assignment', 'retire_assessment_target', 'review_zone_round', 'review_zone_session',
-          'revoke_consent', 'save_schools', 'schools_by_slugs', 'search_schools', 'set_assessment_baseline',
+          'revoke_consent', 'save_schools', 'schools_by_slugs', 'seamstate_cancel_analysis', 'seamstate_request_analysis',
+          'seamstate_review_finding', 'seamstate_switches', 'search_schools', 'set_assessment_baseline',
           'set_assessment_repetition_status', 'set_assessment_status', 'set_assessment_target',
           'set_observation_quality', 'set_reassessment_date', 'set_training_plan_notes', 'set_zone_assignment', 'set_zone_stage',
           'share_assessment_reports_with_coach', 'share_assessments_with_family', 'shared_assessment_reports',
@@ -115,17 +116,18 @@ select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('service_role', p.oid, 'EXECUTE'))
-  = array['admin_record_birthdate'],
-  'the service role can call exactly one API function (recording the age-screen date of birth)');
+  = array['admin_record_birthdate', 'seamstate_worker_begin_attempt', 'seamstate_worker_due_jobs',
+          'seamstate_worker_record_inspection', 'seamstate_worker_report', 'seamstate_worker_save_analysis'],
+  'the service role can call exactly the age-screen birthdate function and the five SeamState worker callbacks');
 select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'private' and has_function_privilege('authenticated', p.oid, 'EXECUTE'))
-  = array['age_in_years', 'assessment_object_access', 'can_act_as_guardian', 'can_work_on_assessment',
+  = array['age_in_years', 'assessment_object_access', 'can_act_as_guardian', 'can_see_seamstate_job', 'can_work_on_assessment',
           'can_work_on_assessments', 'can_work_on_plan', 'coach_can_view', 'grant_needs_guardian_approval',
           'guardian_can_view', 'guardian_oversees', 'has_active_grant', 'has_capability', 'has_recorded_birthdate',
           'has_role', 'has_valid_guardian_approval', 'is_active_guardian', 'is_admin', 'is_adult',
-          'is_age_blocked', 'is_minor', 'is_verified_coach', 'today_utc'],
+          'is_age_blocked', 'is_minor', 'is_verified_coach', 'seamstate_object_access', 'today_utc'],
   'only read-only policy helpers in the private schema are callable by signed-in users');
 select tests.ok(
   not has_function_privilege('authenticated', 'private.bootstrap_first_admin(text)', 'EXECUTE')

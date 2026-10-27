@@ -1,5 +1,5 @@
 /**
- * Analysis job lifecycle. The database function that applies a transition
+ * Analysis job lifecycle. private.seamstate_can_transition in the database
  * enforces the same table; this module lets the app and its tests reason
  * about it without a database.
  */
@@ -10,9 +10,10 @@ export const TERMINAL_STATES: readonly JobState[] = ['complete', 'partial', 'fai
 
 const TRANSITIONS: Readonly<Record<JobState, readonly JobState[]>> = {
   queued: ['preprocessing', 'failed', 'cancelled'],
-  preprocessing: ['analyzing', 'needs_input', 'complete', 'partial', 'failed', 'cancelled'],
+  // Back to queued: a stalled attempt is retried (up to ATTEMPT_POLICY.maxAttempts).
+  preprocessing: ['queued', 'analyzing', 'needs_input', 'complete', 'partial', 'failed', 'cancelled'],
   needs_input: ['queued', 'cancelled'],
-  analyzing: ['complete', 'partial', 'failed', 'cancelled'],
+  analyzing: ['queued', 'complete', 'partial', 'failed', 'cancelled'],
   complete: [],
   partial: [],
   failed: [],
