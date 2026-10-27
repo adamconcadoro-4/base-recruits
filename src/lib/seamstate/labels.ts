@@ -71,6 +71,12 @@ export function failureReason(kind: 'service' | 'footage' | null, code: string |
   return SERVICE_FAILURES[code] ?? null;
 }
 
+/** Why a reviewed swing was not counted (decision F37: only swings where the bat hits the ball count). */
+export function swingNotCounted(swing: number, contact: string): string {
+  if (contact === 'no_contact') return `Swing ${swing} was not counted: it looked like a practice swing or a miss.`;
+  return `Swing ${swing} was not counted: the stills did not clearly show the bat hitting the ball.`;
+}
+
 export const ASSIGNMENT_LABELS: Readonly<Record<string, string>> = {
   swing_all: 'Swing at everything',
   selective: 'Swing at strikes only',

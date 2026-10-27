@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { captureFromForm } from '@/lib/seamstate/capture-form';
-import { failureReason, interpretationNotice, verdictReason } from '@/lib/seamstate/labels';
+import { failureReason, interpretationNotice, swingNotCounted, verdictReason } from '@/lib/seamstate/labels';
 
 function form(values: Record<string, string>): FormData {
   const data = new FormData();
@@ -67,6 +67,11 @@ describe('plain words for results', () => {
     expect(interpretationNotice('provider_error')).toContain('nothing to do with your swing');
     expect(failureReason('footage', 'clip_too_long')).toContain('two minutes');
     expect(failureReason('service', 'unknown_code')).toBeNull();
+  });
+
+  it('says why a swing was not counted', () => {
+    expect(swingNotCounted(3, 'no_contact')).toBe('Swing 3 was not counted: it looked like a practice swing or a miss.');
+    expect(swingNotCounted(2, 'unclear')).toContain('did not clearly show the bat hitting the ball');
   });
 });
 

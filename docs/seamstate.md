@@ -137,7 +137,7 @@ No GPU.
 | Inspect | Read real metadata and presentation timestamps; measure actual frame rate and variable frame rate; rotation; check the file signature matches its type | Trust the filename or container claims over decoded data |
 | Prepare | Decode analysis frames at source timing (no interpolation); keep a source-to-derivative time map; make a playback-friendly copy only if the browser cannot play the original | Use generated frames as evidence |
 | Select athlete | Detect up to 4 people; track by position and size; propose the batter; ask the user to tap the athlete when more than one candidate is plausible (`needs_input`) | Silently switch to the pitcher or a coach |
-| Segment | Find candidate swings from hand and hip motion in the image plane; mark waggles and pauses; user can correct boundaries | Invent a swing when none is found (`No swing detected`) |
+| Segment | Find candidate swings from hand and hip motion in the image plane; mark waggles and pauses; user can correct boundaries. Only swings where the bat hits the ball count (decision F37); the AI review decides contact, see §5 | Invent a swing when none is found (`No swing detected`) |
 | Track | Landmarks with per-point visibility; tracking gaps kept as gaps | Fill an occluded event and report it as certain |
 | Extract | Only permitted image-plane and temporal features (§6), normalised by body size in the frame, documented smoothing | Bat speed, exit velocity, forces, torque, true 3D rotation |
 | Evidence frames | Pick stills around each event (before, at, after) with exact frame index and time; crop to the athlete | Send the whole video or unrelated people |
@@ -160,6 +160,13 @@ counts as an unsupported inference, and that "no issue found" is a valid answer.
 mechanic catalog only. It does not produce numbers, benchmarks, confidence percentages or scores; scores and evidence
 grades are computed by versioned code. Filenames, captions, scene text and the model's own output are treated as
 untrusted data.
+
+A swing counts only when the bat visibly hits the ball in frame (decision F37). Before any finding, the model returns
+`swingContact` for every swing it was shown: `bat_hits_ball`, `no_contact` (a practice swing or a miss) or `unclear`,
+citing frames of that swing (for example the ball on the tee before the swing and gone after). Only `bat_hits_ball`
+backed by that swing's own frames counts. Any other swing, including one the model did not report, is treated as not
+assessable: findings on it are rejected (`swing_without_contact`), and eligibility, swing counts and evidence grades
+use the counted swings only. The contact calls are saved with the analysis result.
 
 The validator rejects or downgrades (§17 of the brief): out-of-range or nonexistent frames and times; unknown metrics or
 units; repeated patterns from one swing; pitch recognition on tee work; claims about untracked or occluded anatomy;
@@ -234,7 +241,8 @@ three settings (Milestone 4) follow.
   function sets it; only a migration can, and a unit test (`tests/unit/seamstate-screens.test.ts`) fails if a
   migration sets it while either page still makes the promise. Unlocking is one change: new approved wording on the
   clips step and the public Player Assessment page plus that migration.
-- **Swing report** (`/assessment/[id]/swing/[jobId]`): the video-check result with retake advice, then "What looks
+- **Swing report** (`/assessment/[id]/swing/[jobId]`): the video-check result with retake advice and which swings
+  were not counted (F37), then "What looks
   effective", "Possible adjustments" (with "Also noted"), "Your next practice" (experiment, cue, catalog drills
   labelled as not yet coach-reviewed, how to check it again) and "What this video cannot tell us". Every finding shows
   its evidence stills (signed one-hour links, read under the person's own permission), the evidence grade with its

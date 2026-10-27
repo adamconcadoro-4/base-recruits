@@ -20,13 +20,14 @@ import {
   EVIDENCE_GRADE_LABELS,
   interpretationNotice,
   RELATION_LABELS,
+  swingNotCounted,
   VERDICT_LABELS,
   verdictReason,
 } from '@/lib/seamstate/labels';
 import { evidencePacketSchema, type EvidenceFrame } from '@/lib/seamstate/packet';
 import { getSeamstateReport, type FindingRow, type ReviewRow } from '@/lib/seamstate/server/queries';
 import { CAPTURE_SETTING_LABELS } from '@/lib/seamstate/types';
-import type { UnableToAssess } from '@/lib/seamstate/validate';
+import type { SwingContactCheck, UnableToAssess } from '@/lib/seamstate/validate';
 
 export const metadata: Metadata = { title: 'Swing report' };
 
@@ -250,7 +251,12 @@ export default async function SwingReportPage({ params }: { readonly params: Pro
 
   const packet = evidencePacketSchema.safeParse(analysis.packet);
   const frames = new Map((packet.success ? packet.data.frames : []).map((frame) => [frame.frameId, frame]));
-  const result = analysis.result as { interpretation?: string; verdictReasons?: string[]; unableToAssess?: UnableToAssess[] };
+  const result = analysis.result as {
+    interpretation?: string;
+    verdictReasons?: string[];
+    unableToAssess?: UnableToAssess[];
+    swingContact?: SwingContactCheck[];
+  };
   const reviewsFor = (findingId: string) => reviews.filter((item) => item.finding_id === findingId);
   const card = (finding: FindingRow) => (
     <FindingCard
@@ -269,6 +275,7 @@ export default async function SwingReportPage({ params }: { readonly params: Pro
   const neutral = sorted.filter((finding) => finding.category === 'neutral');
   const practice = adjustments.filter((finding) => finding.review_state !== 'rejected').slice(0, 3);
   const unable = result.unableToAssess ?? [];
+  const notCounted = (result.swingContact ?? []).filter((item) => !item.counted);
   const notice = interpretationNotice(result.interpretation);
   const allApproved = findings.length > 0 && findings.every((finding) => finding.review_state === 'approved');
 
@@ -291,6 +298,13 @@ export default async function SwingReportPage({ params }: { readonly params: Pro
             <ul className="list-disc space-y-1 pl-5">
               {(result.verdictReasons ?? []).map((code) => (
                 <li key={code}>{verdictReason(code)}</li>
+              ))}
+            </ul>
+          ) : null}
+          {notCounted.length > 0 ? (
+            <ul className="list-disc space-y-1 pl-5">
+              {notCounted.map((item) => (
+                <li key={item.swing}>{swingNotCounted(item.swing, item.contact)}</li>
               ))}
             </ul>
           ) : null}
