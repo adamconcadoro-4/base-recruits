@@ -72,6 +72,34 @@ function DrawingShape({ drawing, preview = false }: { readonly drawing: NonNulla
   }
 }
 
+/**
+ * The clip's video link, kept steady while the clip stays the same. Saving a mark or note refreshes the page, which
+ * signs a new link; swapping the link would reload the video and jump back to the start (losing any frame steps
+ * taken meanwhile). The newer link is used only if the one in use stops working, at the same moment.
+ */
+function useSteadySource(clip: FilmClip, videoRef: RefObject<HTMLVideoElement | null>): string {
+  const [source, setSource] = useState({ id: clip.id, url: clip.url });
+  if (source.id !== clip.id) setSource({ id: clip.id, url: clip.url });
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || clip.url === source.url) return undefined;
+    const onError = () => {
+      const resumeAt = video.currentTime;
+      video.addEventListener(
+        'loadedmetadata',
+        () => {
+          video.currentTime = resumeAt;
+        },
+        { once: true },
+      );
+      setSource({ id: clip.id, url: clip.url });
+    };
+    video.addEventListener('error', onError);
+    return () => video.removeEventListener('error', onError);
+  }, [clip.id, clip.url, source.url, videoRef]);
+  return source.id === clip.id ? source.url : clip.url;
+}
+
 /** A video with its drawings layered on top. Coordinates are 0–1 of the frame, so they survive any screen size. */
 function Player({
   clip,
@@ -90,6 +118,7 @@ function Player({
   readonly onDrawn?: (points: [[number, number], [number, number]]) => void;
   readonly showAll: boolean;
 }) {
+  const src = useSteadySource(clip, videoRef);
   const [start, setStart] = useState<[number, number] | null>(null);
   const [end, setEnd] = useState<[number, number] | null>(null);
   const point = (event: ReactPointerEvent<SVGSVGElement>): [number, number] => {
@@ -103,7 +132,7 @@ function Player({
   return (
     <div className="relative bg-black">
       {/* Practice clips have no speech, so there is nothing to caption. */}
-      <video ref={videoRef} src={clip.url} preload="metadata" playsInline className="block aspect-video w-full" />
+      <video ref={videoRef} src={src} preload="metadata" playsInline className="block aspect-video w-full" />
       <svg
         viewBox="0 0 1 1"
         preserveAspectRatio="none"
