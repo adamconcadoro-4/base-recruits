@@ -116,6 +116,7 @@ Federal IDs and addresses come from NCES College Navigator; teams come from each
 
 ## E. Re-check at the next data refresh
 
+- **Redlands CC and UPR Aguadilla:** see section F.
 - **Columbia-Greene CC:** confirm the team still plays (no official game found after April 15, 2025). If not, mark
   it discontinued.
 - **The six schools added for 2025–26** (La Salle, Morehouse, Coast Guard, Grove City, Wabash, Saint John's): once
@@ -130,3 +131,28 @@ Federal IDs and addresses come from NCES College Navigator; teams come from each
 - **Reclassifying Division I schools** (not eligible for the NCAA postseason until full membership): New Haven and
   Mercyhurst (2028–29), West Florida (2029), West Georgia (2027–28).
 - **Provisional Division III schools:** Regent and Johnson & Wales–Charlotte (full membership 2028–29).
+
+## F. Remaining "Other" programs and the University of Puerto Rico campuses (applied 2026-10-26)
+
+The founder approved the clean-up on 2026-10-26. Each correction below was checked against an official athletics,
+conference, association or league page; the page and a note are in the revision log.
+
+| School | Now | Official page |
+| --- | --- | --- |
+| Paradise Valley CC (AZ) | NJCAA D2, ACCAC | accac.org, 2026 Division II baseball awards |
+| Delaware Tech (filed under Terry, DE) | NJCAA D2, Region 19 (one college-wide team, home games at the Owens campus) | region19.org, 2026 standings |
+| Neosho County CC (KS) | NJCAA D1, KJCCC | kjccc.org, 2026 Plains District bracket |
+| Massasoit CC (MA) | NJCAA D3, Region 21 | massasoit.edu athletics |
+| Metropolitan CC (MO) | NJCAA D1, Region 16 (one team for all campuses) | njcaa.org, 2025-26 D-I Region XVI standings |
+| Mineral Area College (MO) | NJCAA D1, Region 16 | athletic.mineralarea.edu, 2026 Region 16 D-I bracket |
+| Southwestern Oregon CC (OR) | NWAC, South | nwacsports.com, 2025-26 standings |
+| Dallas Christian College (TX) | NCCAA (single baseball championship, labelled Division I by the NCCAA) | thenccaa.org, 2026 baseball regionals |
+| UPR Mayagüez | Other, Liga Atlética Interuniversitaria (LAI); NCAA Division II for other sports, no NCAA baseball | laipr.org fall 2026 baseball schedule; NCAA directory |
+| UPR Río Piedras | Same as Mayagüez | Same |
+| UPR Bayamón (federal record "University of Puerto Rico") | Same as Mayagüez | Same |
+
+**Held:**
+
+- **Redlands CC (OK):** indirect evidence only, from NJCAA Division II stats links. Confirm with the athletics department.
+- **UPR Aguadilla:** played LAI baseball in fall 2025 but is not on the LAI's approved fall 2026 schedule. Re-check
+  before the spring; if the school confirms it is not playing, mark it suspended or discontinued.

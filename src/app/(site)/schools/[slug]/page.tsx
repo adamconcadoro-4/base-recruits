@@ -170,9 +170,9 @@ export default async function SchoolPage({ params }: { readonly params: Params }
                   <Row label="Federal athletics report">
                     <span>Not listed</span>
                     <span className="block text-sm text-slate">
-                      The federal report leaves out service academies, men&apos;s colleges, colleges that take no federal student aid
-                      and new teams. Base Recruits added this team for {formatAcademicYear(program.season)} after checking the official
-                      page linked above.
+                      The federal report doesn&apos;t list this team. It leaves out service academies, men&apos;s colleges, colleges
+                      that take no federal student aid, and teams that started or restarted after its latest season. Base Recruits
+                      added this team for {formatAcademicYear(program.season)} after checking the official page linked above.
                     </span>
                   </Row>
                 ) : (

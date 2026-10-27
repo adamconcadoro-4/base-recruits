@@ -34,7 +34,7 @@ These mirror `supabase/config.toml`. Security depends on them (see the README).
 | Setting | Value |
 | --- | --- |
 | Site URL | `https://baserecruits.app` |
-| Redirect URLs | `https://baserecruits.app/**` (the old `https://base-recruits.vercel.app/**` is still listed and can be removed once nothing uses it) |
+| Redirect URLs | `https://baserecruits.app/**` only (the old `https://base-recruits.vercel.app/**` was removed on 2026-10-26) |
 | Email provider | Enabled, **Confirm email on**, **Secure email change on** |
 | Anonymous sign-ins | Off |
 | Minimum password length | 10 |
