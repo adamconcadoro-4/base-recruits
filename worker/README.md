@@ -67,3 +67,20 @@ gcloud run deploy seamstate-worker --source worker --region us-east4 --no-cpu-th
 | Pose model | `pose_landmarker_full` float16 v1, sha256 `5134a3aa…11b1` | To confirm from the MediaPipe model card before launch |
 | OpenCV (headless) | 5.0.0.93 | Apache-2.0 |
 | NumPy | 2.5.4 | BSD-3-Clause |
+
+## Trying one clip by hand
+
+For an authorized clip (an adult hitter who has agreed in writing), without the app, a database or the website:
+
+```sh
+cd worker
+SEAMSTATE_POSE_MODEL=/path/to/pose_landmarker_full.task \
+  .venv/bin/python -m scripts.try_clip CLIP.mp4 OUT --side right --view side_facing --setting tee
+cd ..
+JITI_ALIAS='{"@/":"'$PWD'/src/","server-only":"'$PWD'/node_modules/server-only/empty.js"}' \
+  node_modules/.bin/jiti scripts/seamstate/try-clip.ts worker/OUT
+```
+
+The first step writes the evidence packet and stills; the second sends up to 24 stills for the AI review exactly as
+the app does (it needs `ANTHROPIC_API_KEY`) and writes `record.json`, the record the app would save. Delete `OUT`
+when you are done: it holds frames of the hitter.
