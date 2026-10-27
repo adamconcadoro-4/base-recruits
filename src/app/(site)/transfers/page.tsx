@@ -6,16 +6,16 @@ import { Notice } from '@/components/ui/notice';
 import { FEATURES } from '@/config/availability';
 
 export const metadata: Metadata = {
-  title: 'For transfer athletes',
+  title: 'For transfer players',
   description:
-    'Transfer athletes can browse college baseball programs now. Transfer admission, credit and eligibility are separate questions answered by each school and association.',
+    'Transfer players can browse college baseball programs now. Transfer admission, credit and eligibility are separate questions answered by each school and association.',
   alternates: { canonical: '/transfers' },
 };
 
 export default function TransfersPage() {
   return (
     <>
-      <PageIntro title="For transfer athletes">
+      <PageIntro title="For transfer players">
         Browse two-year and four-year baseball programs now. Transfer-specific comparisons come later.
       </PageIntro>
       <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">

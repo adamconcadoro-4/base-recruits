@@ -70,7 +70,7 @@ export default async function SchoolsPage({ searchParams }: { readonly searchPar
             {season ?? 'latest'} federal athletics report. Search them free, with no account.
           </>
         ) : (
-          'Search colleges with a confirmed baseball team. Free, with no account.'
+          'Search colleges that reported a baseball team to the U.S. Department of Education. Free, with no account.'
         )}
       </PageIntro>
 
@@ -114,7 +114,7 @@ export default async function SchoolsPage({ searchParams }: { readonly searchPar
               Something went wrong on our side. Refresh the page to try again.
             </Notice>
           ) : !published ? (
-            <Notice tone="info" title="The registry isn't published yet">
+            <Notice tone="info" title="School listings aren't published yet">
               School records appear here once they have been imported from official sources and reviewed. We won&apos;t
               show made-up ones in the meantime.
             </Notice>

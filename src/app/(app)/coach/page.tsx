@@ -14,7 +14,7 @@ export default async function CoachHomePage() {
 
   return (
     <>
-      <PageTitle title="Coach home">Free for verified college coaches. No subscription, ever.</PageTitle>
+      <PageTitle title="Coach home">Your verification status, and the coach tools as they open.</PageTitle>
       <div className="space-y-14">
         <DashboardSection id="verification" title="Your verification">
           {account.coach ? (

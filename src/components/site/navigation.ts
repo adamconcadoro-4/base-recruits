@@ -12,7 +12,7 @@ export interface NavItem {
  * (src/config/availability.ts).
  */
 export const PRIMARY_NAV: readonly NavItem[] = [
-  { href: '/schools', label: 'Search schools' },
+  { href: '/schools', label: 'Explore programs' },
   { href: '/match', label: 'Compare scores' },
   { href: '/saved', label: 'Saved schools' },
   { href: '/how-it-works', label: 'How it works' },
@@ -24,7 +24,7 @@ export const FOOTER_NAV: ReadonlyArray<{ readonly heading: string; readonly item
   {
     heading: 'Explore',
     items: [
-      { href: '/schools', label: 'Search schools' },
+      { href: '/schools', label: 'Explore programs' },
       { href: '/compare', label: 'Compare schools' },
       { href: '/saved', label: 'Saved schools' },
       { href: '/match', label: 'Compare your scores' },
@@ -34,10 +34,10 @@ export const FOOTER_NAV: ReadonlyArray<{ readonly heading: string; readonly item
   {
     heading: 'Who it’s for',
     items: [
-      { href: '/athletes', label: 'High school athletes' },
-      { href: '/transfers', label: 'Transfer athletes' },
+      { href: '/athletes', label: 'High school players' },
+      { href: '/transfers', label: 'Transfer players' },
       { href: '/coaches', label: 'College coaches' },
-      { href: '/pricing', label: 'Free and optional plans' },
+      { href: '/pricing', label: 'What’s free' },
     ],
   },
   {

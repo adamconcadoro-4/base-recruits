@@ -143,7 +143,7 @@ export default async function SchoolPage({ params }: { readonly params: Params }
                 <Notice tone="attention" title={STATUS_LABELS[program.status]} className="mb-5">
                   {program.status === 'not_reported'
                     ? `The most recent federal athletics report does not list a baseball team here. The last report that did was for ${formatAcademicYear(program.season)}. This school is not shown in search.`
-                    : (program.status_note ?? 'Confirmed by Base Recruits from an official page.')}
+                    : (program.status_note ?? 'Checked by Base Recruits against an official page.')}
                 </Notice>
               ) : null}
               <dl>

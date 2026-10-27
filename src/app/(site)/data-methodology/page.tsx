@@ -92,7 +92,7 @@ export default async function DataMethodologyPage() {
             <p>We don&apos;t claim to cover every college. These counts are computed live from the published records.</p>
           </>
         ) : (
-          <Notice tone="info">The registry hasn&apos;t been published yet, so there is nothing to count.</Notice>
+          <Notice tone="info">School listings haven&apos;t been published yet, so there is nothing to count.</Notice>
         )}
       </ContentSection>
 

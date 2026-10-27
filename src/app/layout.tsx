@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: '%s | Base Recruits',
   },
   description:
-    'Free college baseball program search and score comparison for student-athletes and families, with coach verification for college coaches.',
+    'Explore college baseball programs, compare your test scores with each school’s published ranges, and build your shortlist. Free for players and families.',
   // Off until launch sign-off; see src/lib/seo/indexing.ts.
   ...(indexingAllowed() ? {} : { robots: { index: false, follow: false } }),
 };

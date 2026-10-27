@@ -131,15 +131,15 @@ export function describeCoachStatus(status: CoachVerificationStatus): CoachStatu
     case 'unverified':
       return {
         label: 'Confirm your email',
-        summary: 'We sent a confirmation link to your institutional email address.',
-        nextStep: 'Open the link in that email. Coach tools stay locked until your affiliation is verified.',
+        summary: 'Confirm the email address you signed up with, using the 6-digit code we sent.',
+        nextStep: 'Enter the code to continue. Next, you’ll send us your staff page for review.',
         tone: 'neutral',
       };
     case 'email_verified':
       return {
         label: 'Email confirmed',
-        summary: 'Your institutional email is confirmed. Email alone does not verify a coaching role.',
-        nextStep: 'Submit the official staff directory page that lists you as a baseball coach.',
+        summary: 'Your email is confirmed. An email address alone doesn’t verify a coaching role.',
+        nextStep: 'Next, send us the staff page that lists you in a baseball role.',
         tone: 'progress',
       };
     case 'affiliation_under_review':
@@ -159,7 +159,7 @@ export function describeCoachStatus(status: CoachVerificationStatus): CoachStatu
     case 'verified':
       return {
         label: 'Verified coach',
-        summary: 'You have free access to athlete search, recruiting boards and messaging.',
+        summary: 'Your coaching role is verified. Athlete search, recruiting boards and messaging will open to you when player profiles open.',
         nextStep: null,
         tone: 'positive',
       };
