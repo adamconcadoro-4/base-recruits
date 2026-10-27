@@ -24,6 +24,7 @@ NEIGHBOR_MS = 33
 MIN_HITTER_HEIGHT = 0.2  # share of frame height
 CROP_PADDING = 0.3
 JPEG_QUALITY = 85
+STILL_LONG_SIDE = 1024  # enough detail for review; keeps each still to roughly a thousand model input tokens
 EVENT_ORDER = ("setup", "load_start", "stride_start", "foot_contact", "swing_start", "contact", "finish")
 
 
@@ -104,6 +105,9 @@ def encode_still(rgb: np.ndarray, box: tuple[int, int, int, int]) -> bytes:
     """JPEG of the cropped region. OpenCV writes no camera or location metadata."""
     left, top, right, bottom = box
     crop = rgb[top:bottom, left:right]
+    scale = STILL_LONG_SIDE / max(crop.shape[:2])
+    if scale < 1:
+        crop = cv2.resize(crop, (max(1, int(crop.shape[1] * scale)), max(1, int(crop.shape[0] * scale))), interpolation=cv2.INTER_AREA)
     ok, data = cv2.imencode(".jpg", cv2.cvtColor(crop, cv2.COLOR_RGB2BGR), [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY])
     if not ok:
         raise RuntimeError("could not encode a still")

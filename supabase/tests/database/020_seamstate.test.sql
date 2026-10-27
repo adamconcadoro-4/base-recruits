@@ -108,6 +108,7 @@ select tests.ss_clip('clip2', tests.job('adult_hit'));
 select tests.ss_clip('clip3', tests.job('adult_hit'));
 select tests.ss_clip('clip4', tests.job('adult_hit'));
 select tests.ss_clip('clip5', tests.job('adult_hit'));
+select tests.ss_clip('clip6', tests.job('adult_hit'));
 select tests.ss_clip('pitch_clip', tests.job('adult_pitch'));
 select tests.ss_clip('kid_clip', tests.job('kid_hit'));
 
@@ -330,6 +331,28 @@ select tests.ok((select count(*) = 0 from public.seamstate_worker_due_jobs(600, 
 select tests.authenticate_as('admin');
 select public.admin_set_seamstate_settings(true, 10, 20);
 
+-- Giving an attempt back to the queue, the capture the worker receives, and where stills go.
+select tests.authenticate_as('adult');
+select tests.remember_job('job6', tests.ss_request('clip6', 'key-clip6-a', '{"setting": "front_toss", "intendedZone": 4, "locationAnnounced": true}'));
+select tests.authenticate_as_service_role();
+select tests.ok((select capture = jsonb_build_object('protocolVersion', 'seamstate-capture-v1', 'battingSide', 'right',
+                   'cameraView', 'side_facing', 'setting', '{"setting": "front_toss", "intendedZone": 4, "locationAnnounced": true}'::jsonb,
+                   'task', null, 'devices', '[]'::jsonb, 'limitations', null)
+                   and timing = '{"timingBasis": "real_time", "slowdownFactor": null}'::jsonb
+                   and tests.remember_job('g1', attempt_id) is not null
+                   from public.seamstate_worker_begin_attempt(tests.job('job6'), 'worker-1')),
+  'the worker receives the capture context in the app''s shape and the clip''s timing');
+select tests.ok(public.seamstate_worker_artifact_path(tests.job('g1'))
+                = tests.id('adult') || '/' || tests.job('clip6') || '/' || tests.job('job6') || '/' || tests.job('g1'),
+  'stills go under athlete/clip/job/attempt');
+select tests.throws(format($$select public.seamstate_worker_report(%L, 'failed', '{}', 'queued')$$, tests.job('g1')),
+  'BR003', 'giving a job back to the queue needs a reason code');
+select tests.ok(public.seamstate_worker_report(tests.job('g1'), 'failed', '{}', 'queued', null, 'worker_busy'),
+  'a busy worker gives the job back to the queue');
+select tests.ok(tests.ss_owner($q$select state = 'queued' and current_attempt_id is null and failure_kind is null
+                                  from public.seamstate_jobs where id = tests.job('job6')$q$), 'the job waits for another attempt');
+select tests.ok(public.seamstate_worker_artifact_path(tests.job('g1')) is null, 'the given-back attempt can no longer upload');
+
 -- ================================================================ immutability
 select tests.clear_authentication();
 select tests.throws(format($$update public.seamstate_analyses set packet = '{}' where id = %L$$, tests.job('analysis1')),
@@ -384,4 +407,4 @@ select tests.ok(not exists (select 1 from public.seamstate_captures where media_
                 and not exists (select 1 from public.seamstate_media_inspections where media_id = tests.job('clip1')),
   'removing a clip removes its capture details, jobs, analyses, findings, reviews and inspection');
 select tests.authenticate_as('admin');
-select tests.ok((select used_this_month = 7 from public.seamstate_switches()), 'removing clips does not give back used analyses');
+select tests.ok((select used_this_month = 8 from public.seamstate_switches()), 'removing clips does not give back used analyses');

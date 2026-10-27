@@ -12,7 +12,7 @@
 -- * Records: capture context per clip, decoded-media inspection, analysis
 --   jobs and attempts, immutable analysis revisions with their evidence
 --   packet, findings, and append-only reviews.
--- * The worker never touches the database. The app server calls five
+-- * The worker never touches the database. The app server calls six
 --   service-role functions after verifying the worker's signature; every one
 --   refuses stale attempts and cancelled or deleted jobs.
 -- * Removing a clip removes its SeamState records; its stored artifacts are
@@ -882,16 +882,20 @@ begin
   attempt_number := v_job.attempt_count + 1;
   media_id := v_media.id;
   storage_path := v_media.storage_path;
-  capture := jsonb_build_object('setting', v_capture.setting, 'battingSide', v_capture.batting_side,
-                                'cameraView', v_capture.camera_view, 'settingDetails', v_capture.setting_details,
-                                'task', v_capture.task, 'protocolVersion', v_capture.protocol_version);
+  -- The capture context in the app's shape (src/lib/seamstate/capture.ts).
+  capture := jsonb_build_object('protocolVersion', v_capture.protocol_version, 'battingSide', v_capture.batting_side,
+                                'cameraView', v_capture.camera_view,
+                                'setting', jsonb_build_object('setting', v_capture.setting) || v_capture.setting_details,
+                                'task', v_capture.task, 'devices', to_jsonb(v_capture.devices),
+                                'limitations', v_capture.limitations);
   timing := jsonb_build_object('timingBasis', v_media.timing_basis, 'slowdownFactor', v_media.slowdown_factor);
   return next;
 end;
 $$;
 
 -- Records progress on a stage and, optionally, moves the job to analyzing,
--- needs_input or failed. False: the attempt may no longer write.
+-- needs_input or failed, or gives it back to the queue (stage failed with a
+-- code, e.g. the worker was busy). False: the attempt may no longer write.
 create function public.seamstate_worker_report(
   p_attempt_id uuid,
   p_stage text,
@@ -913,10 +917,11 @@ begin
   if p_metrics is null or jsonb_typeof(p_metrics) <> 'object' or pg_column_size(p_metrics) >= 2000 then
     raise exception 'stage metrics must be a small object' using errcode = 'BR003';
   end if;
-  if p_state is not null and p_state not in ('analyzing', 'needs_input', 'failed') then
-    raise exception 'a report can move the job to analyzing, needs_input or failed only' using errcode = 'BR003';
+  if p_state is not null and p_state not in ('queued', 'analyzing', 'needs_input', 'failed') then
+    raise exception 'a report can move the job to queued, analyzing, needs_input or failed only' using errcode = 'BR003';
   end if;
-  if (p_state = 'failed') <> (p_stage = 'failed')
+  if (p_stage = 'failed') <> coalesce(p_state in ('failed', 'queued'), false)
+     or (p_state = 'queued' and p_failure_code is null)
      or (p_state = 'failed') <> (p_failure_kind is not null)
      or (p_failure_kind is not null and (p_failure_kind not in ('service', 'footage') or p_failure_code is null))
      or (p_failure_code is not null and p_failure_code !~ '^[a-z][a-z0-9_]{1,59}$') then
@@ -938,13 +943,35 @@ begin
          last_report_at = now(),
          finished_at = case when p_stage = 'failed' then now() end
    where a.id = p_attempt_id;
-  if p_state is not null and p_state <> v_job.state then
+  if p_state = 'queued' then
+    -- Clearing the current attempt makes any later answer from it be refused.
+    update public.seamstate_jobs j set state = 'queued', current_attempt_id = null where j.id = v_job.id;
+  elsif p_state is not null and p_state <> v_job.state then
     update public.seamstate_jobs j
        set state = p_state, failure_kind = p_failure_kind, failure_code = p_failure_code,
            finished_at = case when p_state = 'failed' then now() end
      where j.id = v_job.id;
   end if;
   return true;
+end;
+$$;
+
+-- Where this attempt's stills go in seamstate-artifacts
+-- (athlete/media/job/attempt), or null when the attempt may no longer write.
+create function public.seamstate_worker_artifact_path(p_attempt_id uuid) returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_job public.seamstate_jobs%rowtype;
+begin
+  v_job := private.seamstate_live_job(p_attempt_id);
+  if v_job.id is null then
+    return null;
+  end if;
+  return (select v_job.athlete_id || '/' || c.media_id || '/' || v_job.id || '/' || p_attempt_id
+            from public.seamstate_captures c where c.id = v_job.capture_id);
 end;
 $$;
 
@@ -1199,6 +1226,7 @@ revoke all on function public.seamstate_worker_report(uuid, text, jsonb, text, t
 revoke all on function public.seamstate_worker_record_inspection(uuid, jsonb) from public, anon, authenticated, service_role;
 revoke all on function public.seamstate_worker_save_analysis(uuid, text, jsonb, jsonb) from public, anon, authenticated, service_role;
 revoke all on function public.seamstate_worker_due_jobs(integer, integer) from public, anon, authenticated, service_role;
+revoke all on function public.seamstate_worker_artifact_path(uuid) from public, anon, authenticated, service_role;
 
 grant execute on function public.seamstate_switches() to authenticated;
 grant execute on function public.admin_set_seamstate_settings(boolean, integer, integer) to authenticated;
@@ -1211,3 +1239,4 @@ grant execute on function public.seamstate_worker_report(uuid, text, jsonb, text
 grant execute on function public.seamstate_worker_record_inspection(uuid, jsonb) to service_role;
 grant execute on function public.seamstate_worker_save_analysis(uuid, text, jsonb, jsonb) to service_role;
 grant execute on function public.seamstate_worker_due_jobs(integer, integer) to service_role;
+grant execute on function public.seamstate_worker_artifact_path(uuid) to service_role;

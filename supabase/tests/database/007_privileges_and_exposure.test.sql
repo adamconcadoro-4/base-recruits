@@ -116,9 +116,9 @@ select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('service_role', p.oid, 'EXECUTE'))
-  = array['admin_record_birthdate', 'seamstate_worker_begin_attempt', 'seamstate_worker_due_jobs',
+  = array['admin_record_birthdate', 'seamstate_worker_artifact_path', 'seamstate_worker_begin_attempt', 'seamstate_worker_due_jobs',
           'seamstate_worker_record_inspection', 'seamstate_worker_report', 'seamstate_worker_save_analysis'],
-  'the service role can call exactly the age-screen birthdate function and the five SeamState worker callbacks');
+  'the service role can call exactly the age-screen birthdate function and the six SeamState worker callbacks');
 select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace

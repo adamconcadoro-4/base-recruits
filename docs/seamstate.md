@@ -79,8 +79,8 @@ Changes from the Milestone 1 proposal, made while building:
   ever read together with their analysis, they must be frozen with it, and the database still checks that every still a
   finding cites is in that packet. Subject tracks and per-frame features stay in the worker's artifacts until the
   correction and subject-selection steps need them in the database.
-- **Five worker callback functions are callable by the service role** (`seamstate_worker_begin_attempt`, `_report`,
-  `_record_inspection`, `_save_analysis`, `_due_jobs`). This is a deliberate widening of the security model: before
+- **Six worker callback functions are callable by the service role** (`seamstate_worker_begin_attempt`, `_report`,
+  `_record_inspection`, `_artifact_path`, `_save_analysis`, `_due_jobs`). This is a deliberate widening of the security model: before
   SeamState, the service role could call exactly one function. The worker itself still has no database credentials; the
   app server calls these only after verifying the worker's signature, and every one refuses an attempt that is no longer
   the job's current one, a job that was cancelled or finished, a job whose athlete withdrew permission (it is cancelled,
