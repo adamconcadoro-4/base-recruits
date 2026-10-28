@@ -6,9 +6,17 @@
  * what to practise and how the next assessment will check it. No language
  * model is involved. Suggestions are self-directed until a development coach
  * approves a plan.
+ *
+ * Hitting drills come first from the swing-flaw guide (catalog/flaws.ts): a
+ * weak result names the flaws that could cause it, and drills are taken in
+ * turn from each possible flaw's list, so the two suggestions cover different
+ * causes where they can. Drills linked to the measure directly fill any gap.
  */
 
 import { drillsFor, type DrillDefinition, type DrillRequirement } from '@/lib/assessment/catalog/drills';
+import { flawsForMetric } from '@/lib/assessment/catalog/flaws';
+import { workbookDrillKey } from '@/lib/assessment/catalog/workbook-drills';
+import type { WorkbookFlaw } from '@/lib/assessment/hitting-workbook/content';
 import { requireMetric } from '@/lib/assessment/catalog/metrics';
 import { PILLARS } from '@/lib/assessment/catalog/pillars';
 import { PITCH_TYPE_LABELS } from '@/lib/assessment/catalog/context';
@@ -115,11 +123,49 @@ export interface PlanPreferences {
 export interface DrillSuggestion {
   readonly drill: DrillDefinition;
   readonly finding: Finding;
+  /** The possible flaw whose drill list supplied this drill, if any. */
+  readonly flaw: WorkbookFlaw | null;
   /** Why it was suggested, naming the finding and its evidence. */
   readonly reason: string;
   /** How progress will be checked. */
   readonly evaluation: string;
 }
+
+/**
+ * Candidate drills for one measure: one from each possible flaw in turn (the
+ * flaw guide's order), then the measure's directly linked drills.
+ */
+function candidatesFor(
+  library: readonly DrillDefinition[],
+  metricKey: string,
+  usable: (drill: DrillDefinition) => boolean,
+): Array<{ drill: DrillDefinition; flaw: WorkbookFlaw | null }> {
+  const byKey = new Map(library.map((drill) => [drill.key, drill]));
+  const flaws = flawsForMetric(metricKey);
+  const lists = flaws.map((flaw) =>
+    flaw.drills.map((id) => byKey.get(workbookDrillKey(id))).filter((drill): drill is DrillDefinition => !!drill && usable(drill)),
+  );
+  const out: Array<{ drill: DrillDefinition; flaw: WorkbookFlaw | null }> = [];
+  const seen = new Set<string>();
+  for (let rank = 0; lists.some((list) => rank < list.length); rank += 1) {
+    lists.forEach((list, index) => {
+      const drill = list[rank];
+      if (drill && !seen.has(drill.key)) {
+        seen.add(drill.key);
+        out.push({ drill, flaw: flaws[index] ?? null });
+      }
+    });
+  }
+  for (const drill of library) {
+    if (drill.findings.includes(metricKey) && usable(drill) && !seen.has(drill.key)) {
+      seen.add(drill.key);
+      out.push({ drill, flaw: null });
+    }
+  }
+  return out;
+}
+
+const lowerFirst = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
 
 export interface PlanSuggestion {
   readonly focus: readonly Finding[];
@@ -161,17 +207,18 @@ export function suggestPlan(discipline: Discipline, results: readonly MetricResu
   const usable = (drill: DrillDefinition) => drill.requires.every((requirement) => available[requirement] !== false);
   const chosen = new Set<string>();
   const suggestions: DrillSuggestion[] = [];
+  const library = drillsFor(discipline);
   for (const finding of focus) {
-    const candidates = drillsFor(discipline).filter(
-      (drill) => drill.findings.includes(finding.metricKey) && usable(drill) && !chosen.has(drill.key),
-    );
-    for (const drill of candidates.slice(0, MAX_DRILLS_PER_FOCUS)) {
+    const candidates = candidatesFor(library, finding.metricKey, usable).filter((item) => !chosen.has(item.drill.key));
+    for (const { drill, flaw } of candidates.slice(0, MAX_DRILLS_PER_FOCUS)) {
       chosen.add(drill.key);
+      const cause = flaw ? ` One possible cause is "${flaw.issue}". To tell causes apart: ${lowerFirst(flaw.checks)}` : '';
       suggestions.push({
         drill,
         finding,
-        reason: `Suggested because ${finding.summary.charAt(0).toLowerCase()}${finding.summary.slice(1)} This drill works on ${PILLARS[finding.pillar].name}: ${drill.purpose.charAt(0).toLowerCase()}${drill.purpose.slice(1)}`,
-        evaluation: drill.reassessment,
+        flaw,
+        reason: `Suggested because ${lowerFirst(finding.summary)}${cause} This drill works on ${PILLARS[finding.pillar].name}: ${lowerFirst(drill.purpose)}`,
+        evaluation: flaw ? `${flaw.retest} ${drill.reassessment}` : drill.reassessment,
       });
     }
   }
