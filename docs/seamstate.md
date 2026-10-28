@@ -27,16 +27,8 @@ Promise inside Assessment: **"Record your swing. Understand what is working. Kno
 | Existing SeamState code | **None in this repository.** No other SeamState repository is connected to this project | — |
 | Tests | Vitest unit and contract tests, plain-SQL database security suite (PostgreSQL 16/17 and a real Supabase stack), concurrency scenarios, Playwright end to end with axe, all in CI | `.github/workflows/ci.yml` |
 
-Reference products (public pages read 2026-10-27; marketing claims, **not verified**, not inherited):
-
-| Product | Public claims | Not stated publicly |
-| --- | --- | --- |
-| GameRun (gamerun.ai/baseball) | Phone or any camera; AI report "within 2 minutes"; 1–5 component ratings; overall "Mechanics Grade" on 80; strengths, areas to improve, three drills; PDF | Camera angle or frame-rate requirements, method, accuracy or validation, human review |
-| Maven (mavenbaseball.com/science, /app) | 90-minute in-lab assessment with markerless motion capture (Theia3D), force plates, pressure mapping, high-speed cameras, HitTrax; four pillars; 0–80+ scale; benchmarks against "3,000+ players"; app with Film Room, drills, trends, 90-day check-ins, human coach messaging | Validation or accuracy, how scores are calculated; the app pages do not claim AI analysis |
-
-What SeamState takes from them is the shape of a useful workflow (capture → evidence-linked findings → drill →
-reassessment). It does not copy their code, wording, scales or formulas, and it does not adopt their claims. Maven's
-lab measurements need lab equipment; a phone clip cannot reproduce them, and SeamState says so.
+SeamState reports only what a phone clip can show. Measurements that need lab equipment (force plates, 3D motion
+capture, ball tracking) are listed under "What this video cannot tell us", never estimated.
 
 ## 2. Reuse versus new build
 
