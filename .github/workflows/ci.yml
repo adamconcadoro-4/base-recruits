@@ -143,7 +143,7 @@ jobs:
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "::notice title=Supabase CLI::${version}"
 
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v2
         with:
           version: ${{ steps.supabase-cli.outputs.version }}
 
@@ -250,7 +250,7 @@ jobs:
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "::notice title=Supabase CLI::${version}"
 
-      - uses: supabase/setup-cli@v1
+      - uses: supabase/setup-cli@v2
         with:
           version: ${{ steps.supabase-cli.outputs.version }}
 
