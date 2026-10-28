@@ -114,7 +114,8 @@ Development coach accounts are adults only; a college coach account cannot also 
   `begin_assessment_deletion`), which also removes the clip's markers, notes, drawings and the timing measured from
   them, and returns the path; the server then deletes the file with its storage key
   (`src/lib/assessment/server/storage.ts`), because the storage read policy hides removed clips from users. Removing
-  video never depends on the Assessment switch. Nothing is transcoded, analyzed or sent to any outside service.
+  video never depends on the Assessment switch. Nothing is transcoded, analyzed or sent to any outside service, except
+  still frames for a SeamState swing analysis the athlete asks for (`docs/seamstate.md`, F36).
 
 ## 7. Turning it on
 

@@ -21,7 +21,7 @@ export interface SeamstateSwitches {
   readonly usedThisMonth: number | null;
   /** Clips of athletes under 18 can be analyzed (off until counsel's review, decision L12). */
   readonly minorsEnabled: boolean;
-  /** False while the site promises video is never sent to an outside analysis service; SeamState stays off. */
+  /** True once the site's privacy wording describes what SeamState sends (F36); while false SeamState stays off. */
   readonly outsideAnalysisDisclosed: boolean;
 }
 

@@ -61,8 +61,8 @@ function sendFile(url: string, file: File, onProgress: (percent: number) => void
 
 /**
  * Uploads one clip to private storage: checks type and size first, registers
- * the clip, sends the file with a progress bar, then confirms it. Nothing is
- * sent to any analysis service.
+ * the clip, sends the file with a progress bar, then confirms it. Uploading
+ * sends nothing to any analysis service.
  */
 export function ClipUploader({ assessmentId }: { readonly assessmentId: string }) {
   const router = useRouter();

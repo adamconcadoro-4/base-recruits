@@ -128,10 +128,15 @@ select tests.clear_authentication();
 select tests.enable_assessment(true);
 select tests.authenticate_as('admin');
 select tests.throws($$select public.admin_set_seamstate_settings(true, 101, 3)$$, 'BR003', 'the daily limit is capped');
+select tests.ok((select outside_analysis_disclosed from public.seamstate_switches()),
+  'the approved privacy wording has lifted the lock (F36)');
+-- Without that disclosure the switch refuses, as it did while the old wording stood.
+select tests.clear_authentication();
+update private.seamstate_settings set outside_analysis_disclosed = false where id;
+select tests.authenticate_as('admin');
 select tests.throws($$select public.admin_set_seamstate_settings(true, 2, 3)$$, 'BR004',
   'SeamState cannot be switched on while the site promises video is never sent to an outside analysis service');
 select tests.ok((select not enabled and not outside_analysis_disclosed from public.seamstate_switches()), 'and it stays off');
--- Only a migration that also changes the site's wording may lift that lock; the rest of this file runs as if one had.
 select tests.clear_authentication();
 update private.seamstate_settings set outside_analysis_disclosed = true where id;
 select tests.authenticate_as('admin');

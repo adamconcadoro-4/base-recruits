@@ -35,8 +35,8 @@ export async function ClipsStep({
   const ready = clips.filter((clip) => clip.status === 'uploaded');
   const unit = row.discipline === 'hitting' ? 'swings' : 'pitches';
 
-  // SeamState analyzes hitting clips only. The database keeps it off while the sentence below promises that
-  // video is never sent to an outside analysis service, so none of its screens show until that changes.
+  // SeamState analyzes hitting clips only, and its screens show only while an administrator has it switched on.
+  // The privacy sentence below describes what it sends (decision F36).
   const hitting = row.discipline === 'hitting';
   const [switches, permission, jobs, grantId] = hitting
     ? await Promise.all([
@@ -59,7 +59,9 @@ export async function ClipsStep({
           can. Note the playback speed: timing taken from video depends on it.
         </p>
         <p className="text-sm text-slate">
-          Video is stored privately. It is never sent to an outside analysis service, and you can delete a clip at any time.
+          Video is stored privately, and you can delete a clip at any time. Nothing is sent to an outside analysis service unless you
+          ask for a SeamState swing analysis. Then our own video service reads that clip, and only still frames, cropped to the
+          hitter and without a name, go to our AI provider.
         </p>
       </div>
 
