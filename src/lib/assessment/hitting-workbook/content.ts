@@ -5,12 +5,13 @@
  * rehearsals (R01–R07) and the swing-flaw guide (T01–T18) are imported. Every
  * record keeps its source sheet and row.
  *
- * Source limitations carried with the content (decision F38): drill names were
- * rewritten and outside organisations' names and links removed at the
- * founder's request; the workbook rests on common coaching practice, so nothing
- * here is presented as a sourced fact; round sizes, success targets and
- * drill pairings are coaching targets, not validated standards; a qualified
- * hitting coach has not reviewed it yet.
+ * Base Recruits wrote the workbook, and its hitting coaches reviewed the
+ * drills and targets (decision F38). Limitations carried with the content:
+ * drill names were rewritten and outside organisations' names and links
+ * removed at the founder's request; the workbook rests on common coaching
+ * practice, so nothing here is presented as a sourced fact; round sizes,
+ * success targets and drill pairings are coaching targets, not validated
+ * standards.
  */
 
 import raw from '@/lib/assessment/hitting-workbook/content-v1.json';

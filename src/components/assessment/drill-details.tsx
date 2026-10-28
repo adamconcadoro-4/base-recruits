@@ -65,7 +65,7 @@ export function DrillDetails({ drill }: { readonly drill: DrillDefinition }) {
       ) : null}
       {source ? (
         <p className="text-slate">
-          From the hitting development workbook ({source.sourceId}). Not yet reviewed by a qualified hitting coach.
+          From the Base Recruits hitting development workbook ({source.sourceId}). Reviewed by Base Recruits hitting coaches.
         </p>
       ) : null}
     </div>

@@ -261,17 +261,19 @@ review with corrections, evaluation, stage, history, CSV, privacy and coach appr
 
 ## 11. Hitting Development Workbook (drill library and swing-flaw guide)
 
-Decision F38. The founder's hitting workbook (`data/hitting-workbook/Baseball_Hitting_Development_Workbook.xlsx`,
+Decision F38. Base Recruits' hitting workbook (`data/hitting-workbook/Baseball_Hitting_Development_Workbook.xlsx`,
 SHA-256 `7f88703f…cc75`) is merged into the existing drill library rather than added as its own module. Before import
 its 66 drills were given new generic names and every outside organisation's name and link was removed (founder's
-request, 2026-10-28); the extraction script refuses a workbook that contains either again.
+request, 2026-10-28); the extraction script refuses a workbook that contains either again. Base Recruits wrote the
+workbook, and Base Recruits hitting coaches reviewed the drills and targets (2026-10-28); drill pages say "Reviewed by
+Base Recruits hitting coaches". Success targets still show as coach targets, not validated standards.
 
 ### What is imported
 
 | Workbook | Where it goes | Notes |
 | --- | --- | --- |
 | Hitting drills H01–H40 | Drill library, keys `hit-h01` … `hit-h40` (`catalog/workbook-drills.ts`) | Suggested round → starting dose, easier version → regression, success criteria → completion (shown as a coach target, not a validated standard); common mistake, correction, safety, level and source row kept. Toss and live drills (sections C and D) need a partner |
-| Rehearsals R01–R03, R05–R07 | Drill library, keys `hit-r01` … `hit-r07` | Short no-swing or between-round tools the flaw guide prescribes. R04 needs a resistance band and is held back until a qualified coach reviews it |
+| Rehearsals R01–R03, R05–R07 | Drill library, keys `hit-r01` … `hit-r07` | Short no-swing or between-round tools the flaw guide prescribes. R04 needs a resistance band and stays out until plans can check that an athlete has one |
 | Swing-flaw guide T01–T18 | `catalog/flaws.ts` | What it looks like, checks to tell causes apart, possible contributors, drills in order, cue, what to avoid, progress marker, retest; plus the observe → hypothesis → test → retest → decide routine |
 | Everything else (medicine ball, youth games, warm-ups, session templates, parents' guide, logs, dashboard, parent report, macro) | Not imported | Session templates, practice counts and the parents' page are phase 2; medicine-ball work and readiness logging need separate decisions |
 
@@ -311,4 +313,3 @@ sets and measured intent rounds stay.
 - A browsable page for the flaw guide; today it appears through plan suggestions.
 - SeamState (pull request #19) picks drills by measure, so it will reach the workbook drills through their measures
   once merged; linking flaws to SeamState's mechanics directly belongs in that pull request.
-- Coach review of the drills, targets and flaw guide (F38), and confirmation of who wrote the workbook.

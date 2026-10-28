@@ -1,8 +1,8 @@
 /**
  * Drill-library entries built from the Hitting Development Workbook
  * (decision F38): the 40 hitting drills H01–H40 and the rehearsals the
- * swing-flaw guide relies on. R04 needs a resistance band and stays out until
- * a qualified coach has reviewed it.
+ * swing-flaw guide relies on. R04 needs a resistance band, which plans cannot
+ * yet check an athlete has, so it stays out.
  *
  * Which assessment measures a drill works on: its section's measures plus
  * every measure whose possible flaws (catalog/flaws.ts) list the drill.
@@ -16,7 +16,7 @@ import { requireMetric } from '@/lib/assessment/catalog/metrics';
 import { HITTING_WORKBOOK, withWorkbookNames, type WorkbookDrill, type WorkbookRehearsal } from '@/lib/assessment/hitting-workbook/content';
 import { PILLAR_KEYS, type PillarKey } from '@/lib/assessment/types';
 
-/** Rehearsals left out of the library until a qualified coach reviews them. */
+/** Rehearsals left out of the library: R04 needs a band, and plans cannot yet check for one. */
 export const HELD_BACK_REHEARSALS: readonly string[] = ['R04'];
 
 /** Measures for drills the flaw guide never names, by workbook section letter. */
