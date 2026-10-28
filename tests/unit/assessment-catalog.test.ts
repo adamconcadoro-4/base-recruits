@@ -93,17 +93,19 @@ describe('protocols', () => {
   });
 });
 
+const STARTER = DRILLS.filter((item) => !item.workbook);
+
 describe('drill library', () => {
-  it('has at least 12 original drills, balanced across hitting and pitching', () => {
-    expect(DRILLS.length).toBeGreaterThanOrEqual(12);
-    const hitting = DRILLS.filter((item) => item.discipline === 'hitting').length;
-    const pitching = DRILLS.filter((item) => item.discipline === 'pitching').length;
+  it('has at least 12 original starter drills, balanced across hitting and pitching, and unique keys', () => {
+    expect(STARTER.length).toBeGreaterThanOrEqual(12);
+    const hitting = STARTER.filter((item) => item.discipline === 'hitting').length;
+    const pitching = STARTER.filter((item) => item.discipline === 'pitching').length;
     expect(Math.abs(hitting - pitching)).toBeLessThanOrEqual(1);
     expect(new Set(DRILLS.map((item) => item.key)).size).toBe(DRILLS.length);
   });
 
-  it('fills every field and links each drill to findings in its own discipline', () => {
-    for (const item of DRILLS) {
+  it('fills every field of a starter drill and links it to findings in its own discipline', () => {
+    for (const item of STARTER) {
       for (const text of [item.name, item.purpose, item.setup, item.dosage, item.regression, item.progression, item.completion, item.reassessment]) {
         expect(text.length).toBeGreaterThan(5);
       }

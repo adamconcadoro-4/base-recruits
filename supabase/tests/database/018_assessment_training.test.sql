@@ -19,23 +19,29 @@ grant all on t_values to public;
 
 -- ================================================================ creating plans
 select tests.throws(format($$select public.create_training_plan(auth.uid(), gen_random_uuid(), 'Block one', current_date, current_date + 28,
-  '[]', '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$),
+  '[]', '[{"drill_key": "hit-h13", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$),
   'BR003', 'a plan starts from one of the athlete''s published reports');
 select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Block one', current_date, current_date + 28,
   '[]', '[{"drill_key": "pit-stride-line", "drill_version": 1, "reason": "x", "dosage": "3x8"}]')$$, tests.job('rev')),
   'BR003', 'drills must come from the library for the report''s discipline');
 select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Block one', current_date, current_date + 28,
   '[{"metric_key": "hit_load_repeatability"}, {"metric_key": "hit_drill_preparation"}, {"metric_key": "hit_balance_through_swing"}, {"metric_key": "hit_stride_direction_repeatability"}]',
-  '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
+  '[{"drill_key": "hit-h13", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
   'BR003', 'a block has at most three focus areas');
 select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Block one', current_date, current_date - 1,
-  '[]', '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
+  '[]', '[{"drill_key": "hit-h13", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
   'BR003', 'the review date comes after the start date');
+select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Block one', current_date, current_date + 28,
+  '[]', '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
+  'BR003', 'a drill replaced in the library cannot go into a new plan');
+select tests.ok((select count(*) from public.assessment_drills where not active
+                  and key in ('hit-rhythm-load-tee', 'hit-front-toss-tempo', 'hit-contact-point-map', 'hit-stride-line', 'hit-line-drive-rounds')) = 5,
+  'replaced drills stay in the library, switched off, so older plans keep pointing at them');
 select tests.remember_job('plan1', public.create_training_plan(auth.uid(), tests.job('rev'), 'Block one', current_date, current_date + 28,
   '[{"metric_key": "hit_load_repeatability", "summary": "Load repeatability rated 2 of 5"}]'::jsonb,
-  '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "focus_metric_key": "hit_load_repeatability",
+  '[{"drill_key": "hit-h13", "drill_version": 1, "focus_metric_key": "hit_load_repeatability",
      "reason": "Suggested because load repeatability was rated 2 of 5.", "dosage": "3 sets of 8 swings, 3 days a week"},
-    {"drill_key": "hit-contact-point-map", "drill_version": 1, "focus_metric_key": "hit_contact_location_consistency",
+    {"drill_key": "hit-h07", "drill_version": 1, "focus_metric_key": "hit_contact_location_consistency",
      "reason": "Suggested because contact-point consistency was rated 2 of 5.", "dosage": "2 rounds of 15 swings"}]'::jsonb));
 select tests.ok((select approval || '|' || status || '|' || revision from public.assessment_training_plans where id = tests.job('plan1'))
   = 'self_directed|active|1', 'a plan the athlete makes is self-directed');
@@ -108,7 +114,7 @@ select tests.throws(format($$select public.log_training(%L, current_date, 1, 3, 
 -- ================================================================ next block
 select tests.authenticate_as('dev');
 select tests.remember_job('plan2', public.create_training_plan(tests.id('athlete'), tests.job('rev'), 'Block two', current_date + 28, current_date + 56,
-  '[]'::jsonb, '[{"drill_key": "hit-stride-line", "drill_version": 1, "reason": "Next focus", "dosage": "3x8"}]'::jsonb));
+  '[]'::jsonb, '[{"drill_key": "hit-h15", "drill_version": 1, "reason": "Next focus", "dosage": "3x8"}]'::jsonb));
 select tests.ok((select approval from public.assessment_training_plans where id = tests.job('plan2')) = 'coach_approved',
   'a plan the coach makes is coach-approved');
 select tests.ok((select status from public.assessment_training_plans where id = tests.job('plan1')) = 'completed'

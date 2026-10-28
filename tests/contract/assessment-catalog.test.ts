@@ -149,11 +149,18 @@ describe.skipIf(!DATABASE_URL)('assessment catalog: database and TypeScript agre
   });
 
   it('drill library', () => {
-    const db = rows<Record<string, unknown>>('select key, version, discipline, pillars, name from public.assessment_drills order by key');
+    const db = rows<Record<string, unknown>>('select key, version, discipline, pillars, name, active from public.assessment_drills order by key');
     expect(db).toEqual(
       [...DRILLS]
         .sort((a, b) => (a.key < b.key ? -1 : 1))
-        .map((item) => ({ key: item.key, version: item.version, discipline: item.discipline, pillars: [...item.pillars], name: item.name })),
+        .map((item) => ({
+          key: item.key,
+          version: item.version,
+          discipline: item.discipline,
+          pillars: [...item.pillars],
+          name: item.name,
+          active: !item.replacedBy,
+        })),
     );
   });
 

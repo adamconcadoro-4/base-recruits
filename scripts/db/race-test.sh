@@ -231,8 +231,8 @@ race "two sessions publishing one assessment at once leave exactly one current r
       and (select count(*) from public.assessment_report_revisions where assessment_id = tests.job('assess_h')) = 2"
 
 race "two training plans started at once leave one active plan per discipline" \
-  "select tests.authenticate_as('assess_athlete'); select public.create_training_plan(auth.uid(), tests.job('assess_rev'), 'Plan A', private.today_utc(), private.today_utc() + 28, '[]', '[{\"drill_key\": \"hit-stride-line\", \"drill_version\": 1, \"reason\": \"Race test\", \"dosage\": \"3x8\"}]');" \
-  "select tests.authenticate_as('assess_coach'); select public.create_training_plan(tests.id('assess_athlete'), tests.job('assess_rev'), 'Plan B', private.today_utc(), private.today_utc() + 28, '[]', '[{\"drill_key\": \"hit-stride-line\", \"drill_version\": 1, \"reason\": \"Race test\", \"dosage\": \"3x8\"}]');" \
+  "select tests.authenticate_as('assess_athlete'); select public.create_training_plan(auth.uid(), tests.job('assess_rev'), 'Plan A', private.today_utc(), private.today_utc() + 28, '[]', '[{\"drill_key\": \"hit-h15\", \"drill_version\": 1, \"reason\": \"Race test\", \"dosage\": \"3x8\"}]');" \
+  "select tests.authenticate_as('assess_coach'); select public.create_training_plan(tests.id('assess_athlete'), tests.job('assess_rev'), 'Plan B', private.today_utc(), private.today_utc() + 28, '[]', '[{\"drill_key\": \"hit-h15\", \"drill_version\": 1, \"reason\": \"Race test\", \"dosage\": \"3x8\"}]');" \
   "select (select count(*) from public.assessment_training_plans where athlete_id = tests.id('assess_athlete') and status = 'active') = 1
       and (select count(*) from public.assessment_training_plans where athlete_id = tests.id('assess_athlete')) = 2" \
   b_must_succeed

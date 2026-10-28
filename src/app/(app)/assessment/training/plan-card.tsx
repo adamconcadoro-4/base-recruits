@@ -87,6 +87,13 @@ export async function PlanCard({ plan, isCoach, viewerId }: { readonly plan: Pla
               <li key={assignment.id} className="space-y-3 border-l-4 border-royal-ink pl-4">
                 <div>
                   <p className="text-lg font-semibold">{definition?.name ?? assignment.drill_key}</p>
+                  {definition?.replacedBy ? (
+                    <p className="text-sm text-slate">
+                      This drill has been replaced in the library by{' '}
+                      {definition.replacedBy.map((key) => findDrill(key)?.name ?? key).join(' and ')}. It stays in this plan until
+                      you change it.
+                    </p>
+                  ) : null}
                   <p className="text-sm">
                     <span className="font-semibold">Dosage:</span> {assignment.dosage}
                   </p>

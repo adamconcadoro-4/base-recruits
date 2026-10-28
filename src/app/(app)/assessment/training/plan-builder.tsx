@@ -4,7 +4,7 @@ import { DrillDetails } from '@/components/assessment/drill-details';
 import { formatDateOnly } from '@/components/assessment/result-format';
 import { TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
-import { DRILL_REQUIREMENTS, DRILL_REQUIREMENT_LABELS, drillsFor, type DrillRequirement } from '@/lib/assessment/catalog/drills';
+import { DRILL_REQUIREMENTS, DRILL_REQUIREMENT_LABELS, drillsFor, worksOn, type DrillRequirement } from '@/lib/assessment/catalog/drills';
 import { PILLARS } from '@/lib/assessment/catalog/pillars';
 import { findingsFrom, MAX_FOCUS_AREAS, suggestPlan, type Finding } from '@/lib/assessment/recommendations';
 import type { RevisionRow } from '@/lib/assessment/server/queries';
@@ -145,6 +145,12 @@ export function PlanBuilder({
                     <span className="block text-sm">{item.reason}</span>
                   </span>
                 </label>
+                {item.flaw ? (
+                  <p className="text-sm text-slate">
+                    From the swing-flaw guide: one result can have several causes, so check before you commit. Avoid:{' '}
+                    {item.flaw.avoid}
+                  </p>
+                ) : null}
                 <input type="hidden" name={`reason:${value}`} value={item.reason.slice(0, 600)} />
                 <input type="hidden" name={`focus:${value}`} value={item.finding.metricKey} />
                 <TextField id={`dosage-${item.drill.key}`} name={`dosage:${value}`} label="Dosage" maxLength={200} required defaultValue={item.drill.dosage} />
@@ -178,7 +184,7 @@ export function PlanBuilder({
                           name={`reason:${value}`}
                           label="Why this drill"
                           maxLength={600}
-                          defaultValue={`Chosen ${isCoach ? 'by the development coach' : 'by the athlete'} to work on ${drill.pillars.map((key) => PILLARS[key].name).join(' and ')}.`}
+                          defaultValue={`Chosen ${isCoach ? 'by the development coach' : 'by the athlete'} to work on ${worksOn(drill)}.`}
                         />
                         <TextField id={`dosage-${drill.key}`} name={`dosage:${value}`} label="Dosage" maxLength={200} defaultValue={drill.dosage} />
                       </div>
