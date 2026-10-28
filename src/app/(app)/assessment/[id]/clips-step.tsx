@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { ClipUploader } from '@/app/(app)/assessment/[id]/clip-uploader';
+import { ClipSwingAnalysis, SwingAnalysisIntro } from '@/app/(app)/assessment/[id]/swing-analysis';
 import { removeMediaAction, updateMediaAction } from '@/app/(app)/assessment/media-actions';
 import { ActionForm } from '@/components/assessment/action-form';
 import { formatDateTime } from '@/components/assessment/result-format';
@@ -8,16 +9,47 @@ import { SelectField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { CAMERA_VIEWS, CAMERA_VIEW_LABELS, TIMING_BASIS_LABELS } from '@/lib/assessment/catalog/context';
 import { getMediaForAssessment, type AssessmentRow } from '@/lib/assessment/server/queries';
-import { TIMING_BASES } from '@/lib/assessment/types';
+import { TIMING_BASES, type AssessmentRelation } from '@/lib/assessment/types';
+import { seamstateReadiness } from '@/lib/seamstate/server/config';
+import {
+  getLatestJobsForClips,
+  getOwnSeamstateGrantId,
+  getSeamstatePermission,
+  getSeamstateSwitches,
+} from '@/lib/seamstate/server/queries';
 
 function sizeText(bytes: number): string {
   return bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
-export async function ClipsStep({ row, videoEnabled }: { readonly row: AssessmentRow; readonly videoEnabled: boolean }) {
+export async function ClipsStep({
+  row,
+  videoEnabled,
+  relation,
+}: {
+  readonly row: AssessmentRow;
+  readonly videoEnabled: boolean;
+  readonly relation: AssessmentRelation;
+}) {
   const clips = await getMediaForAssessment(row.id);
   const ready = clips.filter((clip) => clip.status === 'uploaded');
   const unit = row.discipline === 'hitting' ? 'swings' : 'pitches';
+
+  // SeamState analyzes hitting clips only. The database keeps it off while the sentence below promises that
+  // video is never sent to an outside analysis service, so none of its screens show until that changes.
+  const hitting = row.discipline === 'hitting';
+  const [switches, permission, jobs, grantId] = hitting
+    ? await Promise.all([
+        getSeamstateSwitches(),
+        getSeamstatePermission(row.athlete_id),
+        getLatestJobsForClips(ready.map((clip) => clip.id)),
+        relation === 'athlete' ? getOwnSeamstateGrantId() : Promise.resolve(null),
+      ])
+    : [null, 'unknown' as const, new Map(), null];
+  const seamstateOn = hitting && videoEnabled && Boolean(switches?.enabled);
+  const available = seamstateOn && seamstateReadiness().ready;
+  const canRequest = available && permission === 'allowed';
+  const defaultSide = row.bats === 'right' || row.bats === 'left' ? row.bats : null;
 
   return (
     <div className="space-y-8">
@@ -38,6 +70,10 @@ export async function ClipsStep({ row, videoEnabled }: { readonly row: Assessmen
           You can still record ratings, charted outcomes and measured values. Clips can be added once uploads open.
         </Notice>
       )}
+
+      {seamstateOn ? (
+        <SwingAnalysisIntro assessmentId={row.id} available={available} permission={permission} relation={relation} grantId={grantId} />
+      ) : null}
 
       <div className="space-y-4">
         <h3 className="text-2xl text-navy">Clips in this assessment</h3>
@@ -66,6 +102,16 @@ export async function ClipsStep({ row, videoEnabled }: { readonly row: Assessmen
                     </Link>
                   ) : null}
                 </div>
+                {seamstateOn && clip.status === 'uploaded' ? (
+                  <ClipSwingAnalysis
+                    assessmentId={row.id}
+                    mediaId={clip.id}
+                    job={jobs.get(clip.id)}
+                    canRequest={canRequest}
+                    defaultSide={defaultSide}
+                    defaultView={clip.camera_view}
+                  />
+                ) : null}
                 <details>
                   <summary className="cursor-pointer font-semibold text-royal-ink underline">Edit or remove</summary>
                   <div className="mt-4 grid gap-6 lg:grid-cols-[2fr_1fr]">
@@ -112,7 +158,7 @@ export async function ClipsStep({ row, videoEnabled }: { readonly row: Assessmen
                       pendingLabel="Removing…"
                       variant="danger"
                       size="sm"
-                      confirm="Remove this clip and permanently delete the video file? Its markers, notes, drawings and the timing measured from it are removed too."
+                      confirm="Remove this clip and permanently delete the video file? Its markers, notes, drawings, the timing measured from it and any swing analysis are removed too."
                     />
                   </div>
                 </details>

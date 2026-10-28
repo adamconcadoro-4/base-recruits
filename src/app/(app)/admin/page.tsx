@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-import { setAssessmentSwitchesAction } from '@/app/(app)/admin/actions';
+import { setAssessmentSwitchesAction, setSeamstateSettingsAction } from '@/app/(app)/admin/actions';
 import { ReviewForm } from '@/app/(app)/admin/review-form';
 import { ActionForm } from '@/components/assessment/action-form';
 import { DashboardSection, PageTitle } from '@/components/app/section';
+import { TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip } from '@/components/ui/status-chip';
 import { assessmentSiteEnabled } from '@/config/assessment';
@@ -12,6 +13,8 @@ import { requireAccess } from '@/lib/auth/guard';
 import { describeCoachStatus, type CoachVerificationStatus } from '@/lib/auth/coach-verification';
 import { reviewFlags, staffUrlProblem } from '@/lib/auth/staff-url';
 import { formatDate } from '@/lib/family/family';
+import { seamstateReadiness } from '@/lib/seamstate/server/config';
+import { getSeamstateSwitches } from '@/lib/seamstate/server/queries';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = { title: 'Admin' };
@@ -82,6 +85,8 @@ export default async function AdminPage() {
       .limit(20),
     supabase.rpc('assessment_switches'),
   ]);
+  const seamstate = assessmentSiteEnabled() ? await getSeamstateSwitches() : null;
+  const readiness = seamstateReadiness();
   const switchRow = (Array.isArray(switchesResult.data) ? switchesResult.data[0] : switchesResult.data) as
     | { enabled?: boolean; video_enabled?: boolean }
     | null;
@@ -162,6 +167,59 @@ export default async function AdminPage() {
                 </label>
               </ActionForm>
             )}
+          </DashboardSection>
+        ) : null}
+
+        {assessmentSiteEnabled() ? (
+          <DashboardSection
+            id="seamstate"
+            title="SeamState swing analysis"
+            description="Each analysis sends up to 24 still frames to the AI provider and is billed by the provider. The monthly limit stops new requests once it is reached; it starts at 0. Athletes under 18 stay excluded until you include them below."
+          >
+            <div className="space-y-4">
+              {readiness.missing.length > 0 ? (
+                <Notice tone="attention" title="Not ready to run">
+                  Still to set up in the deployment settings:{' '}
+                  {readiness.missing.map((item) => (item === 'ai_provider' ? 'the AI provider key' : 'the video worker address and signing secret')).join(' and ')}.
+                  People see “Swing analysis isn’t available yet” until then.
+                </Notice>
+              ) : null}
+              {seamstate && !seamstate.outsideAnalysisDisclosed ? (
+                <Notice tone="attention" title="Locked off">
+                  The site promises that video is never sent to an outside analysis service, and SeamState sends still frames to an
+                  AI provider. It cannot be turned on until that wording is replaced through an approved site update.
+                </Notice>
+              ) : null}
+              {seamstate ? (
+                <>
+                  <p>
+                    Analyses requested this month: {seamstate.usedThisMonth ?? 0} of {seamstate.monthlyLimit}.
+                  </p>
+                  <ActionForm action={setSeamstateSettingsAction} submitLabel="Save SeamState settings" variant="secondary">
+                    <label className="flex min-h-11 items-center gap-3">
+                      <input
+                        type="checkbox"
+                        name="seamstate_enabled"
+                        defaultChecked={seamstate.enabled}
+                        disabled={!seamstate.outsideAnalysisDisclosed}
+                        className="size-5"
+                      />
+                      SeamState analysis is on (needs Assessment and video uploads on)
+                    </label>
+                    <label className="flex min-h-11 items-center gap-3">
+                      <input type="checkbox" name="minors_enabled" defaultChecked={seamstate.minorsEnabled} className="size-5" />
+                      Include athletes under 18 (only after counsel has reviewed minors&apos; footage going to the AI provider)
+                    </label>
+                    <div className="grid max-w-xl gap-4 sm:grid-cols-2">
+                      <TextField id="daily_limit" name="daily_limit" type="number" min={0} max={100} label="Analyses per person per day" defaultValue={seamstate.dailyLimit} />
+                      <TextField id="monthly_limit" name="monthly_limit" type="number" min={0} max={100000} label="Analyses per month, site-wide" defaultValue={seamstate.monthlyLimit} />
+                    </div>
+                  </ActionForm>
+                </>
+              ) : (
+                <Notice tone="error">The SeamState settings didn&apos;t load. Refresh to try again.</Notice>
+              )}
+            </div>
           </DashboardSection>
         ) : null}
 

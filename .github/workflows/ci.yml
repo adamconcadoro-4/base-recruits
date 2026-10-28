@@ -92,6 +92,38 @@ jobs:
           python3 -m unittest discover -s data/pipeline/tests -t . -v 2> "${RUNNER_TEMP}/pipeline.txt" || { tail -n 40 "${RUNNER_TEMP}/pipeline.txt"; echo "::error title=Pipeline tests::$(grep -E '^(FAIL|ERROR):' "${RUNNER_TEMP}/pipeline.txt" | head -n 5 | tr '\n' ' ')"; exit 1; }
           echo "::notice title=Registry pipeline tests::$(grep -E '^Ran ' "${RUNNER_TEMP}/pipeline.txt") — $(tail -n 1 "${RUNNER_TEMP}/pipeline.txt")"
 
+  worker:
+    # The SeamState video worker: inspection, decoding, hitter tracking, swing
+    # and event finding, stills and the signed app connection, on generated
+    # video and synthetic people (no athlete footage), plus the pinned pose model.
+    name: SeamState worker tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install ffmpeg, the worker's libraries and the pinned pose model
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg libegl1 libgles2
+          python -m pip install --quiet -r worker/requirements.txt
+          curl -fsSL -o "${RUNNER_TEMP}/pose_landmarker_full.task" \
+            https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task
+          echo "5134a3aad27a58b93da0088d431f366da362b44e3ccfbe3462b3827a839011b1  ${RUNNER_TEMP}/pose_landmarker_full.task" | sha256sum -c -
+
+      - name: Worker tests
+        shell: bash
+        working-directory: worker
+        env:
+          SEAMSTATE_POSE_MODEL: ${{ runner.temp }}/pose_landmarker_full.task
+        run: |
+          python -m unittest discover -s tests -t . -v 2> "${RUNNER_TEMP}/worker.txt" || { tail -n 40 "${RUNNER_TEMP}/worker.txt"; exit 1; }
+          echo "::notice title=SeamState worker tests::$(grep -E '^Ran ' "${RUNNER_TEMP}/worker.txt") — $(tail -n 1 "${RUNNER_TEMP}/worker.txt")"
+
   supabase:
     # The real Supabase stack (Auth, Data API, PostgreSQL 17) from the Supabase
     # CLI, with every migration applied exactly as `supabase db push` would, and
