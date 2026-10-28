@@ -2,7 +2,8 @@
 
 Status: merged (pull request #15), **switched off**. Nothing here is live until the founder turns on both switches
 described in "Turning it on". Handoff and open decisions: `docs/reports/assessment.md`. 9-Zone Hitting Development
-(section 10) is built on branch `feature/zone-hitting` and is covered by the same switches.
+(section 10) is built on branch `feature/zone-hitting` and is covered by the same switches. The Hitting Development
+Workbook drills and swing-flaw guide (section 11) join the drill library under the same switches.
 
 Promise shown to users: **"Understand your game, see the evidence, and know what to work on next."** No recruiting,
 admission, scholarship, injury-prevention or professional-level claims anywhere in the module.
@@ -31,12 +32,12 @@ video, charted outcomes, measured values from a radar or tracking device, and ra
 
 | Layer | Files |
 | --- | --- |
-| Domain (framework-free, unit tested) | `src/lib/assessment/` — `types.ts`, `catalog/` (pillars, 30 metrics with 14 anchored rubrics, 4 protocols, 18 drills, context lists), `units.ts`, `scoring.ts`, `engine.ts`, `results.ts`, `snapshot.ts`, `labels.ts`, `recommendations.ts`, `compatibility.ts`, `csv.ts`, `sample.ts` |
+| Domain (framework-free, unit tested) | `src/lib/assessment/` — `types.ts`, `catalog/` (pillars, 30 metrics with 14 anchored rubrics, 4 protocols, 64 drills of which 5 are replaced, the swing-flaw guide, workbook session templates, the home-practice guide, context lists), `hitting-workbook/`, `practice-counts.ts`, `units.ts`, `scoring.ts`, `engine.ts`, `results.ts`, `snapshot.ts`, `labels.ts`, `recommendations.ts`, `compatibility.ts`, `csv.ts`, `sample.ts` |
 | Server reads and action plumbing | `src/lib/assessment/server/` (`server-only`; every query runs as the signed-in person) |
 | Pages and server actions | `src/app/(app)/assessment/` (`actions.ts`, `media-actions.ts`, `plan-actions.ts`, `connection-actions.ts`) |
-| Components | `src/components/assessment/` (report view, summaries, action form, context fields, drill details) |
-| Database | `supabase/migrations/20261026000100` … `000700` |
-| Tests | `tests/unit/assessment-*.test.ts`, `tests/contract/assessment-catalog.test.ts`, `supabase/tests/015`–`018`, `scripts/db/race-test.sh`, `tests/e2e/assessment.spec.ts` |
+| Components | `src/components/assessment/` (report view, summaries, action form, context fields, drill details, session outline, practice counts) |
+| Database | `supabase/migrations/20261026000100` … `000700`, `20261028000100_hitting_workbook_drills.sql`, `20261028000200_hitting_workbook_sessions_counts.sql` |
+| Tests | `tests/unit/assessment-*.test.ts`, `tests/unit/hitting-workbook.test.ts`, `tests/contract/assessment-catalog.test.ts`, `supabase/tests/015`–`018`, `scripts/db/race-test.sh`, `tests/e2e/assessment.spec.ts` |
 | Switches | `src/config/assessment.ts` (site), `private.assessment_settings` (database) |
 
 ## 3. Data model
@@ -258,3 +259,84 @@ review with corrections, evaluation, stage, history, CSV, privacy and coach appr
   limit; the page says when the 5,000 limit is reached).
 - Demonstration videos: none are invented; clips come from the athlete's own uploads (video switch).
 
+## 11. Hitting Development Workbook (drill library and swing-flaw guide)
+
+Decision F38. Base Recruits' hitting workbook (`data/hitting-workbook/Baseball_Hitting_Development_Workbook.xlsx`,
+SHA-256 `7f88703f…cc75`) is merged into the existing drill library rather than added as its own module. Before import
+its 66 drills were given new generic names and every outside organisation's name and link was removed (founder's
+request, 2026-10-28); the extraction script refuses a workbook that contains either again. Base Recruits wrote the
+workbook, and Base Recruits hitting coaches reviewed the drills and targets (2026-10-28); drill pages say "Reviewed by
+Base Recruits hitting coaches". Success targets still show as coach targets, not validated standards.
+
+### What is imported
+
+| Workbook | Where it goes | Notes |
+| --- | --- | --- |
+| Hitting drills H01–H40 | Drill library, keys `hit-h01` … `hit-h40` (`catalog/workbook-drills.ts`) | Suggested round → starting dose, easier version → regression, success criteria → completion (shown as a coach target, not a validated standard); common mistake, correction, safety, level and source row kept. Toss and live drills (sections C and D) need a partner |
+| Rehearsals R01–R03, R05–R07 | Drill library, keys `hit-r01` … `hit-r07` | Short no-swing or between-round tools the flaw guide prescribes. R04 needs a resistance band and stays out until plans can check that an athlete has one |
+| Swing-flaw guide T01–T18 | `catalog/flaws.ts` | What it looks like, checks to tell causes apart, possible contributors, drills in order, cue, what to avoid, progress marker, retest; plus the observe → hypothesis → test → retest → decide routine |
+| Session templates S2, S3, S5, S6, S7 | `catalog/session-templates.ts`; "Start from" in the plan builder | Phase 2 (F39). Blocks, minutes and coach focus as written; the plan keeps the template (`session_template`) and shows the whole session. S1 (youth game), S4 and S8 (medicine ball) are left out |
+| Warm-up routines WR1–WR6, activities WU01–WU14 | Shown inside a session's warm-up block | Phase 2. Only the routines the offered sessions use appear (WR1, WR4) |
+| Practice Log counts | Optional counts on hitting training logs (`practice-counts.ts`) | Phase 2. Swings and solid contacts, decisions judged and good ones, landings checked and on the intended spot. Enjoyment is not imported; the pain flag never will be (founder, 2026-10-28: health data about minors) |
+| Parents' guide | `/assessment/home-practice` (`catalog/home-practice.ts`) | Phase 2. Start-here steps, home safety checklist, home drill menu, sample home sessions, what to say; plus the athlete's current hitting plan |
+| Everything else (medicine ball, youth games, coach-parent plan sheet, readiness, power and video logs, dashboard, parent report, macro) | Not imported | The readiness log is never imported (founder, 2026-10-28: health data about minors); medicine-ball work needs its own decision; the site's plans, logs and reports do the other sheets' jobs |
+
+`scripts/hitting-workbook/extract.py` reads the workbook (openpyxl, development only), checks the expected counts (27
+sheets, 40 drills, 7 rehearsals, 18 flaws, 5 routine steps, 8 sessions, 6 warm-up routines, 14 warm-up activities, the
+parents' guide's 8 steps, 9 safety checks, 9 menu drills, 5 home sessions and 5 language rows, blank player and log
+sheets) and writes
+`src/lib/assessment/hitting-workbook/content-v1.json` (content version `hitting-wb-v1`; every record keeps its sheet
+and row). Drill ids in the text are spelled out as names on the site ("H27" → "Mixed-Location Read Toss (H27)"), and
+references to the workbook's own Video Log read "your video notes".
+
+### Which measures a drill works on
+
+`METRIC_FLAWS` links each hitting measure to the flaws that can produce a weak result on it, most direct first (for
+example barrel delivery consistency → casting, hands dropping, looping). A workbook drill works on its section's
+measures plus every measure whose flaws list it; its pillars follow from those measures. Bat speed and exit velocity
+have no flaw (more output is not a flaw), so they keep the starter drills. Chasing (T15) and freezing (T16) are swing
+decisions, which the assessment does not score: pitch-selection drills (H31–H40) carry no measure and point to 9-Zone
+Hitting decision rounds instead.
+
+### Suggestions
+
+For a hitting finding, `suggestPlan` first takes drills from the possible flaws in turn (the first drill of the first
+flaw, then the first of the second flaw, and so on), so two suggestions cover two possible causes where they can, then
+falls back to drills linked to the measure directly. Each suggestion names the possible cause, the check that tells
+causes apart and the flaw's retest; the plan builder adds what to avoid. One result can have several causes, so a flaw
+is only ever offered as possible. Pitching suggestions are unchanged.
+
+### Replaced starter drills
+
+Five starter drills are switched off (`active = false`, `replacedBy` in the catalog) because a workbook drill does the
+same job: rhythm-and-load tee series (H13, H14), front-toss tempo changes (H28), contact-point tee map (H07), stride
+line (H15) and line-drive target rounds (H01). Nothing is deleted: plans already using them keep them and say what
+replaced them, and the database refuses them for new plans and changes. Barrel gate, hold-the-finish, same-move video
+sets and measured intent rounds stay.
+
+### Sessions, practice counts and home practice (phase 2, F39)
+
+**Starting from a session.** On a hitting report's plan builder, "Start from" offers the report's suggestions or one of
+five workbook sessions. A session puts its drills first, each once and in session order, with its block's minutes as the
+starting dosage ("Tee block, about 6 min: …") and the block's coach focus as the reason; drills that need a partner who
+isn't available start unticked. The report's suggestions stay below, unticked. The plan stores the template
+(`assessment_training_plans.session_template`, checked against the five ids and hitting only), and the plan card shows
+the whole session: warm-up (its activities step by step), drill blocks, and retest or review blocks. The workbook's
+"Readiness Log check" reads "Readiness check (no pain, not exhausted)", the same check the parents' guide states.
+
+**Practice counts.** A log on a hitting plan can carry swings and solid contacts, pitches judged for swing or take and
+good decisions, and landings checked and on the intended spot. Every count is optional and blank is not zero; a "made"
+count needs its total and cannot exceed it (0–300; checked in the action and in `log_training`). The plan card totals
+them per measure, only over logs that counted both numbers, and keeps coach observations apart from the athlete's or
+family's reports. Counts are practice records, not measurements, and never change a score. Pitching logs refuse them.
+
+**Home practice.** `/assessment/home-practice` shows the parents' guide with its references to the workbook's own
+sheets rewritten for the site (the coach-approved plan for the Coach-Parent Plan, the Training Plan page for the
+Practice Log), and the chosen athlete's active hitting plan: whether a development coach approved it, its focus, and
+which of its drills are on the home menu.
+
+### Not built (yet)
+
+- A browsable page for the flaw guide; today it appears through plan suggestions.
+- SeamState (pull request #19) picks drills by measure, so it will reach the workbook drills through their measures
+  once merged; linking flaws to SeamState's mechanics directly belongs in that pull request.

@@ -14,7 +14,7 @@ import { drill } from '@/lib/assessment/catalog/drills';
 import { PILLARS } from '@/lib/assessment/catalog/pillars';
 import { getAssessment, listAthletes } from '@/lib/assessment/server/queries';
 import { mechanic, PHONE_UNAVAILABLE } from '@/lib/seamstate/catalog/mechanics';
-import { DRILL_CATALOG_COACH_REVIEWED, type DrillSuggestion } from '@/lib/seamstate/drill-rules';
+import type { DrillSuggestion } from '@/lib/seamstate/drill-rules';
 import {
   EVENT_LABELS,
   EVIDENCE_GRADE_LABELS,
@@ -275,6 +275,7 @@ export default async function SwingReportPage({ params }: { readonly params: Pro
   const neutral = sorted.filter((finding) => finding.category === 'neutral');
   const practice = adjustments.filter((finding) => finding.review_state !== 'rejected').slice(0, 3);
   const unable = result.unableToAssess ?? [];
+  const unreviewedDrills = practice.some((finding) => drillSuggestions(finding.drill_suggestions).some((item) => !item.coachReviewed));
   const notCounted = (result.swingContact ?? []).filter((item) => !item.counted);
   const notice = interpretationNotice(result.interpretation);
   const allApproved = findings.length > 0 && findings.every((finding) => finding.review_state === 'approved');
@@ -346,12 +347,11 @@ export default async function SwingReportPage({ params }: { readonly params: Pro
             </p>
           ) : (
             <>
-              {!DRILL_CATALOG_COACH_REVIEWED ? (
-                <p className="max-w-3xl text-sm text-slate">
-                  Drills come from the Base Recruits drill library, which a qualified hitting coach has not reviewed yet. Amounts are a
-                  starting point you can change.
-                </p>
-              ) : null}
+              <p className="max-w-3xl text-sm text-slate">
+                Drills come from the Base Recruits drill library.
+                {unreviewedDrills ? ' Drills marked “not yet coach-reviewed” have not been reviewed by a qualified hitting coach yet.' : ''}{' '}
+                Amounts are a starting point you can change.
+              </p>
               <ol className="max-w-3xl space-y-6">
                 {practice.map((finding) => (
                   <li key={finding.id} className="space-y-2">
@@ -368,7 +368,7 @@ export default async function SwingReportPage({ params }: { readonly params: Pro
                       return (
                         <details key={suggestion.drillKey} className="border-2 border-rule p-4">
                           <summary className="cursor-pointer font-semibold text-royal-ink underline">
-                            Drill: {definition.name} ({suggestion.dosage})
+                            Drill: {definition.name} ({suggestion.dosage}){suggestion.coachReviewed ? '' : ' · not yet coach-reviewed'}
                           </summary>
                           <div className="mt-3 space-y-3">
                             <p className="text-sm text-slate">{suggestion.rationale}</p>

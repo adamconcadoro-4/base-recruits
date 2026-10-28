@@ -19,23 +19,29 @@ grant all on t_values to public;
 
 -- ================================================================ creating plans
 select tests.throws(format($$select public.create_training_plan(auth.uid(), gen_random_uuid(), 'Block one', current_date, current_date + 28,
-  '[]', '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$),
+  '[]', '[{"drill_key": "hit-h13", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$),
   'BR003', 'a plan starts from one of the athlete''s published reports');
 select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Block one', current_date, current_date + 28,
   '[]', '[{"drill_key": "pit-stride-line", "drill_version": 1, "reason": "x", "dosage": "3x8"}]')$$, tests.job('rev')),
   'BR003', 'drills must come from the library for the report''s discipline');
 select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Block one', current_date, current_date + 28,
   '[{"metric_key": "hit_load_repeatability"}, {"metric_key": "hit_drill_preparation"}, {"metric_key": "hit_balance_through_swing"}, {"metric_key": "hit_stride_direction_repeatability"}]',
-  '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
+  '[{"drill_key": "hit-h13", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
   'BR003', 'a block has at most three focus areas');
 select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Block one', current_date, current_date - 1,
-  '[]', '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
+  '[]', '[{"drill_key": "hit-h13", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
   'BR003', 'the review date comes after the start date');
+select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Block one', current_date, current_date + 28,
+  '[]', '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "reason": "Load rated 2", "dosage": "3x8"}]')$$, tests.job('rev')),
+  'BR003', 'a drill replaced in the library cannot go into a new plan');
+select tests.ok((select count(*) from public.assessment_drills where not active
+                  and key in ('hit-rhythm-load-tee', 'hit-front-toss-tempo', 'hit-contact-point-map', 'hit-stride-line', 'hit-line-drive-rounds')) = 5,
+  'replaced drills stay in the library, switched off, so older plans keep pointing at them');
 select tests.remember_job('plan1', public.create_training_plan(auth.uid(), tests.job('rev'), 'Block one', current_date, current_date + 28,
   '[{"metric_key": "hit_load_repeatability", "summary": "Load repeatability rated 2 of 5"}]'::jsonb,
-  '[{"drill_key": "hit-rhythm-load-tee", "drill_version": 1, "focus_metric_key": "hit_load_repeatability",
+  '[{"drill_key": "hit-h13", "drill_version": 1, "focus_metric_key": "hit_load_repeatability",
      "reason": "Suggested because load repeatability was rated 2 of 5.", "dosage": "3 sets of 8 swings, 3 days a week"},
-    {"drill_key": "hit-contact-point-map", "drill_version": 1, "focus_metric_key": "hit_contact_location_consistency",
+    {"drill_key": "hit-h07", "drill_version": 1, "focus_metric_key": "hit_contact_location_consistency",
      "reason": "Suggested because contact-point consistency was rated 2 of 5.", "dosage": "2 rounds of 15 swings"}]'::jsonb));
 select tests.ok((select approval || '|' || status || '|' || revision from public.assessment_training_plans where id = tests.job('plan1'))
   = 'self_directed|active|1', 'a plan the athlete makes is self-directed');
@@ -108,7 +114,7 @@ select tests.throws(format($$select public.log_training(%L, current_date, 1, 3, 
 -- ================================================================ next block
 select tests.authenticate_as('dev');
 select tests.remember_job('plan2', public.create_training_plan(tests.id('athlete'), tests.job('rev'), 'Block two', current_date + 28, current_date + 56,
-  '[]'::jsonb, '[{"drill_key": "hit-stride-line", "drill_version": 1, "reason": "Next focus", "dosage": "3x8"}]'::jsonb));
+  '[]'::jsonb, '[{"drill_key": "hit-h15", "drill_version": 1, "reason": "Next focus", "dosage": "3x8"}]'::jsonb));
 select tests.ok((select approval from public.assessment_training_plans where id = tests.job('plan2')) = 'coach_approved',
   'a plan the coach makes is coach-approved');
 select tests.ok((select status from public.assessment_training_plans where id = tests.job('plan1')) = 'completed'
@@ -118,3 +124,64 @@ select tests.ok((select status from public.assessment_training_plans where id = 
 select tests.throws(format($$select public.update_training_assignment(%L, '1x1', null)$$,
   (select id from public.assessment_plan_assignments where plan_id = tests.job('plan1') and status = 'active' limit 1)),
   'BR004', 'a completed plan cannot be changed');
+
+-- ================================================================ workbook sessions (F39)
+select tests.throws(format($$select public.create_training_plan(%L, %L, 'Session block', current_date, current_date + 28,
+  '[]', '[{"drill_key": "hit-h01", "drill_version": 1, "reason": "From session S4", "dosage": "4 swings"}]', 'S4')$$,
+  tests.id('athlete'), tests.job('rev')),
+  'BR003', 'only the offered hitting sessions can start a plan (S4 needs medicine-ball work)');
+select tests.remember_job('plan3', public.create_training_plan(tests.id('athlete'), tests.job('rev'), 'Bailout sessions', current_date, current_date + 28,
+  '[]'::jsonb,
+  '[{"drill_key": "hit-h01", "drill_version": 1, "reason": "From session S2, baseline video block.", "dosage": "Baseline video block, about 3 min"},
+    {"drill_key": "hit-r01", "drill_version": 1, "reason": "From session S2, rehearsal block.", "dosage": "Rehearsal block, about 3 min"}]'::jsonb,
+  'S2'));
+select tests.ok((select session_template from public.assessment_training_plans where id = tests.job('plan3')) = 'S2'
+  and (select session_template from public.assessment_training_plans where id = tests.job('plan2')) is null,
+  'a plan keeps the session it started from; plans without one keep null');
+select tests.ok(exists (select 1 from pg_constraint where conname = 'assessment_training_plans_session_hitting'),
+  'only hitting plans can carry a session');
+
+-- ================================================================ practice counts (F39)
+select tests.authenticate_as('athlete');
+select tests.throws(format($$select public.log_training(%L, current_date, null, null, null, null, null, 4)$$,
+  (select id from public.assessment_plan_assignments where plan_id = tests.job('plan3') and position = 1)),
+  'BR003', 'a count of solid contacts needs the number of swings');
+select tests.throws(format($$select public.log_training(%L, current_date, null, null, null, null, 5, 6)$$,
+  (select id from public.assessment_plan_assignments where plan_id = tests.job('plan3') and position = 1)),
+  'BR003', 'solid contacts cannot exceed swings');
+select tests.throws(format($$select public.log_training(%L, current_date, null, null, null, null, null, null, 6, 7)$$,
+  (select id from public.assessment_plan_assignments where plan_id = tests.job('plan3') and position = 1)),
+  'BR003', 'good decisions cannot exceed the pitches judged');
+select tests.throws(format($$select public.log_training(%L, current_date, null, null, null, null, 301)$$,
+  (select id from public.assessment_plan_assignments where plan_id = tests.job('plan3') and position = 1)),
+  'BR003', 'a count is at most 300');
+select tests.clear_authentication();
+delete from t_values where name = 'before';
+insert into t_values select 'before', md5(private.assessment_results(tests.job('h'))::text);
+select tests.authenticate_as('athlete');
+select tests.remember_job('counted', public.log_training(
+  (select id from public.assessment_plan_assignments where plan_id = tests.job('plan3') and position = 1),
+  current_date, null, null, null, null, 10, 7, null, null, 5, 4));
+select tests.authenticate_as('dev');
+select tests.remember_job('observed', public.log_training(
+  (select id from public.assessment_plan_assignments where plan_id = tests.job('plan3') and position = 2),
+  current_date, null, null, null, null, null, null, null, null, 6, 6));
+select tests.clear_authentication();
+select tests.ok((select row(swings, solid_contacts, decisions_assessed, decisions_correct, landings_assessed, landings_intended, logger_kind)::text
+                   from public.assessment_training_logs where id = tests.job('counted')) = '(10,7,,,5,4,self)'
+  and (select logger_kind from public.assessment_training_logs where id = tests.job('observed')) = 'development_coach',
+  'counts are stored as given, blanks stay blank, and who counted is recorded');
+select tests.ok(md5(private.assessment_results(tests.job('h'))::text) = (select value from t_values where name = 'before'),
+  'practice counts change no result or score');
+select tests.authenticate_as('athlete');
+select tests.remember_job('p', public.create_assessment(auth.uid(), 'pitching-video', 1, current_date - 2, '{"rep_goal": 10}'::jsonb));
+select public.record_assessment_observation(tests.job('p'), 'pit_delivery_balance', null, 2, false, null, null, null, null, null, null);
+select tests.remember_job('prev', public.publish_assessment(tests.job('p'), null));
+select tests.throws(format($$select public.create_training_plan(auth.uid(), %L, 'Pitching block', current_date, current_date + 28,
+  '[]', '[{"drill_key": "pit-balance-hold", "drill_version": 1, "reason": "Balance rated 2", "dosage": "3x5"}]', 'S2')$$, tests.job('prev')),
+  'BR003', 'a pitching plan cannot start from a hitting session');
+select tests.remember_job('pplan', public.create_training_plan(auth.uid(), tests.job('prev'), 'Pitching block', current_date, current_date + 28,
+  '[]'::jsonb, '[{"drill_key": "pit-balance-hold", "drill_version": 1, "reason": "Balance rated 2", "dosage": "3x5"}]'::jsonb));
+select tests.throws(format($$select public.log_training(%L, current_date, 2, null, null, null, 10)$$,
+  (select id from public.assessment_plan_assignments where plan_id = tests.job('pplan'))),
+  'BR003', 'practice counts are for hitting drills only');

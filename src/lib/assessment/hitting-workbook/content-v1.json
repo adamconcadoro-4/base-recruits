@@ -1,0 +1,2293 @@
+{
+  "version": "hitting-wb-v1",
+  "source": {
+    "file": "Baseball_Hitting_Development_Workbook.xlsx",
+    "sha256": "7f88703f904b819462de23fefd2cdbf54998f3cd19bf76b2fad0c0ba993ecc75",
+    "sheets": [
+      "Cover",
+      "Contents",
+      "How To Use",
+      "Players",
+      "Drill Index",
+      "Hitting Drills",
+      "Med Ball Library",
+      "Med Ball Progression",
+      "Youth Games",
+      "Rehearsals",
+      "Warm-Up Routines",
+      "Warm-Up Library",
+      "Troubleshooting",
+      "Mental Approach",
+      "Session Builder",
+      "Parents Guide",
+      "Coach-Parent Plan",
+      "Practice Log",
+      "Power Log",
+      "Readiness Log",
+      "Video Log",
+      "Dashboard",
+      "Parent Report",
+      "Export Log",
+      "Export & Macro Guide",
+      "Equipment & Safety",
+      "Basis & Limits"
+    ]
+  },
+  "drills": [
+    {
+      "sourceId": "H01",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Middle Tee Contact Baseline",
+      "level": "All",
+      "purpose": "Establish a contact baseline at a comfortable middle location.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Tee at a comfortable middle-height, middle-of-plate location slightly in front of the plate. Broad center-field target on the net.",
+      "steps": [
+        "Take two easy rehearsal swings.",
+        "Hit 4–6 balls at controlled effort toward the center target.",
+        "Reset fully between swings.",
+        "Build to normal game intent on the last 2."
+      ],
+      "cue": "Square it up, then add speed.",
+      "suggestedRound": "4–6 swings",
+      "mistake": "Chasing distance and losing balance on every swing.",
+      "correction": "Score solid contact first; add intent only when contact stays solid.",
+      "easier": "Larger target; lighter effort.",
+      "progression": "Alternate with H04/H05 heights; move to H22.",
+      "success": "4 of 6 solid contacts toward the broad target.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 6
+    },
+    {
+      "sourceId": "H02",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Inside Tee Contact Point",
+      "level": "All",
+      "purpose": "Deliver the barrel to an inside pitch with contact farther out front.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Tee on the inner half, set farther forward than the away setup. Pull-side gap target.",
+      "steps": [
+        "Confirm the contact point is out front.",
+        "Take 4–6 swings toward the pull-side gap.",
+        "Check that contact is on the barrel, not the handle."
+      ],
+      "cue": "Quick turn, clean contact.",
+      "suggestedRound": "4–6 swings",
+      "mistake": "Tee set too deep, so the hitter gets jammed and learns to push the hands away.",
+      "correction": "Move the tee forward until barrel contact is comfortable.",
+      "easier": "Slightly less inside; slower swings.",
+      "progression": "H08 Inside-Outside Tee Switch; H23 Inside-Lane Front Toss.",
+      "success": "Barrel contact on most swings; ball travels toward the pull-side gap.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 7
+    },
+    {
+      "sourceId": "H03",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Outside Tee Opposite-Field Drive",
+      "level": "All",
+      "purpose": "Cover the outer half without reaching or diving.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Tee on the outer half at a deeper contact point. Opposite-field gap target.",
+      "steps": [
+        "Let the ball 'travel' deeper.",
+        "Take 4–6 swings toward the opposite-field gap.",
+        "Keep the landing controlled; no step across the plate."
+      ],
+      "cue": "Let it travel; drive through it.",
+      "suggestedRound": "4–6 swings",
+      "mistake": "Stepping across the plate or reaching with the arms to get to the ball.",
+      "correction": "Use a flat landing marker (H15) and move the tee slightly closer.",
+      "easier": "Tee slightly less away.",
+      "progression": "H08; H24 Outside-Lane Front Toss.",
+      "success": "Firm opposite-gap contact with a consistent landing.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 8
+    },
+    {
+      "sourceId": "H04",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Top-of-Zone Tee",
+      "level": "All",
+      "purpose": "Adjust posture and bat path to a higher pitch; reduce an unnecessary dip-and-lift.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Tee near the top of the hitter's strike zone (not above it), 4–8 inches in front of the plate.",
+      "steps": [
+        "Three slow rehearsal swings.",
+        "Hit 5 balls at controlled effort aiming for line drives.",
+        "Hit 5 from a middle-height tee.",
+        "Alternate high and middle."
+      ],
+      "cue": "Match the high pitch.",
+      "suggestedRound": "5 high + 5 middle",
+      "mistake": "Coaching it as 'swing down' or chopping at every pitch.",
+      "correction": "Ask for firm line drives, not ground balls; keep the normal swing shape.",
+      "easier": "Tee slightly lower; controlled effort.",
+      "progression": "H06 ladder; H25 high-low toss.",
+      "success": "Line drives without a large dip-and-lift; contact holds when the tee returns to middle.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 9
+    },
+    {
+      "sourceId": "H05",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Bottom-of-Zone Tee",
+      "level": "All",
+      "purpose": "Adjust to lower strikes without collapsing or reaching.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Tee near the bottom of the hitter's strike zone, slightly in front of the plate.",
+      "steps": [
+        "Rehearse matching the low height with the legs and posture.",
+        "Hit 4–6 balls toward a broad line-drive target.",
+        "Reset between swings."
+      ],
+      "cue": "Get to the low pitch, then turn.",
+      "suggestedRound": "4–6 swings",
+      "mistake": "Dropping the back shoulder to scoop, or bending only at the waist.",
+      "correction": "Lower the target height expectation; use H06 to contrast heights.",
+      "easier": "Tee slightly higher.",
+      "progression": "H06; H25.",
+      "success": "Firm contact without falling off balance.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 10
+    },
+    {
+      "sourceId": "H06",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Low-Middle-High Tee Sequence",
+      "level": "Developing+",
+      "purpose": "Adjust barrel delivery to pitch height at a consistent plate location.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "One tee moved through low, middle, and high heights at the same plate location.",
+      "steps": [
+        "Low → middle → high, one swing each.",
+        "Repeat.",
+        "Then use a changing order the hitter doesn't choose."
+      ],
+      "cue": "Match the height.",
+      "suggestedRound": "2 ladders (6 swings)",
+      "mistake": "Using the identical swing for every height.",
+      "correction": "Pause between heights and name the height before each swing.",
+      "easier": "Two heights only.",
+      "progression": "H07; H25.",
+      "success": "Solid contact at all three heights in at least one ladder.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 11
+    },
+    {
+      "sourceId": "H07",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Full Strike-Zone Tee Map",
+      "level": "Developing+",
+      "purpose": "Explore contact across three heights and three plate locations.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Tape a 3×3 grid on the plate area or use markers; move the tee through the nine zones.",
+      "steps": [
+        "One swing per zone in a set order.",
+        "Note zones with weak contact.",
+        "Repeat the two weakest zones."
+      ],
+      "cue": "Each zone has its own contact point.",
+      "suggestedRound": "9 + 2–4 repeat swings",
+      "mistake": "Leaving the tee at the same depth for inside and outside.",
+      "correction": "Inside farther forward; outside deeper.",
+      "easier": "Use only middle row (3 zones).",
+      "progression": "H27 Mixed-Location Read Toss.",
+      "success": "Identifies weak zones; solid contact improves on the repeat swings.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 12
+    },
+    {
+      "sourceId": "H08",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Inside-Outside Tee Switch",
+      "level": "Developing+",
+      "purpose": "Change contact depth while keeping the landing consistent.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage; flat landing marker",
+      "setup": "Two tees (or one moved) set inside/forward and away/deeper. Landing marker on the ground.",
+      "steps": [
+        "Alternate inside and away.",
+        "Keep the same landing spot.",
+        "Seek pull-gap contact inside and opposite-gap contact away."
+      ],
+      "cue": "Same landing, different contact point.",
+      "suggestedRound": "6 swings (3 each)",
+      "mistake": "Changing the stride direction to reach each location.",
+      "correction": "Return to H15 landing-spot work, then retry.",
+      "easier": "Two consecutive swings per location.",
+      "progression": "H26 In-Out Location Toss.",
+      "success": "Consistent landing on at least 5 of 6 swings.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 13
+    },
+    {
+      "sourceId": "H09",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Coach-Called Location Tee",
+      "level": "Developing+",
+      "purpose": "Connect pitch location with an appropriate contact plan.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Coach repositions the tee before the hitter sets up. Broad pull, middle, and opposite targets.",
+      "steps": [
+        "Coach sets inside, middle, or away.",
+        "Hitter names the intended broad target.",
+        "One swing, then change location."
+      ],
+      "cue": "Match the contact to the location.",
+      "suggestedRound": "6 swings",
+      "mistake": "Forcing every pitch opposite field, or slicing weakly and calling it success.",
+      "correction": "Score solid contact and direction separately.",
+      "easier": "Two locations only.",
+      "progression": "H27; H32.",
+      "success": "Solid contact + intended direction on 4 of 6.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 14
+    },
+    {
+      "sourceId": "H10",
+      "section": "A – Tee Contact & Barrel Control",
+      "name": "Reduced-Ball Tee Precision",
+      "level": "Developing+",
+      "purpose": "Make centered contact the task.",
+      "equipment": "Bat, helmet, compatible tee, suitable smaller practice balls, net",
+      "setup": "Tee sized for the smaller ball at a comfortable middle location.",
+      "steps": [
+        "Normal two-handed swings.",
+        "Score clean, centered contact.",
+        "Finish with 2 normal-ball swings."
+      ],
+      "cue": "Find the center.",
+      "suggestedRound": "4–6 swings",
+      "mistake": "Slowing the swing to guide the bat.",
+      "correction": "Keep normal intent; accept misses as information.",
+      "easier": "Normal ball on a tee.",
+      "progression": "H22 with normal balls.",
+      "success": "Centered contact on at least half the swings without slowing down.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 15
+    },
+    {
+      "sourceId": "H11",
+      "section": "B – Movement Into Contact",
+      "name": "Fixed-Base Tee Swings",
+      "level": "All",
+      "purpose": "Simplify the swing and isolate rotation and contact.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Feet start near the hitter's normal landing width. Middle tee.",
+      "steps": [
+        "Small gentle load.",
+        "Swing without stepping.",
+        "Let the hips and shoulders turn naturally.",
+        "Finish with 2 normal-stride swings for comparison."
+      ],
+      "cue": "Stable base, free turn.",
+      "suggestedRound": "4 + 2 comparison",
+      "mistake": "Holding the front shoulder or knee closed on purpose.",
+      "correction": "Allow the back foot and hips to rotate; judge balance, not closedness.",
+      "easier": "Slower effort.",
+      "progression": "H12; H13.",
+      "success": "Balanced finish and solid contact; compare with normal swings.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 16
+    },
+    {
+      "sourceId": "H12",
+      "section": "B – Movement Into Contact",
+      "name": "Loaded-Hands Start Tee",
+      "level": "Developing+",
+      "purpose": "Examine barrel delivery after landing; separate stride problems from turn problems.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Stride foot already down; hands comfortably loaded near the rear shoulder.",
+      "steps": [
+        "Make a small gather.",
+        "Swing from there.",
+        "Compare with normal stride swings on video."
+      ],
+      "cue": "Turn from here.",
+      "suggestedRound": "4–6 swings",
+      "mistake": "Pushing both hands straight at the ball (casting) from the start.",
+      "correction": "Feel the body turn deliver the barrel; reduce effort first.",
+      "easier": "Fixed-Base Tee Swings (H11).",
+      "progression": "H13; H04.",
+      "success": "If the dip or cast disappears here, the issue is in the load/stride; if not, it's in the first forward move.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 17
+    },
+    {
+      "sourceId": "H13",
+      "section": "B – Movement Into Contact",
+      "name": "Stride, Hold, Swing Tee",
+      "level": "Developing+",
+      "purpose": "Organize the landing and launch position; address hands that sink during the stride.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Middle tee. Video or mirror for feedback if available.",
+      "steps": [
+        "Load and stride.",
+        "Pause 1–2 seconds at landing.",
+        "Check hands in a comfortable launch position (not collapsed to the waist).",
+        "Swing."
+      ],
+      "cue": "Arrive ready, then turn.",
+      "suggestedRound": "4–6 swings",
+      "mistake": "Hiking the hands artificially high after landing.",
+      "correction": "Look for a comfortable, repeatable launch, not a fixed hand height.",
+      "easier": "Dry stride-pause without a ball.",
+      "progression": "H14 contrast.",
+      "success": "Hands arrive in a usable launch position on most reps.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 18
+    },
+    {
+      "sourceId": "H14",
+      "section": "B – Movement Into Contact",
+      "name": "Hold vs. Flow Tee Pairs",
+      "level": "Developing+",
+      "purpose": "Transfer a paused rehearsal back into a rhythmic swing.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Middle tee.",
+      "steps": [
+        "Paused swing (H13).",
+        "Continuous normal swing.",
+        "Alternate 4–6 pairs."
+      ],
+      "cue": "Same landing, same ready position.",
+      "suggestedRound": "4–6 pairs",
+      "mistake": "Copying the pause into the game swing.",
+      "correction": "Keep the continuous swing fully rhythmic.",
+      "easier": "More paused reps first.",
+      "progression": "H21/H22 moving ball.",
+      "success": "Continuous swings keep the improvement seen in paused swings.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 19
+    },
+    {
+      "sourceId": "H15",
+      "section": "B – Movement Into Contact",
+      "name": "Marked Landing Tee",
+      "level": "All",
+      "purpose": "Make front-foot landing direction repeatable (stepping out or diving).",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage; flat tape or chalk landing marker",
+      "setup": "Flat marker at the intended landing spot; leave room for a comfortable toe angle.",
+      "steps": [
+        "3 dry strides to the marker.",
+        "Hit 5–8 balls.",
+        "Remove the marker for the last 2 swings."
+      ],
+      "cue": "Land on your spot.",
+      "suggestedRound": "3 dry + 5–8 swings",
+      "mistake": "Looking down at the marker during the swing; locking the toe closed.",
+      "correction": "Glance before, eyes on ball during; judge location, not toe angle.",
+      "easier": "Dry strides only.",
+      "progression": "H08; H24; H26.",
+      "success": "Lands near the marker on 4 of 5; keeps it with the marker removed.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 20
+    },
+    {
+      "sourceId": "H16",
+      "section": "B – Movement Into Contact",
+      "name": "Lift-and-Hold Stride Tee",
+      "level": "Developing+",
+      "purpose": "Control the move into landing from rear-side support.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage; landing marker",
+      "setup": "Landing marker; middle tee.",
+      "steps": [
+        "Small load.",
+        "Lift the front foot slightly and hold briefly.",
+        "Place it at the marker without tipping.",
+        "Swing."
+      ],
+      "cue": "Load, move, arrive balanced.",
+      "suggestedRound": "5 swings",
+      "mistake": "Long, stiff holds or collapsing the back knee.",
+      "correction": "Keep the hover short — control, not a balance test.",
+      "easier": "Dry hover reps.",
+      "progression": "H14; H22.",
+      "success": "Lands balanced and on target on most reps.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 21
+    },
+    {
+      "sourceId": "H17",
+      "section": "B – Movement Into Contact",
+      "name": "Short-Tap Stride Tee",
+      "level": "All",
+      "purpose": "Reduce forward-move complexity (overstriding, lunging).",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Middle tee.",
+      "steps": [
+        "Replace the stride with a small toe tap.",
+        "Swing.",
+        "Compare with 2 normal-stride swings."
+      ],
+      "cue": "Small and on time.",
+      "suggestedRound": "4–6 swings",
+      "mistake": "Turning the tap into a big lift.",
+      "correction": "Keep the tap small and quiet.",
+      "easier": "No-stride (H11).",
+      "progression": "H28 timing toss.",
+      "success": "Balanced contact with less lunge.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 22
+    },
+    {
+      "sourceId": "H18",
+      "section": "B – Movement Into Contact",
+      "name": "Step-In Momentum Tee",
+      "level": "Experienced",
+      "purpose": "Explore rhythm and forward momentum into contact.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage; extra clear space behind the hitter",
+      "setup": "Middle tee; clear space for 2–3 walking steps.",
+      "steps": [
+        "Controlled walk-in steps toward the plate area.",
+        "Land and swing.",
+        "Finish with 2 normal swings."
+      ],
+      "cue": "Move, land, turn.",
+      "suggestedRound": "4 + 2 normal",
+      "mistake": "Rushing the walk and losing balance.",
+      "correction": "Slow the steps; balance first.",
+      "easier": "Single step approach.",
+      "progression": "H22 Steady Middle Front Toss.",
+      "success": "Controlled landing and solid contact.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 23
+    },
+    {
+      "sourceId": "H19",
+      "section": "B – Movement Into Contact",
+      "name": "Open-Stance Start Tee",
+      "level": "Experienced",
+      "purpose": "Explore barrel delivery from a moderately open starting orientation.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Hitter starts moderately open to the pitcher (comfortable, not extreme).",
+      "steps": [
+        "Normal swings from the open setup.",
+        "Don't force a return to square.",
+        "Finish with 2 normal-stance swings."
+      ],
+      "cue": "Stay balanced and square it up.",
+      "suggestedRound": "4 + 2 normal",
+      "mistake": "Treating the drill stance as a permanent change.",
+      "correction": "Always finish with normal-stance comparison swings.",
+      "easier": "Smaller offset.",
+      "progression": "H30 Open-Stance Front Toss.",
+      "success": "Balanced, solid contact; normal swings unaffected.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 24
+    },
+    {
+      "sourceId": "H20",
+      "section": "B – Movement Into Contact",
+      "name": "Closed-Stance Start Tee",
+      "level": "Experienced",
+      "purpose": "Explore rotation and contact from a moderately closed orientation.",
+      "equipment": "Bat, fitted batting helmet, adjustable tee, practice balls, hitting net or cage",
+      "setup": "Hitter starts moderately closed; no strained hips, knees, or back.",
+      "steps": [
+        "Normal swings from the closed setup.",
+        "Finish with 2 normal swings."
+      ],
+      "cue": "Turn freely from here.",
+      "suggestedRound": "4 + 2 normal",
+      "mistake": "Over-closing until rotation is uncomfortable.",
+      "correction": "Reduce the offset immediately if anything strains.",
+      "easier": "Smaller offset.",
+      "progression": "Alternate with H19.",
+      "success": "Comfortable rotation and solid contact.",
+      "safety": "Clear swing radius; no one stands near the hitter or in front of the net; helmet on; check tee stability.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 25
+    },
+    {
+      "sourceId": "H21",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Side-Angle Toss Contact",
+      "level": "All",
+      "purpose": "Introduce moving-ball contact.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Feeder safely offset to the side, outside the swing and batted-ball paths; toss into the hitting zone.",
+      "steps": [
+        "Ready signal.",
+        "Underhand toss.",
+        "Track and make a normal two-handed swing.",
+        "Reset fully."
+      ],
+      "cue": "Track it, square it.",
+      "suggestedRound": "4–6 tosses",
+      "mistake": "Rapid-fire tosses that rush the hitter.",
+      "correction": "Wait for the hitter's ready signal every time.",
+      "easier": "Slower, higher-arc toss.",
+      "progression": "H22.",
+      "success": "Solid contact on 4 of 6.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 26
+    },
+    {
+      "sourceId": "H22",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Steady Middle Front Toss",
+      "level": "All",
+      "purpose": "Establish rhythm and timing against a consistent moving ball.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Feeder behind a protective screen 15–20 ft in front; consistent middle tosses.",
+      "steps": [
+        "Same release and location every pitch.",
+        "Hitter resets between pitches.",
+        "Score solid contact."
+      ],
+      "cue": "See the release, then hit.",
+      "suggestedRound": "4–6 tosses",
+      "mistake": "Inconsistent tosses becoming the main challenge.",
+      "correction": "Feeder practices location before the round.",
+      "easier": "Side toss (H21).",
+      "progression": "H23–H27.",
+      "success": "Solid contact on most tosses with the target movement intact.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 27
+    },
+    {
+      "sourceId": "H23",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Inside-Lane Front Toss",
+      "level": "Developing+",
+      "purpose": "Apply inside-pitch contact to a moving ball.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Manageable inner-half tosses from behind the screen.",
+      "steps": [
+        "Contact farther out front.",
+        "Seek firm pull-side gap contact.",
+        "Reset between pitches."
+      ],
+      "cue": "Quick turn, clean contact.",
+      "suggestedRound": "4–6 tosses",
+      "mistake": "Keeping the hands in so long that the ball reaches the handle.",
+      "correction": "Return to H02 and confirm the out-front contact point.",
+      "easier": "Slightly less inside.",
+      "progression": "H26.",
+      "success": "Barrel contact on most inside tosses.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 28
+    },
+    {
+      "sourceId": "H24",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Outside-Lane Front Toss",
+      "level": "Developing+",
+      "purpose": "Cover the outer half without diving.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Manageable outer-half tosses from behind the screen. Optional landing marker.",
+      "steps": [
+        "Let it travel.",
+        "Firm opposite-gap contact.",
+        "Keep the landing controlled."
+      ],
+      "cue": "Let it travel; drive through it.",
+      "suggestedRound": "4–6 tosses",
+      "mistake": "Stepping across the plate to reach.",
+      "correction": "Add the H15 landing marker.",
+      "easier": "Slightly less away.",
+      "progression": "H26.",
+      "success": "Opposite-gap contact without diving on most tosses.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 29
+    },
+    {
+      "sourceId": "H25",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Up-Down Height Toss",
+      "level": "Developing+",
+      "purpose": "Adjust to pitch height with a moving ball.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Manageable upper- and lower-zone tosses.",
+      "steps": [
+        "Alternate known high/low.",
+        "Then an unannounced order."
+      ],
+      "cue": "Match the height.",
+      "suggestedRound": "6 tosses",
+      "mistake": "Collapsing or reaching on every low pitch.",
+      "correction": "Return to H06 ladder.",
+      "easier": "Known order only.",
+      "progression": "H27.",
+      "success": "Solid contact on both heights.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 30
+    },
+    {
+      "sourceId": "H26",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "In-Out Location Toss",
+      "level": "Developing+",
+      "purpose": "Adjust contact depth and direction to location.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Two manageable locations.",
+      "steps": [
+        "Alternate inside and away in a known order.",
+        "Then vary the sequence without announcing it."
+      ],
+      "cue": "Match the contact to the pitch.",
+      "suggestedRound": "6 tosses",
+      "mistake": "Guessing location and committing early.",
+      "correction": "Return to known order; track the ball longer.",
+      "easier": "Known order only.",
+      "progression": "H27; H32.",
+      "success": "Appropriate direction and solid contact on most tosses.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 31
+    },
+    {
+      "sourceId": "H27",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Mixed-Location Read Toss",
+      "level": "Experienced",
+      "purpose": "Respond to location rather than memorize a pattern.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "High-in, high-away, low-in, low-away with moderate location differences.",
+      "steps": [
+        "Mixed order.",
+        "Score solid contact and intended direction separately."
+      ],
+      "cue": "Read it, then deliver.",
+      "suggestedRound": "6–8 tosses",
+      "mistake": "Feeder making the zones too extreme.",
+      "correction": "Keep all zones within the hitter's manageable range.",
+      "easier": "Two zones (H26).",
+      "progression": "H32–H34.",
+      "success": "Solid contact on at least half, with appropriate direction.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 32
+    },
+    {
+      "sourceId": "H28",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Change-of-Speed Toss",
+      "level": "Developing+",
+      "purpose": "Adjust timing without rushing.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Two manageable toss speeds; visible delivery.",
+      "steps": [
+        "Predictable slow–normal alternation.",
+        "Then a mixed order."
+      ],
+      "cue": "Wait for the ball, not the pattern.",
+      "suggestedRound": "6 tosses",
+      "mistake": "Lunging at the slower toss.",
+      "correction": "Smaller stride (H17) and a later start on the slow toss.",
+      "easier": "One speed.",
+      "progression": "H29.",
+      "success": "On-time contact at both speeds.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 33
+    },
+    {
+      "sourceId": "H29",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Varied-Delivery Timing Toss",
+      "level": "Experienced",
+      "purpose": "Track the release instead of guessing when the pitch is coming.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Consistent release area; feeder varies delivery rhythm slightly.",
+      "steps": [
+        "Modest rhythm changes.",
+        "Hitter resets between pitches."
+      ],
+      "cue": "Move with the delivery; see the release.",
+      "suggestedRound": "6 tosses",
+      "mistake": "Turning it into a trick or quick-pitching the hitter.",
+      "correction": "Keep the release visible and fair.",
+      "easier": "Consistent rhythm (H22).",
+      "progression": "H40 live at-bats.",
+      "success": "Stays on time on most tosses.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 34
+    },
+    {
+      "sourceId": "H30",
+      "section": "C – Moving-Ball Contact & Timing",
+      "name": "Open-Stance Front Toss",
+      "level": "Experienced",
+      "purpose": "Transfer an altered-position task to a moving ball.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Comfortable open starting orientation; predictable tosses.",
+      "steps": [
+        "3–4 offset swings.",
+        "3–4 normal-stance swings for comparison."
+      ],
+      "cue": "Stay balanced and square it up.",
+      "suggestedRound": "3–4 + 3–4",
+      "mistake": "Uncomfortable stance or treating it as a permanent setup.",
+      "correction": "Reduce the offset; always compare with normal swings.",
+      "easier": "H19 on the tee.",
+      "progression": "H26.",
+      "success": "Solid contact in both setups.",
+      "safety": "Feeder behind a protective screen (front toss) or safely offset (side toss); hitter waits for a ready signal; helmet on; clear batted-ball path.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 35
+    },
+    {
+      "sourceId": "H31",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Track Two, Attack the Third",
+      "level": "All",
+      "purpose": "Observe ball flight before committing to a swing.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Front toss or coach BP; three-pitch sequences.",
+      "steps": [
+        "Track pitches 1 and 2 without swinging.",
+        "Attack pitch 3 if suitable; take it if clearly not."
+      ],
+      "cue": "Track two; attack a good third.",
+      "suggestedRound": "2 sequences",
+      "mistake": "Swinging at a bad third pitch because 'the drill says hit'.",
+      "correction": "Reward a correct take on pitch 3.",
+      "easier": "One take, then hit.",
+      "progression": "H32.",
+      "success": "Correct decision on every third pitch.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 36
+    },
+    {
+      "sourceId": "H32",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Single-Zone Hunt",
+      "level": "Developing+",
+      "purpose": "Practice a clear attack plan.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Define a manageable attack area before the round.",
+      "steps": [
+        "Swing at pitches in the area.",
+        "Take the rest, even some strikes.",
+        "Score plan-following."
+      ],
+      "cue": "Know what you want.",
+      "suggestedRound": "6–8 pitches",
+      "mistake": "Abandoning the plan after one take.",
+      "correction": "Score decisions first; contact second.",
+      "easier": "Larger attack area.",
+      "progression": "H34; H35.",
+      "success": "Follows the plan on at least 5 of 8 pitches.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 37
+    },
+    {
+      "sourceId": "H33",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Swing-or-Take Decisions",
+      "level": "All",
+      "purpose": "Establish basic swing selection.",
+      "equipment": "Bat, fitted helmet, practice balls, hitting net or cage, protective screen for the feeder (front toss) or safe offset position (side toss)",
+      "setup": "Mix clearly hittable pitches and clear balls.",
+      "steps": [
+        "Record the swing/take decision first.",
+        "Record contact quality separately."
+      ],
+      "cue": "Good pitch? Go.",
+      "suggestedRound": "6–8 pitches",
+      "mistake": "Judging the decision by the result.",
+      "correction": "Decision and outcome are scored separately.",
+      "easier": "Very obvious balls/strikes.",
+      "progression": "H34.",
+      "success": "Correct decisions on most pitches.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 38
+    },
+    {
+      "sourceId": "H34",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Edge-of-Zone Reads",
+      "level": "Experienced",
+      "purpose": "Refine decisions on less obvious pitches.",
+      "equipment": "Bat, fitted helmet, baseballs, L-screen for the pitcher, cage or field, catcher gear if a catcher is used, score sheet",
+      "setup": "Define the strike zone and task; present manageable pitches near one boundary at a time.",
+      "steps": [
+        "One edge per round.",
+        "Discuss uncertain calls without treating close decisions as failure."
+      ],
+      "cue": "See it all the way.",
+      "suggestedRound": "6 pitches",
+      "mistake": "Inconsistent feeder location becoming the main challenge.",
+      "correction": "Use a skilled feeder or machine; mark 'unclear' when needed.",
+      "easier": "H33 obvious pitches.",
+      "progression": "H37; H40.",
+      "success": "Improves edge decisions across rounds.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 39
+    },
+    {
+      "sourceId": "H35",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "First-Pitch Ready Round",
+      "level": "Developing+",
+      "purpose": "Practice prepared aggression without chasing.",
+      "equipment": "Bat, fitted helmet, baseballs, L-screen for the pitcher, cage or field, catcher gear if a catcher is used, score sheet",
+      "setup": "Mini at-bats starting 0–0.",
+      "steps": [
+        "Hitter names an attack area.",
+        "Attack a pitch there; take an unsuitable pitch.",
+        "Reset."
+      ],
+      "cue": "Ready to attack — not required to swing.",
+      "suggestedRound": "4 first pitches",
+      "mistake": "Swinging at any first pitch.",
+      "correction": "Reward a good take as much as a good swing.",
+      "easier": "Front toss version.",
+      "progression": "H36.",
+      "success": "Swings at attackable first pitches; takes poor ones.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 40
+    },
+    {
+      "sourceId": "H36",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Hitter's-Count Hunt",
+      "level": "Developing+",
+      "purpose": "Use a favorable count.",
+      "equipment": "Bat, fitted helmet, baseballs, L-screen for the pitcher, cage or field, catcher gear if a catcher is used, score sheet",
+      "setup": "Start at 2–0 or 3–1.",
+      "steps": [
+        "Select a realistic damage area.",
+        "Continue the at-bat.",
+        "Evaluate approach separately from outcome."
+      ],
+      "cue": "Get your pitch.",
+      "suggestedRound": "3 short at-bats",
+      "mistake": "Expanding the zone in a hitter's count.",
+      "correction": "Narrow the attack area.",
+      "easier": "Front toss with a named zone.",
+      "progression": "H40.",
+      "success": "Swings mostly at pitches in the damage area.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 41
+    },
+    {
+      "sourceId": "H37",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Two-Strike Compete Round",
+      "level": "Developing+",
+      "purpose": "Compete with two strikes.",
+      "equipment": "Bat, fitted helmet, baseballs, L-screen for the pitcher, cage or field, catcher gear if a catcher is used, score sheet",
+      "setup": "Start at 0–2, 1–2, or 2–2.",
+      "steps": [
+        "Use appropriate competitive swings and takes.",
+        "Play until the at-bat ends."
+      ],
+      "cue": "Compete with the pitch.",
+      "suggestedRound": "3 short at-bats",
+      "mistake": "Rewarding swings at obvious balls as 'protecting'.",
+      "correction": "Protect the zone, not the whole box.",
+      "easier": "Front toss two-strike rounds.",
+      "progression": "H40.",
+      "success": "Puts strikes in play or fouls them; takes obvious balls.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 42
+    },
+    {
+      "sourceId": "H38",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Move-the-Runner At-Bats",
+      "level": "Experienced",
+      "purpose": "Connect a hitting plan to a game situation.",
+      "equipment": "Bat, fitted helmet, baseballs, L-screen for the pitcher, cage or field, catcher gear if a catcher is used, score sheet",
+      "setup": "Announce outs (fewer than two), runner on second, and team objective.",
+      "steps": [
+        "Discuss which pitches support the task.",
+        "Play the sequence; don't force the same contact on every pitch."
+      ],
+      "cue": "Know the job; choose the pitch.",
+      "suggestedRound": "3 situational at-bats",
+      "mistake": "Forcing an unsuitable pitch toward a predetermined field.",
+      "correction": "Choose the pitch first, then the job.",
+      "easier": "Front toss with the situation called.",
+      "progression": "H39; H40.",
+      "success": "Good decision quality and appropriate execution.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 43
+    },
+    {
+      "sourceId": "H39",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Score-the-Runner At-Bats",
+      "level": "Experienced",
+      "purpose": "Execute a scoring approach.",
+      "equipment": "Bat, fitted helmet, baseballs, L-screen for the pitcher, cage or field, catcher gear if a catcher is used, score sheet",
+      "setup": "Define outs, defensive alignment, and the intended task.",
+      "steps": [
+        "Seek a pitch that can produce useful contact.",
+        "Record decision and execution separately."
+      ],
+      "cue": "Find a pitch you can drive.",
+      "suggestedRound": "3 situational at-bats",
+      "mistake": "Sacrificing all pitch selection to 'put something in play'.",
+      "correction": "Keep the attack area; adjust with two strikes only.",
+      "easier": "Front toss version.",
+      "progression": "H40.",
+      "success": "Attacks drivable pitches; avoids weak chases.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 44
+    },
+    {
+      "sourceId": "H40",
+      "section": "D – Pitch Selection, Counts & Situations",
+      "name": "Full-Count Live Battles",
+      "level": "Experienced",
+      "purpose": "Integrate recognition, decisions, timing, and contact.",
+      "equipment": "Bat, fitted helmet, baseballs, L-screen for the pitcher, cage or field, catcher gear if a catcher is used, score sheet",
+      "setup": "Complete at-bats from 0–0 with a score sheet.",
+      "steps": [
+        "Track balls, strikes, takes, fouls, and outcomes.",
+        "Minimal coaching during the at-bat.",
+        "Review afterward."
+      ],
+      "cue": "Compete, then review.",
+      "suggestedRound": "2–4 at-bats",
+      "mistake": "Coaching mechanics between every pitch.",
+      "correction": "Save feedback for after the at-bat.",
+      "easier": "Count-start rounds (H35–H37).",
+      "progression": "Game play.",
+      "success": "Decision and contact rates hold up against live pitching.",
+      "safety": "Pitcher behind an L-screen; follow league helmet and catcher-gear rules; control pitch counts for whoever throws; clear on-deck area.",
+      "sourceSheet": "Hitting Drills",
+      "sourceRow": 45
+    }
+  ],
+  "rehearsals": [
+    {
+      "sourceId": "R01",
+      "name": "No-Bat Landing Rehearsal",
+      "purpose": "Find the intended landing without a swing.",
+      "equipment": "Flat marker",
+      "how": "Load and stride to the mark 3–5 times; freeze and check; no bat needed.",
+      "cue": "Land on your spot.",
+      "feedsInto": [
+        "H15"
+      ],
+      "sourceSheet": "Rehearsals",
+      "sourceRow": 6
+    },
+    {
+      "sourceId": "R02",
+      "name": "Lift-and-Balance Rehearsal",
+      "purpose": "Feel rear-side support before landing.",
+      "equipment": "Flat marker",
+      "how": "Small load; lift front foot slightly; brief hold; place at the mark balanced.",
+      "cue": "Load, move, arrive balanced.",
+      "feedsInto": [
+        "H16"
+      ],
+      "sourceSheet": "Rehearsals",
+      "sourceRow": 7
+    },
+    {
+      "sourceId": "R03",
+      "name": "Hand-Position Freeze Check",
+      "purpose": "Arrive in a usable launch position.",
+      "equipment": "Mirror or phone video",
+      "how": "Load, stride, pause; check hands near the rear shoulder, not collapsed to the waist.",
+      "cue": "Arrive ready to turn.",
+      "feedsInto": [
+        "H13"
+      ],
+      "sourceSheet": "Rehearsals",
+      "sourceRow": 8
+    },
+    {
+      "sourceId": "R04",
+      "name": "Band-Feedback Load Rehearsal (optional)",
+      "purpose": "Feedback for the move into launch; NOT a resisted swing.",
+      "equipment": "Very light band with handle, smooth stable anchor at loaded-hand height on the catcher side",
+      "how": "Light tension; small load and stride; pause; slight hip opening without yanking the arms; return slowly; repeat unresisted.",
+      "cue": "Feel the load; don't fight the band.",
+      "feedsInto": [
+        "H13",
+        "H14"
+      ],
+      "sourceSheet": "Rehearsals",
+      "sourceRow": 9
+    },
+    {
+      "sourceId": "R05",
+      "name": "Guess-Then-Check Round",
+      "purpose": "Connect feel with results in high-intent sessions.",
+      "equipment": "Tee or toss; optional radar/sensor",
+      "how": "3–5 swings with one task; hitter predicts best swing; compare with contact, numbers, and video; change one thing or nothing; repeat.",
+      "cue": "Fast swing, clear target.",
+      "feedsInto": [
+        "H01",
+        "H22"
+      ],
+      "sourceSheet": "Rehearsals",
+      "sourceRow": 10
+    },
+    {
+      "sourceId": "R06",
+      "name": "Feel vs. Film Check",
+      "purpose": "Self-assess one checkpoint accurately.",
+      "equipment": "Phone on tripod; Video Log",
+      "how": "Record 3 swings; hitter labels each met/missed/unsure before viewing; review; count matches.",
+      "cue": "Tell me what you felt, then let's check.",
+      "feedsInto": [],
+      "sourceSheet": "Rehearsals",
+      "sourceRow": 11
+    },
+    {
+      "sourceId": "R07",
+      "name": "Rhythm Reset Round",
+      "purpose": "Recover when a hitter is forcing intent.",
+      "equipment": "None",
+      "how": "End the round; check discomfort/fatigue; 2–3 rhythm swings; one short retest round; if quality is still worse, reduce difficulty or end high-intent work.",
+      "cue": "Find the rhythm, then add speed.",
+      "feedsInto": [],
+      "sourceSheet": "Rehearsals",
+      "sourceRow": 12
+    }
+  ],
+  "flaws": [
+    {
+      "sourceId": "T01",
+      "issue": "Stepping out / front-hip bailout",
+      "whatYouSee": "Front foot moves away from the plate before landing, or hip/shoulder pulls away during the turn.",
+      "checks": "Mark landing spot; compare stride-only, stride-pause, and no-stride swings to see whether it starts before or after landing.",
+      "contributors": "Stride direction habit; early pull of the front side; fear or difficulty with inside pitches; timing.",
+      "drills": [
+        "H15",
+        "H16",
+        "H11",
+        "H24"
+      ],
+      "cue": "Land on your spot.",
+      "avoid": "Locking the toe or knee closed; demanding 'stay closed' through contact.",
+      "progressMarker": "More consistent landings on comparable swings.",
+      "retest": "Score 10 swings on landing before and after (Video Log).",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 6
+    },
+    {
+      "sourceId": "T02",
+      "issue": "Diving across the plate",
+      "whatYouSee": "Stride lands excessively toward the plate; reaching for away pitches.",
+      "checks": "Check landing vs. intended line; check whether it happens only on away pitches.",
+      "contributors": "Overcorrecting a bailout; trying to reach outer half; plate position.",
+      "drills": [
+        "H15",
+        "H03",
+        "H24",
+        "H08"
+      ],
+      "cue": "Let it travel; same landing.",
+      "avoid": "Moving the hitter off the plate without checking contact depth first.",
+      "progressMarker": "Landing stays on line on away pitches.",
+      "retest": "Retest H08 landing consistency.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 7
+    },
+    {
+      "sourceId": "T03",
+      "issue": "Casting",
+      "whatYouSee": "Hands push outward early; arms extend before the barrel is delivered; wide barrel path.",
+      "checks": "Pitcher-facing view: distance between hands and torso at swing start.",
+      "contributors": "Sequencing; arms starting the swing; bat too heavy; reaching for outer pitches.",
+      "drills": [
+        "H12",
+        "H13",
+        "H04",
+        "H11"
+      ],
+      "cue": "Turn without reaching.",
+      "avoid": "Hard barriers or rigid poles; telling the hitter to keep the arms bent forever.",
+      "progressMarker": "Less early outward hand movement on video.",
+      "retest": "Compare Loaded-Hands Start Tee swings with normal swings.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 8
+    },
+    {
+      "sourceId": "T04",
+      "issue": "Hands drop during the stride",
+      "whatYouSee": "Hands lower relative to the shoulder before or as the forward swing begins.",
+      "checks": "Chest-facing view; compare starting hand height with landing; check whether delivery is affected.",
+      "contributors": "Load pattern; timing; posture; hands starting too high for comfort.",
+      "drills": [
+        "H13",
+        "H14",
+        "H12"
+      ],
+      "cue": "Arrive ready, then turn.",
+      "avoid": "Freezing the hands at one height; treating every lowering as a flaw.",
+      "progressMarker": "More consistent, usable launch position.",
+      "retest": "Hold vs. Flow Tee Pairs comparison.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 9
+    },
+    {
+      "sourceId": "T05",
+      "issue": "Looping / dip-and-lift swing",
+      "whatYouSee": "Hands or barrel dip then climb back to the ball; many popups or weak contact up in the zone.",
+      "checks": "Check whether it's a hand dip or a barrel dip; check posture at landing.",
+      "contributors": "Hand drop; posture; excessive attack angle for the pitch.",
+      "drills": [
+        "H04",
+        "H06",
+        "H25"
+      ],
+      "cue": "Match the high pitch.",
+      "avoid": "'Swing down' as a universal rule.",
+      "progressMarker": "Firmer line drives on high-tee and high-toss.",
+      "retest": "High–middle tee alternation.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 10
+    },
+    {
+      "sourceId": "T06",
+      "issue": "Early shoulder pull",
+      "whatYouSee": "Front shoulder opens before the barrel is delivered; contact weak to the pull side or misses away.",
+      "checks": "Check landing first (T01); check pitch location.",
+      "contributors": "Bailout; guessing inside; trying to pull everything.",
+      "drills": [
+        "H03",
+        "H24",
+        "H08",
+        "H11"
+      ],
+      "cue": "Turn, don't spin off.",
+      "avoid": "Holding the shoulder shut until after contact.",
+      "progressMarker": "Firm opposite-gap contact on away pitches.",
+      "retest": "Away tee/toss scoring.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 11
+    },
+    {
+      "sourceId": "T07",
+      "issue": "Overstriding / lunging",
+      "whatYouSee": "Long stride; head and body drift forward; weak or early contact on off-speed.",
+      "checks": "Measure stride length on video; compare toe-tap swings.",
+      "contributors": "Trying to generate power with the stride; timing.",
+      "drills": [
+        "H17",
+        "H15",
+        "H13",
+        "H28"
+      ],
+      "cue": "Small and on time.",
+      "avoid": "Eliminating the stride permanently.",
+      "progressMarker": "Shorter, repeatable stride with solid contact.",
+      "retest": "Short-Tap Stride Tee vs. normal comparison.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 12
+    },
+    {
+      "sourceId": "T08",
+      "issue": "Staying back / spinning",
+      "whatYouSee": "Weight stays over the back leg; hitter spins without moving into the front side.",
+      "checks": "Chest-facing view of weight transfer at contact.",
+      "contributors": "Overcoaching 'stay back'; fear of lunging.",
+      "drills": [
+        "H18",
+        "H16",
+        "H14"
+      ],
+      "cue": "Move, land, turn.",
+      "avoid": "Cueing 'stay back' more.",
+      "progressMarker": "Balanced finish over a supported front side.",
+      "retest": "Step-In Momentum Tee vs. normal comparison.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 13
+    },
+    {
+      "sourceId": "T09",
+      "issue": "Late swings / getting jammed",
+      "whatYouSee": "Contact deep and on the handle; foul balls to the opposite side.",
+      "checks": "Check start timing and contact point vs. pitch location.",
+      "contributors": "Late start; long swing; inside-pitch contact depth.",
+      "drills": [
+        "H22",
+        "H28",
+        "H23",
+        "H02"
+      ],
+      "cue": "Start early, be on time.",
+      "avoid": "Forcing faster hands without fixing start timing.",
+      "progressMarker": "More on-time contact against toss.",
+      "retest": "Score on-time contacts out of 6.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 14
+    },
+    {
+      "sourceId": "T10",
+      "issue": "Early swings / rollovers",
+      "whatYouSee": "Weak pull-side grounders; rolling over off-speed or away pitches.",
+      "checks": "Check contact depth on away pitches; check stride timing.",
+      "contributors": "Early commitment; guessing; contact too far forward away.",
+      "drills": [
+        "H03",
+        "H24",
+        "H28",
+        "H29"
+      ],
+      "cue": "Let it travel.",
+      "avoid": "Telling the hitter to just 'wait' without a timing task.",
+      "progressMarker": "Fewer rollovers on away tosses.",
+      "retest": "Away toss contact scoring.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 15
+    },
+    {
+      "sourceId": "T11",
+      "issue": "Weak outside-pitch contact",
+      "whatYouSee": "Soft contact or misses on the outer half.",
+      "checks": "Check landing (T02) and contact depth.",
+      "contributors": "Reaching; contact too far out front; diving.",
+      "drills": [
+        "H03",
+        "H24",
+        "H26",
+        "H08"
+      ],
+      "cue": "Let it travel; drive through it.",
+      "avoid": "Moving the tee far away so the hitter must reach.",
+      "progressMarker": "Firm opposite-gap contact.",
+      "retest": "H24 scoring.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 16
+    },
+    {
+      "sourceId": "T12",
+      "issue": "Popups / undercutting",
+      "whatYouSee": "Many high popups; ball contacted under center.",
+      "checks": "Check pitch height vs. swing path; check posture.",
+      "contributors": "Loop; dropping the back shoulder; attack angle too steep for the pitch.",
+      "drills": [
+        "H04",
+        "H25",
+        "H01"
+      ],
+      "cue": "Line drive through the middle.",
+      "avoid": "Coaching a chop.",
+      "progressMarker": "More line drives from high and middle locations.",
+      "retest": "Top-of-Zone Tee contact scoring.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 17
+    },
+    {
+      "sourceId": "T13",
+      "issue": "Ground balls / topspin",
+      "whatYouSee": "Many hard or weak grounders; ball contacted over center.",
+      "checks": "Check pitch height; check whether contact is early.",
+      "contributors": "Contact too far forward; rolling over; posture.",
+      "drills": [
+        "H05",
+        "H06",
+        "H27"
+      ],
+      "cue": "Match the height; drive it.",
+      "avoid": "Telling the hitter to uppercut everything.",
+      "progressMarker": "More line drives on low and middle locations.",
+      "retest": "Low-Middle-High Tee Sequence scoring.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 18
+    },
+    {
+      "sourceId": "T14",
+      "issue": "Abrupt posture changes / head pull",
+      "whatYouSee": "Head or torso moves sharply during the swing; inconsistent contact.",
+      "checks": "Video the head and torso from the chest view.",
+      "contributors": "Overswinging; posture for pitch height; fatigue.",
+      "drills": [
+        "H06",
+        "H07",
+        "H10"
+      ],
+      "cue": "Find the center.",
+      "avoid": "Freezing the head rigidly.",
+      "progressMarker": "More centered contact with steady posture.",
+      "retest": "Reduced-Ball Tee Precision scoring.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 19
+    },
+    {
+      "sourceId": "T15",
+      "issue": "Chasing pitches",
+      "whatYouSee": "Swings at pitches clearly out of the zone or attack area.",
+      "checks": "Score swing/take decisions separately from contact.",
+      "contributors": "No plan; pressure; poor recognition.",
+      "drills": [
+        "H33",
+        "H32",
+        "H34",
+        "H31"
+      ],
+      "cue": "Good pitch? Go.",
+      "avoid": "Punishing every swing-and-miss.",
+      "progressMarker": "Higher decision rate.",
+      "retest": "Swing-or-Take Decisions scoring.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 20
+    },
+    {
+      "sourceId": "T16",
+      "issue": "Freezing on hittable pitches",
+      "whatYouSee": "Takes pitches in the attack area; falls behind in counts.",
+      "checks": "Score takes on good pitches; ask what the hitter was looking for.",
+      "contributors": "Fear of failure; overthinking mechanics; unclear plan.",
+      "drills": [
+        "H35",
+        "H32",
+        "H36",
+        "H31"
+      ],
+      "cue": "Ready to attack.",
+      "avoid": "Adding more mechanical cues before at-bats.",
+      "progressMarker": "More swings at attackable pitches.",
+      "retest": "First-Pitch Ready Round scoring.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 21
+    },
+    {
+      "sourceId": "T17",
+      "issue": "Tee success, toss breakdown",
+      "whatYouSee": "Good tee swings fall apart when the ball moves.",
+      "checks": "Compare tee and toss video at the same checkpoint.",
+      "contributors": "Timing; tracking; too big a jump in difficulty.",
+      "drills": [
+        "H14",
+        "H21",
+        "H22",
+        "H26",
+        "H27"
+      ],
+      "cue": "See the release, then hit.",
+      "avoid": "Rebuilding mechanics when the problem is timing.",
+      "progressMarker": "Checkpoint holds on predictable toss.",
+      "retest": "Same checkpoint across tee → toss.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 22
+    },
+    {
+      "sourceId": "T18",
+      "issue": "Forcing high intent",
+      "whatYouSee": "Effort rises but bat speed or contact repeatedly drops; rushing; old flaws return.",
+      "checks": "Compare effort report with contact and any measured speed across rounds.",
+      "contributors": "Fatigue; chasing numbers; too much volume.",
+      "drills": [
+        "R07",
+        "R05",
+        "H01",
+        "H22"
+      ],
+      "cue": "Find the rhythm, then add speed.",
+      "avoid": "'One more until you beat it.'",
+      "progressMarker": "Speed and contact rise together.",
+      "retest": "Two-score challenge: speed/intent + solid contacts.",
+      "sourceSheet": "Troubleshooting",
+      "sourceRow": 23
+    }
+  ],
+  "workflow": [
+    {
+      "step": 1,
+      "label": "Observe",
+      "action": "Film 5–10 comparable swings from the same angle; note one checkpoint.",
+      "sourceRow": 28
+    },
+    {
+      "step": 2,
+      "label": "Hypothesis",
+      "action": "Pick the most likely cause using the Checks column.",
+      "sourceRow": 29
+    },
+    {
+      "step": 3,
+      "label": "Test",
+      "action": "Run one recommended drill with one cue.",
+      "sourceRow": 30
+    },
+    {
+      "step": 4,
+      "label": "Retest",
+      "action": "Film the same comparable swings; log in Video Log.",
+      "sourceRow": 31
+    },
+    {
+      "step": 5,
+      "label": "Decide",
+      "action": "Keep, adjust, or step back one level. Don't stack corrections.",
+      "sourceRow": 32
+    }
+  ],
+  "sessions": [
+    {
+      "sourceId": "S1",
+      "name": "Youth Intro",
+      "length": "25 min",
+      "blocks": [
+        {
+          "label": "Warm-up",
+          "minutes": 7,
+          "activity": "WR2 Youth Simplified Warm-Up",
+          "ids": "WR2",
+          "focus": "Ready, not tired",
+          "sourceRow": 7
+        },
+        {
+          "label": "Contact",
+          "minutes": 5,
+          "activity": "Middle Tee Contact Baseline",
+          "ids": "H01",
+          "focus": "Square it up",
+          "sourceRow": 8
+        },
+        {
+          "label": "Game",
+          "minutes": 6,
+          "activity": "Solid Contact Points Game",
+          "ids": "G05",
+          "focus": "Fun + solid contact",
+          "sourceRow": 9
+        },
+        {
+          "label": "Moving ball",
+          "minutes": 5,
+          "activity": "Side-Angle Toss Contact",
+          "ids": "H21",
+          "focus": "Track it",
+          "sourceRow": 10
+        },
+        {
+          "label": "Wrap-up",
+          "minutes": 2,
+          "activity": "'What was the most fun part?'",
+          "ids": "—",
+          "focus": "Enjoyment",
+          "sourceRow": 11
+        }
+      ],
+      "sourceSheet": "Session Builder",
+      "sourceRow": 5
+    },
+    {
+      "sourceId": "S2",
+      "name": "Bailout / Landing Technical",
+      "length": "30 min",
+      "blocks": [
+        {
+          "label": "Warm-up",
+          "minutes": 10,
+          "activity": "WR1 Standard Hitting Warm-Up",
+          "ids": "WR1",
+          "focus": "Progressive",
+          "sourceRow": 16
+        },
+        {
+          "label": "Baseline video",
+          "minutes": 3,
+          "activity": "5 normal tee swings recorded",
+          "ids": "H01",
+          "focus": "Landing checkpoint",
+          "sourceRow": 17
+        },
+        {
+          "label": "Rehearsal",
+          "minutes": 3,
+          "activity": "No-Bat Landing Rehearsal",
+          "ids": "R01",
+          "focus": "Land on your spot",
+          "sourceRow": 18
+        },
+        {
+          "label": "Tee",
+          "minutes": 6,
+          "activity": "Marked Landing Tee, then Fixed-Base Tee Swings",
+          "ids": "H15, H11",
+          "focus": "Free turn",
+          "sourceRow": 19
+        },
+        {
+          "label": "Transfer",
+          "minutes": 6,
+          "activity": "Steady Middle Front Toss, then Outside-Lane Front Toss",
+          "ids": "H22, H24",
+          "focus": "Same landing",
+          "sourceRow": 20
+        },
+        {
+          "label": "Retest",
+          "minutes": 2,
+          "activity": "5 normal swings recorded",
+          "ids": "—",
+          "focus": "Compare with baseline",
+          "sourceRow": 21
+        }
+      ],
+      "sourceSheet": "Session Builder",
+      "sourceRow": 14
+    },
+    {
+      "sourceId": "S3",
+      "name": "Hand Drop / Casting Technical",
+      "length": "30 min",
+      "blocks": [
+        {
+          "label": "Warm-up",
+          "minutes": 10,
+          "activity": "WR1",
+          "ids": "WR1",
+          "focus": "Progressive",
+          "sourceRow": 26
+        },
+        {
+          "label": "Rehearsal",
+          "minutes": 3,
+          "activity": "Hand-Position Freeze Check",
+          "ids": "R03",
+          "focus": "Arrive ready",
+          "sourceRow": 27
+        },
+        {
+          "label": "Tee",
+          "minutes": 8,
+          "activity": "Stride, Hold, Swing Tee → Hold vs. Flow Tee Pairs → Loaded-Hands Start Tee",
+          "ids": "H13, H14, H12",
+          "focus": "Turn from here",
+          "sourceRow": 28
+        },
+        {
+          "label": "Height",
+          "minutes": 4,
+          "activity": "Top-of-Zone Tee",
+          "ids": "H04",
+          "focus": "Match the high pitch",
+          "sourceRow": 29
+        },
+        {
+          "label": "Transfer",
+          "minutes": 5,
+          "activity": "Steady Middle Front Toss",
+          "ids": "H22",
+          "focus": "Same ready position",
+          "sourceRow": 30
+        }
+      ],
+      "sourceSheet": "Session Builder",
+      "sourceRow": 24
+    },
+    {
+      "sourceId": "S4",
+      "name": "Med-Ball + Hitting Power",
+      "length": "35 min",
+      "blocks": [
+        {
+          "label": "Warm-up",
+          "minutes": 12,
+          "activity": "WR3 Medicine-Ball-to-Hitting Prep",
+          "ids": "WR3",
+          "focus": "Coordinated",
+          "sourceRow": 35
+        },
+        {
+          "label": "Power block",
+          "minutes": 6,
+          "activity": "One selected drill, 2 × 3 per side (12 throws)",
+          "ids": "M01 or M05",
+          "focus": "Fast, controlled releases",
+          "sourceRow": 36
+        },
+        {
+          "label": "Recovery",
+          "minutes": 2,
+          "activity": "Rest; 2–3 dry swings",
+          "ids": "WU11",
+          "focus": "Reset",
+          "sourceRow": 37
+        },
+        {
+          "label": "Tee",
+          "minutes": 5,
+          "activity": "4–6 tee swings",
+          "ids": "H01",
+          "focus": "Square it, then add speed",
+          "sourceRow": 38
+        },
+        {
+          "label": "Toss",
+          "minutes": 8,
+          "activity": "Steady Middle Front Toss → Mixed-Location Read Toss with takes",
+          "ids": "H22, H27",
+          "focus": "Attack a good pitch",
+          "sourceRow": 39
+        }
+      ],
+      "sourceSheet": "Session Builder",
+      "sourceRow": 33
+    },
+    {
+      "sourceId": "S5",
+      "name": "High-Intent Feedback",
+      "length": "28 min",
+      "blocks": [
+        {
+          "label": "Readiness + warm-up",
+          "minutes": 7,
+          "activity": "Readiness Log check; WR1",
+          "ids": "WR1",
+          "focus": "Ready and comfortable",
+          "sourceRow": 44
+        },
+        {
+          "label": "Baseline",
+          "minutes": 3,
+          "activity": "5 tee swings at game intent",
+          "ids": "H01",
+          "focus": "Contact baseline",
+          "sourceRow": 45
+        },
+        {
+          "label": "Feedback",
+          "minutes": 5,
+          "activity": "Two 3-swing rounds with review",
+          "ids": "R05",
+          "focus": "One task, one cue",
+          "sourceRow": 46
+        },
+        {
+          "label": "Transfer",
+          "minutes": 6,
+          "activity": "Two 4-swing rounds of Steady Middle Front Toss",
+          "ids": "H22",
+          "focus": "Speed + timing",
+          "sourceRow": 47
+        },
+        {
+          "label": "Decisions",
+          "minutes": 5,
+          "activity": "6–8 mixed tosses with takes",
+          "ids": "H33",
+          "focus": "Attack appropriate pitches",
+          "sourceRow": 48
+        },
+        {
+          "label": "Review",
+          "minutes": 2,
+          "activity": "Log results",
+          "ids": "—",
+          "focus": "What to repeat next time",
+          "sourceRow": 49
+        }
+      ],
+      "sourceSheet": "Session Builder",
+      "sourceRow": 42
+    },
+    {
+      "sourceId": "S6",
+      "name": "Pitch Selection & Counts",
+      "length": "35 min",
+      "blocks": [
+        {
+          "label": "Warm-up",
+          "minutes": 10,
+          "activity": "WR1",
+          "ids": "WR1",
+          "focus": "Progressive",
+          "sourceRow": 54
+        },
+        {
+          "label": "Recognition",
+          "minutes": 5,
+          "activity": "Track Two, Attack the Third",
+          "ids": "H31",
+          "focus": "Track two",
+          "sourceRow": 55
+        },
+        {
+          "label": "Selection",
+          "minutes": 6,
+          "activity": "Swing-or-Take Decisions, then Single-Zone Hunt",
+          "ids": "H33, H32",
+          "focus": "Good pitch? Go.",
+          "sourceRow": 56
+        },
+        {
+          "label": "Counts",
+          "minutes": 8,
+          "activity": "Advantage-count and two-strike at-bats",
+          "ids": "H36, H37",
+          "focus": "Get your pitch / compete",
+          "sourceRow": 57
+        },
+        {
+          "label": "Live",
+          "minutes": 6,
+          "activity": "Full-Count Live Battles",
+          "ids": "H40",
+          "focus": "Compete, then review",
+          "sourceRow": 58
+        }
+      ],
+      "sourceSheet": "Session Builder",
+      "sourceRow": 52
+    },
+    {
+      "sourceId": "S7",
+      "name": "Game-Day Prep",
+      "length": "15 min",
+      "blocks": [
+        {
+          "label": "Warm-up",
+          "minutes": 10,
+          "activity": "WR4 Game-Day Routine",
+          "ids": "WR4",
+          "focus": "Familiar only",
+          "sourceRow": 63
+        },
+        {
+          "label": "Contact",
+          "minutes": 3,
+          "activity": "Middle Tee Contact Baseline",
+          "ids": "H01",
+          "focus": "Square it up",
+          "sourceRow": 64
+        },
+        {
+          "label": "Timing",
+          "minutes": 2,
+          "activity": "Steady Middle Front Toss if available",
+          "ids": "H22",
+          "focus": "See the release",
+          "sourceRow": 65
+        }
+      ],
+      "sourceSheet": "Session Builder",
+      "sourceRow": 61
+    },
+    {
+      "sourceId": "S8",
+      "name": "Offseason Weekly Plan",
+      "length": "example",
+      "blocks": [
+        {
+          "label": "Monday",
+          "minutes": 35,
+          "activity": "S4 with Standing Hip-Turn Toss (M01)",
+          "ids": "M01, H11, H01",
+          "focus": "Power + contact",
+          "sourceRow": 70
+        },
+        {
+          "label": "Tuesday",
+          "minutes": 30,
+          "activity": "S2 or S3 technical",
+          "ids": "See S2/S3",
+          "focus": "One checkpoint",
+          "sourceRow": 71
+        },
+        {
+          "label": "Wednesday",
+          "minutes": 0,
+          "activity": "Recovery / other planned training",
+          "ids": "—",
+          "focus": "Don't add work to fill the day",
+          "sourceRow": 72
+        },
+        {
+          "label": "Thursday",
+          "minutes": 35,
+          "activity": "S4 with M02 (or M06 if ready)",
+          "ids": "M02, H15, H22",
+          "focus": "Landing + timing",
+          "sourceRow": 73
+        },
+        {
+          "label": "Friday",
+          "minutes": 35,
+          "activity": "S6 pitch selection",
+          "ids": "H31–H40",
+          "focus": "Decisions",
+          "sourceRow": 74
+        },
+        {
+          "label": "Weekend",
+          "minutes": 0,
+          "activity": "Games / practice / rest per schedule",
+          "ids": "—",
+          "focus": "Count total baseball load",
+          "sourceRow": 75
+        }
+      ],
+      "sourceSheet": "Session Builder",
+      "sourceRow": 68
+    }
+  ],
+  "warmupRoutines": [
+    {
+      "sourceId": "WR1",
+      "name": "Standard Hitting Warm-Up",
+      "time": "10–15 min",
+      "useFor": "Before tee, toss, or batting practice",
+      "sequence": "WU01 → WU02 → WU03 → WU04/WU05 → WU06 → WU08 → WU09 → WU11 (2 easy + 2 moderate) → WU12 (4–6 tee contacts) → WU13 if needed",
+      "note": "Start easy; build gradually toward practice speed.",
+      "sourceRow": 6
+    },
+    {
+      "sourceId": "WR2",
+      "name": "Youth Simplified Warm-Up",
+      "time": "6–10 min",
+      "useFor": "Younger or beginner players",
+      "sequence": "WU01 (game-style) → WU03 → WU05 → WU09 → WU11 (3 easy swings) → WU12 (3–4 tee contacts)",
+      "note": "Familiar movements; short instructions; finish engaged, not tired.",
+      "sourceRow": 7
+    },
+    {
+      "sourceId": "WR3",
+      "name": "Medicine-Ball-to-Hitting Prep",
+      "time": "12–18 min",
+      "useFor": "Sessions with a med-ball power block",
+      "sequence": "WR1 general portion → WU14 rehearsal throws → planned med-ball block (Med Ball Library) → 1–2 min recovery → WU11 → WU12 → WU13",
+      "note": "Throws before hitting only if the hitter stays coordinated.",
+      "sourceRow": 8
+    },
+    {
+      "sourceId": "WR4",
+      "name": "Game-Day Routine",
+      "time": "10–15 min",
+      "useFor": "Before games",
+      "sequence": "WU01 → WU02 → WU04 → WU06 → WU08 → WU09 → WU11 → WU12/WU13 if available",
+      "note": "Familiar preparation only — no new drills, no med-ball records.",
+      "sourceRow": 9
+    },
+    {
+      "sourceId": "WR5",
+      "name": "Between-Innings / Long-Wait Reset",
+      "time": "2–4 min",
+      "useFor": "Athlete already warmed up who has been sitting",
+      "sequence": "WU03 (short) → WU08 → WU09 → WU11 (2–3 progressive swings, safe area)",
+      "note": "Follow league rules for on-deck swings and timing.",
+      "sourceRow": 10
+    },
+    {
+      "sourceId": "WR6",
+      "name": "Cold-Weather Adjustment",
+      "time": "15–20 min",
+      "useFor": "Cold days",
+      "sequence": "Extend WU01–WU02; repeat WU06–WU08; extra progressive dry swings before any contact",
+      "note": "Layer clothing; extend gradually; don't rush to full intent.",
+      "sourceRow": 11
+    }
+  ],
+  "warmupActivities": [
+    {
+      "sourceId": "WU01",
+      "name": "Easy Locomotion",
+      "purpose": "Raise body temperature",
+      "how": "Walk, march, or jog easily.",
+      "dose": "2–3 min",
+      "cue": "Easy and relaxed.",
+      "easier": "Walk only",
+      "sourceRow": 6
+    },
+    {
+      "sourceId": "WU02",
+      "name": "Lateral Shuffles",
+      "purpose": "Lateral movement and footwork",
+      "how": "Short controlled shuffles both directions.",
+      "dose": "2 × 10 m each way",
+      "cue": "Light, quick feet.",
+      "easier": "Side steps",
+      "sourceRow": 7
+    },
+    {
+      "sourceId": "WU03",
+      "name": "Knee Lifts / Skips",
+      "purpose": "Hip and leg preparation",
+      "how": "Marching knee lifts progressing to easy skips.",
+      "dose": "2 × 10 m",
+      "cue": "Tall and rhythmic.",
+      "easier": "Marching only",
+      "sourceRow": 8
+    },
+    {
+      "sourceId": "WU04",
+      "name": "Bodyweight Squats",
+      "purpose": "Lower-body mobility",
+      "how": "Comfortable-depth squats.",
+      "dose": "6–8 reps",
+      "cue": "Sit and stand smoothly.",
+      "easier": "Shallower depth",
+      "sourceRow": 9
+    },
+    {
+      "sourceId": "WU05",
+      "name": "Reverse Lunges",
+      "purpose": "Single-leg control",
+      "how": "Controlled step-back lunges, alternating.",
+      "dose": "4–5 per side",
+      "cue": "Step back, stand tall.",
+      "easier": "Hold support",
+      "sourceRow": 10
+    },
+    {
+      "sourceId": "WU06",
+      "name": "Lateral Weight Shifts",
+      "purpose": "Hip loading side to side",
+      "how": "Wide stance; shift weight hip to hip.",
+      "dose": "6 per side",
+      "cue": "Sit into each hip.",
+      "easier": "Smaller range",
+      "sourceRow": 11
+    },
+    {
+      "sourceId": "WU07",
+      "name": "Hip Hinges",
+      "purpose": "Posture and hamstrings",
+      "how": "Push hips back with a long spine, then stand.",
+      "dose": "6–8 reps",
+      "cue": "Hips back, chest proud.",
+      "easier": "Hands on thighs",
+      "sourceRow": 12
+    },
+    {
+      "sourceId": "WU08",
+      "name": "Trunk Turns",
+      "purpose": "Comfortable rotation",
+      "how": "Controlled trunk rotations in a batting-width stance.",
+      "dose": "6 per side",
+      "cue": "Turn smoothly; no forcing.",
+      "easier": "Smaller range",
+      "sourceRow": 13
+    },
+    {
+      "sourceId": "WU09",
+      "name": "Arm Circles & Wrist Prep",
+      "purpose": "Shoulder and wrist readiness",
+      "how": "Small-to-large arm circles; wrist circles and gentle flexion/extension.",
+      "dose": "10 each",
+      "cue": "Smooth and easy.",
+      "easier": "Smaller circles",
+      "sourceRow": 14
+    },
+    {
+      "sourceId": "WU10",
+      "name": "Band Pull-Aparts (optional)",
+      "purpose": "Upper-back activation",
+      "how": "Light band pulled apart at chest height.",
+      "dose": "8–10 reps",
+      "cue": "Squeeze shoulder blades lightly.",
+      "easier": "Skip",
+      "sourceRow": 15
+    },
+    {
+      "sourceId": "WU11",
+      "name": "Progressive Dry Swings",
+      "purpose": "Groove the swing",
+      "how": "Easy → moderate → normal effort swings with the game bat.",
+      "dose": "4–6 swings",
+      "cue": "Normal swing, free turn.",
+      "easier": "Fewer swings",
+      "sourceRow": 16
+    },
+    {
+      "sourceId": "WU12",
+      "name": "Progressive Tee Contact",
+      "purpose": "First contact",
+      "how": "Middle tee, building effort (see H01).",
+      "dose": "4–6 swings",
+      "cue": "Square it, then add speed.",
+      "easier": "Softer effort",
+      "sourceRow": 17
+    },
+    {
+      "sourceId": "WU13",
+      "name": "Predictable Toss Progression",
+      "purpose": "Add timing",
+      "how": "Side or front toss at consistent middle location (H21/H22).",
+      "dose": "4–6 tosses",
+      "cue": "See the release, then hit.",
+      "easier": "Side toss only",
+      "sourceRow": 18
+    },
+    {
+      "sourceId": "WU14",
+      "name": "Med-Ball Rehearsal Throws (optional)",
+      "purpose": "Prepare for a power block",
+      "how": "2–3 easy stationary throws per side (M01).",
+      "dose": "2–3 per side",
+      "cue": "Easy load, easy turn.",
+      "easier": "Skip",
+      "sourceRow": 19
+    }
+  ],
+  "parentsGuide": {
+    "steps": [
+      {
+        "step": "Step 1",
+        "action": "Ask the coach for ONE current goal and ONE cue (use the Coach-Parent Plan sheet).",
+        "sourceRow": 7
+      },
+      {
+        "step": "Step 2",
+        "action": "Check willingness: home practice is optional and short.",
+        "sourceRow": 8
+      },
+      {
+        "step": "Step 3",
+        "action": "Check readiness: no pain, not exhausted, not right after a heavy game or pitching day.",
+        "sourceRow": 9
+      },
+      {
+        "step": "Step 4",
+        "action": "Check the space with the Home Safety Checklist.",
+        "sourceRow": 10
+      },
+      {
+        "step": "Step 5",
+        "action": "Pick one session from Sample Home Sessions (10–15 min).",
+        "sourceRow": 11
+      },
+      {
+        "step": "Step 6",
+        "action": "Use the Parent Language guide: praise decisions and effort, not results.",
+        "sourceRow": 12
+      },
+      {
+        "step": "Step 7",
+        "action": "Log the session in the Practice Log with Context = Home.",
+        "sourceRow": 13
+      },
+      {
+        "step": "Step 8",
+        "action": "Stop for pain and tell the coach. Count games, lessons, and team practice before adding home work.",
+        "sourceRow": 14
+      }
+    ],
+    "safety": [
+      {
+        "check": "Fitted batting helmet worn for all hitting",
+        "why": "Protects against mishits and rebounds",
+        "sourceRow": 18
+      },
+      {
+        "check": "Clear swing radius — no people, pets, cars, or windows nearby",
+        "why": "Bats travel farther than expected",
+        "sourceRow": 19
+      },
+      {
+        "check": "Net rated for baseballs and anchored",
+        "why": "Prevents rebounds and runaway balls",
+        "sourceRow": 20
+      },
+      {
+        "check": "Tosser behind a protective screen (front toss) or safely offset (side toss)",
+        "why": "Protects the parent",
+        "sourceRow": 21
+      },
+      {
+        "check": "Bat sized and league-legal for the player",
+        "why": "Correct swing and safety",
+        "sourceRow": 22
+      },
+      {
+        "check": "Soft or practice balls in small spaces",
+        "why": "Reduces damage risk",
+        "sourceRow": 23
+      },
+      {
+        "check": "Retrieve balls only when swinging has stopped",
+        "why": "Avoids being hit",
+        "sourceRow": 24
+      },
+      {
+        "check": "Dry footing; no practice in lightning or extreme heat",
+        "why": "Weather safety",
+        "sourceRow": 25
+      },
+      {
+        "check": "Stop immediately for pain",
+        "why": "Pain is not a coaching problem",
+        "sourceRow": 26
+      }
+    ],
+    "menu": [
+      {
+        "option": "Middle Tee Contact Baseline",
+        "drillId": "H01",
+        "setup": "Tee at middle; broad target",
+        "swings": "4–6",
+        "cue": "Square it up.",
+        "space": "Small",
+        "sourceRow": 30
+      },
+      {
+        "option": "Top-of-Zone Tee",
+        "drillId": "H04",
+        "setup": "Tee at top of zone",
+        "swings": "4–6",
+        "cue": "Match the high pitch.",
+        "space": "Small",
+        "sourceRow": 31
+      },
+      {
+        "option": "Bottom-of-Zone Tee",
+        "drillId": "H05",
+        "setup": "Tee at bottom of zone",
+        "swings": "4–6",
+        "cue": "Get to the low pitch.",
+        "space": "Small",
+        "sourceRow": 32
+      },
+      {
+        "option": "Low-Middle-High Tee Sequence",
+        "drillId": "H06",
+        "setup": "Low → middle → high",
+        "swings": "6",
+        "cue": "Match the height.",
+        "space": "Small",
+        "sourceRow": 33
+      },
+      {
+        "option": "Fixed-Base Tee Swings",
+        "drillId": "H11",
+        "setup": "Feet near landing width",
+        "swings": "4",
+        "cue": "Stable base, free turn.",
+        "space": "Small",
+        "sourceRow": 34
+      },
+      {
+        "option": "Stride, Hold, Swing Tee",
+        "drillId": "H13",
+        "setup": "Middle Tee Contact Baseline",
+        "swings": "4",
+        "cue": "Arrive ready, then turn.",
+        "space": "Small",
+        "sourceRow": 35
+      },
+      {
+        "option": "Marked Landing Tee",
+        "drillId": "H15",
+        "setup": "Tape landing mark",
+        "swings": "5",
+        "cue": "Land on your spot.",
+        "space": "Small",
+        "sourceRow": 36
+      },
+      {
+        "option": "Side-Angle Toss Contact",
+        "drillId": "H21",
+        "setup": "Parent safely offset",
+        "swings": "4–6",
+        "cue": "Track it, square it.",
+        "space": "Medium",
+        "sourceRow": 37
+      },
+      {
+        "option": "No-Bat Landing Rehearsal",
+        "drillId": "R01",
+        "setup": "Tape mark only",
+        "swings": "5",
+        "cue": "Land on your spot.",
+        "space": "Indoor OK",
+        "sourceRow": 38
+      }
+    ],
+    "sessions": [
+      {
+        "session": "Quick contact (10 min)",
+        "sequence": "Easy movement → 4 dry swings → H01 × 4 → H04 × 4 → 'What felt good?'",
+        "sourceRow": 42
+      },
+      {
+        "session": "Landing focus (12 min)",
+        "sequence": "Easy movement → R01 × 5 → H15 × 5 → H01 × 4 (marker removed)",
+        "sourceRow": 43
+      },
+      {
+        "session": "Hands/launch focus (12 min)",
+        "sequence": "Easy movement → R03 × 4 → H13 × 4 → H14 × 4 pairs",
+        "sourceRow": 44
+      },
+      {
+        "session": "Moving ball (15 min)",
+        "sequence": "Easy movement → H01 × 4 → H21 × 6 → H21 × 4 with a target",
+        "sourceRow": 45
+      },
+      {
+        "session": "No-bat / small space (8 min)",
+        "sequence": "Easy movement → R01 × 5 → R03 × 5 → visualize 3 at-bats with a plan",
+        "sourceRow": 46
+      }
+    ],
+    "language": [
+      {
+        "situation": "A miss or weak contact",
+        "say": "Good effort — next one, see the ball a little longer.",
+        "avoid": "What are you doing? / You always do that.",
+        "sourceRow": 50
+      },
+      {
+        "situation": "Frustration",
+        "say": "Let's take a breath and do one easy swing.",
+        "avoid": "Stop crying, just hit it.",
+        "sourceRow": 51
+      },
+      {
+        "situation": "A good take",
+        "say": "Great decision — that was a ball.",
+        "avoid": "Why didn't you swing?",
+        "sourceRow": 52
+      },
+      {
+        "situation": "A solid swing",
+        "say": "That was solid — how did it feel?",
+        "avoid": "Finally.",
+        "sourceRow": 53
+      },
+      {
+        "situation": "Ending the session",
+        "say": "What was the most fun part today?",
+        "avoid": "We're not stopping until you hit 10 good ones.",
+        "sourceRow": 54
+      }
+    ],
+    "sourceSheet": "Parents Guide"
+  },
+  "limitations": [
+    "Drill categories (tee, toss, live, open/closed starting stances, high/low tee, rotational progressions) reflect common coaching practice. Specific scoring rules, round sizes, and pairings are coaching adaptations, not validated prescriptions.",
+    "Medicine-ball work supports rotational power; it does not directly fix casting, hand drop, or bat-to-ball timing.",
+    "The dashboard is a coaching record — not a diagnostic tool, readiness clearance, or comparison to age norms.",
+    "The VBA macro was written for desktop Excel but has not been run in Excel by the author; test on a copy first."
+  ]
+}

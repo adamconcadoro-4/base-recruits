@@ -17,10 +17,15 @@ export const DRILL_RULES_VERSION = 'seamstate-drills-v1';
 /** At most this many drills per finding. */
 export const MAX_DRILLS_PER_FINDING = 2;
 /**
- * The drill catalog has not been reviewed by a qualified hitting coach yet
- * (decision F26). Reports label every suggestion until this is true.
+ * The starter drill catalog has not been reviewed by a qualified hitting coach
+ * yet (decision F26). Workbook drills have been (F38), so each suggestion
+ * carries its own label.
  */
 export const DRILL_CATALOG_COACH_REVIEWED = false;
+
+function coachReviewed(drill: DrillDefinition): boolean {
+  return DRILL_CATALOG_COACH_REVIEWED || drill.workbook !== undefined;
+}
 
 export interface DrillSuggestion {
   readonly drillKey: string;
@@ -65,7 +70,7 @@ export function suggestDrills(finding: ValidatedFinding, available: readonly Dri
     dosage: drill.dosage,
     dosageSource: 'catalog_starting_point',
     reassessment: drill.reassessment,
-    coachReviewed: DRILL_CATALOG_COACH_REVIEWED,
+    coachReviewed: coachReviewed(drill),
   }));
 }
 

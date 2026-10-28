@@ -11,13 +11,17 @@ import {
 } from '@/app/(app)/assessment/plan-actions';
 import { ActionForm } from '@/components/assessment/action-form';
 import { DrillDetails } from '@/components/assessment/drill-details';
+import { PracticeCountInputs, PracticeCountSummary } from '@/components/assessment/practice-counts';
+import { SessionOutline } from '@/components/assessment/session-outline';
 import { formatDateOnly, formatDateTime } from '@/components/assessment/result-format';
 import { SelectField, TextAreaField, TextField } from '@/components/ui/field';
 import { StatusChip } from '@/components/ui/status-chip';
 import { drill as findDrill, drillsFor } from '@/lib/assessment/catalog/drills';
 import { requireMetric } from '@/lib/assessment/catalog/metrics';
+import { sessionTemplate, sessionTitle } from '@/lib/assessment/catalog/session-templates';
 import { PITCH_TYPE_LABELS } from '@/lib/assessment/catalog/context';
 import { SOURCE_LABELS } from '@/lib/assessment/labels';
+import { COUNT_SOURCE_LABELS, describeCounts } from '@/lib/assessment/practice-counts';
 import { getPlanDetails, type PlanRow } from '@/lib/assessment/server/queries';
 
 /** One training plan: focus, drills with instructions, logging, and the change history. */
@@ -28,6 +32,8 @@ export async function PlanCard({ plan, isCoach, viewerId }: { readonly plan: Pla
   const open = plan.status === 'active';
   const today = new Date().toISOString().slice(0, 10);
   const library = drillsFor(plan.discipline);
+  const session = sessionTemplate(plan.session_template);
+  const hitting = plan.discipline === 'hitting';
 
   return (
     <article id={`plan-${plan.id}`} aria-labelledby={`plan-title-${plan.id}`} className="space-y-6 border-2 border-rule p-5">
@@ -64,6 +70,15 @@ export async function PlanCard({ plan, isCoach, viewerId }: { readonly plan: Pla
         </div>
       ) : null}
 
+      {session ? (
+        <details>
+          <summary className="cursor-pointer font-semibold text-royal-ink underline">Session: {sessionTitle(session)}</summary>
+          <div className="mt-3">
+            <SessionOutline session={session} />
+          </div>
+        </details>
+      ) : null}
+
       {plan.coach_notes ? (
         <p>
           <span className="font-semibold">Coach notes:</span> {plan.coach_notes}
@@ -87,6 +102,13 @@ export async function PlanCard({ plan, isCoach, viewerId }: { readonly plan: Pla
               <li key={assignment.id} className="space-y-3 border-l-4 border-royal-ink pl-4">
                 <div>
                   <p className="text-lg font-semibold">{definition?.name ?? assignment.drill_key}</p>
+                  {definition?.replacedBy ? (
+                    <p className="text-sm text-slate">
+                      This drill has been replaced in the library by{' '}
+                      {definition.replacedBy.map((key) => findDrill(key)?.name ?? key).join(' and ')}. It stays in this plan until
+                      you change it.
+                    </p>
+                  ) : null}
                   <p className="text-sm">
                     <span className="font-semibold">Dosage:</span> {assignment.dosage}
                   </p>
@@ -137,6 +159,7 @@ export async function PlanCard({ plan, isCoach, viewerId }: { readonly plan: Pla
                           <option value="5">5 — very hard</option>
                         </SelectField>
                       </div>
+                      {hitting ? <PracticeCountInputs idPrefix={`count-${assignment.id}`} /> : null}
                       <TextField id={`feedback-${assignment.id}`} name="feedback" label="How did it go? (optional)" maxLength={500} />
                     </ActionForm>
                   </details>
@@ -199,6 +222,8 @@ export async function PlanCard({ plan, isCoach, viewerId }: { readonly plan: Pla
         ) : null}
       </div>
 
+      {hitting ? <PracticeCountSummary logs={logs} /> : null}
+
       {logs.length > 0 ? (
         <details>
           <summary className="cursor-pointer font-semibold text-royal-ink underline">Training log ({logs.length})</summary>
@@ -206,12 +231,14 @@ export async function PlanCard({ plan, isCoach, viewerId }: { readonly plan: Pla
             {logs.map((log) => {
               const assignment = assignments.find((item) => item.id === log.assignment_id);
               const name = assignment ? (findDrill(assignment.drill_key, assignment.drill_version)?.name ?? assignment.drill_key) : 'Drill';
+              const counts = describeCounts(log);
               return (
                 <li key={log.id} className="flex flex-wrap items-center justify-between gap-3 py-2">
                   <span>
                     {formatDateOnly(log.completed_on)} · {name}
                     {log.sets_completed !== null ? ` · ${log.sets_completed} sets` : ''}
                     {log.effort !== null ? ` · effort ${log.effort}/5` : ''}
+                    {counts.length > 0 ? ` · ${counts.join(', ')} (${COUNT_SOURCE_LABELS[log.logger_kind]})` : ''}
                     {log.feedback ? ` · “${log.feedback}”` : ''} <span className="text-slate">({SOURCE_LABELS[log.logger_kind].toLowerCase()})</span>
                   </span>
                   {open && log.logged_by === viewerId ? (

@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { drill as findDrill } from '@/lib/assessment/catalog/drills';
+import { isSessionTemplateId } from '@/lib/assessment/catalog/session-templates';
+import { PRACTICE_COUNT_FIELDS, practiceCountsProblem, type PracticeCountFields } from '@/lib/assessment/practice-counts';
 import { callRpc, numberField, rpcAction, switchedOff, textOrNull } from '@/lib/assessment/server/actions';
 import { field, failure, type ActionState } from '@/lib/forms/action-state';
 
@@ -40,6 +42,8 @@ export async function createPlanAction(_previous: ActionState, formData: FormDat
       };
     });
   if (assignments.length === 0) return failure('Choose at least one drill.');
+  const session = field(formData, 'session');
+  if (session && !isSessionTemplateId(session)) return failure('Choose one of the hitting sessions.');
   const { data, error } = await callRpc<string>('create_training_plan', {
     p_athlete_id: athleteId,
     p_source_revision_id: field(formData, 'revisionId'),
@@ -48,6 +52,7 @@ export async function createPlanAction(_previous: ActionState, formData: FormDat
     p_review_on: field(formData, 'review_on'),
     p_focus: focus,
     p_assignments: assignments,
+    p_session_template: session || null,
   });
   if (error || !data) return failure(error ?? 'We couldn’t create the plan.');
   for (const path of PATHS) revalidatePath(path, 'layout');
@@ -125,6 +130,9 @@ export async function logTrainingAction(_previous: ActionState, formData: FormDa
   if ((sets !== null && Number.isNaN(sets)) || (effort !== null && Number.isNaN(effort))) {
     return failure('Sets and effort must be numbers.');
   }
+  const counts = Object.fromEntries(PRACTICE_COUNT_FIELDS.map((name) => [name, numberField(formData, name)])) as unknown as PracticeCountFields;
+  const problem = practiceCountsProblem(counts);
+  if (problem) return failure(problem);
   return rpcAction(
     'log_training',
     {
@@ -134,6 +142,12 @@ export async function logTrainingAction(_previous: ActionState, formData: FormDa
       p_effort: effort,
       p_feedback: textOrNull(formData, 'feedback'),
       p_media_id: null,
+      p_swings: counts.swings,
+      p_solid_contacts: counts.solid_contacts,
+      p_decisions_assessed: counts.decisions_assessed,
+      p_decisions_correct: counts.decisions_correct,
+      p_landings_assessed: counts.landings_assessed,
+      p_landings_intended: counts.landings_intended,
     },
     'Logged.',
     PATHS,

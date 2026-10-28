@@ -1,13 +1,20 @@
 /**
- * Starter drill library, version 1. Original Base Recruits content: written
- * instructions only (no demonstration video exists yet, and none is linked).
- * Mirrors public.assessment_drills (key, version, discipline, pillars); a
+ * Drill library. Two sources: the starter drills below (original Base
+ * Recruits content) and the Hitting Development Workbook drills
+ * (catalog/workbook-drills.ts, decision F38). Written instructions only (no
+ * demonstration video exists yet, and none is linked). Mirrors
+ * public.assessment_drills (key, version, discipline, pillars, name, active); a
  * contract test keeps them identical.
+ *
+ * A drill is never deleted, because existing plans point at it. A replaced
+ * drill names its replacements and is left out of new plans and suggestions.
  *
  * Pitching drills never raise throwing volume or intensity on their own:
  * every pitching dosage defers to the pitcher's existing throwing plan.
  */
 
+import { PILLARS } from '@/lib/assessment/catalog/pillars';
+import { WORKBOOK_DRILLS } from '@/lib/assessment/catalog/workbook-drills';
 import type { Discipline, PillarKey } from '@/lib/assessment/types';
 
 export const DRILL_REQUIREMENTS = ['partner', 'radar', 'video'] as const;
@@ -42,11 +49,28 @@ export interface DrillDefinition {
   readonly completion: string;
   /** What the next assessment checks. */
   readonly reassessment: string;
+  /** Set when the drill was replaced: keys of the drills that do its job now. */
+  readonly replacedBy?: readonly string[];
+  /** Where a workbook drill came from, plus the workbook's extra coaching detail. */
+  readonly workbook?: WorkbookDrillSource;
+}
+
+export interface WorkbookDrillSource {
+  /** The workbook's own id, e.g. "H07" or "R03". */
+  readonly sourceId: string;
+  readonly kind: 'drill' | 'rehearsal';
+  readonly section: string;
+  readonly level: string | null;
+  readonly mistake: string | null;
+  readonly correction: string | null;
+  readonly safety: string | null;
+  readonly sourceSheet: string;
+  readonly sourceRow: number;
 }
 
 const PITCHING_LOAD_NOTE = 'Count these throws inside your current throwing plan; do not add throws or raise intensity for this drill.';
 
-const DRILL_LIST: readonly DrillDefinition[] = [
+const STARTER_DRILLS: readonly DrillDefinition[] = [
   // ---------------------------------------------------------------- Hitting
   {
     key: 'hit-rhythm-load-tee',
@@ -71,6 +95,7 @@ const DRILL_LIST: readonly DrillDefinition[] = [
     progression: 'Remove the pause and keep the same load; then move to front toss with a varied feed.',
     completion: 'Eight swings in a row whose loads look the same to you or your coach at normal speed.',
     reassessment: 'Load repeatability is rated again from the same camera view and drill.',
+    replacedBy: ['hit-h13', 'hit-h14'],
   },
   {
     key: 'hit-front-toss-tempo',
@@ -94,6 +119,7 @@ const DRILL_LIST: readonly DrillDefinition[] = [
     progression: 'Add slight changes in toss location as well as tempo.',
     completion: 'Most swings in a set are on time across all three tempos, as judged by your partner or on video.',
     reassessment: 'Ready-on-time is rated again, and timing estimates are compared only within the same drill type.',
+    replacedBy: ['hit-h28'],
   },
   {
     key: 'hit-contact-point-map',
@@ -117,6 +143,7 @@ const DRILL_LIST: readonly DrillDefinition[] = [
     progression: 'Have a partner call the position just before you set up, so you adjust without practice swings.',
     completion: 'At least 8 of 10 swings at each position meet the ball at the intended point.',
     reassessment: 'Contact-point consistency is rated again with the same intended contact points written down.',
+    replacedBy: ['hit-h07'],
   },
   {
     key: 'hit-barrel-gate',
@@ -163,6 +190,7 @@ const DRILL_LIST: readonly DrillDefinition[] = [
     progression: 'Front toss with changing locations while keeping the same landing.',
     completion: 'The foot lands within a shoe’s width of the mark on 9 of 10 swings.',
     reassessment: 'Stride-direction repeatability is rated again from a front or rear view with the feet in frame.',
+    replacedBy: ['hit-h15'],
   },
   {
     key: 'hit-hold-the-finish',
@@ -232,6 +260,7 @@ const DRILL_LIST: readonly DrillDefinition[] = [
     progression: 'Front toss, then live batting practice, with the same target and definition.',
     completion: 'Your tally reaches the solid-contact rate you and your coach set for this block.',
     reassessment: 'Solid-contact rate is charted again with the same definition and drill type.',
+    replacedBy: ['hit-h01'],
   },
   {
     key: 'hit-radar-intent-rounds',
@@ -466,12 +495,26 @@ const DRILL_LIST: readonly DrillDefinition[] = [
   },
 ];
 
+const DRILL_LIST: readonly DrillDefinition[] = [...STARTER_DRILLS, ...WORKBOOK_DRILLS];
+
+/** Every drill, including replaced ones (existing plans still show them). */
 export const DRILLS: readonly DrillDefinition[] = DRILL_LIST;
 
 export function drill(key: string, version?: number): DrillDefinition | undefined {
   return DRILL_LIST.find((item) => item.key === key && (version === undefined || item.version === version));
 }
 
+/** Drills that can go into a new plan or suggestion: replaced drills are left out. */
 export function drillsFor(discipline: Discipline): readonly DrillDefinition[] {
-  return DRILL_LIST.filter((item) => item.discipline === discipline);
+  return DRILL_LIST.filter((item) => item.discipline === discipline && !item.replacedBy);
+}
+
+/**
+ * What a drill works on, in words: its pillars, or for a drill outside the
+ * scored pillars: swing decisions, or else the drill's purpose.
+ */
+export function worksOn(item: DrillDefinition): string {
+  if (item.pillars.length > 0) return item.pillars.map((key) => PILLARS[key].name).join(', ');
+  if (item.workbook?.section.startsWith('D ')) return 'Swing decisions (not scored in the assessment; counted in 9-Zone Hitting decision rounds)';
+  return item.purpose.replace(/\.$/, '');
 }

@@ -60,7 +60,7 @@ lab measurements need lab equipment; a phone clip cannot reproduce them, and Sea
 New migration(s), following every rule in `CONTRIBUTING.md` (RLS on, privileges revoked, writes only through checked
 functions, audits that record a change and never the value, race tests for check-then-write).
 
-As built in `supabase/migrations/20261027000200_seamstate_enum_values.sql` and `…000300_seamstate.sql` (tests in
+As built in `supabase/migrations/20261028000300_seamstate_enum_values.sql` and `…000400_seamstate.sql` (tests in
 `supabase/tests/database/020_seamstate.test.sql`):
 
 | Table | Holds |

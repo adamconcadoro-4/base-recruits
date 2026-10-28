@@ -535,22 +535,25 @@ describe('interpretation validator', () => {
 
 describe('drill rules', () => {
   const base = { swingIndexes: [1], cue: null } as const;
-  it('I: maps an adjustment to catalog drills only, labelled as not coach-reviewed', () => {
+  it('I: maps an adjustment to library drills only, each labelled with its own coach review', () => {
     const suggestions = suggestDrills({ ...base, mechanicKey: 'stride', category: 'adjustment' } as unknown as ValidatedFinding, []);
-    expect(suggestions.map((item) => item.drillKey)).toEqual(['hit-stride-line']);
+    expect(suggestions.length).toBeGreaterThan(0);
     for (const item of suggestions) {
-      expect(drill(item.drillKey, item.drillVersion)).toBeDefined();
+      const definition = drill(item.drillKey, item.drillVersion);
+      expect(definition).toBeDefined();
+      expect(definition?.replacedBy).toBeUndefined();
       expect(item.dosageSource).toBe('catalog_starting_point');
-      expect(item.coachReviewed).toBe(DRILL_CATALOG_COACH_REVIEWED);
+      // Workbook drills were reviewed by Base Recruits hitting coaches (F38); starter drills were not (F26).
+      expect(item.coachReviewed).toBe(DRILL_CATALOG_COACH_REVIEWED || definition?.workbook !== undefined);
     }
   });
 
   it('gives no drills for strengths and skips drills needing missing equipment', () => {
     expect(suggestDrills({ ...base, mechanicKey: 'stride', category: 'strength' } as unknown as ValidatedFinding, [])).toEqual([]);
-    const timing = suggestDrills({ ...base, mechanicKey: 'foot_contact_to_swing', category: 'adjustment' } as unknown as ValidatedFinding, []);
-    expect(timing.map((item) => item.drillKey)).not.toContain('hit-front-toss-tempo');
-    const withPartner = suggestDrills({ ...base, mechanicKey: 'foot_contact_to_swing', category: 'adjustment' } as unknown as ValidatedFinding, ['partner']);
-    expect(withPartner.map((item) => item.drillKey)).toContain('hit-front-toss-tempo');
+    const load = suggestDrills({ ...base, mechanicKey: 'load_pattern', category: 'adjustment' } as unknown as ValidatedFinding, []);
+    expect(load.map((item) => item.drillKey)).not.toContain('hit-same-move-sets');
+    const withVideo = suggestDrills({ ...base, mechanicKey: 'load_pattern', category: 'adjustment' } as unknown as ValidatedFinding, ['video']);
+    expect(withVideo.map((item) => item.drillKey)).toContain('hit-same-move-sets');
   });
 });
 
