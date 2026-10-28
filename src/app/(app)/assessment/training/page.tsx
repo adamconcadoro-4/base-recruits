@@ -8,6 +8,7 @@ import { AthletePicker } from '@/components/assessment/athlete-picker';
 import { formatDateOnly } from '@/components/assessment/result-format';
 import { Notice } from '@/components/ui/notice';
 import { DRILL_REQUIREMENTS, type DrillRequirement } from '@/lib/assessment/catalog/drills';
+import { sessionTemplate } from '@/lib/assessment/catalog/session-templates';
 import { athleteContext, single, type SearchParams } from '@/lib/assessment/server/page-context';
 import { getCurrentReports, getPlans, getRevision, isUuid } from '@/lib/assessment/server/queries';
 import { getAccount } from '@/lib/auth/account';
@@ -37,6 +38,7 @@ export default async function TrainingPage({ searchParams }: { readonly searchPa
   const active = plans.data.filter((plan) => plan.status === 'active');
   const completed = plans.data.filter((plan) => plan.status === 'completed');
   const builder = source && source.athlete_id === selected.athlete_id && source.status === 'current' ? source : null;
+  const session = builder?.discipline === 'hitting' ? sessionTemplate(single(query.session)) : undefined;
 
   return (
     <>
@@ -50,7 +52,7 @@ export default async function TrainingPage({ searchParams }: { readonly searchPa
 
         {builder ? (
           <DashboardSection id="build" title="Build a plan">
-            <PlanBuilder revision={builder} athleteId={selected.athlete_id} unavailable={without} isCoach={isCoach} />
+            <PlanBuilder revision={builder} athleteId={selected.athlete_id} unavailable={without} isCoach={isCoach} session={session} />
           </DashboardSection>
         ) : null}
 

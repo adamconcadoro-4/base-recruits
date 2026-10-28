@@ -213,6 +213,30 @@ test('an athlete records, publishes and acts on a hitting self-assessment', asyn
   await plan.getByRole('button', { name: 'Log it' }).first().click();
   await expect(plan.getByText('Logged.').first()).toBeVisible();
 
+  // A plan from one of the workbook's sessions, with practice counts on a log.
+  await page.goto('/assessment/training');
+  await page.getByRole('link', { name: 'Build a plan from this report' }).first().click();
+  await page.getByLabel(/A ready-made session: S2/).check();
+  await page.getByRole('button', { name: 'Update suggestions' }).click();
+  await expect(page.getByRole('heading', { name: /S2 · Bailout \/ Landing Technical/ })).toBeVisible();
+  await expectAccessible(page, 'Plan builder from a session');
+  await page.getByRole('button', { name: 'Create the plan' }).click();
+  await page.waitForURL(/\/assessment\/training/);
+  const session = page.locator('article', { has: page.getByRole('heading', { name: /^Bailout \/ Landing Technical sessions from/ }) });
+  await expect(session.getByText(/Session: S2/)).toBeVisible();
+  await session.locator('summary', { hasText: 'Log a session' }).first().click();
+  await session.getByLabel('Swings', { exact: true }).first().fill('10');
+  await session.getByLabel('Solid contacts', { exact: true }).first().fill('7');
+  await session.getByRole('button', { name: 'Log it' }).first().click();
+  await expect(session.getByText('Logged.').first()).toBeVisible();
+  await expect(session.getByText(/7 of 10 swings \(70%\) reported by the athlete or family/)).toBeVisible();
+  await expectAccessible(page, 'Training plan from a session');
+
+  await page.goto('/assessment/home-practice');
+  await expect(page.getByRole('heading', { name: 'Home safety checklist' })).toBeVisible();
+  await expect(page.getByText(/Bailout \/ Landing Technical sessions from/)).toBeVisible();
+  await expectAccessible(page, 'Home practice');
+
   // Reassessment copies the protocol and starts a new draft.
   await page.goto(assessmentUrl);
   await page.getByRole('button', { name: 'Start the reassessment' }).click();

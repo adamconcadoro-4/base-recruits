@@ -175,6 +175,8 @@ export interface PlanRow {
   readonly review_on: string;
   readonly focus: ReadonlyArray<{ metric_key: string; pitch_type?: PitchType | null; summary?: string }>;
   readonly coach_notes: string | null;
+  /** Workbook session template the plan started from (hitting only). */
+  readonly session_template: string | null;
   readonly revision: number;
   readonly created_at: string;
   readonly completed_at: string | null;
@@ -218,6 +220,12 @@ export interface TrainingLogRow {
   readonly logged_by: string | null;
   readonly logger_kind: SourceKind;
   readonly created_at: string;
+  readonly swings: number | null;
+  readonly solid_contacts: number | null;
+  readonly decisions_assessed: number | null;
+  readonly decisions_correct: number | null;
+  readonly landings_assessed: number | null;
+  readonly landings_intended: number | null;
 }
 
 export interface CoachLinkRow {
@@ -415,7 +423,7 @@ export async function getPlans(athleteId: string): Promise<Loaded<PlanRow[]>> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('assessment_training_plans')
-    .select('id, athlete_id, discipline, source_revision_id, title, status, approval, approved_at, start_on, review_on, focus, coach_notes, revision, created_at, completed_at')
+    .select('id, athlete_id, discipline, source_revision_id, title, status, approval, approved_at, start_on, review_on, focus, coach_notes, session_template, revision, created_at, completed_at')
     .eq('athlete_id', athleteId)
     .order('created_at', { ascending: false })
     .limit(50);
@@ -442,7 +450,7 @@ export async function getPlanDetails(planId: string): Promise<{
       .order('revision', { ascending: false }),
     supabase
       .from('assessment_training_logs')
-      .select('id, plan_id, assignment_id, completed_on, sets_completed, effort, feedback, media_id, logged_by, logger_kind, created_at')
+      .select('id, plan_id, assignment_id, completed_on, sets_completed, effort, feedback, media_id, logged_by, logger_kind, created_at, swings, solid_contacts, decisions_assessed, decisions_correct, landings_assessed, landings_intended')
       .eq('plan_id', planId)
       .order('completed_on', { ascending: false })
       .limit(500),
