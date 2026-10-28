@@ -75,24 +75,31 @@ describe('plain words for results', () => {
   });
 });
 
-describe('the privacy promise and the SeamState lock', () => {
+describe('the privacy wording and the SeamState lock', () => {
   const root = join(__dirname, '../..');
   const read = (path: string) => readFileSync(join(root, path), 'utf8');
-  const PROMISE = 'never sent to an outside analysis service';
-  const PROMISE_PAGES = ['src/app/(app)/assessment/[id]/clips-step.tsx', 'src/app/(site)/player-assessment/page.tsx'];
+  const OLD_PROMISE = 'never sent to an outside analysis service';
+  const PRIVACY_PAGES = ['src/app/(app)/assessment/[id]/clips-step.tsx', 'src/app/(site)/player-assessment/page.tsx'];
+  // Approved by the founder on 2026-10-28 (F36).
+  const APPROVED = [
+    'Video is stored privately, and you can delete a clip at any time.',
+    'Nothing is sent to an outside analysis service unless you ask for a SeamState swing analysis.',
+    'Then our own video service reads that clip, and only still frames, cropped to the hitter and without a name, go to our AI provider.',
+  ];
+  const words = (text: string) => text.replace(/\s+/g, ' ');
 
-  it('keep SeamState locked off for as long as the site makes the promise', () => {
+  it('keep SeamState locked off for as long as a page promises video never leaves', () => {
     const migrations = readdirSync(join(root, 'supabase/migrations')).map((file) => read(`supabase/migrations/${file}`));
     const unlocked = migrations.some((sql) => /set\s+outside_analysis_disclosed\s*=\s*true/i.test(sql));
-    const promised = PROMISE_PAGES.some((page) => read(page).includes(PROMISE));
-    // Lifting the lock needs a migration shipped with replacement wording on every page that makes the promise.
+    const promised = PRIVACY_PAGES.some((page) => read(page).includes(OLD_PROMISE));
+    // Lifting the lock needs a migration shipped with replacement wording on every page that made the promise.
     expect(unlocked && promised).toBe(false);
     expect(migrations.some((sql) => /outside_analysis_disclosed boolean not null default false/.test(sql))).toBe(true);
   });
 
-  it('show the approved wording on the clips step exactly as written', () => {
-    expect(read(PROMISE_PAGES[0] ?? '')).toContain(
-      'Video is stored privately. It is never sent to an outside analysis service, and you can delete a clip at any time.',
-    );
+  it('show the approved wording on both pages exactly as written', () => {
+    for (const page of PRIVACY_PAGES) {
+      for (const sentence of APPROVED) expect(words(read(page))).toContain(sentence);
+    }
   });
 });

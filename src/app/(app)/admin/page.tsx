@@ -186,8 +186,8 @@ export default async function AdminPage() {
               ) : null}
               {seamstate && !seamstate.outsideAnalysisDisclosed ? (
                 <Notice tone="attention" title="Locked off">
-                  The site promises that video is never sent to an outside analysis service, and SeamState sends still frames to an
-                  AI provider. It cannot be turned on until that wording is replaced through an approved site update.
+                  The site’s privacy wording does not yet describe the still frames SeamState sends to an AI provider. It cannot be
+                  turned on until that wording is replaced through an approved site update.
                 </Notice>
               ) : null}
               {seamstate ? (
