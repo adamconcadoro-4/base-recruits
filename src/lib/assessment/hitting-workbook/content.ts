@@ -1,9 +1,10 @@
 /**
  * Hitting Development Workbook content, version 1, imported from
  * data/hitting-workbook/Baseball_Hitting_Development_Workbook.xlsx by
- * scripts/hitting-workbook/extract.py. Only the hitting drills (H01–H40), the
- * rehearsals (R01–R07) and the swing-flaw guide (T01–T18) are imported. Every
- * record keeps its source sheet and row.
+ * scripts/hitting-workbook/extract.py. Imported: the hitting drills (H01–H40),
+ * the rehearsals (R01–R07), the swing-flaw guide (T01–T18), the session
+ * templates (S1–S8), the warm-up routines and activities, and the parents'
+ * guide. Every record keeps its source sheet and row.
  *
  * Base Recruits wrote the workbook, and its hitting coaches reviewed the
  * drills and targets (decision F38). Limitations carried with the content:
@@ -69,6 +70,66 @@ export interface WorkbookFlaw {
   readonly sourceRow: number;
 }
 
+export interface WorkbookSessionBlock {
+  readonly label: string;
+  readonly minutes: number;
+  readonly activity: string;
+  /** Workbook ids as written, e.g. "H15, H11", "WR1" or "—". */
+  readonly ids: string;
+  readonly focus: string;
+  readonly sourceRow: number;
+}
+
+export interface WorkbookSession {
+  /** "S2" */
+  readonly sourceId: string;
+  readonly name: string;
+  /** "30 min" */
+  readonly length: string;
+  readonly blocks: readonly WorkbookSessionBlock[];
+  readonly sourceSheet: string;
+  readonly sourceRow: number;
+}
+
+export interface WorkbookWarmupRoutine {
+  readonly sourceId: string;
+  readonly name: string;
+  readonly time: string;
+  readonly useFor: string;
+  /** Warm-up activity ids in order, e.g. "WU01 → WU02 → …". */
+  readonly sequence: string;
+  readonly note: string;
+  readonly sourceRow: number;
+}
+
+export interface WorkbookWarmupActivity {
+  readonly sourceId: string;
+  readonly name: string;
+  readonly purpose: string;
+  readonly how: string;
+  readonly dose: string;
+  readonly cue: string;
+  readonly easier: string;
+  readonly sourceRow: number;
+}
+
+export interface WorkbookParentsGuide {
+  readonly steps: ReadonlyArray<{ readonly step: string; readonly action: string; readonly sourceRow: number }>;
+  readonly safety: ReadonlyArray<{ readonly check: string; readonly why: string; readonly sourceRow: number }>;
+  readonly menu: ReadonlyArray<{
+    readonly option: string;
+    readonly drillId: string;
+    readonly setup: string;
+    readonly swings: string;
+    readonly cue: string;
+    readonly space: string;
+    readonly sourceRow: number;
+  }>;
+  readonly sessions: ReadonlyArray<{ readonly session: string; readonly sequence: string; readonly sourceRow: number }>;
+  readonly language: ReadonlyArray<{ readonly situation: string; readonly say: string; readonly avoid: string; readonly sourceRow: number }>;
+  readonly sourceSheet: string;
+}
+
 export interface WorkbookContent {
   readonly version: string;
   readonly source: { readonly file: string; readonly sha256: string; readonly sheets: readonly string[] };
@@ -76,6 +137,10 @@ export interface WorkbookContent {
   readonly rehearsals: readonly WorkbookRehearsal[];
   readonly flaws: readonly WorkbookFlaw[];
   readonly workflow: ReadonlyArray<{ readonly step: number; readonly label: string; readonly action: string; readonly sourceRow: number }>;
+  readonly sessions: readonly WorkbookSession[];
+  readonly warmupRoutines: readonly WorkbookWarmupRoutine[];
+  readonly warmupActivities: readonly WorkbookWarmupActivity[];
+  readonly parentsGuide: WorkbookParentsGuide;
   readonly limitations: readonly string[];
 }
 
@@ -85,6 +150,8 @@ const names = new Map<string, string>([
   ...HITTING_WORKBOOK.drills.map((item) => [item.sourceId, item.name] as const),
   ...HITTING_WORKBOOK.rehearsals.map((item) => [item.sourceId, item.name] as const),
   ...HITTING_WORKBOOK.flaws.map((item) => [item.sourceId, item.issue] as const),
+  ...HITTING_WORKBOOK.warmupRoutines.map((item) => [item.sourceId, item.name] as const),
+  ...HITTING_WORKBOOK.warmupActivities.map((item) => [item.sourceId, item.name] as const),
 ]);
 
 /** The workbook's own log sheets do not exist on the site; its text refers to them by name. */
@@ -92,16 +159,16 @@ export function siteText(text: string): string {
   return text.replace(/\(Video Log\)/g, '(your video notes)').replace(/\bin Video Log\b/g, 'in your video notes');
 }
 
-/** The drill, rehearsal or flaw name for a workbook id ("H07" → "Full Strike-Zone Tee Map"). */
+/** The drill, rehearsal, flaw or warm-up name for a workbook id ("H07" → "Full Strike-Zone Tee Map"). */
 export function workbookName(sourceId: string): string | undefined {
   return names.get(sourceId);
 }
 
 const escaped = [...names.values()].sort((a, b) => b.length - a.length).map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-const idPattern = new RegExp(`\\b([HRT]\\d{2})\\b(?: (${escaped.join('|')}))?`, 'g');
+const idPattern = new RegExp(`\\b(WR\\d|WU\\d{2}|[HRT]\\d{2})\\b(?: (${escaped.join('|')}))?`, 'g');
 
 /**
- * Spells out workbook ids (drills, rehearsals, flaws) in running text so readers on the site see names:
+ * Spells out workbook ids (drills, rehearsals, flaws, warm-ups) in running text so readers on the site see names:
  * "H27; H32." → "Mixed-Location Read Toss (H27); Single-Zone Hunt (H32)."
  * An id already followed by its own name keeps that name once.
  */

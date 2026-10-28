@@ -2,7 +2,8 @@
 
 `Baseball_Hitting_Development_Workbook.xlsx` is Base Recruits' hitting workbook (27 sheets, written by Base Recruits; drills and targets reviewed by Base Recruits
 hitting coaches, 2026-10-28), stored as the content
-source for the Assessment drill library and swing-flaw guide (decision F38, `docs/assessment.md` section 11).
+source for the Assessment drill library, swing-flaw guide, session templates and home-practice guide (decisions F38 and
+F39, `docs/assessment.md` section 11).
 
 - This copy has the founder's requested changes (2026-10-28): every drill has a new generic name, and every outside
   organisation's name and web link was removed. The "Sources" sheet is now "Basis & Limits".
