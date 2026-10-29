@@ -1,23 +1,24 @@
 -- =============================================================================
--- SeamState: a per-person weekly limit of swing analyses
+-- SeamState: a per-person monthly limit of swing analyses
 -- =============================================================================
 -- Founder's rule (2026-10-29): a person can request at most 12 swing analyses a
--- week. Like the daily limit it counts requests over a rolling window (the last
--- 7 days) by the signed-in person who asks, and removing a clip never gives one
--- back. Administrators can change it (0 to 100) next to the other limits.
+-- month. Like the daily limit it counts requests over a rolling window (the last
+-- 30 days) by the signed-in person who asks, and removing a clip never gives one
+-- back. Administrators can change it (0 to 100) next to the other limits; the
+-- site-wide monthly limit (monthly_limit) is separate.
 -- -----------------------------------------------------------------------------
 
 alter table private.seamstate_settings
-  add column per_person_weekly_limit integer not null default 12
-    constraint seamstate_settings_weekly check (per_person_weekly_limit between 0 and 100);
+  add column per_person_monthly_limit integer not null default 12
+    constraint seamstate_settings_person_monthly check (per_person_monthly_limit between 0 and 100);
 
 -- -----------------------------------------------------------------------------
--- The switches now report the weekly limit and the caller's use of it.
+-- The switches now report the per-person monthly limit and the caller's use of it.
 -- -----------------------------------------------------------------------------
 drop function public.seamstate_switches();
 create function public.seamstate_switches()
 returns table (enabled boolean, daily_limit integer, monthly_limit integer, used_today integer, used_this_month integer,
-               minors_enabled boolean, outside_analysis_disclosed boolean, weekly_limit integer, used_this_week integer)
+               minors_enabled boolean, outside_analysis_disclosed boolean, person_monthly_limit integer, used_last_30_days integer)
 language sql
 stable
 security definer
@@ -34,22 +35,22 @@ as $$
                       where u.month = date_trunc('month', now() at time zone 'utc')::date), 0) end,
          s.minors_enabled,
          s.outside_analysis_disclosed,
-         s.per_person_weekly_limit,
+         s.per_person_monthly_limit,
          (select count(*)::integer from private.seamstate_request_log l
-           where l.requested_by = (select auth.uid()) and l.requested_at > now() - interval '7 days')
+           where l.requested_by = (select auth.uid()) and l.requested_at > now() - interval '30 days')
     from private.seamstate_settings s
    where s.id
 $$;
 comment on function public.seamstate_switches() is
-  'Whether SeamState analysis is on, the limits, and how many analyses the caller requested in the last 24 hours and 7 days.';
+  'Whether SeamState analysis is on, the limits, and how many analyses the caller requested in the last 24 hours and 30 days.';
 
 -- -----------------------------------------------------------------------------
--- Settings: the weekly limit is optional so existing callers keep it unchanged.
+-- Settings: the per-person monthly limit is optional so existing callers keep it unchanged.
 -- -----------------------------------------------------------------------------
 drop function public.admin_set_seamstate_settings(boolean, integer, integer, boolean);
 create function public.admin_set_seamstate_settings(
   p_enabled boolean, p_daily_limit integer, p_monthly_limit integer, p_minors_enabled boolean default false,
-  p_weekly_limit integer default null
+  p_person_monthly_limit integer default null
 )
 returns void
 language plpgsql
@@ -58,7 +59,7 @@ set search_path = ''
 as $$
 declare
   v_uid uuid := private.require_admin();
-  v_weekly integer;
+  v_person_monthly integer;
 begin
   if p_enabled is null or p_daily_limit is null or p_monthly_limit is null or p_minors_enabled is null then
     raise exception 'the switches and both limits need a value' using errcode = 'BR003';
@@ -66,8 +67,8 @@ begin
   if p_daily_limit not between 0 and 100 then
     raise exception 'the daily limit per person must be 0 to 100' using errcode = 'BR003';
   end if;
-  if p_weekly_limit is not null and p_weekly_limit not between 0 and 100 then
-    raise exception 'the weekly limit per person must be 0 to 100' using errcode = 'BR003';
+  if p_person_monthly_limit is not null and p_person_monthly_limit not between 0 and 100 then
+    raise exception 'the monthly limit per person must be 0 to 100' using errcode = 'BR003';
   end if;
   if p_monthly_limit not between 0 and 100000 then
     raise exception 'the monthly limit must be 0 to 100,000' using errcode = 'BR003';
@@ -79,19 +80,19 @@ begin
     raise exception 'SeamState cannot be turned on while the site promises video is never sent to an outside analysis service'
       using errcode = 'BR004';
   end if;
-  select coalesce(p_weekly_limit, s.per_person_weekly_limit) into v_weekly from private.seamstate_settings s where s.id;
+  select coalesce(p_person_monthly_limit, s.per_person_monthly_limit) into v_person_monthly from private.seamstate_settings s where s.id;
   update private.seamstate_settings s
-     set analysis_enabled = p_enabled, per_person_daily_limit = p_daily_limit, per_person_weekly_limit = v_weekly,
+     set analysis_enabled = p_enabled, per_person_daily_limit = p_daily_limit, per_person_monthly_limit = v_person_monthly,
          monthly_limit = p_monthly_limit, minors_enabled = p_minors_enabled, updated_at = now(), updated_by = v_uid
    where s.id;
   perform private.log_audit('seamstate.settings_changed', 'seamstate_settings', null, null,
-                            jsonb_build_object('enabled', p_enabled, 'daily_limit', p_daily_limit, 'weekly_limit', v_weekly,
+                            jsonb_build_object('enabled', p_enabled, 'daily_limit', p_daily_limit, 'person_monthly_limit', v_person_monthly,
                                                'monthly_limit', p_monthly_limit, 'minors_enabled', p_minors_enabled), v_uid);
 end;
 $$;
 
 -- -----------------------------------------------------------------------------
--- Requests: the weekly limit is checked right after the daily one.
+-- Requests: the per-person monthly limit is checked right after the daily one.
 -- -----------------------------------------------------------------------------
 create or replace function public.seamstate_request_analysis(p_media_id uuid, p_context jsonb, p_idempotency_key text)
 returns table (job_id uuid, created boolean)
@@ -179,8 +180,8 @@ begin
       using errcode = 'BR005';
   end if;
   if (select count(*) from private.seamstate_request_log l
-       where l.requested_by = v_uid and l.requested_at > now() - interval '7 days') >= v_settings.per_person_weekly_limit then
-    raise exception 'you have reached this week''s limit of % swing analyses; please try again in a few days', v_settings.per_person_weekly_limit
+       where l.requested_by = v_uid and l.requested_at > now() - interval '30 days') >= v_settings.per_person_monthly_limit then
+    raise exception 'you have reached your limit of % swing analyses in 30 days; please try again later this month', v_settings.per_person_monthly_limit
       using errcode = 'BR005';
   end if;
   insert into private.seamstate_monthly_usage (month) values (v_month) on conflict (month) do nothing;

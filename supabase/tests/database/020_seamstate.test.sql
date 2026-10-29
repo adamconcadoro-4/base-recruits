@@ -128,8 +128,8 @@ select tests.clear_authentication();
 select tests.enable_assessment(true);
 select tests.authenticate_as('admin');
 select tests.throws($$select public.admin_set_seamstate_settings(true, 101, 3)$$, 'BR003', 'the daily limit is capped');
-select tests.throws($$select public.admin_set_seamstate_settings(true, 2, 3, false, 101)$$, 'BR003', 'the weekly limit is capped');
-select tests.ok((select weekly_limit = 12 from public.seamstate_switches()), 'the weekly limit starts at 12 (F41)');
+select tests.throws($$select public.admin_set_seamstate_settings(true, 2, 3, false, 101)$$, 'BR003', 'the per-person monthly limit is capped');
+select tests.ok((select person_monthly_limit = 12 from public.seamstate_switches()), 'the per-person monthly limit starts at 12 (F41)');
 select tests.ok((select outside_analysis_disclosed from public.seamstate_switches()),
   'the approved privacy wording has lifted the lock (F36)');
 -- Without that disclosure the switch refuses, as it did while the old wording stood.
@@ -251,12 +251,12 @@ select tests.authenticate_as('admin');
 select tests.ok((select used_this_month = 3 from public.seamstate_switches()), 'monthly usage counts real requests');
 select public.admin_set_seamstate_settings(true, 10, 20, true, 2);
 select tests.authenticate_as('adult');
-select tests.ok((select weekly_limit = 2 and used_this_week = 2 from public.seamstate_switches()),
-  'a person sees the weekly limit and their own use of it');
-select tests.throws($$select tests.ss_request('clip3', 'key-clip3-w')$$, 'BR005', 'the per-person weekly limit applies');
+select tests.ok((select person_monthly_limit = 2 and used_last_30_days = 2 from public.seamstate_switches()),
+  'a person sees their monthly limit and their own use of it');
+select tests.throws($$select tests.ss_request('clip3', 'key-clip3-m')$$, 'BR005', 'the per-person monthly limit applies');
 select tests.authenticate_as('admin');
 select public.admin_set_seamstate_settings(true, 10, 20, true);
-select tests.ok((select weekly_limit = 2 from public.seamstate_switches()), 'leaving out the weekly limit keeps it unchanged');
+select tests.ok((select person_monthly_limit = 2 from public.seamstate_switches()), 'leaving out the per-person monthly limit keeps it unchanged');
 select public.admin_set_seamstate_settings(true, 10, 20, true, 12);
 
 -- ================================================================ worker callbacks
