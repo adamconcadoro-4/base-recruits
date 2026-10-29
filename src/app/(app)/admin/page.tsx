@@ -212,6 +212,7 @@ export default async function AdminPage() {
                     </label>
                     <div className="grid max-w-xl gap-4 sm:grid-cols-2">
                       <TextField id="daily_limit" name="daily_limit" type="number" min={0} max={100} label="Analyses per person per day" defaultValue={seamstate.dailyLimit} />
+                      <TextField id="weekly_limit" name="weekly_limit" type="number" min={0} max={100} label="Analyses per person per week" defaultValue={seamstate.weeklyLimit} />
                       <TextField id="monthly_limit" name="monthly_limit" type="number" min={0} max={100000} label="Analyses per month, site-wide" defaultValue={seamstate.monthlyLimit} />
                     </div>
                   </ActionForm>

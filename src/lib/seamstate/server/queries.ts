@@ -15,8 +15,10 @@ import { createClient } from '@/lib/supabase/server';
 export interface SeamstateSwitches {
   readonly enabled: boolean;
   readonly dailyLimit: number;
+  readonly weeklyLimit: number;
   readonly monthlyLimit: number;
   readonly usedToday: number;
+  readonly usedThisWeek: number;
   /** Administrators only. */
   readonly usedThisMonth: number | null;
   /** Clips of athletes under 18 can be analyzed (off until counsel's review, decision L12). */
@@ -32,8 +34,10 @@ export const getSeamstateSwitches = cache(async (): Promise<SeamstateSwitches | 
     | {
         enabled: boolean;
         daily_limit: number;
+        weekly_limit: number;
         monthly_limit: number;
         used_today: number;
+        used_this_week: number;
         used_this_month: number | null;
         minors_enabled: boolean;
         outside_analysis_disclosed: boolean;
@@ -44,8 +48,10 @@ export const getSeamstateSwitches = cache(async (): Promise<SeamstateSwitches | 
   return {
     enabled: Boolean(row.enabled),
     dailyLimit: row.daily_limit,
+    weeklyLimit: row.weekly_limit,
     monthlyLimit: row.monthly_limit,
     usedToday: row.used_today,
+    usedThisWeek: row.used_this_week,
     usedThisMonth: row.used_this_month,
     minorsEnabled: Boolean(row.minors_enabled),
     outsideAnalysisDisclosed: Boolean(row.outside_analysis_disclosed),

@@ -50,15 +50,17 @@ export async function setAssessmentSwitchesAction(_previous: ActionState, formDa
 }
 
 /**
- * SeamState swing analysis: the switch, the per-person daily limit and the
- * site-wide monthly limit (each analysis is a paid AI request).
+ * SeamState swing analysis: the switch, the per-person daily and weekly limits
+ * and the site-wide monthly limit (each analysis is a paid AI request).
  */
 export async function setSeamstateSettingsAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const enabled = field(formData, 'seamstate_enabled') === 'on';
   const minors = field(formData, 'minors_enabled') === 'on';
   const daily = Number(field(formData, 'daily_limit'));
+  const weekly = Number(field(formData, 'weekly_limit'));
   const monthly = Number(field(formData, 'monthly_limit'));
   if (!Number.isInteger(daily) || daily < 0 || daily > 100) return failure('The daily limit per person is a whole number from 0 to 100.', { daily_limit: 'Enter 0 to 100.' });
+  if (!Number.isInteger(weekly) || weekly < 0 || weekly > 100) return failure('The weekly limit per person is a whole number from 0 to 100.', { weekly_limit: 'Enter 0 to 100.' });
   if (!Number.isInteger(monthly) || monthly < 0 || monthly > 100000) {
     return failure('The monthly limit is a whole number from 0 to 100,000.', { monthly_limit: 'Enter 0 to 100,000.' });
   }
@@ -68,13 +70,14 @@ export async function setSeamstateSettingsAction(_previous: ActionState, formDat
     p_daily_limit: daily,
     p_monthly_limit: monthly,
     p_minors_enabled: minors,
+    p_weekly_limit: weekly,
   });
   if (error) return failure(userMessageForDatabaseError(error));
   revalidatePath('/admin');
   revalidatePath('/assessment', 'layout');
   return success(
     enabled
-      ? `SeamState is on: up to ${daily} a day per person and ${monthly} a month in total, ${minors ? 'including' : 'not including'} athletes under 18.`
+      ? `SeamState is on: up to ${daily} a day and ${weekly} a week per person and ${monthly} a month in total, ${minors ? 'including' : 'not including'} athletes under 18.`
       : 'SeamState is off. No new analyses can be requested.',
   );
 }
