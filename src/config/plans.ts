@@ -1,10 +1,12 @@
 /**
  * Optional paid plans — PRICES ARE PROPOSALS, not on sale (decision F8).
  * Prices live only here (and later in Stripe); permission logic never reads
- * them. Names and prices follow the founder's monetization brief of
- * 2026-10-25 (Starter / Plus / Pro). Discovery and academic matching stay in
- * the free core (decision F19); billing is built after launch, when the
- * plan-to-capability assignments below are revised to match the tiers.
+ * them. Names follow the founder's monetization brief of 2026-10-25
+ * (Starter / Plus / Pro); prices were raised by the founder on 2026-10-29 (F8),
+ * when SeamState swing analyses were added to each paid plan. Discovery and
+ * academic matching stay in the free core (decision F19); billing is built
+ * after launch, when the plan-to-capability assignments below are revised to
+ * match the tiers.
  *
  * Every plan's capability list is typed as PremiumCapabilityKey[], so a core
  * (free-forever) capability cannot be added to a plan without a type error, and
@@ -30,6 +32,8 @@ export interface PlanDefinition {
   readonly features: readonly string[];
   /** Premium capabilities this plan adds on top of the free core. */
   readonly premiumCapabilities: readonly PremiumCapabilityKey[];
+  /** SeamState swing analyses a month; shown only while Assessment is on the site. */
+  readonly seamstateAnalysesPerMonth: number;
 }
 
 const RECRUIT_WORKFLOWS = [
@@ -65,24 +69,26 @@ export const PLANS: readonly PlanDefinition[] = [
       'School search, academic matching, comparisons, unlimited saved schools, a basic recruiting profile and consent-based visibility to verified coaches.',
     features: [],
     premiumCapabilities: [],
+    seamstateAnalysesPerMonth: 0,
   },
   {
     key: 'base_recruit',
     name: 'Starter',
     availability: 'planned',
-    proposedMonthlyPriceUsd: 9.99,
-    proposedAnnualPriceUsd: 99,
+    proposedMonthlyPriceUsd: 19.99,
+    proposedAnnualPriceUsd: 199,
     priceIsHypothesis: true,
     summary: 'Stay on schedule through the recruiting process.',
     features: ['A recruiting timeline with the steps and dates for your class year', 'Everything in Base Free'],
     premiumCapabilities: [...RECRUIT_WORKFLOWS],
+    seamstateAnalysesPerMonth: 4,
   },
   {
     key: 'base_elite',
     name: 'Plus',
     availability: 'planned',
-    proposedMonthlyPriceUsd: 14.99,
-    proposedAnnualPriceUsd: 149,
+    proposedMonthlyPriceUsd: 24.99,
+    proposedAnnualPriceUsd: 249,
     priceIsHypothesis: true,
     summary: 'Run your recruiting outreach in one place.',
     features: [
@@ -94,13 +100,14 @@ export const PLANS: readonly PlanDefinition[] = [
       'Progress dashboard',
     ],
     premiumCapabilities: [...RECRUIT_WORKFLOWS, ...ELITE_ANALYSIS],
+    seamstateAnalysesPerMonth: 8,
   },
   {
     key: 'base_family',
     name: 'Pro',
     availability: 'planned',
-    proposedMonthlyPriceUsd: 19.99,
-    proposedAnnualPriceUsd: 199,
+    proposedMonthlyPriceUsd: 29.99,
+    proposedAnnualPriceUsd: 299,
     priceIsHypothesis: true,
     summary: 'Tools for players and parents to plan the college search together.',
     features: [
@@ -112,5 +119,6 @@ export const PLANS: readonly PlanDefinition[] = [
       'Expanded application and deadline tracking',
     ],
     premiumCapabilities: [...RECRUIT_WORKFLOWS, ...ELITE_ANALYSIS, ...FAMILY_COORDINATION],
+    seamstateAnalysesPerMonth: 12,
   },
 ];

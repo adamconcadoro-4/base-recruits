@@ -152,8 +152,8 @@ describe('plans', () => {
 
   it('price each planned plan at the founder-approved proposals, with annual billing cheaper than twelve months', () => {
     const byName = Object.fromEntries(PLANS.map((plan) => [plan.name, plan]));
-    expect([byName.Starter?.proposedMonthlyPriceUsd, byName.Plus?.proposedMonthlyPriceUsd, byName.Pro?.proposedMonthlyPriceUsd]).toEqual([9.99, 14.99, 19.99]);
-    expect([byName.Starter?.proposedAnnualPriceUsd, byName.Plus?.proposedAnnualPriceUsd, byName.Pro?.proposedAnnualPriceUsd]).toEqual([99, 149, 199]);
+    expect([byName.Starter?.proposedMonthlyPriceUsd, byName.Plus?.proposedMonthlyPriceUsd, byName.Pro?.proposedMonthlyPriceUsd]).toEqual([19.99, 24.99, 29.99]);
+    expect([byName.Starter?.proposedAnnualPriceUsd, byName.Plus?.proposedAnnualPriceUsd, byName.Pro?.proposedAnnualPriceUsd]).toEqual([199, 249, 299]);
     for (const plan of PLANS.filter((p) => p.availability === 'planned')) {
       const saving = 1 - plan.proposedAnnualPriceUsd / (plan.proposedMonthlyPriceUsd * 12);
       // "About 17%" on the brief: every plan saves between 16% and 18% a year.
