@@ -107,7 +107,7 @@ export default function PricingPage() {
             Paid plans will add tools for organizing your work, tracking your development and managing the recruiting
             process. These are the planned prices. None is on sale yet, and nothing is billed.
           </p>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
             {paidPlans.map((plan) => (
               <article key={plan.key} className="border-2 border-navy bg-white p-6">
                 <div className="flex items-start justify-between gap-3">

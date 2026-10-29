@@ -145,15 +145,20 @@ describe('plans', () => {
     expect(free?.proposedMonthlyPriceUsd).toBe(0);
     expect(free?.availability).toBe('free_forever');
     for (const plan of PLANS.filter((p) => p.key !== 'base_free')) {
-      expect(plan.availability).toBe('planned');
+      expect(['planned', 'retired']).toContain(plan.availability);
       expect(plan.priceIsHypothesis).toBe(true);
     }
   });
 
+  it('offer only Plus and Pro now that Starter is retired', () => {
+    expect(PLANS.filter((p) => p.availability === 'planned').map((p) => p.name)).toEqual(['Plus', 'Pro']);
+    expect(PLANS.find((p) => p.key === 'base_recruit')?.availability).toBe('retired');
+  });
+
   it('price each planned plan at the founder-approved proposals, with annual billing cheaper than twelve months', () => {
     const byName = Object.fromEntries(PLANS.map((plan) => [plan.name, plan]));
-    expect([byName.Starter?.proposedMonthlyPriceUsd, byName.Plus?.proposedMonthlyPriceUsd, byName.Pro?.proposedMonthlyPriceUsd]).toEqual([19.99, 24.99, 29.99]);
-    expect([byName.Starter?.proposedAnnualPriceUsd, byName.Plus?.proposedAnnualPriceUsd, byName.Pro?.proposedAnnualPriceUsd]).toEqual([199, 249, 299]);
+    expect([byName.Plus?.proposedMonthlyPriceUsd, byName.Pro?.proposedMonthlyPriceUsd]).toEqual([24.99, 29.99]);
+    expect([byName.Plus?.proposedAnnualPriceUsd, byName.Pro?.proposedAnnualPriceUsd]).toEqual([249, 299]);
     for (const plan of PLANS.filter((p) => p.availability === 'planned')) {
       const saving = 1 - plan.proposedAnnualPriceUsd / (plan.proposedMonthlyPriceUsd * 12);
       // "About 17%" on the brief: every plan saves between 16% and 18% a year.

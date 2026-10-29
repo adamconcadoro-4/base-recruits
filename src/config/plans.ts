@@ -3,7 +3,8 @@
  * Prices live only here (and later in Stripe); permission logic never reads
  * them. Names follow the founder's monetization brief of 2026-10-25
  * (Starter / Plus / Pro); prices were raised by the founder on 2026-10-29 (F8),
- * when SeamState swing analyses were added to each paid plan. Discovery and
+ * when SeamState swing analyses were added to each paid plan, and Starter was
+ * retired the same day (its timeline moved into Plus). Discovery and
  * academic matching stay in the free core (decision F19); billing is built
  * after launch, when the plan-to-capability assignments below are revised to
  * match the tiers.
@@ -20,8 +21,12 @@ export type PlanKey = 'base_free' | 'base_recruit' | 'base_elite' | 'base_family
 export interface PlanDefinition {
   readonly key: PlanKey;
   readonly name: string;
-  /** 'planned' = not purchasable; shown as upcoming and never billed. */
-  readonly availability: 'free_forever' | 'planned';
+  /**
+   * 'planned' = not purchasable; shown as upcoming and never billed.
+   * 'retired' = kept so the plan key and its database rows stay in sync, but no
+   * longer offered or shown.
+   */
+  readonly availability: 'free_forever' | 'planned' | 'retired';
   readonly proposedMonthlyPriceUsd: number;
   /** Paid once a year; 0 for the free core. */
   readonly proposedAnnualPriceUsd: number;
@@ -74,7 +79,7 @@ export const PLANS: readonly PlanDefinition[] = [
   {
     key: 'base_recruit',
     name: 'Starter',
-    availability: 'planned',
+    availability: 'retired',
     proposedMonthlyPriceUsd: 19.99,
     proposedAnnualPriceUsd: 199,
     priceIsHypothesis: true,
@@ -92,7 +97,8 @@ export const PLANS: readonly PlanDefinition[] = [
     priceIsHypothesis: true,
     summary: 'Run your recruiting outreach in one place.',
     features: [
-      'Everything in Starter',
+      'Everything in Base Free',
+      'A recruiting timeline with the steps and dates for your class year',
       'Recruiting contact tracker and activity history',
       'Coach outreach planner with email templates',
       'Deadline reminders',
