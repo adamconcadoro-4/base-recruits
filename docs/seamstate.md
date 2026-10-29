@@ -78,8 +78,8 @@ Changes from the Milestone 1 proposal, made while building:
   the job's current one, a job that was cancelled or finished, a job whose athlete withdrew permission (it is cancelled,
   so no stills go to the provider), and any job while SeamState is switched off (it fails as a service problem).
   `007_privileges_and_exposure.test.sql` pins the exact list.
-- **Spending limits** live in `private.seamstate_settings` (off, per-person daily limit 5, site-wide monthly limit 0 until
-  an administrator raises it) and are counted in private usage records that removing a clip never gives back.
+- **Spending limits** live in `private.seamstate_settings` (off, per-person daily limit 5, per-person monthly limit 12
+  over the last 30 days (decision F41), site-wide monthly limit 0 until an administrator raises it) and are counted in private usage records that removing a clip never gives back.
 
 Large data (stills, the packet file, landmarks) lives in the private bucket `seamstate-artifacts`, path
 `athlete/media/job/attempt/file`, readable only by people who can work on the athlete's assessments. Only the server
@@ -178,7 +178,7 @@ tokens including reasoning. Recommendation: start the pilot on Opus 5.5 and let 
 whether Sonnet 5.5 matches it on reviewed clips.
 
 Worker compute on a pay-per-use container host is roughly a cent or less per clip (about a minute of 2 CPUs) and costs
-nothing while idle. Spend controls: per-person daily analysis limit, a site-wide monthly cap counted in the database
+nothing while idle. Spend controls: per-person daily and monthly analysis limits, a site-wide monthly cap counted in the database
 (analysis pauses with an honest message when reached), and a hard monthly limit set in the provider's console.
 
 Missing credentials: the job ends in `failed` with failure kind `service` and the page says "Swing analysis is not
@@ -240,7 +240,7 @@ three settings (Milestone 4) follow.
   its evidence stills (signed one-hour links, read under the person's own permission), the evidence grade with its
   reasons and alternatives, "Show me in the Film Room" at the cited moment, and its review history. A development coach
   approves or rejects; anyone with access can add a note. Findings are labelled provisional until approved.
-- **Admin** (`/admin`): the SeamState switch, per-person daily limit, monthly limit with this month's usage, which
+- **Admin** (`/admin`): the SeamState switch, per-person daily and monthly limits, site-wide monthly limit with this month's usage, which
   deployment settings are still missing, and a separate switch for athletes under 18 that starts off (L12). With it
   off, minors' clips are refused even with a guardian's approval, and a job already queued for a minor stops.
 - **Removal**: removing a clip, or deleting a draft assessment, also deletes the clip's stills and packet from
