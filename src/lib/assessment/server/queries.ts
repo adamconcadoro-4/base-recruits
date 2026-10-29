@@ -259,6 +259,13 @@ export const getSwitches = cache(async (): Promise<{ enabled: boolean; video_ena
   return { enabled: Boolean(row?.enabled), video_enabled: Boolean(row?.video_enabled) };
 });
 
+/** Whether clips can be uploaded for this athlete: video on, and the athlete 18 or older (F40). */
+export const getVideoOpen = cache(async (athleteId: string): Promise<boolean> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('assessment_video_open', { p_athlete_id: athleteId });
+  return !error && data === true;
+});
+
 export const listAthletes = cache(async (): Promise<Loaded<AthleteOption[]>> => {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('assessment_athletes');

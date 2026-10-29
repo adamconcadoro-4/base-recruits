@@ -121,5 +121,36 @@ export function ageBand(years: number | null): AgeBand {
 export const VIDEO_MIME_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'] as const;
 export type VideoMimeType = (typeof VIDEO_MIME_TYPES)[number];
 export const MAX_VIDEO_BYTES = 200 * 1024 * 1024;
+
+/**
+ * What the clip picker offers. "video/*" is what makes phones show the photo
+ * library (Photos on iPhone, the gallery on Android) next to the camera and
+ * files; the extensions help desktop file dialogs. There is no `capture`
+ * attribute, because that would open the camera only.
+ */
+export const VIDEO_PICKER_ACCEPT = 'video/*,.mp4,.m4v,.mov,.webm';
+
+const VIDEO_EXTENSION_TYPES: Readonly<Record<string, VideoMimeType>> = {
+  mp4: 'video/mp4',
+  m4v: 'video/mp4',
+  mov: 'video/quicktime',
+  qt: 'video/quicktime',
+  webm: 'video/webm',
+};
+
+/**
+ * The accepted type of a chosen video, or null if it is not one we accept.
+ * Browsers sometimes report no type, or "video/x-m4v", for clips that are
+ * plain MP4 or MOV (some Android galleries, Windows), so the file name's
+ * extension decides when the reported type is missing or unfamiliar.
+ */
+export function videoMimeTypeFor(file: { readonly name: string; readonly type: string }): VideoMimeType | null {
+  const reported = file.type.toLowerCase();
+  if ((VIDEO_MIME_TYPES as readonly string[]).includes(reported)) return reported as VideoMimeType;
+  if (reported === 'video/x-m4v') return 'video/mp4';
+  if (reported !== '' && !reported.startsWith('video/') && reported !== 'application/octet-stream') return null;
+  const extension = file.name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1];
+  return extension ? (VIDEO_EXTENSION_TYPES[extension] ?? null) : null;
+}
 export const SLOW_MOTION_MIN_FACTOR = 2;
 export const SLOW_MOTION_MAX_FACTOR = 32;
