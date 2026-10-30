@@ -12,7 +12,8 @@ import {
   SLOW_MOTION_MAX_FACTOR,
   SLOW_MOTION_MIN_FACTOR,
   TIMING_BASIS_LABELS,
-  VIDEO_MIME_TYPES,
+  VIDEO_PICKER_ACCEPT,
+  videoMimeTypeFor,
 } from '@/lib/assessment/catalog/context';
 import { TIMING_BASES } from '@/lib/assessment/types';
 
@@ -72,15 +73,18 @@ export function ClipUploader({ assessmentId }: { readonly assessmentId: string }
 
   async function upload(form: HTMLFormElement) {
     const data = new FormData(form);
-    const file = inputRef.current?.files?.[0];
-    if (!file) {
-      setPhase({ kind: 'error', message: 'Choose a video file first.' });
+    const chosen = inputRef.current?.files?.[0];
+    if (!chosen) {
+      setPhase({ kind: 'error', message: 'Choose a video first.' });
       return;
     }
-    if (!(VIDEO_MIME_TYPES as readonly string[]).includes(file.type)) {
+    const mimeType = videoMimeTypeFor(chosen);
+    if (!mimeType) {
       setPhase({ kind: 'error', message: 'Upload an MP4, MOV or WebM video.' });
       return;
     }
+    // Storage files the upload under the type it is sent with, so send the accepted one.
+    const file = chosen.type === mimeType ? chosen : new File([chosen], chosen.name, { type: mimeType });
     if (file.size > MAX_VIDEO_BYTES) {
       setPhase({ kind: 'error', message: 'Videos can be up to 200 MB. Trim the clip to the swings or pitches and try again.' });
       return;
@@ -95,7 +99,7 @@ export function ClipUploader({ assessmentId }: { readonly assessmentId: string }
     const started = await beginUploadAction({
       assessmentId,
       fileName: file.name,
-      mimeType: file.type,
+      mimeType,
       byteSize: file.size,
       cameraView: typeof view === 'string' && view !== '' ? view : null,
       timingBasis: timing,
@@ -141,7 +145,8 @@ export function ClipUploader({ assessmentId }: { readonly assessmentId: string }
             Video file
           </label>
           <p id="clip-file-hint" className="text-sm text-slate">
-            MP4, MOV or WebM, up to 200 MB. Clips are stored privately and are visible only to you and the people you connect.
+            On a phone you can pick a clip from your photo library, record one, or choose a file. MP4, MOV or WebM, up to
+            200 MB. Clips are stored privately and are visible only to you and the people you connect.
           </p>
           <input
             ref={inputRef}
@@ -149,7 +154,7 @@ export function ClipUploader({ assessmentId }: { readonly assessmentId: string }
             name="file"
             type="file"
             required
-            accept={VIDEO_MIME_TYPES.join(',')}
+            accept={VIDEO_PICKER_ACCEPT}
             aria-describedby="clip-file-hint"
             className="block w-full text-base file:mr-4 file:min-h-11 file:rounded-md file:border-2 file:border-navy file:bg-white file:px-4 file:font-semibold file:text-navy"
           />

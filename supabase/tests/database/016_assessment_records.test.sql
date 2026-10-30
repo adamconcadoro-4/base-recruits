@@ -117,6 +117,12 @@ select tests.throws(format($$select public.delete_assessment_repetition(%L)$$,
   'BR004', 'a swing with values cannot be deleted, only excluded');
 
 -- ================================================================ Film Room timing
+select tests.throws(format($$select * from public.begin_assessment_upload(%L, 'front-toss.mov', 'video/quicktime', 4000000, null, 'real_time', null, null)$$, tests.job('hit')),
+  'BR004', 'clips cannot be uploaded for an athlete under 18 (F40)');
+-- The checks below need clips, so from here on the athlete has turned 19.
+select tests.clear_authentication();
+update public.profiles set date_of_birth = (current_date - interval '19 years')::date where id = tests.id('athlete');
+select tests.authenticate_as('athlete');
 select tests.remember_job('clip', (select media_id from public.begin_assessment_upload(tests.job('hit'), 'front-toss.mp4', 'video/mp4', 4000000,
   'side_facing', 'real_time', null, 'Side view')));
 select tests.throws(format($$select * from public.begin_assessment_upload(%L, 'x.avi', 'video/x-msvideo', 100, null, 'real_time', null, null)$$, tests.job('hit')),
