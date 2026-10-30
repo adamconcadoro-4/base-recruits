@@ -95,7 +95,7 @@ function.
 | Linked parent or guardian | The same as the athlete, once the athlete shares assessments with them (`family_assessments` consent) |
 | Development coach | Work on a connected athlete's assessments: coach ratings, review quality of any value, set targets, mark reviewed, publish coach-reviewed reports, approve plans. Connection = athlete's one-time code + athlete approval + (for under-18s) guardian approval. Ends the moment either side ends it. Cannot see recruiting profiles or messages |
 | Verified college coach | The current published report of athletes who shared reports with them (`coach_assessment_reports`, guardian approval for minors, 365 days). Never clips, drafts or working data |
-| Administrator | The switches and reference datasets. No special read access to assessments |
+| Administrator | The switches and reference datasets. No special read access to assessments. To try uploads and SeamState, an administrator opens a test account (Admin → Test accounts, decision F42), which has exactly a player's or parent's access |
 | Anyone else | Nothing (404) |
 
 Development coach accounts are adults only; a college coach account cannot also be a development coach.

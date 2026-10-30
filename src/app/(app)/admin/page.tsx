@@ -103,6 +103,10 @@ export default async function AdminPage() {
         ·{' '}
         <Link href="/admin/corrections" className="font-semibold text-royal-ink underline">
           Correction reports
+        </Link>{' '}
+        ·{' '}
+        <Link href="/admin/test-accounts" className="font-semibold text-royal-ink underline">
+          Test accounts (try the site as a player or parent)
         </Link>
       </PageTitle>
       {queueResult.error || recentResult.error ? (
