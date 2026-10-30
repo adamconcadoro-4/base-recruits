@@ -7,6 +7,7 @@ import { setPendingVerification } from '@/lib/auth/pending-verification';
 import { safeNextPath } from '@/lib/auth/route-access';
 import { failure, field, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { createClient } from '@/lib/supabase/server';
+import { forgetAdminReturn } from '@/lib/test-accounts/server';
 
 export async function logInAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const email = field(formData, 'email');
@@ -56,5 +57,6 @@ export async function requestLoginCodeAction(_previous: ActionState, formData: F
 export async function signOutAction(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  await forgetAdminReturn();
   redirect('/');
 }

@@ -129,6 +129,13 @@ Each stage stops at its exit gate with a report (`docs/reports/`). External depe
   relationships are self-attested; see residual risk in the Stage 1 report.
 - **Date of birth.** Stored only in `profiles` (owner/admin readable), never in signup metadata or JWT claims; written by
   the server right after signup through one service-role function that only accepts brand-new accounts.
+- **Test accounts.** Administrators try the site as a player or parent through test accounts no real person owns
+  (`20261030000100_admin_test_accounts.sql`, `src/lib/test-accounts/server.ts`, decision F42). The server creates them with
+  the service role, stamped in app metadata with the requesting administrator; the database turns only those fresh,
+  stamped accounts into test accounts and returns a sign-in address only for accounts in `test_accounts`, so a real
+  account can never be opened. Switching signs the browser in with a one-time link the server never sends and keeps the
+  administrator's refresh token in an httpOnly cookie for "Back to my admin account". Test players never reach college
+  coaches through search or audience-wide sharing.
 - **Audit.** `audit_events` stores identifiers and non-sensitive metadata. Functions log meaningful events; row-level
   triggers on profiles, roles, coaches, family links and consent independently record every insert, update and delete
   by any path (personal values such as emails and dates of birth are recorded only as "changed"). No role — not
