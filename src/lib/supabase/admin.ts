@@ -12,7 +12,10 @@ import { supabaseSecretKey, supabaseUrl } from './env';
  * account after an under-13 answer (Auth admin API); deleting Assessment clip
  * files after the database has authorized and recorded their removal
  * (src/lib/assessment/server/storage.ts); and the SeamState worker connection
- * (src/lib/seamstate/server/worker.ts), after verifying the worker's signature.
+ * (src/lib/seamstate/server/worker.ts), after verifying the worker's signature;
+ * and administrators' test accounts (src/lib/test-accounts/server.ts): creating
+ * them and making the one-time sign-in link, only after the database has
+ * checked the administrator and the account.
  */
 export function createAdminClient() {
   return createClient(supabaseUrl(), supabaseSecretKey(), {

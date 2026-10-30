@@ -7,6 +7,7 @@ import { ANONYMOUS, type Viewer } from '@/lib/auth/route-access';
 import { isAppRole, type AppRole } from '@/lib/auth/roles';
 import { isMinorOn, parseCalendarDate, todayUtc } from '@/lib/age/age-policy';
 import { createClient } from '@/lib/supabase/server';
+import { isTestAccountUser } from '@/lib/test-accounts/server';
 
 export interface ProfileRow {
   readonly display_name: string | null;
@@ -38,6 +39,8 @@ export interface Account {
   readonly coach: CoachRow | null;
   /** Unknown age counts as a minor, as in the database. */
   readonly isMinor: boolean;
+  /** An administrator's test account (no real person owns it). */
+  readonly isTestAccount: boolean;
 }
 
 const SIGNED_OUT: Account = {
@@ -49,6 +52,7 @@ const SIGNED_OUT: Account = {
   profile: null,
   coach: null,
   isMinor: true,
+  isTestAccount: false,
 };
 
 /**
@@ -113,5 +117,6 @@ export const getAccount = cache(async (): Promise<Account> => {
     profile,
     coach,
     isMinor: isMinorOn(birthDate, todayUtc()),
+    isTestAccount: isTestAccountUser(user),
   };
 });
