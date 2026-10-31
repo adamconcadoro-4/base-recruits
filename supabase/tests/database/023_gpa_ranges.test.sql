@@ -30,9 +30,15 @@ select tests.ok(
 
 -- ================================================================ the seed
 select tests.ok(
-  (select count(*) from public.gpa_ranges where is_current) = 17
-  and (select count(*) from public.gpa_ranges where source_kind = 'common_data_set' and weighting = 'not_stated') = 17,
-  'seventeen Common Data Set ranges are seeded, none stating whether GPAs are weighted');
+  (select count(*) from public.gpa_ranges where is_current) = 20
+  and (select count(*) from public.gpa_ranges where source_kind = 'common_data_set' and weighting = 'not_stated') = 19
+  and (select count(*) from public.gpa_ranges where source_kind = 'school_profile' and weighting = 'not_stated') = 1,
+  'twenty ranges are seeded (19 Common Data Sets, 1 class profile), none stating whether GPAs are weighted');
+select tests.ok(
+  (select array[low, high] from public.gpa_ranges where unitid = 196158) = array[3.00, 4.00]::numeric[]
+  and (select array[low, high] from public.gpa_ranges where unitid = 190600) = array[2.50, 3.74]::numeric[]
+  and (select array[low, high] || average from public.gpa_ranges where unitid = 196219) = array[3.00, 3.70, null]::numeric[],
+  'the second pass adds Fredonia (3.00–4.00), John Jay (2.50–3.74) and Purchase (3.0–3.7, class profile)');
 select tests.ok(
   (select array[low, high] from public.gpa_ranges where unitid = 184782) = array[3.00, 3.99]::numeric[]
   and (select array[low, high] from public.gpa_ranges where unitid = 195030) = array[3.50, 3.99]::numeric[]
@@ -49,7 +55,7 @@ select tests.ok(
 -- ================================================================ who can read
 select tests.authenticate_as_anon();
 select tests.ok(
-  tests.visible_count('select 1 from public.gpa_ranges') = 17,
+  tests.visible_count('select 1 from public.gpa_ranges') = 20,
   'signed-out visitors can read published ranges');
 select tests.throws('select note from public.gpa_ranges limit 1', '42501', 'internal notes are not readable');
 select tests.throws('select recorded_by from public.gpa_ranges limit 1', '42501', 'who recorded a range is not readable');
