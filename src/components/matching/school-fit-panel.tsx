@@ -47,6 +47,7 @@ import {
   POSITION_LABELS,
   SELF_REPORTED_NOTE,
   SUGGESTION_DISCLAIMER,
+  power4Note,
 } from '@/lib/matching/suggestions-explain';
 import type { AthleticLevelResult, AthleticStatus, SuggestionGroup } from '@/lib/matching/suggestions';
 import type { DivisionCode } from '@/lib/registry/types';
@@ -81,6 +82,11 @@ interface Props {
    * self-reported numbers are compared with the public benchmarks in the browser.
    */
   readonly athletic: AthleticLevelResult | null;
+  /**
+   * The school's Power 4 conference name (for example "SEC") when it is a Division I school in one; its
+   * numbers are then compared with the Power 4 benchmarks. Null otherwise.
+   */
+  readonly power4Conference: string | null;
 }
 
 interface Outcome {
@@ -123,7 +129,7 @@ function evaluate(numbers: PlayerNumbers, props: Props): Outcome | { readonly er
   if (!athletic.ok) Object.assign(errors, athletic.errors);
   if (!parsed.ok || !d1.ok || !d2.ok || !athletic.ok) return { errors };
   const level = levelForDivision(props.division);
-  const detail = athletic.input && level ? evaluateLevel(athletic.input, level, PUBLIC_BENCHMARKS) : null;
+  const detail = athletic.input && level ? evaluateLevel(athletic.input, level, PUBLIC_BENCHMARKS, props.power4Conference !== null) : null;
   const athleticResult = props.athletic ?? (detail ? { status: detail.status, standardsVersion: detail.standardsVersion } : null);
   return {
     fit: schoolFit(props.evidence, props.division, parsed.input, athleticResult, {
@@ -140,12 +146,13 @@ function formatValue(metric: AthleticMetric, value: number): string {
   return info.unit === 's' ? `${value.toFixed(2)} s` : `${Number.isInteger(value) ? value : value.toFixed(1)} mph`;
 }
 
-function AthleticDetail({ detail }: { readonly detail: AthleticLevelDetail }) {
+function AthleticDetail({ detail, conference }: { readonly detail: AthleticLevelDetail; readonly conference: string | null }) {
   const sourceIds = [...new Set(detail.comparisons.map((c) => c.floor.source))];
   return (
     <div className="space-y-2">
       <StatusChip tone={ATHLETIC_TONES[detail.status]}>{ATHLETIC_STATUS_LABELS[detail.status]}</StatusChip>
       <p>{ATHLETIC_STATUS_TEXT[detail.status]}</p>
+      {detail.power4 && conference ? <p className="text-sm">{power4Note(conference)}</p> : null}
       {detail.comparisons.length > 0 ? (
         <ul className="list-disc space-y-1 pl-5 text-sm">
           {detail.comparisons.map((c) => (
@@ -386,7 +393,9 @@ export function SchoolFitPanel(props: Props) {
   if (!outcome || 'errors' in outcome) return null;
   const { fit, athleticDetail, positionEntered } = outcome;
   const benchmarks = fit.comparison.benchmarks.filter((b) => b.low !== null && b.high !== null);
-  const levelName = level ? LEVEL_LABELS[level] : null;
+  // The Power 4 benchmarks apply only when this page compared the player's own numbers with them.
+  const power4 = athleticDetail?.power4 === true;
+  const levelName = power4 ? 'Power 4' : level ? LEVEL_LABELS[level] : null;
 
   return (
     <div className="space-y-6" aria-live="polite">
@@ -454,10 +463,13 @@ export function SchoolFitPanel(props: Props) {
       <dl className="space-y-0">
         {fit.placed ? (
           <div className="grid gap-1 border-b-2 border-rule py-3 sm:grid-cols-[16rem_1fr] sm:gap-4">
-            <dt className="font-semibold text-graphite">Athletic level ({LEVEL_LABELS[fit.level]})</dt>
+            <dt className="font-semibold text-graphite">
+              Athletic level ({LEVEL_LABELS[fit.level]}
+              {power4 ? ', Power 4' : ''})
+            </dt>
             <dd>
               {athleticDetail ? (
-                <AthleticDetail detail={athleticDetail} />
+                <AthleticDetail detail={athleticDetail} conference={props.power4Conference} />
               ) : props.athletic ? (
                 <p>{ATHLETIC_STATUS_TEXT[props.athletic.status]}</p>
               ) : (

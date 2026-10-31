@@ -36,7 +36,7 @@ import { ELIGIBILITY_RULES_VERSION, checkAllLevels, levelForDivision, type Eligi
 import { FIT_RULES_VERSION, academicFit, type AcademicFitResult } from './fit';
 import { RULES_VERSION, compareSchool, type ApplicantInput, type ComparisonResult, type SchoolEvidence } from './rules';
 
-export const SUGGESTION_RULES_VERSION = '2026-10-30.1';
+export const SUGGESTION_RULES_VERSION = '2026-10-31.1';
 
 // ---------------------------------------------------------------------------
 // The athletic side (Paul's standards). Base Recruits receives a per-level
@@ -56,6 +56,11 @@ export interface AthleticLevelResult {
 export interface AthleticProfile {
   /** A level that is missing here counts as "not_enough_data". */
   readonly byLevel: Readonly<Partial<Record<Level, AthleticLevelResult>>>;
+  /**
+   * The Division I result against Power 4 standards, for schools in a Power 4
+   * conference (F50). When missing, those schools use the Division I result.
+   */
+  readonly ncaaD1Power4?: AthleticLevelResult;
 }
 
 export const NO_ATHLETIC_DATA: AthleticProfile = { byLevel: {} };
@@ -73,6 +78,8 @@ export interface SuggestionSchool {
   readonly division_code: DivisionCode;
   readonly cost_of_attendance: number | null;
   readonly cost_year: string | null;
+  /** In a Power 4 baseball conference (src/lib/matching/power4.ts); only Division I schools can be. */
+  readonly power4?: boolean;
 }
 
 export interface SuggestionCandidate {
@@ -128,6 +135,8 @@ export interface Suggestion {
   readonly level: Level;
   readonly group: SuggestionGroup;
   readonly athletic: AthleticLevelResult;
+  /** The athletic result is the Power 4 one. */
+  readonly power4: boolean;
   readonly academic: AcademicFitResult;
   readonly comparison: ComparisonResult;
   readonly eligibility: EligibilityCheck;
@@ -231,7 +240,8 @@ export function suggestSchools(
     if (seen.has(school.slug)) continue; // a school listed twice counts once
     seen.add(school.slug);
     const level = levelForDivision(school.division_code);
-    const athleticResult = level === null ? NOT_ASSESSED : (athletic.byLevel[level] ?? NOT_ASSESSED);
+    const power4 = level === 'ncaa_d1' && school.power4 === true && athletic.ncaaD1Power4 !== undefined;
+    const athleticResult = level === null ? NOT_ASSESSED : power4 ? (athletic.ncaaD1Power4 ?? NOT_ASSESSED) : (athletic.byLevel[level] ?? NOT_ASSESSED);
     const exclusion = exclusionFor(school, level, preferences, athleticResult);
     if (exclusion !== null || level === null) {
       excluded[exclusion ?? 'LEVEL_NOT_SUGGESTED'] += 1;
@@ -246,7 +256,7 @@ export function suggestSchools(
     if (preferences.maxCostOfAttendance !== null) all.push(school.cost_of_attendance === null ? 'COST_NOT_REPORTED' : 'COST_WITHIN_BUDGET');
     if (preferences.settings.length > 0 && school.setting === null) all.push('SETTING_NOT_REPORTED');
     if (preferences.states.length > 0 && school.state === null) all.push('STATE_NOT_REPORTED');
-    groups[group].push({ school, level, group, athletic: athleticResult, academic, comparison, eligibility, reasons: all });
+    groups[group].push({ school, level, group, athletic: athleticResult, power4, academic, comparison, eligibility, reasons: all });
   }
 
   const byName = (a: Suggestion, b: Suggestion) => a.school.name.localeCompare(b.school.name, 'en') || a.school.slug.localeCompare(b.school.slug);

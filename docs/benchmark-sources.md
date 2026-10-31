@@ -8,6 +8,8 @@ approves; nothing changes on the site by itself.
 Code that uses these numbers:
 
 - Athletic benchmarks: `PUBLIC_BENCHMARKS` in `src/lib/matching/athletic.ts` (rulebook §4a).
+- Power 4 conference members (which D1 schools use the Power 4 benchmarks): `POWER4_MEMBERS` in
+  `src/lib/matching/power4.ts` (section D, decision F50).
 - Academic minimums to compete: `ELIGIBILITY_RULES` in `src/lib/matching/eligibility.ts` (rulebook §3).
 
 ## How changes are tracked
@@ -63,6 +65,9 @@ Code that uses these numbers:
 
 NAIA and junior college are not covered by this page.
 
+Base Recruits uses the Power 4 column for D1 schools in a Power 4 conference (section D), and the "Other D1" column for
+every other D1 school.
+
 ## B. NCSA — NAIA and junior college athletic guidelines
 
 - **Page:** "College Baseball Recruiting Guidelines and Measurables", NCSA.
@@ -104,9 +109,38 @@ These are rules, not benchmarks, but they are outside numbers the engine uses, s
 The NCAA Eligibility Center pages could not be opened from the build environment on 2026-10-30; a person should open them
 before launch (rulebook §3).
 
+## D. Power 4 conference members (baseball)
+
+Which D1 schools are compared with BaseballPath's Power 4 column. Membership is for **baseball**: conference members
+without a baseball team are not listed. The monthly check opens each page below, counts the baseball teams and compares the
+names with this list. A change updates `POWER4_MEMBERS` in `src/lib/matching/power4.ts` (matched by federal unit ID from the
+school data) and `POWER4_CHECKED_ON`, in one pull request the founder approves.
+
+| Conference | Teams | Season listed | Page (as read 2026-10-31) |
+| --- | --- | --- | --- |
+| ACC | 16 | 2026 | "2026 Baseball Standings", https://theacc.com/standings.aspx?path=baseball&year=2026 (the address without `&year=2026` showed 2025) |
+| Big Ten | 17 | 2026 | "Big Ten Announces 2026 Baseball Television Schedule", https://bigten.org/base/article/59374/ ("all 17 Big Ten baseball programs", each named) |
+| Big 12 | 14 | 2026 | "2026 Baseball Standings", https://www.big12sports.com/standings.aspx?path=baseball&year=2026 (the address without "www" fails) |
+| SEC | 16 | 2027 | "2027 SEC baseball schedule announced" (2026-09-08), https://www.secsports.com/news/2026/09/2027-sec-baseball-schedule-announced, gives "all 16 SEC schools"; the standings load by script, so each school was confirmed on its team page, https://www.secsports.com/schedule/baseball/<school> |
+
+**Members as listed**
+
+- **ACC:** Boston College, California, Clemson, Duke, Florida State, Georgia Tech, Louisville, Miami, NC State, North
+  Carolina, Notre Dame, Pittsburgh, Stanford, Virginia, Virginia Tech, Wake Forest.
+- **Big Ten:** Illinois, Indiana, Iowa, Maryland, Michigan, Michigan State, Minnesota, Nebraska, Northwestern, Ohio State,
+  Oregon, Penn State, Purdue, Rutgers, UCLA, USC, Washington.
+- **Big 12:** Arizona, Arizona State, Baylor, BYU, Cincinnati, Houston, Kansas, Kansas State, Oklahoma State, TCU, Texas
+  Tech, UCF, Utah, West Virginia.
+- **SEC:** Alabama, Arkansas, Auburn, Florida, Georgia, Kentucky, LSU, Ole Miss, Mississippi State, Missouri, Oklahoma,
+  South Carolina, Tennessee, Texas, Texas A&M, Vanderbilt.
+
+**Not yet confirmed:** 2027 team lists for the ACC, Big Ten and Big 12 (not posted in full on 2026-10-31; the ACC's 2027
+championship is set for a 16-team field). The monthly check should switch to the 2027 lists once they are posted.
+
 ## Change log
 
 | Date | Source | What changed | Action |
 | --- | --- | --- | --- |
 | 2026-10-31 | All | First record | Baseline for the monthly check |
+| 2026-10-31 | Power 4 members | First record: 63 baseball schools (ACC 16, Big Ten 17, Big 12 14, SEC 16) | BaseballPath's Power 4 column now used for these schools (F50) |
 | 2026-10-31 | BaseballPath | Possible earlier revision, not confirmed: a WIN Reality article (2026-09-16) listed exit velocities of about 95 / 93 / 91 / 89 mph by level, below this page's current figures. Whether it quoted an earlier version of this page isn't known, and no earlier copy was saved | Recorded the current version above; monthly check started |

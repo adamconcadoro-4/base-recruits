@@ -33,6 +33,7 @@ import { COMPARE_COOKIE, readCompareCookie } from '@/lib/registry/compare-select
 import { APPLICANT_LABELS, entryLabel } from '@/lib/registry/policy';
 import { currentPolicies, getSchool, gpaRanges, mySavedSlugs } from '@/lib/registry/queries';
 import { SLUG_PATTERN } from '@/lib/registry/search-params';
+import { POWER4_CONFERENCE_NAMES, power4Conference } from '@/lib/matching/power4';
 import type { SchoolEvidence } from '@/lib/matching/rules';
 import { APPLICANT_TYPES, type GpaRangeRow } from '@/lib/registry/types';
 
@@ -135,6 +136,8 @@ export default async function SchoolPage({ params }: { readonly params: Params }
     gpa: gpa ? { low: gpa.low, high: gpa.high, term: gpa.entering_term, weighting: gpa.weighting } : null,
   };
   const thisYear = new Date().getUTCFullYear();
+  // Division I schools in a Power 4 conference are compared with the Power 4 benchmarks (F50).
+  const power4 = program?.division.code === 'ncaa_d1' ? power4Conference(institution.unitid) : null;
 
   return (
     <>
@@ -273,6 +276,7 @@ export default async function SchoolPage({ params }: { readonly params: Params }
               evidence={fitEvidence}
               thisYear={thisYear}
               athletic={null}
+              power4Conference={power4 ? POWER4_CONFERENCE_NAMES[power4] : null}
             />
           </Section>
         ) : null}
