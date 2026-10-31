@@ -15,6 +15,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -44,6 +45,31 @@ def _get(url: str, params: dict[str, str] | None = None, attempts: int = 4) -> b
     raise AssertionError("unreachable")
 
 
+def _get_json_allowing_400(url: str, params: dict[str, str], api_key: str) -> dict[str, Any]:
+    """Like _get + json.loads, but a 400 response's JSON body is returned (it lists unknown fields)."""
+    full = url + "?" + urllib.parse.urlencode(params, safe=",.")
+    for attempt in range(1, 5):
+        try:
+            request = urllib.request.Request(full, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(request, timeout=300) as response:
+                return json.loads(response.read())
+        except urllib.error.HTTPError as error:
+            if error.code == 400:
+                body = error.read().decode("utf-8", "replace").replace(api_key, "[key]")
+                try:
+                    parsed = json.loads(body)
+                except ValueError:
+                    return {"errors": [{"error": "unreadable_400"}]}
+                return parsed if isinstance(parsed, dict) else {"errors": [{"error": "unreadable_400"}]}
+            if attempt == 4:
+                raise RuntimeError(f"request to {url} failed after 4 attempts: HTTP {error.code}") from None
+        except Exception as error:  # network errors are retried, then raised without the URL (it may hold a key)
+            if attempt == 4:
+                raise RuntimeError(f"request to {url} failed after 4 attempts: {type(error).__name__}") from None
+        time.sleep(5 * attempt)
+    raise AssertionError("unreachable")
+
+
 def build(api_key: str, eada_year: int | None = None, capture: set[int] | None = None) -> dict[str, Any]:
     file_list = json.loads(_get(eada.API + "dataFiles/fileList"))
     year = eada_year or eada.latest_year(file_list)
@@ -62,10 +88,18 @@ def build(api_key: str, eada_year: int | None = None, capture: set[int] | None =
         lambda url, params: json.loads(_get(url, {**params, "api_key": api_key})),
     )
     by_id = {r["id"]: r for r in records if isinstance(r.get("id"), int)}
+    extras, rejected_fields = scorecard.fetch_extras(
+        unitids, candidate_years,
+        lambda url, params: _get_json_allowing_400(url, {**params, "api_key": api_key}, api_key),
+    )
+    for extra in extras:
+        if isinstance(extra.get("id"), int) and extra["id"] in by_id:
+            by_id[extra["id"]].update({k: v for k, v in extra.items() if k != "id"})
     found = list(by_id.values())
     admissions_year = scorecard.choose_year(found, candidate_years, "admissions.admission_rate.overall")
     cost_year = scorecard.choose_year(found, candidate_years, "cost.tuition.in_state")
     enrollment_year = scorecard.choose_year(found, candidate_years, "student.size")
+    programs_year = scorecard.choose_year(found, candidate_years, scorecard.PROGRAMS_KEY_PATH)
 
     out_records: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = [
@@ -92,7 +126,7 @@ def build(api_key: str, eada_year: int | None = None, capture: set[int] | None =
             record["admissions"] = None
             record["costs"] = None
         else:
-            normalized, record_issues = scorecard.normalize(source_record, admissions_year, cost_year, enrollment_year)
+            normalized, record_issues = scorecard.normalize(source_record, admissions_year, cost_year, enrollment_year, programs_year)
             record["institution_source"] = "college_scorecard"
             record.update(normalized)
             if not record["facts"].get("name"):
@@ -131,7 +165,9 @@ def build(api_key: str, eada_year: int | None = None, capture: set[int] | None =
                 "url": scorecard.API,
                 "homepage": scorecard.HOMEPAGE,
                 "retrieved_at": scorecard_retrieved,
-                "years": {"admissions": admissions_year, "costs": cost_year, "enrollment": enrollment_year},
+                "years": {"admissions": admissions_year, "costs": cost_year, "enrollment": enrollment_year,
+                          "programs": programs_year},
+                "rejected_fields": rejected_fields,
             },
         ],
         "summary": {
@@ -142,6 +178,9 @@ def build(api_key: str, eada_year: int | None = None, capture: set[int] | None =
             "with_sat": sum(1 for r in out_records if (r.get("admissions") or {}).get("sat_math_25") is not None),
             "with_act": sum(1 for r in out_records if (r.get("admissions") or {}).get("act_composite_25") is not None),
             "with_costs": sum(1 for r in out_records if r.get("costs")),
+            "with_open_admission_flag": sum(1 for r in out_records if (r.get("facts") or {}).get("open_admission") is not None),
+            "open_admission": sum(1 for r in out_records if (r.get("facts") or {}).get("open_admission") is True),
+            "with_programs": sum(1 for r in out_records if (r.get("facts") or {}).get("programs")),
             "by_association": _count(r["baseball"]["association"] for r in out_records),
             "by_division": _count(r["baseball"]["division"] for r in out_records),
             "test_policy": _count((r.get("admissions") or {}).get("test_policy") or "none" for r in out_records),

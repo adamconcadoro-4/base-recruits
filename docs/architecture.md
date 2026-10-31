@@ -185,8 +185,14 @@ confirmed status is never overwritten by an import for the same or an older seas
 everything about them are visible only to administrators. Reviewer ids, internal notes and import ids are excluded by
 column grants. All writes go through admin-only SECURITY DEFINER functions.
 
-**What is not imported yet.** GPA (not in federal data), majors, conferences (admin-verified only), net price (its
-reference year could not be confirmed; each school's net price calculator is linked instead).
+**Also imported (2026-10-31).** Each school's open admission policy and the program areas (two-digit CIP families) it
+offers on campus at the bachelor's and associate level, from the same College Scorecard feed (`institutions.open_admission`,
+`bachelors_areas`, `associate_areas`, `programs_source_year`; codes in `program_areas`). They travel in the snapshot's
+facts through the same staging, review, publish and rollback (decisions F48, F49).
+
+**What is not imported yet.** GPA (not in federal data), specific majors (four-digit programs), conferences
+(admin-verified only), net price (its reference year could not be confirmed; each school's net price calculator is
+linked instead).
 
 ## 7. Environments
 

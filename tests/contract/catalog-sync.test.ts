@@ -25,6 +25,7 @@ import {
   TEST_POLICIES,
   VERIFICATIONS,
 } from '@/lib/registry/types';
+import { PROGRAM_AREAS } from '@/lib/registry/program-areas';
 
 const DATABASE_URL = process.env.DATABASE_URL;
 const PSQL = process.env.PSQL ?? 'psql';
@@ -114,6 +115,8 @@ describe.skipIf(!DATABASE_URL)('database and TypeScript catalogs agree', () => {
     expect(enumValues('test_policy')).toEqual([...TEST_POLICIES]);
     expect(enumValues('program_status')).toEqual([...PROGRAM_STATUSES]);
     expect(enumValues('program_verification')).toEqual([...VERIFICATIONS]);
+    const areas = rows<{ code: string; name: string }>('select code, name from public.program_areas order by sort_order');
+    expect(areas.map((a) => [a.code, a.name])).toEqual(PROGRAM_AREAS.map(([code, name]) => [code, name]));
   });
 
   it('admissions policies and correction reports', () => {
