@@ -130,7 +130,7 @@ no hidden score.
 - **D1, D2, D3:** BaseballPath, "What Numbers Do You Need to Play D1, D2, or D3 Baseball?" (published 2026-06-08, updated
   2026-10-20). Each player's best showcase number on their Prep Baseball Report profile, classes of 2024–26, grouped by
   the level they committed to. Measured, but sample sizes aren't published and it's a commercial site, so it is re-checked
-  before launch and each autumn. D1 uses its "Other D1" (non–Power 4) figures, because the registry doesn't separate
+  every week (`docs/benchmark-sources.md`). D1 uses its "Other D1" (non–Power 4) figures, because the registry doesn't separate
   Power 4.
 - **NAIA and junior college:** NCSA, "College Baseball Recruiting Guidelines and Measurables" (published 2018-08-17,
   modified 2026-03-16). Guidelines with no published data; NAIA shares NCSA's D3 column (decision F47). Shown as
@@ -188,7 +188,10 @@ Every active program's page has a **Your fit** section (`src/components/matching
 
 - **Paul's standards:** loaded as a "partner" benchmark set in the same shape as `PUBLIC_BENCHMARKS` once his sample,
   measurement setup and "in range" rule arrive; until then the public set is used.
-- **Re-check the public sources** before launch and each autumn: BaseballPath's figures changed during 2026.
+- **Public sources are re-checked every week** by a scheduled task against `docs/benchmark-sources.md`, which records
+  every outside number exactly as published. A change arrives as a pull request for the founder to approve.
+- **Sources with published sample sizes** for D1 and D2 are being looked for to corroborate or replace BaseballPath,
+  which publishes none.
 - **Coverage:** in the 2024-25 registry snapshot 739 of 1,670 programs report SAT ranges. Schools without ranges (many
   test-optional four-year schools and most junior colleges) fall under "academics not compared".
 - **Open admission:** junior colleges usually report no admissions figures because admission is open. Loading the federal
