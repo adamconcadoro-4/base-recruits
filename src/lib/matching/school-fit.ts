@@ -53,7 +53,7 @@ export function schoolFit(
   extras: EligibilityExtras = NO_EXTRAS,
 ): SchoolFit {
   const comparison = compareSchool(evidence, input);
-  const academic = academicFit(comparison);
+  const academic = academicFit(comparison, evidence.openAdmission ?? null);
   const level = levelForDivision(division);
   if (level === null) return { placed: false, reason: 'LEVEL_NOT_SUGGESTED', comparison, academic };
   const athleticResult = athletic ?? NOT_ASSESSED;

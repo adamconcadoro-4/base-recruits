@@ -104,6 +104,7 @@ export type SuggestionReason =
   | 'ATHLETIC_IN_RANGE'
   | 'ATHLETIC_NOT_ASSESSED'
   | 'ACADEMIC_FIT'
+  | 'ACADEMIC_OPEN_ADMISSION'
   | 'ACADEMIC_STRETCH'
   | 'ACADEMIC_REACH'
   | 'ACADEMIC_NOT_COMPARED'
@@ -238,10 +239,10 @@ export function suggestSchools(
     }
     if (athleticResult.standardsVersion !== null) standards.add(athleticResult.standardsVersion);
     const comparison = compareSchool(evidence, input);
-    const academic = academicFit(comparison);
+    const academic = academicFit(comparison, evidence.openAdmission ?? null);
     const eligibility = eligibilityByLevel[level];
     const { group, reasons } = groupFor(athleticResult.status, academic.fit, eligibility.status);
-    const all = [...reasons];
+    const all = reasons.map((r): SuggestionReason => (r === 'ACADEMIC_FIT' && academic.reason === 'OPEN_ADMISSION' ? 'ACADEMIC_OPEN_ADMISSION' : r));
     if (preferences.maxCostOfAttendance !== null) all.push(school.cost_of_attendance === null ? 'COST_NOT_REPORTED' : 'COST_WITHIN_BUDGET');
     if (preferences.settings.length > 0 && school.setting === null) all.push('SETTING_NOT_REPORTED');
     if (preferences.states.length > 0 && school.state === null) all.push('STATE_NOT_REPORTED');

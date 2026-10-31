@@ -10,7 +10,8 @@ select tests.ok(
   (select array_agg(t.tablename::text order by t.tablename) from pg_tables t
     where t.schemaname = 'public' and has_any_column_privilege('anon', format('%I.%I', t.schemaname, t.tablename), 'SELECT'))
   = array['admissions_policies', 'admissions_statistics', 'athletic_associations', 'athletic_divisions', 'baseball_programs',
-          'capabilities', 'data_sources', 'gpa_ranges', 'institution_aliases', 'institution_costs', 'institutions', 'plan_capabilities'],
+          'capabilities', 'data_sources', 'gpa_ranges', 'institution_aliases', 'institution_costs', 'institutions', 'plan_capabilities',
+          'program_areas'],
   'anonymous visitors can read only the capability catalog and the public school registry');
 select tests.ok(
   not exists (

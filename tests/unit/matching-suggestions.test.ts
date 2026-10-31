@@ -248,6 +248,31 @@ describe('suggestSchools', () => {
   });
 });
 
+describe('open admission (F48)', () => {
+  it('an open-admission school is an academic fit whatever the score comparison says', () => {
+    const below = compareSchool(evidence('x', ABOVE.erw, ABOVE.math), player());
+    expect(academicFit(below, true)).toMatchObject({ fit: 'fit', reason: 'OPEN_ADMISSION' });
+    expect(academicFit(compareSchool(evidence('x', NONE.erw, NONE.math), player()), true).fit).toBe('fit');
+    expect(academicFit(below, false).fit).toBe('reach');
+    expect(academicFit(below, null).fit).toBe('reach');
+  });
+
+  it('a checked requirement the player won\u2019t meet still makes it a Reach', () => {
+    const required = compareSchool(evidence('x', AT.erw, AT.math, true), player({ submitScores: 'no' }));
+    expect(academicFit(required, true)).toMatchObject({ fit: 'reach', reason: 'REQUIREMENT_NOT_MET' });
+  });
+
+  it('junior colleges with open admission can now be a Strong fit, with the reason named', () => {
+    const jc: SuggestionCandidate = {
+      ...candidate('jc-open', 'Quarry Community College', 'njcaa_d2', NONE),
+      evidence: { ...evidence('jc-open', NONE.erw, NONE.math), openAdmission: true },
+    };
+    const list = suggestSchools([jc], player(), inRange('juco'));
+    expect(list.groups.strong_fit.map((s) => s.school.slug)).toEqual(['jc-open']);
+    expect(list.groups.strong_fit[0]?.reasons).toEqual(['ATHLETIC_IN_RANGE', 'ACADEMIC_OPEN_ADMISSION']);
+  });
+});
+
 describe('academic fit and wording', () => {
   it('derives the label from the existing comparison only', () => {
     const fit = (ranges: typeof AT | typeof NONE, input = player()) => academicFit(compareSchool(evidence('x', ranges.erw, ranges.math), input)).fit;

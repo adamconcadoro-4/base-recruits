@@ -78,6 +78,12 @@ export interface SchoolEvidence {
   /** The test policy reported for that past class (history, never applied as a rule). */
   readonly historicalTestPolicy: TestPolicy | null;
   readonly currentPolicies: readonly CheckedPolicy[];
+  /**
+   * The school's open admission policy as reported to the College Scorecard
+   * (null or absent = not reported). Not used by compareSchool; the academic
+   * fit label reads it (fit.ts).
+   */
+  readonly openAdmission?: boolean | null;
   /** The school's published GPA range; missing or null when there is none. */
   readonly gpa?: GpaRange | null;
 }
