@@ -164,7 +164,9 @@ const ncsa = (metric: AthleticMetric, value: number, sourceText: string, sixtyGr
 });
 
 /**
- * Public benchmarks, checked 2026-10-31. D1 uses the source's "Other D1"
+ * Public benchmarks, checked 2026-10-31. Every number as each source published it is recorded in
+ * docs/benchmark-sources.md, which a monthly scheduled task compares with the live pages; keep the two in step.
+ * D1 uses the source's "Other D1"
  * (non–Power 4) figures, because the registry doesn't separate Power 4.
  * NAIA and junior college use NCSA guidelines (F47); NAIA shares NCSA's D3
  * column. Values not given as numbers (JUCO "upper 70s" infield velocity) and
