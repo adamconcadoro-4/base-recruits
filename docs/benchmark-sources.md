@@ -1,7 +1,7 @@
 # Benchmark Sources — Record and Change Log
 
 Every outside number the school-suggestion engine uses, recorded **exactly as each source published it** on the date it
-was checked. A scheduled task re-reads these sources every week and compares them with this page (see "How changes are
+was checked. A scheduled task re-reads these sources every month and compares them with this page (see "How changes are
 tracked" below). When a source changes, this page and the code change together in one pull request that the founder
 approves; nothing changes on the site by itself.
 
@@ -12,9 +12,9 @@ Code that uses these numbers:
 
 ## How changes are tracked
 
-1. **Weekly check.** A scheduled task opens every source below, reads the numbers, and compares them with the
+1. **Monthly check (the 1st of each month).** A scheduled task opens every source below, reads the numbers, and compares them with the
    "As published" tables on this page.
-2. **No change.** It does nothing else, so a quiet week sends nothing.
+2. **No change.** It does nothing else, so a quiet month sends nothing.
 3. **A change.** It opens a pull request that does three things:
    - updates the "As published" table;
    - adds a row to the change log at the bottom;
@@ -22,8 +22,8 @@ Code that uses these numbers:
      rulebook and tests to match.
 
    The founder reviews and merges it. The task never merges.
-4. **A source fails.** If a source can't be opened that week, the task sends the founder a short message and tries again
-   the next week. If the page opens but no longer gives the numbers (moved, paywalled, removed), it opens a pull request
+4. **A source fails.** If a source can't be opened that month, the task sends the founder a short message and tries
+   again the next month. If the page opens but no longer gives the numbers (moved, paywalled, removed), it opens a pull request
    that adds a change-log row saying so. Either way, the numbers in use stay until the founder decides.
 
 ## A. BaseballPath — D1, D2, D3 athletic benchmarks
@@ -108,5 +108,5 @@ before launch (rulebook §3).
 
 | Date | Source | What changed | Action |
 | --- | --- | --- | --- |
-| 2026-10-31 | All | First record | Baseline for the weekly check |
-| 2026-10-31 | BaseballPath | Possible earlier revision, not confirmed: a WIN Reality article (2026-09-16) listed exit velocities of about 95 / 93 / 91 / 89 mph by level, below this page's current figures. Whether it quoted an earlier version of this page isn't known, and no earlier copy was saved | Recorded the current version above; weekly check started |
+| 2026-10-31 | All | First record | Baseline for the monthly check |
+| 2026-10-31 | BaseballPath | Possible earlier revision, not confirmed: a WIN Reality article (2026-09-16) listed exit velocities of about 95 / 93 / 91 / 89 mph by level, below this page's current figures. Whether it quoted an earlier version of this page isn't known, and no earlier copy was saved | Recorded the current version above; monthly check started |
