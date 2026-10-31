@@ -132,8 +132,9 @@ Every active program's page has a **Your fit** section (`src/components/matching
   "Forget my numbers". Stored values are validated again every time they are used.
 - It shows the overall group, then the three parts: athletic level, academics (with the school's reported ranges next to
   the player's scores) and the academic minimum to compete, each with its reasons.
-- Until athletic standards are loaded, the athletic part reads "not available yet" and the overall result is Not
-  enough data; the academic label and the eligibility check still show.
+- Until athletic standards are loaded, the page leads with the two results that can be worked out now (the academic
+  result and the academic minimum to compete) and says the overall fit appears once the athletic assessment is matched to
+  level standards. The engine's group is still Not enough data; only the presentation leads with what is known.
 - If the player is below the level's athletic standard, the page says the school isn't in their suggestions (the list
   sets it aside) and shows the academic comparison only.
 - Schools outside the five levels show the academic comparison only.
