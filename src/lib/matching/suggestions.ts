@@ -8,13 +8,15 @@
  * Groups:
  *  - Strong fit: athletically in range for the school's level, and an academic Fit.
  *  - Possible fit: in range, and an academic Stretch (or a Fit whose
- *    eligibility depends on something Base Recruits doesn't ask for).
- *  - Reach: in range, and an academic Reach, or below the level's published
- *    minimum GPA to compete.
- *  - Not enough data: the level's athletic result or the academic comparison
- *    is missing. Always returned, never hidden.
- * Levels where the player is below the athletic standard are left out and
- * counted, so the page can say how many schools were set aside and why.
+ *    eligibility depends on class rank or a test score).
+ *  - Reach: in range, and an academic Reach, or below (or likely below) the
+ *    level's published academic minimum to compete.
+ *  - Not enough data: no athletic result for the level, or academics not
+ *    compared (and no known eligibility barrier). Always returned, never hidden.
+ * Schools at levels where the player is below the athletic standard are set
+ * aside. Every set-aside school is counted once, under the first reason in
+ * this order: level not suggested, level not chosen, outside chosen states,
+ * outside chosen settings, over budget, athletically below the level.
  *
  * Guarantees, each covered by a test:
  *  - No subscription, plan or payment input exists: two players with the same
@@ -180,22 +182,19 @@ export function groupFor(
   academic: AcademicFitResult['fit'],
   eligibility: EligibilityCheck['status'],
 ): { readonly group: SuggestionGroup; readonly reasons: readonly SuggestionReason[] } {
-  const reasons: SuggestionReason[] = [];
-  if (athletic !== 'in_range') reasons.push('ATHLETIC_NOT_ASSESSED');
-  else reasons.push('ATHLETIC_IN_RANGE');
-  reasons.push(ACADEMIC_REASON[academic]);
-  if (athletic !== 'in_range' || academic === 'not_enough_data') {
-    if (eligibility === 'below' || eligibility === 'likely_below') reasons.push('ELIGIBILITY_BELOW_MINIMUM');
-    return { group: 'not_enough_data', reasons };
-  }
-  let group: SuggestionGroup = academic === 'fit' ? 'strong_fit' : academic === 'stretch' ? 'possible_fit' : 'reach';
-  if (eligibility === 'below' || eligibility === 'likely_below') {
-    group = 'reach';
-    reasons.push('ELIGIBILITY_BELOW_MINIMUM');
-  } else if (eligibility === 'depends') {
-    if (group === 'strong_fit') group = 'possible_fit';
-    reasons.push('ELIGIBILITY_DEPENDS');
-  }
+  const reasons: SuggestionReason[] = [athletic === 'in_range' ? 'ATHLETIC_IN_RANGE' : 'ATHLETIC_NOT_ASSESSED', ACADEMIC_REASON[academic]];
+  const below = eligibility === 'below' || eligibility === 'likely_below';
+  if (below) reasons.push('ELIGIBILITY_BELOW_MINIMUM');
+  else if (eligibility === 'depends') reasons.push('ELIGIBILITY_DEPENDS');
+
+  // No athletic result for the level: nothing can be placed.
+  if (athletic !== 'in_range') return { group: 'not_enough_data', reasons };
+  // In range but below the level's academic minimum to compete: a known barrier, whatever the score comparison says.
+  if (below) return { group: 'reach', reasons };
+  if (academic === 'not_enough_data') return { group: 'not_enough_data', reasons };
+  const group: SuggestionGroup = academic === 'fit' ? 'strong_fit' : academic === 'stretch' ? 'possible_fit' : 'reach';
+  // Eligibility that depends on class rank or a test score caps a Strong fit at Possible fit.
+  if (eligibility === 'depends' && group === 'strong_fit') return { group: 'possible_fit', reasons };
   return { group, reasons };
 }
 

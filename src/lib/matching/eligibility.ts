@@ -11,14 +11,19 @@
  *    a minimum says nothing about getting in.
  *  - Every rule cites the official source it was checked against and the date
  *    it was checked (ELIGIBILITY_RULES). Rules are re-checked each autumn.
+ *  - Only GPA (and, for the NAIA, test scores) is checked — not core-course
+ *    counts, graduation or amateurism.
  *  - The NCAA minimum is a CORE-COURSE GPA calculated by the NCAA Eligibility
- *    Center. A player's overall GPA can differ, so a check that rests on the
- *    overall GPA is labelled "likely", never stated as fact.
- *  - Weighted and unweighted GPAs are never mixed, and only GPAs on a 4.0 scale
- *    are compared. Anything else is "unknown", never a guess.
+ *    Center, separately for Division I and Division II. A player's overall GPA
+ *    can differ, so a check that rests on the overall GPA is labelled
+ *    "likely", never stated as fact.
+ *  - Only unweighted GPAs on a 4.0 scale are compared. A weighted GPA, a GPA
+ *    whose type wasn't stated, or another scale is "unknown", never a guess.
  *  - Associations whose current minimum has not been confirmed (junior
  *    colleges, USCAA, NCCAA, independents) are "unknown", not "no minimum".
- *  - Freshman rules don't apply to transfers, so transfers are "not applicable".
+ *  - Freshman rules don't apply to transfers; transfer rules aren't checked,
+ *    so transfers are "unknown".
+ *  - A better test score can never make a result worse (monotonic).
  *  - These are the player's current numbers. A final high school GPA can move.
  *
  * Pure functions with relative, type-only imports, so the module can be tested
@@ -179,6 +184,7 @@ export type EligibilityReason =
   | 'GPA_NOT_ENTERED'
   | 'GPA_SCALE_NOT_COMPARABLE'
   | 'GPA_WEIGHTED_NOT_COMPARABLE'
+  | 'GPA_TYPE_NOT_STATED'
   | 'CORE_GPA_USED'
   | 'OVERALL_GPA_NOT_CORE_GPA'
   | 'NCAA_AT_OR_ABOVE_MINIMUM'
@@ -191,6 +197,7 @@ export type EligibilityReason =
   | 'NAIA_TEST_ONLY_NEEDS_GPA_OR_RANK'
   | 'NAIA_BELOW_WITHOUT_RANK_AND_TEST'
   | 'TEST_NOT_SENT'
+  | 'TEST_UNDECIDED'
   | 'CURRENT_NOT_FINAL';
 
 export interface EligibilityCheck {
@@ -207,20 +214,29 @@ export interface EligibilityCheck {
 
 /** Extra academic input the eligibility check can use beyond ApplicantInput. */
 export interface EligibilityExtras {
-  /** The NCAA core-course GPA (4.0 scale) if the player knows it, e.g. from the NCAA Eligibility Center. */
-  readonly ncaaCoreGpa: number | null;
+  /**
+   * NCAA core-course GPAs (4.0 scale) if the player knows them, e.g. from the
+   * NCAA Eligibility Center. Division I and II count different courses, so
+   * each is entered and used only for its own division.
+   */
+  readonly ncaaCoreGpaDivisionI: number | null;
+  readonly ncaaCoreGpaDivisionII: number | null;
 }
 
-/** A GPA on a 4.0 scale that isn't weighted, or null with the reason it can't be compared. */
+export const NO_EXTRAS: EligibilityExtras = { ncaaCoreGpaDivisionI: null, ncaaCoreGpaDivisionII: null };
+
+/** An unweighted GPA on a 4.0 scale, or the reason the GPA can't be compared. */
 function comparableGpa(input: ApplicantInput): { readonly value: number } | { readonly reason: EligibilityReason } {
   if (!input.gpa) return { reason: 'GPA_NOT_ENTERED' };
   if (input.gpa.scale !== 4) return { reason: 'GPA_SCALE_NOT_COMPARABLE' };
   if (input.gpa.type === 'weighted') return { reason: 'GPA_WEIGHTED_NOT_COMPARABLE' };
+  if (input.gpa.type !== 'unweighted') return { reason: 'GPA_TYPE_NOT_STATED' };
   return { value: input.gpa.value };
 }
 
+/** Test scores count for the NAIA only when the player plans to send them. */
 function naiaTestMet(input: ApplicantInput, rule: NaiaRule): boolean {
-  if (input.submitScores === 'no') return false;
+  if (input.submitScores !== 'yes') return false;
   const act = input.act?.composite ?? null;
   const satTotal = input.sat && input.sat.erw !== null && input.sat.math !== null ? input.sat.erw + input.sat.math : null;
   return (act !== null && act >= rule.actMinimum) || (satTotal !== null && satTotal >= rule.satMinimum);
@@ -228,7 +244,7 @@ function naiaTestMet(input: ApplicantInput, rule: NaiaRule): boolean {
 
 function checkNcaa(level: Level, rule: NcaaRule, input: ApplicantInput, extras: EligibilityExtras): EligibilityCheck {
   const base = { level, minimum: rule.minimum, sources: rule.sources, rulesVersion: ELIGIBILITY_RULES_VERSION };
-  const core = extras.ncaaCoreGpa;
+  const core = level === 'ncaa_d1' ? extras.ncaaCoreGpaDivisionI : extras.ncaaCoreGpaDivisionII;
   if (core !== null && Number.isFinite(core) && core >= 0 && core <= 4) {
     if (core >= rule.minimum) {
       return { ...base, status: 'meets', comparedGpa: core, reasons: ['CORE_GPA_USED', 'NCAA_AT_OR_ABOVE_MINIMUM', 'CURRENT_NOT_FINAL'] };
@@ -257,14 +273,19 @@ function checkNcaa(level: Level, rule: NcaaRule, input: ApplicantInput, extras: 
 function checkNaia(rule: NaiaRule, input: ApplicantInput): EligibilityCheck {
   const base = { level: 'naia' as const, sources: rule.sources, rulesVersion: ELIGIBILITY_RULES_VERSION };
   const testMet = naiaTestMet(input, rule);
-  const testNote: EligibilityReason[] = input.submitScores === 'no' ? ['TEST_NOT_SENT'] : [];
+  const testNote: EligibilityReason[] =
+    input.submitScores === 'no' ? ['TEST_NOT_SENT'] : input.submitScores === 'undecided' ? ['TEST_UNDECIDED'] : [];
   const gpa = comparableGpa(input);
   if ('reason' in gpa) {
-    // Without a comparable GPA, a qualifying test score is one of the two criteria; class rank or GPA is still needed.
-    if (testMet) {
-      return { ...base, status: 'depends', minimum: rule.gpaOfTwo, comparedGpa: null, reasons: [gpa.reason, 'NAIA_TEST_ONLY_NEEDS_GPA_OR_RANK'] };
-    }
-    return { ...base, status: 'unknown', minimum: null, comparedGpa: null, reasons: [gpa.reason, ...testNote] };
+    // Without a comparable GPA the result stays "unknown" whatever the test score, so a better score can
+    // never make the result worse; a qualifying score is still named as one criterion met.
+    return {
+      ...base,
+      status: 'unknown',
+      minimum: null,
+      comparedGpa: null,
+      reasons: testMet ? [gpa.reason, 'NAIA_TEST_ONLY_NEEDS_GPA_OR_RANK'] : [gpa.reason, ...testNote],
+    };
   }
   if (gpa.value >= rule.gpaAlone) {
     return { ...base, status: 'meets', minimum: rule.gpaAlone, comparedGpa: gpa.value, reasons: ['NAIA_GPA_ALONE', 'CURRENT_NOT_FINAL'] };
@@ -297,13 +318,14 @@ function checkNaia(rule: NaiaRule, input: ApplicantInput): EligibilityCheck {
 export function checkEligibility(
   level: Level,
   input: ApplicantInput,
-  extras: EligibilityExtras = { ncaaCoreGpa: null },
+  extras: EligibilityExtras = NO_EXTRAS,
   rules: Readonly<Record<Level, EligibilityRule>> = ELIGIBILITY_RULES,
 ): EligibilityCheck {
   const rule = rules[level];
   const base = { level, minimum: null, comparedGpa: null, rulesVersion: ELIGIBILITY_RULES_VERSION };
   if (input.applicantType === 'transfer') {
-    return { ...base, status: 'not_applicable', reasons: ['TRANSFER_RULES_DIFFER'], sources: 'sources' in rule ? rule.sources : [] };
+    // Transfer eligibility rules exist but aren't checked here: "not checked", never "no minimum".
+    return { ...base, status: 'unknown', reasons: ['TRANSFER_RULES_DIFFER'], sources: [] };
   }
   switch (rule.kind) {
     case 'ncaa_core_gpa':

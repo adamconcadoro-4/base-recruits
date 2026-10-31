@@ -15,7 +15,8 @@ rule means changing this page, the code and its version number in the same pull 
 ## 1. What goes in
 
 - **Academics the player enters:** SAT section scores or ACT composite, whether they plan to send scores, GPA with its
-  scale and type, first-year or transfer, entry year, and optionally their NCAA core-course GPA.
+  scale and type (weighted or unweighted), first-year or transfer, entry year, and optionally their NCAA Division I and
+  Division II core-course GPAs.
 - **School data already in the registry:** each program's division, state, campus setting, published cost of attendance
   (with its year), the score ranges the school reported for a past entering class, and any current testing policy an
   administrator checked on the school's official page.
@@ -36,8 +37,8 @@ Taken only from the existing score comparison; no new cut-offs.
 | --- | --- |
 | Academic fit | Every score compared is within or above the school's reported range, and no checked requirement is unmet |
 | Academic stretch | Some compared scores are below a reported range |
-| Academic reach | Every compared score is below the reported ranges, or a checked current requirement is not met (a required test the player won't send) |
-| Academics not compared | Nothing could be compared: no scores entered or sent, test-blind, no reported ranges, or a transfer applicant |
+| Academic reach | Every compared score is below the reported ranges, or a checked current requirement is not met (a required test the player won't send), for first-year and transfer applicants alike |
+| Academics not compared | Nothing could be compared: no scores entered or sent, test-blind, no reported ranges, or a transfer applicant (first-year ranges are never applied to transfers) |
 
 Reported ranges are the middle 50% of a past entering class as a whole, not recruited athletes; that caveat is shown with
 every comparison.
@@ -57,38 +58,57 @@ an entering freshman**. This is never an admission check.
 
 How the check reads the player's numbers:
 
-- **NCAA:** with a core-course GPA entered, the result is stated plainly (meets / below). With only an overall GPA, the
-  result is "likely meets" or "may be below", because the NCAA's core-course GPA can differ.
-- Only unweighted GPAs on a 4.0 scale are compared. A weighted GPA or another scale is "not checked", never converted.
-- **NAIA:** test scores count only if the player plans to send them. Class rank isn't asked, so a result that turns on
-  it says "depends on your class rank".
-- Freshman rules aren't applied to transfers.
+- **Scope:** only GPA (and, for the NAIA, test scores) is checked. Core-course counts, graduation and amateurism are
+  confirmed by the NCAA or NAIA Eligibility Center, and every result says so.
+- **NCAA:** the core-course GPA is calculated separately for Division I and Division II, so each is entered and used only
+  for its own division. With it, the result is stated plainly (meets / below). With only an overall GPA, the result is
+  "likely meets" or "may be below".
+- Only **unweighted** GPAs on a 4.0 scale are compared. A weighted GPA, a GPA whose type wasn't stated, or another scale is
+  "not checked", never converted.
+- **NAIA:** test scores count only if the player says they will send them ("undecided" doesn't count yet). Class rank
+  isn't asked, so a result that turns on it says "depends on your class rank or a test score". Without a comparable GPA
+  the NAIA result is "not checked" whatever the test score, so a better score can never make a result worse. "Below"
+  means not eligible in the first term; the NAIA's later route (meet one criterion, then pass 12 credit hours with a C
+  or better in the first term) is explained in the wording.
+- **Transfers:** freshman rules aren't applied, and transfer rules aren't checked: "not checked", never "no minimum".
 - Results use the player's current numbers; eligibility is decided on the final high school record.
 
 **Before launch:** the NCAA Eligibility Center pages could not be opened from the build environment on 2026-10-30.
-A person should open the NCAA's Division I and Division II initial-eligibility pages and confirm 2.3 and 2.2 are still
-current for students entering in fall 2027. Re-check every rule each autumn.
+A person should open the NCAA's Division I and Division II initial-eligibility pages and confirm:
+
+- 2.3 and 2.2 are still current for students entering in fall 2027;
+- the Division II proposal was adopted, and its effective date (the source used is a pre-vote preview);
+- whether Division II still has a partial-qualifier range (believed to be 2.0 up to 2.2) that should be named the way
+  Division I's academic redshirt is.
+
+Re-check every rule each autumn.
 
 ## 4. Grouping (per school)
 
-A school is suggested only if its level is one where the player is athletically in range.
+Schools at levels where the player is **below** the athletic standard are set aside. Schools at levels with **no
+athletic result yet** are shown under Not enough data.
 
 | Group | Rule |
 | --- | --- |
 | Strong fit | Athletically in range, and Academic fit |
 | Possible fit | Athletically in range, and Academic stretch |
 | Reach | Athletically in range, and Academic reach |
-| Not enough data | No athletic result for the level, or academics not compared. Always shown, never hidden |
+| Not enough data | No athletic result for the level, or academics not compared (with no known eligibility barrier). Always shown, never hidden |
 
-Eligibility adjusts the group:
+Eligibility adjusts the group, in this order:
 
-- GPA below (or likely below) the level's minimum to compete → **Reach**, with that reason shown.
-- Eligibility that depends on class rank → a Strong fit becomes a **Possible fit**, with that reason shown.
-- A level with no checked minimum, or no association minimum, changes nothing.
+1. No athletic result for the level → **Not enough data**, whatever the academics; any eligibility barrier is still named.
+2. Athletically in range and GPA below (or likely below) the level's academic minimum to compete → **Reach**, even when
+   the scores weren't compared, with that reason shown.
+3. Eligibility that depends on class rank or a test score → a Strong fit becomes a **Possible fit**, with that reason
+   shown.
+4. A level with no checked minimum, or no association minimum, changes nothing.
 
 Filters remove only schools whose **reported** value is outside the player's choice. A school with no reported cost,
-state or setting stays in the list and says so. Schools set aside are counted by reason: level not suggested, level not
-chosen, athletically below the level, over budget, outside chosen states, outside chosen settings.
+state or setting stays in the list and says so. Each set-aside school is counted once, under the first reason in this
+order: level not suggested, level not chosen, outside chosen states, outside chosen settings, over budget, athletically
+below the level. The player's own choices come first, so "athletically below" counts only schools the player would
+otherwise have seen.
 
 Within each group, schools are listed by name; the page may re-sort by published cost (unreported costs last). There is
 no hidden score.
@@ -97,7 +117,8 @@ no hidden score.
 
 - **Same data, same list.** The engine has no plan, subscription or payment input. What a family pays never changes its
   suggestions, groups or order (no pay-to-win).
-- **Missing is never zero.** Missing data never excludes a school or counts against a player.
+- **Missing is never zero.** Missing data never excludes a school or counts against a player, and a better score never
+  moves a school to a lower group.
 - **Explained.** Every suggestion carries its reasons and the versions of every rule set that produced it.
 - **No outcome claims.** Wording never promises admission, a roster spot, a scholarship or a coach's interest.
 

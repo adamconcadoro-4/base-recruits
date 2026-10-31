@@ -13,7 +13,9 @@
  *    current requirement is not met (for example a required test the player
  *    said they won't send).
  *  - Not enough data: nothing could be compared (no scores entered, scores not
- *    sent, test-blind, no reported ranges, or a transfer applicant).
+ *    sent, test-blind, no reported ranges, or a transfer applicant, whose
+ *    scores are never compared with first-year ranges). An unmet checked
+ *    requirement is still a Reach for transfers too.
  *
  * The label never claims an admission outcome. Ranges describe a past entering
  * class as a whole, not recruited athletes, and that caveat travels with every

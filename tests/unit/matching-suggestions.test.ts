@@ -5,9 +5,15 @@ import type { ApplicantInput, SchoolEvidence } from '@/lib/matching/rules';
 import { compareSchool } from '@/lib/matching/rules';
 import {
   ACADEMIC_FIT_LABELS,
+  ACADEMIC_FIT_REASONS,
+  ELIGIBILITY_LABELS,
+  ELIGIBILITY_REASONS,
+  ELIGIBILITY_SCOPE_NOTE,
   EXCLUSION_REASONS,
   GROUP_DESCRIPTIONS,
   GROUP_NAMES,
+  LEVEL_LABELS,
+  SUGGESTION_DISCLAIMER,
   SUGGESTION_REASONS,
 } from '@/lib/matching/suggestions-explain';
 import {
@@ -92,15 +98,25 @@ describe('the approved grouping rule', () => {
     expect(groupFor('not_enough_data', 'fit', 'meets').group).toBe('not_enough_data');
   });
 
-  it('a GPA below the level’s minimum to compete makes it a Reach', () => {
+  it('a GPA below the level’s minimum to compete makes it a Reach, even when academics weren’t compared', () => {
     expect(groupFor('in_range', 'fit', 'below')).toMatchObject({ group: 'reach' });
     expect(groupFor('in_range', 'fit', 'likely_below').reasons).toContain('ELIGIBILITY_BELOW_MINIMUM');
+    expect(groupFor('in_range', 'not_enough_data', 'likely_below').group).toBe('reach');
+    // Without an athletic result nothing is placed, but the barrier is still named.
+    expect(groupFor('not_enough_data', 'fit', 'below')).toEqual({
+      group: 'not_enough_data',
+      reasons: ['ATHLETIC_NOT_ASSESSED', 'ACADEMIC_FIT', 'ELIGIBILITY_BELOW_MINIMUM'],
+    });
   });
 
-  it('eligibility that depends on class rank caps a Strong fit at Possible fit', () => {
+  it('eligibility that depends on class rank or a test score caps a Strong fit at Possible fit', () => {
     expect(groupFor('in_range', 'fit', 'depends').group).toBe('possible_fit');
     expect(groupFor('in_range', 'stretch', 'depends').group).toBe('possible_fit');
     expect(groupFor('in_range', 'reach', 'depends').group).toBe('reach');
+    expect(groupFor('in_range', 'not_enough_data', 'depends')).toEqual({
+      group: 'not_enough_data',
+      reasons: ['ATHLETIC_IN_RANGE', 'ACADEMIC_NOT_COMPARED', 'ELIGIBILITY_DEPENDS'],
+    });
   });
 
   it('an unchecked or non-applicable minimum changes nothing', () => {
@@ -158,6 +174,29 @@ describe('suggestSchools', () => {
     const low = suggestSchools(lowRanges, player({ gpa: { value: 2.1, scale: 4, type: 'unweighted' }, sat: { erw: 450, math: 450 } }), inRange('naia'));
     expect(low.groups.possible_fit.map((s) => s.school.slug)).toEqual(['naia-low']);
     expect(low.groups.possible_fit[0]?.reasons).toContain('ELIGIBILITY_DEPENDS');
+  });
+
+  it('a GPA below the minimum makes a school with no score ranges a Reach, not Not enough data', () => {
+    const list = suggestSchools(
+      [candidate('d1-none', 'Quince University', 'ncaa_d1', NONE)],
+      player({ gpa: { value: 2.0, scale: 4, type: 'unweighted' } }),
+      inRange('ncaa_d1'),
+    );
+    expect(list.groups.reach.map((s) => s.school.slug)).toEqual(['d1-none']);
+    expect(list.groups.reach[0]?.reasons).toEqual(['ATHLETIC_IN_RANGE', 'ACADEMIC_NOT_COMPARED', 'ELIGIBILITY_BELOW_MINIMUM']);
+  });
+
+  it('a better test score never moves a school to a lower group', () => {
+    const naia = [candidate('naia-low', 'Redbud College', 'naia', { erw: [400, 480], math: [400, 480] })];
+    const weighted = { value: 3.4, scale: 4, type: 'weighted' as const };
+    const lower = suggestSchools(naia, player({ gpa: weighted, sat: { erw: 480, math: 480 } }), inRange('naia'));
+    const higher = suggestSchools(naia, player({ gpa: weighted, sat: { erw: 490, math: 490 } }), inRange('naia'));
+    // SAT 960 misses the NAIA's 970, 980 meets it; with a weighted GPA eligibility stays "not checked" either way,
+    // so the better score can't cap the school at Possible fit.
+    expect(lower.eligibilityByLevel.naia.status).toBe('unknown');
+    expect(higher.eligibilityByLevel.naia.status).toBe('unknown');
+    expect(lower.groups.strong_fit.map((s) => s.school.slug)).toEqual(['naia-low']);
+    expect(higher.groups.strong_fit.map((s) => s.school.slug)).toEqual(['naia-low']);
   });
 
   it('a checked test requirement the player won’t meet is a Reach', () => {
@@ -237,12 +276,18 @@ describe('academic fit and wording', () => {
       ...SUGGESTION_GROUPS.map((g) => GROUP_NAMES[g]),
       ...Object.values(GROUP_DESCRIPTIONS),
       ...Object.values(ACADEMIC_FIT_LABELS),
+      ...Object.values(ACADEMIC_FIT_REASONS),
+      ...Object.values(ELIGIBILITY_LABELS),
+      ...Object.values(ELIGIBILITY_REASONS),
+      ...Object.values(LEVEL_LABELS),
       ...Object.values(SUGGESTION_REASONS),
       ...Object.values(EXCLUSION_REASONS),
+      ELIGIBILITY_SCOPE_NOTE,
+      SUGGESTION_DISCLAIMER,
     ];
     for (const text of texts) {
       expect(text.length).toBeGreaterThan(3);
-      expect(text).not.toMatch(/\b(guarantee|will get in|chance of admission|scholarship offer|safety)\b/i);
+      expect(text).not.toMatch(/\b(guarantee[sd]?|will get in|will be admitted|chance of admission|chances? of getting|scholarship offer|safety|safeties)\b/i);
     }
   });
 });
