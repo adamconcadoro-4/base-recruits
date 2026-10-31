@@ -22,8 +22,9 @@ Code that uses these numbers:
      rulebook and tests to match.
 
    The founder reviews and merges it. The task never merges.
-4. **A source fails.** If a source can't be opened, or its page no longer gives the numbers (moved, paywalled, removed),
-   the task opens a pull request that adds a change-log row saying so. The numbers in use stay until the founder decides.
+4. **A source fails.** If a source can't be opened that week, the task sends the founder a short message and tries again
+   the next week. If the page opens but no longer gives the numbers (moved, paywalled, removed), it opens a pull request
+   that adds a change-log row saying so. Either way, the numbers in use stay until the founder decides.
 
 ## A. BaseballPath — D1, D2, D3 athletic benchmarks
 
