@@ -1,6 +1,6 @@
 {
  "format": "base-recruits.registry-snapshot/1",
- "generated_at": "2026-10-31T21:27:03Z",
+ "generated_at": "2026-10-31T21:39:00Z",
  "content_sha256": "dd6f6dd11cdb1e9e89b7999b96f11e32898592b6264192275cc511073139405c",
  "sources": [
   {
@@ -10,7 +10,7 @@
    "season": "2024-25",
    "url": "https://ope.ed.gov/athletics/api/dataFiles/file?fileName=EADA_2024-2025.zip",
    "homepage": "https://ope.ed.gov/athletics/",
-   "retrieved_at": "2026-10-31T21:25:25Z",
+   "retrieved_at": "2026-10-31T21:37:20Z",
    "sha256": "f510439ffa7625a4065690bbd8c77bd8990618ef58d5aba65ef360b8b4d31264",
    "bytes": 12034717
   },
@@ -19,7 +19,7 @@
    "dataset": "College Scorecard API v1, institution data",
    "url": "https://api.data.gov/ed/collegescorecard/v1/schools",
    "homepage": "https://collegescorecard.ed.gov/",
-   "retrieved_at": "2026-10-31T21:25:36Z",
+   "retrieved_at": "2026-10-31T21:37:31Z",
    "years": {
     "admissions": 2024,
     "costs": 2025,
