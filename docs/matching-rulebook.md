@@ -1,7 +1,7 @@
 # School Suggestions — Rulebook
 
-The written rules behind Base Recruits' school suggestions, approved by the founder on 2026-10-30 (decisions F15, F43,
-F44 in `docs/decisions.md`). Every rule here is implemented in `src/lib/matching/` and covered by a test. Changing a
+The written rules behind Base Recruits' school suggestions, approved by the founder on 2026-10-30 and 2026-10-31
+(decisions F15, F43–F47 in `docs/decisions.md`). Every rule here is implemented in `src/lib/matching/` and covered by a test. Changing a
 rule means changing this page, the code and its version number in the same pull request.
 
 | Rule set | Code | Version |
@@ -10,7 +10,7 @@ rule means changing this page, the code and its version number in the same pull 
 | Academic fit labels | `fit.ts` | `FIT_RULES_VERSION` 2026-10-30.1 |
 | Eligibility to compete | `eligibility.ts` | `ELIGIBILITY_RULES_VERSION` 2026-10-30.1 |
 | Combined suggestions | `suggestions.ts` | `SUGGESTION_RULES_VERSION` 2026-10-30.1 |
-| Athletic standards | Paul's per-level standards release | none loaded yet |
+| Athletic benchmarks and the in-range rule | `athletic.ts` | `PUBLIC_BENCHMARKS` public-2026-10-31 (Paul's standards replace it when loaded) |
 
 ## 1. What goes in
 
@@ -21,9 +21,9 @@ rule means changing this page, the code and its version number in the same pull 
   (with its year), the score ranges the school reported for a past entering class, and any current testing policy an
   administrator checked on the school's official page.
 - **The player's filters:** a budget (published cost of attendance, never net price), states, campus settings and levels.
-- **The athletic result per level:** in range, below, or not enough data. It comes from Paul's per-level standards
-  applied to the player's assessment. How a player counts as "in range" is Paul's rule, recorded with each standards
-  release (F44). Base Recruits does not invent athletic standards.
+- **The athletic result per level:** in range, below, or not enough data, from the player's position and baseball
+  numbers compared with per-level benchmarks (§4a). Today the benchmarks are public ones with their sources; Paul's
+  per-level standards replace them when they are loaded (F44). Base Recruits does not invent athletic numbers.
 
 Levels are NCAA Division I, NCAA Division II, NCAA Division III, NAIA and junior college (NJCAA, CCCAA, NWAC). Programs in
 other associations (USCAA, NCCAA, independents, divisions still reported as "Other") are not suggested by level yet and
@@ -113,6 +113,48 @@ otherwise have seen.
 Within each group, schools are listed by name; the page may re-sort by published cost (unreported costs last). There is
 no hidden score.
 
+## 4a. Athletic level (per level)
+
+**Inputs.** The player's main position and their best numbers, self-reported and labelled as such:
+
+| Position | Compared on |
+| --- | --- |
+| Pitcher | Top fastball velocity |
+| Catcher | Best exit velocity, pop time to second base, catcher throwing velocity |
+| First base, third base | Best exit velocity, 60-yard dash (corner infield), infield throwing velocity |
+| Second base, shortstop | Best exit velocity, 60-yard dash (middle infield), infield throwing velocity |
+| Outfield | Best exit velocity, 60-yard dash (outfield), outfield throwing velocity |
+
+**Benchmarks (public set, checked 2026-10-31).** Two sources, each labelled on the page:
+
+- **D1, D2, D3:** BaseballPath, "What Numbers Do You Need to Play D1, D2, or D3 Baseball?" (published 2026-06-08, updated
+  2026-10-20). Each player's best showcase number on their Prep Baseball Report profile, classes of 2024–26, grouped by
+  the level they committed to. Measured, but sample sizes aren't published and it's a commercial site, so it is re-checked
+  before launch and each autumn. D1 uses its "Other D1" (non–Power 4) figures, because the registry doesn't separate
+  Power 4.
+- **NAIA and junior college:** NCSA, "College Baseball Recruiting Guidelines and Measurables" (published 2018-08-17,
+  modified 2026-03-16). Guidelines with no published data; NAIA shares NCSA's D3 column (decision F47). Shown as
+  "guideline", with the wording as published.
+
+**The typical-range rule (F46).** For each metric and level there is a floor the player must reach (at or above; at or
+under for times):
+
+| How the floor is set | When |
+| --- | --- |
+| Low end of the typical range (average − 1 standard deviation) | The source gives a range: fastball and exit velocity, D1–D3 |
+| Average of the next level down | The source gives only an average (60-yard, throwing velocities, pop time) at D1 and D2 |
+| The level's own average | D3 metrics with only an average, because no lower level is measured |
+| The guideline itself (its minimum, or the slower/lower end of its range) | NAIA and junior college |
+
+A level is **in range** when the player meets the floor on at least half of the metrics compared at that level, and
+**below** otherwise. It is **not enough data** when fewer than the position's minimum are compared: one for pitchers, two
+for everyone else. A metric is compared only when the player entered it and the level has a floor for it; nothing is
+estimated. Known consequences:
+
+- Catchers can't be placed at NAIA or junior college (only pop time has a guideline there).
+- Corner infielders are compared on the 60 only at D3, the one level the source reports it for.
+- NCSA's NAIA 60-yard guideline (6.9–7.0) is stricter than the measured D3 average (7.13–7.29); both are shown as published.
+
 ## 5. Guarantees
 
 - **Same data, same list.** The engine has no plan, subscription or payment input. What a family pays never changes its
@@ -132,19 +174,21 @@ Every active program's page has a **Your fit** section (`src/components/matching
 - The player enters their numbers once. They are compared in the browser and remembered **on this device only**
   (`src/lib/matching/player-store.ts`, decision F45): never sent to Base Recruits, never put in a link, and removed by
   "Forget my numbers". Stored values are validated again every time they are used.
-- It shows the overall group, then the three parts: athletic level, academics (with the school's reported ranges next to
-  the player's scores) and the academic minimum to compete, each with its reasons.
-- Until athletic standards are loaded, the page leads with the two results that can be worked out now (the academic
-  result and the academic minimum to compete) and says the overall fit appears once the athletic assessment is matched to
-  level standards. The engine's group is still Not enough data; only the presentation leads with what is known.
-- If the player is below the level's athletic standard, the page says the school isn't in their suggestions (the list
-  sets it aside) and shows the academic comparison only.
+- It shows the overall group, then the three parts: athletic level (each number against the level's floor, with the
+  floor's basis, the source and its date), academics (with the school's reported ranges next to the player's scores) and
+  the academic minimum to compete, each with its reasons.
+- When the player hasn't entered a position and numbers, or not enough can be compared at this level, the page leads with
+  the two results that can be worked out (the academic result and the academic minimum to compete) and says what's
+  missing. The engine's group is still Not enough data; only the presentation leads with what is known.
+- If the player is below the level's typical range, the page says the school isn't in their suggestions (the list sets it
+  aside) and still shows every comparison.
 - Schools outside the five levels show the academic comparison only.
 
 ## 7. Known gaps (next steps)
 
-- **Paul's standards:** the table, import and per-level calculation are built once his sample and his "in range" rule
-  arrive; until then every level is "not enough data".
+- **Paul's standards:** loaded as a "partner" benchmark set in the same shape as `PUBLIC_BENCHMARKS` once his sample,
+  measurement setup and "in range" rule arrive; until then the public set is used.
+- **Re-check the public sources** before launch and each autumn: BaseballPath's figures changed during 2026.
 - **Coverage:** in the 2024-25 registry snapshot 739 of 1,670 programs report SAT ranges. Schools without ranges (many
   test-optional four-year schools and most junior colleges) fall under "academics not compared".
 - **Open admission:** junior colleges usually report no admissions figures because admission is open. Loading the federal

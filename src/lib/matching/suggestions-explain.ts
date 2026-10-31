@@ -5,9 +5,10 @@
  * what was compared and against what; unknown is said plainly.
  */
 
+import type { AthleticMetric, FloorBasis, Position } from './athletic';
 import type { EligibilityReason, EligibilityStatus, Level } from './eligibility';
 import type { AcademicFit, AcademicFitReason } from './fit';
-import type { ExclusionReason, SuggestionGroup, SuggestionReason } from './suggestions';
+import type { AthleticStatus, ExclusionReason, SuggestionGroup, SuggestionReason } from './suggestions';
 
 export const LEVEL_LABELS: Readonly<Record<Level, string>> = {
   ncaa_d1: 'NCAA Division I',
@@ -118,3 +119,50 @@ export const EXCLUSION_REASONS: Readonly<Record<ExclusionReason, string>> = {
 /** Shown with every suggestion list. */
 export const SUGGESTION_DISCLAIMER =
   'Suggestions compare your current results with published standards and past ranges. They are not an admission decision, a prediction of a roster spot or scholarship, or a coach’s evaluation.';
+
+// ---------------------------------------------------------------------------
+// Athletic side (src/lib/matching/athletic.ts)
+// ---------------------------------------------------------------------------
+
+export const POSITION_LABELS: Readonly<Record<Position, string>> = {
+  pitcher: 'Pitcher',
+  catcher: 'Catcher',
+  first_base: 'First base',
+  second_base: 'Second base',
+  shortstop: 'Shortstop',
+  third_base: 'Third base',
+  outfield: 'Outfield',
+};
+
+export const METRIC_LABELS: Readonly<Record<AthleticMetric, string>> = {
+  fastball_mph: 'Fastball, top velocity',
+  exit_velocity_mph: 'Exit velocity, best',
+  sixty_yard_s: '60-yard dash, best',
+  infield_velocity_mph: 'Infield throwing velocity',
+  outfield_velocity_mph: 'Outfield throwing velocity',
+  catcher_velocity_mph: 'Catcher throwing velocity',
+  pop_time_s: 'Pop time to second base',
+};
+
+/** How each floor was set, in a family's words. */
+export const FLOOR_BASIS_TEXT: Readonly<Record<FloorBasis, string>> = {
+  typical_range_low: 'low end of the typical range for players who committed to this level',
+  next_level_average: 'average for players who committed one level down; this level’s average is higher',
+  level_average: 'average for players who committed to this level (no lower level is measured)',
+  guideline: 'recruiting guideline',
+};
+
+export const ATHLETIC_STATUS_LABELS: Readonly<Record<AthleticStatus, string>> = {
+  in_range: 'In range',
+  below: 'Below the typical range',
+  not_enough_data: 'Not enough to compare',
+};
+
+export const ATHLETIC_STATUS_TEXT: Readonly<Record<AthleticStatus, string>> = {
+  in_range: 'Your numbers are in the typical range for this level on at least half of what was compared.',
+  below: 'Your numbers are below the typical range for this level on most of what was compared.',
+  not_enough_data: 'Not enough of your numbers could be compared with this level’s benchmarks.',
+};
+
+export const SELF_REPORTED_NOTE =
+  'Based on numbers you entered yourself; Base Recruits hasn’t measured or verified them. Compare like with like: these benchmarks use best showcase numbers.';
