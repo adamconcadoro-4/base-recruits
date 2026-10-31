@@ -6,7 +6,18 @@ import { Button } from '@/components/ui/button';
 import { SelectField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip, type ChipTone } from '@/components/ui/status-chip';
-import { parseCoreGpa, type EligibilityStatus } from '@/lib/matching/eligibility';
+import {
+  METRIC_INFO,
+  POSITIONS,
+  POSITION_METRICS,
+  PUBLIC_BENCHMARKS,
+  evaluateLevel,
+  isPosition,
+  parseAthleticInput,
+  type AthleticLevelDetail,
+  type AthleticMetric,
+} from '@/lib/matching/athletic';
+import { levelForDivision, parseCoreGpa, type EligibilityStatus } from '@/lib/matching/eligibility';
 import { BENCHMARK_LABELS, BENCHMARK_NAMES } from '@/lib/matching/explain';
 import type { AcademicFit } from '@/lib/matching/fit';
 import {
@@ -23,15 +34,21 @@ import { schoolFit, type SchoolFit } from '@/lib/matching/school-fit';
 import {
   ACADEMIC_FIT_LABELS,
   ACADEMIC_FIT_REASONS,
+  ATHLETIC_STATUS_LABELS,
+  ATHLETIC_STATUS_TEXT,
   ELIGIBILITY_LABELS,
   ELIGIBILITY_REASONS,
   ELIGIBILITY_SCOPE_NOTE,
+  FLOOR_BASIS_TEXT,
   GROUP_DESCRIPTIONS,
   GROUP_NAMES,
   LEVEL_LABELS,
+  METRIC_LABELS,
+  POSITION_LABELS,
+  SELF_REPORTED_NOTE,
   SUGGESTION_DISCLAIMER,
 } from '@/lib/matching/suggestions-explain';
-import type { AthleticLevelResult, SuggestionGroup } from '@/lib/matching/suggestions';
+import type { AthleticLevelResult, AthleticStatus, SuggestionGroup } from '@/lib/matching/suggestions';
 import type { DivisionCode } from '@/lib/registry/types';
 
 const GROUP_TONES: Readonly<Record<SuggestionGroup, ChipTone>> = {
@@ -50,6 +67,7 @@ const ELIGIBILITY_TONES: Readonly<Record<EligibilityStatus, ChipTone>> = {
   unknown: 'neutral',
   not_applicable: 'neutral',
 };
+const ATHLETIC_TONES: Readonly<Record<AthleticStatus, ChipTone>> = { in_range: 'positive', below: 'attention', not_enough_data: 'neutral' };
 
 type Errors = Partial<Record<PlayerField, string>>;
 
@@ -58,11 +76,21 @@ interface Props {
   readonly division: DivisionCode;
   readonly evidence: SchoolEvidence;
   readonly thisYear: number;
-  /** The player's athletic result for this school's level; null until level standards and an assessment exist. */
+  /**
+   * An athletic result supplied by the server (for example from a published assessment). When null, the player's
+   * self-reported numbers are compared with the public benchmarks in the browser.
+   */
   readonly athletic: AthleticLevelResult | null;
 }
 
-function evaluate(numbers: PlayerNumbers, props: Props): { readonly fit: SchoolFit } | { readonly errors: Errors } {
+interface Outcome {
+  readonly fit: SchoolFit;
+  /** The self-reported comparison, when the player entered a position. */
+  readonly athleticDetail: AthleticLevelDetail | null;
+  readonly positionEntered: boolean;
+}
+
+function evaluate(numbers: PlayerNumbers, props: Props): Outcome | { readonly errors: Errors } {
   const parsed = parseApplicantInput(
     {
       applicantType: numbers.applicantType,
@@ -82,13 +110,86 @@ function evaluate(numbers: PlayerNumbers, props: Props): { readonly fit: SchoolF
   const d2 = parseCoreGpa(numbers.coreGpaDivisionII);
   if (!d1.ok) errors.coreGpaDivisionI = d1.error;
   if (!d2.ok) errors.coreGpaDivisionII = d2.error;
-  if (!parsed.ok || !d1.ok || !d2.ok) return { errors };
+  const athletic = parseAthleticInput({
+    position: numbers.position,
+    fastball_mph: numbers.fastball_mph,
+    exit_velocity_mph: numbers.exit_velocity_mph,
+    sixty_yard_s: numbers.sixty_yard_s,
+    infield_velocity_mph: numbers.infield_velocity_mph,
+    outfield_velocity_mph: numbers.outfield_velocity_mph,
+    catcher_velocity_mph: numbers.catcher_velocity_mph,
+    pop_time_s: numbers.pop_time_s,
+  });
+  if (!athletic.ok) Object.assign(errors, athletic.errors);
+  if (!parsed.ok || !d1.ok || !d2.ok || !athletic.ok) return { errors };
+  const level = levelForDivision(props.division);
+  const detail = athletic.input && level ? evaluateLevel(athletic.input, level, PUBLIC_BENCHMARKS) : null;
+  const athleticResult = props.athletic ?? (detail ? { status: detail.status, standardsVersion: detail.standardsVersion } : null);
   return {
-    fit: schoolFit(props.evidence, props.division, parsed.input, props.athletic, {
+    fit: schoolFit(props.evidence, props.division, parsed.input, athleticResult, {
       ncaaCoreGpaDivisionI: d1.value,
       ncaaCoreGpaDivisionII: d2.value,
     }),
+    athleticDetail: props.athletic ? null : detail,
+    positionEntered: athletic.input !== null,
   };
+}
+
+function formatValue(metric: AthleticMetric, value: number): string {
+  const info = METRIC_INFO[metric];
+  return info.unit === 's' ? `${value.toFixed(2)} s` : `${Number.isInteger(value) ? value : value.toFixed(1)} mph`;
+}
+
+function AthleticDetail({ detail }: { readonly detail: AthleticLevelDetail }) {
+  const sourceIds = [...new Set(detail.comparisons.map((c) => c.floor.source))];
+  return (
+    <div className="space-y-2">
+      <StatusChip tone={ATHLETIC_TONES[detail.status]}>{ATHLETIC_STATUS_LABELS[detail.status]}</StatusChip>
+      <p>{ATHLETIC_STATUS_TEXT[detail.status]}</p>
+      {detail.comparisons.length > 0 ? (
+        <ul className="list-disc space-y-1 pl-5 text-sm">
+          {detail.comparisons.map((c) => (
+            <li key={c.metric}>
+              {METRIC_LABELS[c.metric]}: yours {formatValue(c.metric, c.player)}; benchmark{' '}
+              {METRIC_INFO[c.metric].lowerIsBetter ? 'at or under' : 'at or above'} {formatValue(c.metric, c.floor.value)} (
+              {FLOOR_BASIS_TEXT[c.floor.basis]}
+              {c.floor.average !== null && c.floor.basis !== 'level_average' ? `; average ${formatValue(c.metric, c.floor.average)}` : ''}
+              {c.floor.sourceText ? `; guideline as published: ${c.floor.sourceText}` : ''}).{' '}
+              <strong>{c.meets ? 'Meets it.' : 'Not yet.'}</strong>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {detail.notEntered.length > 0 ? (
+        <p className="text-sm text-slate">Not entered: {detail.notEntered.map((m) => METRIC_LABELS[m].toLowerCase()).join(', ')}.</p>
+      ) : null}
+      {detail.notCovered.length > 0 ? (
+        <p className="text-sm text-slate">
+          No public benchmark at this level for: {detail.notCovered.map((m) => METRIC_LABELS[m].toLowerCase()).join(', ')}.
+        </p>
+      ) : null}
+      {sourceIds.length > 0 ? (
+        <p className="text-sm text-slate">
+          Source{sourceIds.length > 1 ? 's' : ''}:{' '}
+          {sourceIds.map((id, i) => {
+            const s = PUBLIC_BENCHMARKS.sources[id];
+            if (!s) return null;
+            return (
+              <span key={id}>
+                {i > 0 ? '; ' : ''}
+                <a href={s.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-royal-ink underline">
+                  {s.publisher}, {s.title}
+                </a>{' '}
+                ({s.kind === 'measured' ? 'measured data' : 'guideline with no published data'})
+              </span>
+            );
+          })}
+          . Checked {PUBLIC_BENCHMARKS.checkedOn}.
+        </p>
+      ) : null}
+      <p className="text-sm text-slate">{SELF_REPORTED_NOTE}</p>
+    </div>
+  );
 }
 
 /**
@@ -103,6 +204,8 @@ export function SchoolFitPanel(props: Props) {
   const [editing, setEditing] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [notSaved, setNotSaved] = useState(false);
+  // The position chosen in the open form, so its own numbers can be asked for.
+  const [positionDraft, setPositionDraft] = useState<string | null>(null);
   const errorSummary = useRef<HTMLDivElement>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
   const [focusTarget, setFocusTarget] = useState<'errors' | 'result' | null>(null);
@@ -133,7 +236,8 @@ export function SchoolFitPanel(props: Props) {
     return <p className="text-slate">Loading your numbers…</p>;
   }
 
-  const level = division === 'ncaa_d1' ? 'd1' : division === 'ncaa_d2' ? 'd2' : null;
+  const ncaa = division === 'ncaa_d1' ? 'd1' : division === 'ncaa_d2' ? 'd2' : null;
+  const level = levelForDivision(division);
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -150,6 +254,7 @@ export function SchoolFitPanel(props: Props) {
     setErrors({});
     setNotSaved(!savePlayerNumbers(candidate));
     setNumbers(candidate);
+    setPositionDraft(null);
     setEditing(false);
     setFocusTarget('result');
   }
@@ -159,12 +264,15 @@ export function SchoolFitPanel(props: Props) {
     setNumbers({ ...EMPTY_PLAYER_NUMBERS, entryYear: String(thisYear + 1) });
     setErrors({});
     setNotSaved(false);
+    setPositionDraft(null);
     setEditing(true);
   }
 
   if (editing) {
     const errorEntries = Object.entries(errors).filter(([, v]) => v);
     const years = [thisYear, thisYear + 1, thisYear + 2, thisYear + 3, thisYear + 4];
+    const formPosition = positionDraft ?? numbers.position;
+    const positionMetrics = isPosition(formPosition) ? POSITION_METRICS[formPosition] : [];
     return (
       <form onSubmit={onSubmit} noValidate className="space-y-6" aria-label={`See your fit with ${schoolName}`}>
         <p>
@@ -185,6 +293,7 @@ export function SchoolFitPanel(props: Props) {
             </ul>
           </div>
         ) : null}
+        <h4 className="text-xl text-navy">Academics</h4>
         <div className="grid gap-4 sm:grid-cols-2">
           <SelectField id="fit-applicantType" name="applicantType" label="Applying as" defaultValue={numbers.applicantType} error={errors.applicantType}>
             <option value="first_year">A first-year student</option>
@@ -216,13 +325,52 @@ export function SchoolFitPanel(props: Props) {
           <TextField id="fit-satErw" name="satErw" label="SAT Reading and Writing" hint="200–800, optional" inputMode="numeric" defaultValue={numbers.satErw} error={errors.satErw} autoComplete="off" />
           <TextField id="fit-satMath" name="satMath" label="SAT Math" hint="200–800, optional" inputMode="numeric" defaultValue={numbers.satMath} error={errors.satMath} autoComplete="off" />
           <TextField id="fit-act" name="act" label="ACT composite" hint="1–36, optional" inputMode="numeric" defaultValue={numbers.act} error={errors.act} autoComplete="off" />
-          {level === 'd1' ? (
+          {ncaa === 'd1' ? (
             <TextField id="fit-coreGpaDivisionI" name="coreGpaDivisionI" label="NCAA Division I core-course GPA" hint="Optional, from the NCAA Eligibility Center" inputMode="decimal" defaultValue={numbers.coreGpaDivisionI} error={errors.coreGpaDivisionI} autoComplete="off" />
           ) : null}
-          {level === 'd2' ? (
+          {ncaa === 'd2' ? (
             <TextField id="fit-coreGpaDivisionII" name="coreGpaDivisionII" label="NCAA Division II core-course GPA" hint="Optional, from the NCAA Eligibility Center" inputMode="decimal" defaultValue={numbers.coreGpaDivisionII} error={errors.coreGpaDivisionII} autoComplete="off" />
           ) : null}
         </div>
+
+        <h4 className="text-xl text-navy">Baseball numbers (optional)</h4>
+        <p className="text-sm text-slate">
+          Your best numbers, from a showcase or your own measuring. Leave any you don&apos;t know blank.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SelectField
+            id="fit-position"
+            name="position"
+            label="Main position"
+            value={formPosition}
+            onChange={(e) => setPositionDraft(e.currentTarget.value)}
+            error={errors.position}
+          >
+            <option value="">Choose a position</option>
+            {POSITIONS.map((p) => (
+              <option key={p} value={p}>
+                {POSITION_LABELS[p]}
+              </option>
+            ))}
+          </SelectField>
+          {positionMetrics.map((metric) => {
+            const info = METRIC_INFO[metric];
+            return (
+              <TextField
+                key={metric}
+                id={`fit-${metric}`}
+                name={metric}
+                label={`${METRIC_LABELS[metric]} (${info.unit === 's' ? 'seconds' : 'mph'})`}
+                hint={`${info.min}–${info.max}`}
+                inputMode="decimal"
+                defaultValue={numbers[metric]}
+                error={errors[metric]}
+                autoComplete="off"
+              />
+            );
+          })}
+        </div>
+
         <div className="flex flex-wrap items-center gap-4">
           <Button type="submit">See your fit</Button>
           {hasAnyNumber(numbers) ? (
@@ -236,8 +384,9 @@ export function SchoolFitPanel(props: Props) {
   }
 
   if (!outcome || 'errors' in outcome) return null;
-  const { fit } = outcome;
+  const { fit, athleticDetail, positionEntered } = outcome;
   const benchmarks = fit.comparison.benchmarks.filter((b) => b.key !== 'gpa' && b.low !== null && b.high !== null);
+  const levelName = level ? LEVEL_LABELS[level] : null;
 
   return (
     <div className="space-y-6" aria-live="polite">
@@ -263,12 +412,18 @@ export function SchoolFitPanel(props: Props) {
             </p>
           </div>
         ) : fit.group === null ? (
-          <p>
-            Your assessment is below the {LEVEL_LABELS[fit.level]} standard, so this school isn&apos;t in your suggestions. Your
-            academic comparison is below.
-          </p>
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-semibold text-graphite">Athletic level</span>
+              <StatusChip tone="attention">{ATHLETIC_STATUS_LABELS.below}</StatusChip>
+            </div>
+            <p className="text-slate">
+              Your numbers are below the {levelName} typical range on most of what was compared, so this school isn&apos;t in your
+              suggestions. The details, and your academic comparison, are below.
+            </p>
+          </div>
         ) : fit.athletic.status !== 'in_range' ? (
-          // No athletic result yet: lead with the two results that can be worked out now.
+          // No athletic result for this level: lead with the results that can be worked out.
           <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-3">
               <span className="font-semibold text-graphite">Academic result</span>
@@ -279,8 +434,9 @@ export function SchoolFitPanel(props: Props) {
               <StatusChip tone={ELIGIBILITY_TONES[fit.eligibility.status]}>{ELIGIBILITY_LABELS[fit.eligibility.status]}</StatusChip>
             </div>
             <p className="text-slate">
-              Your overall fit (Strong fit, Possible fit or Reach) appears here once your athletic assessment is matched to{' '}
-              {LEVEL_LABELS[fit.level]} standards. The details are below.
+              {positionEntered
+                ? `Not enough of your baseball numbers could be compared with ${levelName} benchmarks to give an overall fit (Strong fit, Possible fit or Reach). The details are below.`
+                : 'Add your position and baseball numbers to see your overall fit (Strong fit, Possible fit or Reach).'}
             </p>
           </div>
         ) : (
@@ -300,11 +456,13 @@ export function SchoolFitPanel(props: Props) {
           <div className="grid gap-1 border-b-2 border-rule py-3 sm:grid-cols-[16rem_1fr] sm:gap-4">
             <dt className="font-semibold text-graphite">Athletic level ({LEVEL_LABELS[fit.level]})</dt>
             <dd>
-              {fit.athletic.status === 'in_range'
-                ? 'Your assessment results are in range for this level’s standards.'
-                : fit.athletic.status === 'below'
-                  ? 'Your assessment results are below this level’s standards.'
-                  : 'Not available yet. Level standards are being added, and your result appears here once your assessment is matched to them.'}
+              {athleticDetail ? (
+                <AthleticDetail detail={athleticDetail} />
+              ) : props.athletic ? (
+                <p>{ATHLETIC_STATUS_TEXT[props.athletic.status]}</p>
+              ) : (
+                <p>Add your position and baseball numbers to compare them with this level&apos;s benchmarks.</p>
+              )}
             </dd>
           </div>
         ) : null}

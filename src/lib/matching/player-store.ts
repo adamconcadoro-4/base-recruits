@@ -1,5 +1,5 @@
 /**
- * The player's academic numbers, remembered in this browser only so every
+ * The player's academic and baseball numbers, remembered in this browser only so every
  * school page can show "your fit" without asking again (decision F45).
  *
  * - Stored in this device's localStorage, never sent to Base Recruits, never
@@ -27,6 +27,15 @@ export const PLAYER_FIELDS = [
   'submitScores',
   'coreGpaDivisionI',
   'coreGpaDivisionII',
+  // Baseball numbers, self-reported (src/lib/matching/athletic.ts). Added 2026-10-31; older saves get blanks.
+  'position',
+  'fastball_mph',
+  'exit_velocity_mph',
+  'sixty_yard_s',
+  'infield_velocity_mph',
+  'outfield_velocity_mph',
+  'catcher_velocity_mph',
+  'pop_time_s',
 ] as const;
 export type PlayerField = (typeof PLAYER_FIELDS)[number];
 export type PlayerNumbers = Readonly<Record<PlayerField, string>>;
@@ -43,6 +52,14 @@ export const EMPTY_PLAYER_NUMBERS: PlayerNumbers = {
   submitScores: 'yes',
   coreGpaDivisionI: '',
   coreGpaDivisionII: '',
+  position: '',
+  fastball_mph: '',
+  exit_velocity_mph: '',
+  sixty_yard_s: '',
+  infield_velocity_mph: '',
+  outfield_velocity_mph: '',
+  catcher_velocity_mph: '',
+  pop_time_s: '',
 };
 
 const MAX_VALUE_LENGTH = 20;
@@ -77,7 +94,21 @@ export function parsePlayerNumbers(text: string | null): PlayerNumbers | null {
 
 /** True when the player has entered at least one number worth comparing. */
 export function hasAnyNumber(numbers: PlayerNumbers): boolean {
-  return ['gpa', 'satErw', 'satMath', 'act', 'coreGpaDivisionI', 'coreGpaDivisionII'].some((f) => numbers[f as PlayerField].trim() !== '');
+  return [
+    'gpa',
+    'satErw',
+    'satMath',
+    'act',
+    'coreGpaDivisionI',
+    'coreGpaDivisionII',
+    'fastball_mph',
+    'exit_velocity_mph',
+    'sixty_yard_s',
+    'infield_velocity_mph',
+    'outfield_velocity_mph',
+    'catcher_velocity_mph',
+    'pop_time_s',
+  ].some((f) => numbers[f as PlayerField].trim() !== '');
 }
 
 export function readPlayerNumbers(): PlayerNumbers | null {

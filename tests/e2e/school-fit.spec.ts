@@ -20,11 +20,20 @@ test('enter numbers once, see the fit on every school page, then forget them', a
   await fit.getByRole('button', { name: 'See your fit' }).click();
 
   await expect(fit.getByRole('heading', { name: 'Your fit with Stanford University' })).toBeFocused();
-  // No athletic standards are loaded yet: the page leads with the academic result and the minimum to compete.
+  // No baseball numbers yet: the page leads with the academic result and the minimum to compete.
   await expect(fit.getByText('Academic reach', { exact: true }).first()).toBeVisible();
   await expect(fit.getByText('Likely meets the academic minimum we check', { exact: true }).first()).toBeVisible();
-  await expect(fit.getByText(/Your overall fit \(Strong fit, Possible fit or Reach\) appears here once/)).toBeVisible();
+  await expect(fit.getByText(/Add your position and baseball numbers to see your overall fit/)).toBeVisible();
   await expect(fit.getByText('Not enough data', { exact: true })).toHaveCount(0);
+
+  // Baseball numbers complete the picture: an 86 mph fastball is in the D1 typical range (public benchmarks).
+  await fit.getByRole('button', { name: 'Edit my numbers' }).click();
+  await fit.getByLabel('Main position').selectOption('pitcher');
+  await fit.getByLabel('Fastball, top velocity (mph)').fill('86');
+  await fit.getByRole('button', { name: 'See your fit' }).click();
+  await expect(fit.getByText('In range', { exact: true })).toBeVisible();
+  await expect(fit.getByText('Reach', { exact: true })).toBeVisible();
+  await expect(fit.getByRole('link', { name: /BaseballPath/ })).toBeVisible();
   const axe = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(axe.violations.map((v) => v.id)).toEqual([]);
 
@@ -33,6 +42,10 @@ test('enter numbers once, see the fit on every school page, then forget them', a
   await expect(jc.getByRole('heading', { name: 'Your fit with Long Beach City College' })).toBeVisible();
   await expect(jc.getByText('Academics not compared', { exact: true }).first()).toBeVisible();
   await expect(jc.getByText('Not checked', { exact: true }).first()).toBeVisible();
+  // 86 mph meets the junior-college guideline (NCSA), but with no admissions figures the school can't be placed.
+  await expect(jc.getByText('In range', { exact: true })).toBeVisible();
+  await expect(jc.getByText('Not enough data', { exact: true })).toBeVisible();
+  await expect(jc.getByRole('link', { name: /NCSA/ })).toBeVisible();
 
   await jc.getByRole('button', { name: 'Forget my numbers' }).click();
   await expect(jc.getByRole('button', { name: 'See your fit' })).toBeVisible();
