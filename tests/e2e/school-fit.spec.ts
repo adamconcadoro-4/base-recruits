@@ -20,18 +20,19 @@ test('enter numbers once, see the fit on every school page, then forget them', a
   await fit.getByRole('button', { name: 'See your fit' }).click();
 
   await expect(fit.getByRole('heading', { name: 'Your fit with Stanford University' })).toBeFocused();
-  await expect(fit.getByText('Academic reach', { exact: true })).toBeVisible();
-  // No athletic standards are loaded yet, so the overall result can't be placed.
-  await expect(fit.getByText('Not enough data', { exact: true })).toBeVisible();
-  await expect(fit.getByText('Likely meets the academic minimum we check', { exact: true })).toBeVisible();
+  // No athletic standards are loaded yet: the page leads with the academic result and the minimum to compete.
+  await expect(fit.getByText('Academic reach', { exact: true }).first()).toBeVisible();
+  await expect(fit.getByText('Likely meets the academic minimum we check', { exact: true }).first()).toBeVisible();
+  await expect(fit.getByText(/Your overall fit \(Strong fit, Possible fit or Reach\) appears here once/)).toBeVisible();
+  await expect(fit.getByText('Not enough data', { exact: true })).toHaveCount(0);
   const axe = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
   expect(axe.violations.map((v) => v.id)).toEqual([]);
 
   await page.goto('/schools/long-beach-city-college-ca');
   const jc = page.getByRole('region', { name: 'Your fit' });
   await expect(jc.getByRole('heading', { name: 'Your fit with Long Beach City College' })).toBeVisible();
-  await expect(jc.getByText('Academics not compared', { exact: true })).toBeVisible();
-  await expect(jc.getByText('Not checked', { exact: true })).toBeVisible();
+  await expect(jc.getByText('Academics not compared', { exact: true }).first()).toBeVisible();
+  await expect(jc.getByText('Not checked', { exact: true }).first()).toBeVisible();
 
   await jc.getByRole('button', { name: 'Forget my numbers' }).click();
   await expect(jc.getByRole('button', { name: 'See your fit' })).toBeVisible();

@@ -252,19 +252,45 @@ export function SchoolFitPanel(props: Props) {
           Your fit with {schoolName}
         </h3>
         {!fit.placed ? (
-          <p>
-            Base Recruits doesn&apos;t place schools in this association by level yet, so there&apos;s no overall result. Your
-            academic comparison is below.
-          </p>
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-semibold text-graphite">Academic result</span>
+              <StatusChip tone={FIT_TONES[fit.academic.fit]}>{ACADEMIC_FIT_LABELS[fit.academic.fit]}</StatusChip>
+            </div>
+            <p className="text-slate">
+              Base Recruits doesn&apos;t place schools in this association by level yet, so there&apos;s no overall fit. The details
+              are below.
+            </p>
+          </div>
         ) : fit.group === null ? (
           <p>
             Your assessment is below the {LEVEL_LABELS[fit.level]} standard, so this school isn&apos;t in your suggestions. Your
             academic comparison is below.
           </p>
+        ) : fit.athletic.status !== 'in_range' ? (
+          // No athletic result yet: lead with the two results that can be worked out now.
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-semibold text-graphite">Academic result</span>
+              <StatusChip tone={FIT_TONES[fit.academic.fit]}>{ACADEMIC_FIT_LABELS[fit.academic.fit]}</StatusChip>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-semibold text-graphite">Academic minimum to compete</span>
+              <StatusChip tone={ELIGIBILITY_TONES[fit.eligibility.status]}>{ELIGIBILITY_LABELS[fit.eligibility.status]}</StatusChip>
+            </div>
+            <p className="text-slate">
+              Your overall fit (Strong fit, Possible fit or Reach) appears here once your athletic assessment is matched to{' '}
+              {LEVEL_LABELS[fit.level]} standards. The details are below.
+            </p>
+          </div>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
             <StatusChip tone={GROUP_TONES[fit.group]}>{GROUP_NAMES[fit.group]}</StatusChip>
-            <span className="text-slate">{GROUP_DESCRIPTIONS[fit.group]}</span>
+            <span className="text-slate">
+              {fit.group === 'not_enough_data'
+                ? 'Your academics couldn’t be compared with this school, so it can’t be placed yet. The details are below.'
+                : GROUP_DESCRIPTIONS[fit.group]}
+            </span>
           </div>
         )}
       </div>
