@@ -12,7 +12,7 @@ import unittest
 import zipfile
 from pathlib import Path
 
-from data.pipeline import build, eada, scorecard
+from data.pipeline import build, eada, mappings, scorecard
 from data.pipeline.mappings import EADA_CLASSIFICATIONS
 
 # Raw rows for a few institutions, saved by the data-refresh workflow straight
@@ -170,6 +170,84 @@ class ScorecardTests(unittest.TestCase):
         results = scorecard.fetch_all(list(range(1, 251)), [2025, 2024], fake)
         self.assertEqual(calls, [100, 100, 50])
         self.assertEqual(len(results), 250)
+
+
+class ScorecardExtrasTests(unittest.TestCase):
+    def test_open_admission_flag_is_mapped_and_unknown_codes_stay_blank(self):
+        record = copy.deepcopy(SCORECARD[117645])
+        for code, expected in ((1, True), (2, False), (3, None), (None, None)):
+            record["school.open_admissions_policy"] = code
+            result, issues = scorecard.normalize(record, 2024, 2025, 2024)
+            self.assertIs(result["facts"]["open_admission"], expected)
+            self.assertEqual(issues, [])
+
+    def test_programs_offered_counts_only_on_campus_programs(self):
+        record = copy.deepcopy(SCORECARD[100654])
+        for area in mappings.PROGRAM_AREAS:
+            record[f"2024.academics.program.bachelors.{area}"] = 0
+            record[f"2024.academics.program.assoc.{area}"] = 0
+        record["2024.academics.program.bachelors.engineering"] = 1
+        record["2024.academics.program.bachelors.business_marketing"] = 1
+        record["2024.academics.program.bachelors.history"] = 2   # distance education only
+        record["2024.academics.program.assoc.health"] = 1
+        result, _ = scorecard.normalize(record, 2024, 2025, 2024, 2024)
+        self.assertEqual(result["facts"]["programs"], {
+            "scorecard_year": 2024, "bachelors": ["business_marketing", "engineering"], "associate": ["health"],
+        })
+
+    def test_programs_not_reported_are_none_not_empty(self):
+        result, _ = scorecard.normalize(SCORECARD[100654], 2024, 2025, 2024, 2024)
+        self.assertIsNone(result["facts"]["programs"])
+        result, _ = scorecard.normalize(SCORECARD[100654], 2024, 2025, 2024, None)
+        self.assertIsNone(result["facts"]["programs"])
+
+    def test_every_program_area_is_a_two_digit_cip_family(self):
+        self.assertEqual(len(mappings.PROGRAM_AREAS), 38)
+        self.assertEqual(len(set(mappings.PROGRAM_AREAS.values())), 38)
+        for area, cip in mappings.PROGRAM_AREAS.items():
+            self.assertRegex(area, r"^[a-z][a-z_]*$")
+            self.assertRegex(cip, r"^[0-9]{2}$")
+
+    def test_fetch_extras_finds_the_newest_year_with_programs_and_drops_rejected_fields(self):
+        calls = []
+
+        def fake(url, params):
+            fields = params["fields"].split(",")
+            calls.append((params["id"].count(",") + 1, len(fields)))
+            bad = [f for f in fields if f.endswith(".military")]
+            if bad:
+                return {"errors": [{"error": "field_not_found", "input": f} for f in bad]}
+            ids = [int(i) for i in params["id"].split(",")]
+            rows = []
+            for i in ids:
+                row = {"id": i, "school.open_admissions_policy": 1}
+                # Only 2024 has program data.
+                row.update({f: 1 for f in fields if f.startswith("2024.academics.")})
+                rows.append(row)
+            return {"results": rows}
+
+        results, rejected, year = scorecard.fetch_extras(list(range(1, 151)), [2025, 2024, 2023], fake)
+        self.assertEqual(year, 2024)
+        self.assertEqual(len(results), 150)
+        self.assertEqual(rejected, [
+            "2024.academics.program.assoc.military", "2024.academics.program.bachelors.military",
+            "2025.academics.program.assoc.military", "2025.academics.program.bachelors.military",
+        ])
+        self.assertTrue(all(fields <= 2 + 76 for _, fields in calls), "never more than one year of program fields per request")
+
+    def test_fetch_extras_without_program_data_still_returns_open_admission(self):
+        def fake(url, params):
+            return {"results": [{"id": int(i), "school.open_admissions_policy": 2} for i in params["id"].split(",")]}
+
+        results, rejected, year = scorecard.fetch_extras([1, 2], [2025, 2024], fake)
+        self.assertIsNone(year)
+        self.assertEqual([r["school.open_admissions_policy"] for r in results], [2, 2])
+        self.assertEqual(rejected, [])
+
+    def test_fetch_extras_gives_up_quietly_on_an_unexplained_error(self):
+        results, rejected, year = scorecard.fetch_extras([1], [2024], lambda url, params: {"errors": [{"error": "boom"}]})
+        self.assertEqual((results, year), ([], None))
+        self.assertEqual(rejected, ["(unexplained error: extras skipped)"])
 
 
 class SnapshotFormatTests(unittest.TestCase):

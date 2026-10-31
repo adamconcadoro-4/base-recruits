@@ -7,7 +7,7 @@ rule means changing this page, the code and its version number in the same pull 
 | Rule set | Code | Version |
 | --- | --- | --- |
 | Score comparison (unchanged) | `rules.ts` | `RULES_VERSION` 2026-10-23.1 |
-| Academic fit labels | `fit.ts` | `FIT_RULES_VERSION` 2026-10-30.1 |
+| Academic fit labels | `fit.ts` | `FIT_RULES_VERSION` 2026-10-31.1 |
 | Eligibility to compete | `eligibility.ts` | `ELIGIBILITY_RULES_VERSION` 2026-10-30.1 |
 | Combined suggestions | `suggestions.ts` | `SUGGESTION_RULES_VERSION` 2026-10-31.1 |
 | Athletic benchmarks and the in-range rule | `athletic.ts` | `PUBLIC_BENCHMARKS` public-2026-10-31.1 (Paul's standards replace it when loaded) |
@@ -36,13 +36,18 @@ Taken only from the existing score comparison; no new cut-offs.
 
 | Label | When |
 | --- | --- |
-| Academic fit | Every score compared is within or above the school's reported range, and no checked requirement is unmet |
+| Academic fit | Every score compared is within or above the school's reported range, and no checked requirement is unmet; **or the school has an open admission policy** (F48) |
 | Academic stretch | Some compared scores are below a reported range |
 | Academic reach | Every compared score is below the reported ranges, or a checked current requirement is not met (a required test the player won't send), for first-year and transfer applicants alike |
 | Academics not compared | Nothing could be compared: no scores entered or sent, test-blind, no reported ranges, or a transfer applicant (first-year ranges are never applied to transfers) |
 
 Reported ranges are the middle 50% of a past entering class as a whole, not recruited athletes; that caveat is shown with
 every comparison.
+
+**Open admission (F48).** A school that reports an open admission policy to the College Scorecard (IPEDS OPENADMP: it
+admits any applicant, or only requires a high school diploma or equivalent) is an academic fit whatever its score ranges
+say, with the reason "open admission" shown. A checked current requirement the player won't meet still makes it a Reach.
+Most junior colleges are open admission; before this rule they could never be placed academically.
 
 ## 3. Eligibility to compete (per level)
 
@@ -211,7 +216,5 @@ Every active program's page has a **Your fit** section (`src/components/matching
   which publishes none.
 - **Coverage:** in the 2024-25 registry snapshot 739 of 1,670 programs report SAT ranges. Schools without ranges (many
   test-optional four-year schools and most junior colleges) fall under "academics not compared".
-- **Open admission:** junior colleges usually report no admissions figures because admission is open. Loading the federal
-  open-admissions flag from College Scorecard would let them be treated as an academic fit instead of "not compared".
 - **Pages:** each school page shows "Your fit" (§6). The full suggestions list page, and the paywall and billing it
   sits behind, are the next build. "Your fit" is open to everyone until the paywall exists (F19).

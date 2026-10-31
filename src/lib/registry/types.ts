@@ -75,8 +75,16 @@ export interface SchoolSummary {
   readonly cost_of_attendance: number | null;
   readonly tuition_in_state: number | null;
   readonly tuition_out_of_state: number | null;
+  /** College Scorecard open admission policy; absent from schools_by_slugs, null when not reported. */
+  readonly open_admission?: boolean | null;
   readonly relevance: number;
   readonly total_count: number;
+}
+
+/** A program area offered at one level (public.program_areas). */
+export interface ProgramAreaRef {
+  readonly code: string;
+  readonly name: string;
 }
 
 export interface SourceRef {
@@ -107,6 +115,14 @@ export interface SchoolRecord {
     readonly setting: CampusSetting | null;
     readonly undergraduate_enrollment: number | null;
     readonly enrollment_term: string | null;
+    /** College Scorecard open admission policy; null when not reported (older imports too). */
+    readonly open_admission?: boolean | null;
+    /** Program areas offered on campus, for one College Scorecard data year; null when not reported. */
+    readonly programs?: {
+      readonly scorecard_year: number;
+      readonly bachelors: readonly ProgramAreaRef[];
+      readonly associate: readonly ProgramAreaRef[];
+    } | null;
     readonly aliases: readonly string[];
     readonly source: SourceRef;
   };

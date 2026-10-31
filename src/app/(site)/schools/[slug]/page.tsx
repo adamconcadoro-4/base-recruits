@@ -110,6 +110,7 @@ export default async function SchoolPage({ params }: { readonly params: Params }
     satMath: [admissions?.sat_math_25 ?? null, admissions?.sat_math_75 ?? null],
     actComposite: [admissions?.act_composite_25 ?? null, admissions?.act_composite_75 ?? null],
     historicalTestPolicy: admissions?.test_policy ?? null,
+    openAdmission: institution.open_admission ?? null,
     currentPolicies: (policies ?? []).map((p) => ({
       applicant_type: p.applicant_type,
       entry_year: p.entry_year,
@@ -303,6 +304,19 @@ export default async function SchoolPage({ params }: { readonly params: Params }
             <p className="mt-2 text-sm text-slate">Transfer applicants: not yet checked. Transfer rules often differ from first-year rules.</p>
           ) : null}
 
+          {institution.open_admission !== undefined && institution.open_admission !== null ? (
+            <dl className="mt-4">
+              <Row label="Admission policy">
+                <span>{institution.open_admission ? 'Open admission' : 'Selective (not open admission)'}</span>
+                <span className="block text-sm text-slate">
+                  {institution.open_admission
+                    ? 'The school admits any applicant, or only requires a high school diploma or equivalent, as reported to the College Scorecard. Some programs may have their own requirements.'
+                    : 'As reported to the College Scorecard.'}
+                </span>
+              </Row>
+            </dl>
+          ) : null}
+
           <h3 className="mt-8 text-2xl text-navy">
             {admissions ? `The ${admissions.term} entering class (historical)` : 'Past entering class'}
           </h3>
@@ -439,9 +453,35 @@ export default async function SchoolPage({ params }: { readonly params: Params }
                 <Value value={null} />
               )}
             </Row>
-            <Row label="Majors">
-              <span className="text-slate italic">Not imported yet.</span>{' '}
-              <span className="text-sm text-slate">Check the school&apos;s catalog for majors offered.</span>
+            <Row label={<>Majors offered{institution.programs ? <YearTag>{`${institution.programs.scorecard_year} data`}</YearTag> : null}</>}>
+              {institution.programs ? (
+                <div className="space-y-3">
+                  {institution.programs.bachelors.length > 0 ? (
+                    <div>
+                      <span className="block font-semibold">Bachelor&apos;s degrees</span>
+                      <span>{institution.programs.bachelors.map((a) => a.name).join(', ')}</span>
+                    </div>
+                  ) : null}
+                  {institution.programs.associate.length > 0 ? (
+                    <div>
+                      <span className="block font-semibold">Associate degrees</span>
+                      <span>{institution.programs.associate.map((a) => a.name).join(', ')}</span>
+                    </div>
+                  ) : null}
+                  {institution.programs.bachelors.length === 0 && institution.programs.associate.length === 0 ? (
+                    <span className="text-slate italic">No bachelor&apos;s or associate programs reported.</span>
+                  ) : null}
+                  <span className="block text-sm text-slate">
+                    Broad program areas offered on campus, as reported to the College Scorecard. Check the school&apos;s catalog for
+                    specific majors.
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <span className="text-slate italic">Not reported.</span>{' '}
+                  <span className="text-sm text-slate">Check the school&apos;s catalog for majors offered.</span>
+                </>
+              )}
             </Row>
           </dl>
         </Section>

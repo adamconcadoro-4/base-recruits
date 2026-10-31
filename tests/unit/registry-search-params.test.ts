@@ -63,6 +63,18 @@ describe('explorer URL state', () => {
     expect(toSearchArgs(parseExplorerParams({ q: 'texas' })).p_sort).toBe('relevance');
   });
 
+  it('majors: a known program area filters, an unknown one is reported and not applied', () => {
+    const state = parseExplorerParams({ major: 'engineering' });
+    expect(state.major).toBe('engineering');
+    expect(toSearchArgs(state).p_program_areas).toEqual(['engineering']);
+    expect(toSearchArgs(parseExplorerParams({})).p_program_areas).toBeNull();
+    const unknown = parseExplorerParams({ major: 'basket_weaving' });
+    expect(unknown.major).toBeNull();
+    expect(unknown.ignored).toEqual(['major “basket_weaving”']);
+    expect(explorerQuery(state)).toBe('?major=engineering');
+    expect(figureFilters(state)).toEqual(['programs offered']);
+  });
+
   it('notes which filters leave out schools without that figure', () => {
     expect(figureFilters(parseExplorerParams({ rate: '15', cost: '50000' }))).toEqual(['admission rate', 'cost of attendance']);
     expect(figureFilters(parseExplorerParams({ division: 'naia' }))).toEqual([]);

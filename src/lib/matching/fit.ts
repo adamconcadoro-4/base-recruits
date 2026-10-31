@@ -1,5 +1,5 @@
 /**
- * Academic fit labels (founder decision F15, approved 2026-10-30): Fit,
+ * Academic fit labels (founder decisions F15, 2026-10-30, and F48, 2026-10-31): Fit,
  * Stretch, Reach or Not enough data, derived only from the existing score
  * comparison in rules.ts. No new thresholds are introduced here: the label is
  * a name for where the player's compared scores sit against the ranges the
@@ -7,7 +7,7 @@
  * test requirement the player won't meet). See docs/matching-rulebook.md.
  *
  *  - Fit: every compared score is within or above the reported range, and no
- *    checked requirement is unmet.
+ *    checked requirement is unmet; or the school has an open admission policy.
  *  - Stretch: some compared scores are below a reported range.
  *  - Reach: every compared score is below the reported ranges, or a checked
  *    current requirement is not met (for example a required test the player
@@ -24,12 +24,18 @@
 
 import { scoreGroup, type ComparisonResult } from './rules';
 
-export const FIT_RULES_VERSION = '2026-10-30.1';
+export const FIT_RULES_VERSION = '2026-10-31.1';
 
 export const ACADEMIC_FITS = ['fit', 'stretch', 'reach', 'not_enough_data'] as const;
 export type AcademicFit = (typeof ACADEMIC_FITS)[number];
 
-export type AcademicFitReason = 'SCORES_AT_OR_ABOVE' | 'SOME_SCORES_BELOW' | 'ALL_SCORES_BELOW' | 'REQUIREMENT_NOT_MET' | 'NOTHING_COMPARED';
+export type AcademicFitReason =
+  | 'SCORES_AT_OR_ABOVE'
+  | 'SOME_SCORES_BELOW'
+  | 'ALL_SCORES_BELOW'
+  | 'REQUIREMENT_NOT_MET'
+  | 'NOTHING_COMPARED'
+  | 'OPEN_ADMISSION';
 
 export interface AcademicFitResult {
   readonly fit: AcademicFit;
@@ -37,9 +43,17 @@ export interface AcademicFitResult {
   readonly rulesVersion: string;
 }
 
-export function academicFit(result: ComparisonResult): AcademicFitResult {
+/**
+ * `openAdmission` is the school's reported open admission policy (founder
+ * decision F48, 2026-10-31): an open-admission school accepts any applicant, or
+ * only requires a high school diploma, so it is an academic fit whatever the
+ * score comparison says. A checked current requirement the player won't meet
+ * still makes it a Reach.
+ */
+export function academicFit(result: ComparisonResult, openAdmission: boolean | null = null): AcademicFitResult {
   const base = { rulesVersion: FIT_RULES_VERSION };
   if (result.requirementSummary === 'not_met') return { ...base, fit: 'reach', reason: 'REQUIREMENT_NOT_MET' };
+  if (openAdmission === true) return { ...base, fit: 'fit', reason: 'OPEN_ADMISSION' };
   switch (scoreGroup(result)) {
     case 'at_or_above':
       return { ...base, fit: 'fit', reason: 'SCORES_AT_OR_ABOVE' };
