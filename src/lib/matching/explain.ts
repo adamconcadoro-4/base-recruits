@@ -52,8 +52,13 @@ export const REASONS: Readonly<Record<ReasonCode, string>> = {
   POLICY_BLIND_SCORES_IGNORED: 'This school doesn’t consider test scores, so yours are not compared.',
   NO_PUBLISHED_GPA_MINIMUM: 'No published minimum GPA is in our data, so a GPA requirement is unknown.',
   GPA_NOT_REPORTED_BY_SCHOOLS:
-    'Schools don’t report GPA in the federal data we use, so your GPA can’t be compared. We don’t estimate it.',
+    'We don’t have a GPA range this school published, so your GPA isn’t compared. We don’t estimate it.',
   GPA_NOT_ENTERED: 'You didn’t enter a GPA.',
+  GPA_RANGE_PUBLISHED:
+    'The range is the middle half of a past entering first-year class by high school GPA, from figures the school published.',
+  GPA_WEIGHTING_NOT_STATED:
+    'The school didn’t say whether these GPAs are weighted. If yours is unweighted and theirs are weighted, yours can look lower than it is.',
+  GPA_SCALE_NOT_COMPARABLE: 'The school’s GPA range is on a 4.0 scale, so a GPA on another scale isn’t compared.',
   SCORES_NOT_SUBMITTED: 'You said you won’t send scores, so they aren’t used.',
   SCORES_ONLY_IF_SUBMITTED: 'This comparison matters only if you send your scores.',
   SCORE_NOT_ENTERED: 'You didn’t enter this score.',

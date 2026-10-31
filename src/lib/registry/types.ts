@@ -171,6 +171,24 @@ export interface CurrentPolicy {
   readonly verified_at: string;
 }
 
+/** public.gpa_ranges_for: a high school GPA range the school published (founder decision F51). */
+export interface GpaRangeRow {
+  readonly slug: string;
+  readonly source_kind: 'common_data_set' | 'school_profile';
+  /** The entering class it describes, e.g. "Fall 2024". */
+  readonly entering_term: string;
+  readonly cds_year: string | null;
+  /** The middle half of the class on a 4.0 scale. */
+  readonly low: number;
+  readonly high: number;
+  readonly average: number | null;
+  readonly percent_submitting: number | null;
+  readonly weighting: 'not_stated' | 'weighted' | 'unweighted';
+  readonly source_url: string;
+  readonly source_title: string | null;
+  readonly recorded_at: string;
+}
+
 /** public.registry_coverage */
 export interface RegistryCoverage {
   readonly active_programs: number;

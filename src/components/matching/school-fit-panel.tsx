@@ -18,7 +18,7 @@ import {
   type AthleticMetric,
 } from '@/lib/matching/athletic';
 import { levelForDivision, parseCoreGpa, type EligibilityStatus } from '@/lib/matching/eligibility';
-import { BENCHMARK_LABELS, BENCHMARK_NAMES } from '@/lib/matching/explain';
+import { BENCHMARK_LABELS, BENCHMARK_NAMES, REASONS } from '@/lib/matching/explain';
 import type { AcademicFit } from '@/lib/matching/fit';
 import {
   EMPTY_PLAYER_NUMBERS,
@@ -385,7 +385,7 @@ export function SchoolFitPanel(props: Props) {
 
   if (!outcome || 'errors' in outcome) return null;
   const { fit, athleticDetail, positionEntered } = outcome;
-  const benchmarks = fit.comparison.benchmarks.filter((b) => b.key !== 'gpa' && b.low !== null && b.high !== null);
+  const benchmarks = fit.comparison.benchmarks.filter((b) => b.low !== null && b.high !== null);
   const levelName = level ? LEVEL_LABELS[level] : null;
 
   return (
@@ -473,12 +473,23 @@ export function SchoolFitPanel(props: Props) {
             <p>{ACADEMIC_FIT_REASONS[fit.academic.reason]}</p>
             {benchmarks.length > 0 ? (
               <ul className="list-disc space-y-1 pl-5 text-sm">
-                {benchmarks.map((b) => (
-                  <li key={b.key}>
-                    {BENCHMARK_NAMES[b.key]}: {b.low}–{b.high} for the {b.term ?? 'past'} class
-                    {b.applicant !== null ? `; yours ${b.applicant} (${BENCHMARK_LABELS[b.status].toLowerCase()})` : ''}
-                  </li>
-                ))}
+                {benchmarks.map((b) => {
+                  const gpa = b.key === 'gpa';
+                  const show = (value: number | null) => (value === null ? '' : gpa ? value.toFixed(2) : String(value));
+                  // GPA notes travel with the GPA line: whether the school said it's weighted, or why it isn't compared.
+                  const notes = gpa ? b.reasons.filter((r) => r === 'GPA_WEIGHTING_NOT_STATED' || r === 'GPA_SCALE_NOT_COMPARABLE') : [];
+                  return (
+                    <li key={b.key}>
+                      {gpa ? 'High school GPA, middle half' : BENCHMARK_NAMES[b.key]}: {show(b.low)}–{show(b.high)} for the {b.term ?? 'past'} class
+                      {b.applicant !== null ? `; yours ${show(b.applicant)} (${BENCHMARK_LABELS[b.status].toLowerCase()})` : ''}
+                      {notes.map((r) => (
+                        <span key={r} className="block text-slate">
+                          {REASONS[r]}
+                        </span>
+                      ))}
+                    </li>
+                  );
+                })}
               </ul>
             ) : null}
           </dd>

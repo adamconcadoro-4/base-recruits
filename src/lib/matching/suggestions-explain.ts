@@ -42,9 +42,9 @@ export const ACADEMIC_FIT_LABELS: Readonly<Record<AcademicFit, string>> = {
 };
 
 export const ACADEMIC_FIT_REASONS: Readonly<Record<AcademicFitReason, string>> = {
-  SCORES_AT_OR_ABOVE: 'Every score we compared is within or above the range this school reported for a past entering class.',
-  SOME_SCORES_BELOW: 'Some of your scores are below a range this school reported for a past entering class.',
-  ALL_SCORES_BELOW: 'Every score we compared is below the range this school reported for a past entering class.',
+  SCORES_AT_OR_ABOVE: 'Every score or GPA we compared is within or above the range this school reported for a past entering class.',
+  SOME_SCORES_BELOW: 'Some of your numbers are below a range this school reported for a past entering class.',
+  ALL_SCORES_BELOW: 'Every score or GPA we compared is below the range this school reported for a past entering class.',
   REQUIREMENT_NOT_MET: 'This school currently requires a test score, and you said you won’t send one.',
   NOTHING_COMPARED:
     'Nothing could be compared: no scores entered or sent, the school doesn’t use scores, it reported no ranges, or you’re applying as a transfer.',

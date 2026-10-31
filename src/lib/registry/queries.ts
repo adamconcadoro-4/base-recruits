@@ -5,7 +5,7 @@ import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 
 import { MAX_COMPARE, toSearchArgs, type ExplorerState } from './search-params';
-import type { CurrentPolicy, RegistryCoverage, SchoolRecord, SchoolSummary } from './types';
+import type { CurrentPolicy, GpaRangeRow, RegistryCoverage, SchoolRecord, SchoolSummary } from './types';
 
 export interface SearchResult {
   readonly rows: readonly SchoolSummary[];
@@ -75,4 +75,15 @@ export async function mySavedSlugs(): Promise<readonly string[] | null> {
   const { data, error } = await supabase.rpc('my_saved_schools');
   if (error) return null;
   return ((data ?? []) as { slug: string }[]).map((row) => row.slug);
+}
+
+/** Published high school GPA ranges for these schools, by slug (at most one current range each). */
+export async function gpaRanges(slugs: readonly string[]): Promise<ReadonlyMap<string, GpaRangeRow> | 'failed'> {
+  const map = new Map<string, GpaRangeRow>();
+  if (slugs.length === 0) return map;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('gpa_ranges_for', { p_slugs: slugs.slice(0, 1000) });
+  if (error) return 'failed';
+  for (const row of (data ?? []) as GpaRangeRow[]) map.set(row.slug, { ...row, low: Number(row.low), high: Number(row.high) });
+  return map;
 }

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { ListingForm, PolicyForm, ProgramForm } from '@/app/(app)/admin/schools/forms';
+import { GpaRangeForm, ListingForm, PolicyForm, ProgramForm } from '@/app/(app)/admin/schools/forms';
 import { DashboardSection, PageTitle } from '@/components/app/section';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip } from '@/components/ui/status-chip';
@@ -81,7 +81,7 @@ export default async function AdminSchoolPage({
     .maybeSingle();
   if (!institutionData) notFound();
   const institution = institutionData as Institution;
-  const [programResult, divisionsResult, revisionsResult, policiesResult, reportsResult] = await Promise.all([
+  const [programResult, divisionsResult, revisionsResult, policiesResult, reportsResult, gpaResult] = await Promise.all([
     supabase
       .from('baseball_programs')
       .select('status, status_source, season, association_code, division_code, classification_label, classification_other, conference, athletics_url, roster_url, questionnaire_url, verification, verification_source_url, verified_at, source_id')
@@ -106,7 +106,27 @@ export default async function AdminSchoolPage({
       .eq('institution_id', institution.id)
       .eq('status', 'open')
       .order('created_at', { ascending: true }),
+    supabase
+      .from('gpa_ranges')
+      .select('id, source_kind, entering_term, cds_year, low, high, average, weighting, source_url, source_title, recorded_at')
+      .eq('unitid', institution.unitid)
+      .eq('is_current', true)
+      .maybeSingle(),
   ]);
+  const gpaRange = gpaResult.data as {
+    id: string;
+    source_kind: 'common_data_set' | 'school_profile';
+    entering_term: string;
+    cds_year: string | null;
+    low: number;
+    high: number;
+    average: number | null;
+    weighting: string;
+    source_url: string;
+    source_title: string | null;
+    recorded_at: string;
+  } | null;
+
   const policies = (policiesResult.data ?? []) as {
     id: string;
     applicant_type: ApplicantType;
@@ -120,6 +140,8 @@ export default async function AdminSchoolPage({
   const openReports = (reportsResult.data ?? []) as { id: string; topic: string; details: string; evidence_url: string | null; created_at: string }[];
   const thisYear = new Date().getUTCFullYear();
   const policyYears = [thisYear - 1, thisYear, thisYear + 1, thisYear + 2, thisYear + 3];
+  // A published range describes a past class: this fall back to six years ago.
+  const gpaYears = [thisYear, thisYear - 1, thisYear - 2, thisYear - 3, thisYear - 4, thisYear - 5, thisYear - 6];
   const program = programResult.data as Program | null;
   const divisions = ((divisionsResult.data ?? []) as { code: string; association_code: string; name: string }[]).map((d) => ({
     code: d.code,
@@ -223,6 +245,29 @@ export default async function AdminSchoolPage({
             </ul>
           )}
           <PolicyForm institutionId={institution.id} slug={institution.slug} years={policyYears} />
+        </DashboardSection>
+
+        <DashboardSection
+          id="gpa"
+          title="High school GPA range"
+          description="Record only what the school published: its Common Data Set (section C11, the column for all enrolled first-year students) or its own class-profile page. Never estimate. A new range replaces the current one, which stays in the history."
+        >
+          {gpaRange ? (
+            <p className="mb-5 text-sm">
+              <span className="font-semibold">
+                {Number(gpaRange.low).toFixed(2)}–{Number(gpaRange.high).toFixed(2)}, {gpaRange.entering_term}
+              </span>{' '}
+              ({gpaRange.source_kind === 'common_data_set' ? `Common Data Set ${gpaRange.cds_year ?? ''}` : 'class profile'}
+              {gpaRange.average !== null ? `, average ${Number(gpaRange.average).toFixed(2)}` : ''}, weighting {gpaRange.weighting.replace('_', ' ')}) ·
+              recorded {formatRetrieved(gpaRange.recorded_at)} ·{' '}
+              <a href={gpaRange.source_url} target="_blank" rel="noopener noreferrer nofollow" className="text-royal-ink underline">
+                {gpaRange.source_title ?? gpaRange.source_url}
+              </a>
+            </p>
+          ) : (
+            <p className="mb-5">No GPA range on record. Visitors see &ldquo;Not published&rdquo; and their GPA isn&apos;t compared.</p>
+          )}
+          <GpaRangeForm unitid={institution.unitid} slug={institution.slug} years={gpaYears} />
         </DashboardSection>
 
         {openReports.length > 0 ? (

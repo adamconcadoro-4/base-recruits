@@ -11,23 +11,29 @@
  *    never published in our data, so they are always "unknown".
  *  - Benchmarks: the applicant's SAT section or ACT composite scores against
  *    the 25th–75th percentile ranges the school reported for a past entering
- *    class (enrolled students whose scores were used). Below the range is a
- *    benchmark position, never a failed requirement.
+ *    class (enrolled students whose scores were used), and their GPA against
+ *    the middle half of the class's high school GPAs where the school published
+ *    them (founder decision F51). Below the range is a benchmark position,
+ *    never a failed requirement.
  *  - Evidence: how much of the above rests on checked, current information.
  *
  * Rules, in the brief's words: no known failure is not "all requirements
- * met"; weighted and unweighted GPAs are never mixed (and GPA has no school
- * data to compare with); a missing score is never penalised under an
+ * met"; a missing score is never penalised under an
  * applicable test-optional policy; scores are ignored under a test-blind
  * policy; scores the applicant won't submit don't drive anything; first-year
  * data are never applied to transfer applicants; institution-wide ranges are
  * not recruited-athlete thresholds.
  *
+ * GPA (F51, 2026-10-31): the founder decided to compare the player's GPA with
+ * the school's published range whether either is weighted or unweighted; most
+ * schools don't say. The comparison says so every time, and only GPAs on a
+ * 4.0 scale are compared, because the published ranges are on a 4.0 scale.
+ *
  * Pure functions with relative, type-only imports, so the module can be
  * tested anywhere.
  */
 
-export const RULES_VERSION = '2026-10-23.1';
+export const RULES_VERSION = '2026-10-31.1';
 
 export type ApplicantType = 'first_year' | 'transfer';
 export type TestPolicy = 'required' | 'considered_not_required' | 'not_considered';
@@ -52,6 +58,16 @@ export interface CheckedPolicy {
   readonly verified_at: string;
 }
 
+/** The middle half of a past entering class's high school GPAs, as the school published it, on a 4.0 scale. */
+export interface GpaRange {
+  readonly low: number;
+  readonly high: number;
+  /** The entering class it describes, e.g. "Fall 2024". */
+  readonly term: string;
+  /** Whether the school said its GPAs are weighted; most don't. */
+  readonly weighting: 'weighted' | 'unweighted' | 'not_stated';
+}
+
 export interface SchoolEvidence {
   readonly slug: string;
   /** Latest reported entering class, e.g. "Fall 2024"; null when none is reported. */
@@ -62,6 +78,8 @@ export interface SchoolEvidence {
   /** The test policy reported for that past class (history, never applied as a rule). */
   readonly historicalTestPolicy: TestPolicy | null;
   readonly currentPolicies: readonly CheckedPolicy[];
+  /** The school's published GPA range; missing or null when there is none. */
+  readonly gpa?: GpaRange | null;
 }
 
 export type RequirementStatus = 'met' | 'not_met' | 'unknown' | 'not_applicable';
@@ -81,6 +99,9 @@ export type ReasonCode =
   | 'NO_PUBLISHED_GPA_MINIMUM'
   | 'GPA_NOT_REPORTED_BY_SCHOOLS'
   | 'GPA_NOT_ENTERED'
+  | 'GPA_RANGE_PUBLISHED'
+  | 'GPA_WEIGHTING_NOT_STATED'
+  | 'GPA_SCALE_NOT_COMPARABLE'
   | 'SCORES_NOT_SUBMITTED'
   | 'SCORES_ONLY_IF_SUBMITTED'
   | 'SCORE_NOT_ENTERED'
@@ -199,18 +220,26 @@ function scoreBenchmark(
   return { key, status, applicant, low, high, term, reasons };
 }
 
+/** The applicant's GPA against the school's published range (F51). */
+function gpaBenchmark(evidence: SchoolEvidence, input: ApplicantInput): Benchmark {
+  const range = evidence.gpa ?? null;
+  const base = { key: 'gpa' as const, applicant: input.gpa?.value ?? null, low: range?.low ?? null, high: range?.high ?? null, term: range?.term ?? null };
+  if (!input.gpa) return { ...base, status: 'not_comparable', reasons: ['GPA_NOT_ENTERED'] };
+  if (!range) return { ...base, status: 'not_reported', reasons: ['GPA_NOT_REPORTED_BY_SCHOOLS'] };
+  if (input.gpa.scale !== 4) return { ...base, status: 'not_comparable', reasons: ['GPA_SCALE_NOT_COMPARABLE'] };
+  const status = position(input.gpa.value, range.low, range.high);
+  const reasons: ReasonCode[] = ['GPA_RANGE_PUBLISHED', 'WHOLE_CLASS_NOT_ATHLETES'];
+  if (range.weighting === 'not_stated') reasons.push('GPA_WEIGHTING_NOT_STATED');
+  const year = termYear(range.term);
+  if (year !== null && input.entryYear - year > STALE_AFTER_YEARS) reasons.push('HISTORICAL_DATA_STALE');
+  if (status === 'below') reasons.push('BELOW_RANGE_IS_NOT_A_REQUIREMENT');
+  return { ...base, status, reasons };
+}
+
 export function compareSchool(evidence: SchoolEvidence, input: ApplicantInput): ComparisonResult {
   const policy = applicablePolicy(evidence, input);
   const base = { slug: evidence.slug, rulesVersion: RULES_VERSION, applicantType: input.applicantType, entryYear: input.entryYear };
-  const gpaBenchmark: Benchmark = {
-    key: 'gpa',
-    status: input.gpa ? 'not_reported' : 'not_comparable',
-    applicant: input.gpa?.value ?? null,
-    low: null,
-    high: null,
-    term: null,
-    reasons: input.gpa ? ['GPA_NOT_REPORTED_BY_SCHOOLS'] : ['GPA_NOT_ENTERED'],
-  };
+  const gpa = gpaBenchmark(evidence, input);
   const gpaRequirement: Requirement = { key: 'gpa_minimum', status: 'unknown', reasons: ['NO_PUBLISHED_GPA_MINIMUM'], policy: null };
 
   if (input.applicantType === 'transfer') {
@@ -227,7 +256,7 @@ export function compareSchool(evidence: SchoolEvidence, input: ApplicantInput): 
         blocked('sat_erw', input.sat?.erw ?? null, evidence.satErw),
         blocked('sat_math', input.sat?.math ?? null, evidence.satMath),
         blocked('act_composite', input.act?.composite ?? null, evidence.actComposite),
-        { ...gpaBenchmark, status: 'not_comparable', reasons: ['TRANSFER_FIRST_YEAR_DATA_NOT_APPLICABLE'] },
+        { ...gpa, status: 'not_comparable', reasons: ['TRANSFER_FIRST_YEAR_DATA_NOT_APPLICABLE'] },
       ],
       evidence: {
         status: policy ? 'partial' : 'insufficient',
@@ -259,10 +288,11 @@ export function compareSchool(evidence: SchoolEvidence, input: ApplicantInput): 
         scoreBenchmark('sat_math', input.sat?.math ?? null, evidence.satMath, evidence.admissionsTerm, blocked, extra),
         scoreBenchmark('act_composite', input.act?.composite ?? null, evidence.actComposite, evidence.admissionsTerm, blocked, extra),
       ];
-  benchmarks.push(gpaBenchmark);
+  benchmarks.push(gpa);
 
   const hasRanges =
-    !noData && [evidence.satErw, evidence.satMath, evidence.actComposite].some(([low, high]) => low !== null && high !== null);
+    (!noData && [evidence.satErw, evidence.satMath, evidence.actComposite].some(([low, high]) => low !== null && high !== null)) ||
+    Boolean(evidence.gpa);
   const year = termYear(evidence.admissionsTerm);
   const stale = year !== null && input.entryYear - year > STALE_AFTER_YEARS;
   const evidenceReasons: ReasonCode[] = [policy ? 'CURRENT_POLICY_CHECKED' : 'CURRENT_POLICY_NOT_CHECKED'];
@@ -270,7 +300,7 @@ export function compareSchool(evidence: SchoolEvidence, input: ApplicantInput): 
   else if (hasRanges) evidenceReasons.push('HISTORICAL_RANGE');
   else evidenceReasons.push('RANGE_NOT_REPORTED');
   if (stale) evidenceReasons.push('HISTORICAL_DATA_STALE');
-  evidenceReasons.push('GPA_NOT_REPORTED_BY_SCHOOLS');
+  if (!evidence.gpa) evidenceReasons.push('GPA_NOT_REPORTED_BY_SCHOOLS');
 
   return {
     ...base,

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { userMessageForDatabaseError } from '@/lib/db/errors';
 import { failure, field, success, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { parseAddSchool } from '@/lib/registry/add-school';
+import { CDS_GPA_BANDS } from '@/lib/registry/gpa';
 import { DIVISION_CODES, PROGRAM_STATUSES, VERIFICATIONS } from '@/lib/registry/types';
 import { createClient } from '@/lib/supabase/server';
 
@@ -159,6 +160,84 @@ export async function setAdmissionsPolicyAction(_previous: ActionState, formData
   revalidatePath(`/schools/${slug}`);
   revalidatePath('/schools');
   return success('Policy recorded. Any earlier policy for the same applicants and year is kept in the history.');
+}
+
+function decimalOrNull(value: string): number | null | 'bad' {
+  if (value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 'bad';
+}
+
+/** Records a high school GPA range from a school's Common Data Set or its class-profile page. */
+export async function setGpaRangeAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  const unitid = Number(field(formData, 'unitid'));
+  const slug = field(formData, 'slug');
+  const sourceKind = field(formData, 'sourceKind');
+  const enteringYear = Number(field(formData, 'enteringYear'));
+  const weighting = field(formData, 'weighting');
+  const sourceUrl = field(formData, 'sourceUrl');
+  const sourceTitle = field(formData, 'sourceTitle');
+  const note = field(formData, 'note');
+  const errors: Record<string, string> = {};
+  if (!Number.isInteger(unitid) || unitid <= 0) return failure('That school was not found.');
+  if (sourceKind !== 'common_data_set' && sourceKind !== 'school_profile') errors.sourceKind = 'Choose where the numbers come from.';
+  if (!Number.isInteger(enteringYear)) errors.enteringYear = 'Choose the entering class.';
+  if (!['not_stated', 'weighted', 'unweighted'].includes(weighting)) errors.weighting = 'Choose what the school says.';
+  if (!sourceUrl || !httpsOrEmpty(sourceUrl)) errors.sourceUrl = 'Use the full https:// link to the document or page you read.';
+  if (note.length < 5) errors.note = 'Say what you checked (at least 5 characters).';
+
+  let bands: number[] | null = null;
+  let low: number | null = null;
+  let high: number | null = null;
+  if (sourceKind === 'common_data_set') {
+    bands = [];
+    for (let i = 0; i < CDS_GPA_BANDS.length; i++) {
+      const v = decimalOrNull(field(formData, `band${i}`));
+      if (v === 'bad' || (v !== null && (v < 0 || v > 100))) errors[`band${i}`] = 'A percentage from 0 to 100, or blank.';
+      bands.push(typeof v === 'number' ? v : 0);
+    }
+    const total = bands.reduce((a, b) => a + b, 0);
+    if (!Object.keys(errors).some((k) => k.startsWith('band')) && (total < 95 || total > 105)) {
+      errors.band0 = `The bands add up to ${total.toFixed(1)}%. Use the column for all enrolled students; it should total about 100%.`;
+    }
+  } else if (sourceKind === 'school_profile') {
+    const l = decimalOrNull(field(formData, 'low'));
+    const h = decimalOrNull(field(formData, 'high'));
+    if (typeof l !== 'number' || l < 0 || l > 4) errors.low = 'The 25th percentile GPA on a 4.0 scale.';
+    if (typeof h !== 'number' || h < 0 || h > 4) errors.high = 'The 75th percentile GPA on a 4.0 scale.';
+    if (typeof l === 'number' && typeof h === 'number' && l > h) errors.high = 'The high end must be at or above the low end.';
+    low = typeof l === 'number' ? l : null;
+    high = typeof h === 'number' ? h : null;
+  }
+  const average = decimalOrNull(field(formData, 'average'));
+  if (average === 'bad' || (typeof average === 'number' && (average < 0 || average > 5))) {
+    errors.average = 'The average as printed on a 4.0 scale (up to 5.0 if weighted), or blank.';
+  }
+  const submitting = decimalOrNull(field(formData, 'percentSubmitting'));
+  if (submitting === 'bad' || (typeof submitting === 'number' && (submitting < 0 || submitting > 100))) {
+    errors.percentSubmitting = 'A percentage from 0 to 100, or blank.';
+  }
+  if (Object.keys(errors).length) return failure('Please fix the highlighted fields.', errors);
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('admin_set_gpa_range', {
+    p_unitid: unitid,
+    p_source_kind: sourceKind,
+    p_entering_year: enteringYear,
+    p_bands: bands,
+    p_low: low,
+    p_high: high,
+    p_average: typeof average === 'number' ? average : null,
+    p_percent_submitting: typeof submitting === 'number' ? submitting : null,
+    p_weighting: weighting,
+    p_source_url: sourceUrl,
+    p_source_title: sourceTitle || null,
+    p_note: note,
+  });
+  if (error) return failure(withDiagnostics(userMessageForDatabaseError(error), error));
+  revalidatePath(`/admin/schools/${slug}`);
+  revalidatePath(`/schools/${slug}`);
+  return success('GPA range recorded. Any earlier range for this school is kept in the history.');
 }
 
 /** Closes a correction report (resolved after checking an official source, or dismissed). */
