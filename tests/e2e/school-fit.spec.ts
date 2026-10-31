@@ -40,11 +40,13 @@ test('enter numbers once, see the fit on every school page, then forget them', a
   await page.goto('/schools/long-beach-city-college-ca');
   const jc = page.getByRole('region', { name: 'Your fit' });
   await expect(jc.getByRole('heading', { name: 'Your fit with Long Beach City College' })).toBeVisible();
-  await expect(jc.getByText('Academics not compared', { exact: true }).first()).toBeVisible();
+  // An open-admission school (College Scorecard) is an academic fit even without admissions figures (F48).
+  await expect(page.getByText('Open admission', { exact: true })).toBeVisible();
+  await expect(jc.getByText('Academic fit', { exact: true }).first()).toBeVisible();
   await expect(jc.getByText('Not checked', { exact: true }).first()).toBeVisible();
-  // 86 mph meets the junior-college guideline (NCSA), but with no admissions figures the school can't be placed.
+  // 86 mph meets the junior-college guideline (NCSA), so with an academic fit the school is a Strong fit.
   await expect(jc.getByText('In range', { exact: true })).toBeVisible();
-  await expect(jc.getByText('Not enough data', { exact: true })).toBeVisible();
+  await expect(jc.getByText('Strong fit', { exact: true })).toBeVisible();
   await expect(jc.getByRole('link', { name: /NCSA/ })).toBeVisible();
 
   await jc.getByRole('button', { name: 'Forget my numbers' }).click();
