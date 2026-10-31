@@ -26,7 +26,8 @@ export const GROUP_NAMES: Readonly<Record<SuggestionGroup, string>> = {
 };
 
 export const GROUP_DESCRIPTIONS: Readonly<Record<SuggestionGroup, string>> = {
-  strong_fit: 'Your assessment is in range for this level, and your scores are within or above every range the school reported.',
+  strong_fit:
+    'Your assessment is in range for this level, and you’re an academic fit: your scores are within or above every range the school reported, or the school has open admission.',
   possible_fit:
     'Your assessment is in range for this level, and some of your scores are below a range the school reported, or meeting the level’s academic minimum depends on your class rank or a test score.',
   reach:
@@ -48,6 +49,8 @@ export const ACADEMIC_FIT_REASONS: Readonly<Record<AcademicFitReason, string>> =
   REQUIREMENT_NOT_MET: 'This school currently requires a test score, and you said you won’t send one.',
   NOTHING_COMPARED:
     'Nothing could be compared: no scores entered or sent, the school doesn’t use scores, it reported no ranges, or you’re applying as a transfer.',
+  OPEN_ADMISSION:
+    'This school has an open admission policy: it admits any applicant, or only requires a high school diploma or equivalent (as reported to the College Scorecard). Some programs may have their own requirements.',
 };
 
 export const ELIGIBILITY_LABELS: Readonly<Record<EligibilityStatus, string>> = {
@@ -96,6 +99,7 @@ export const SUGGESTION_REASONS: Readonly<Record<SuggestionReason, string>> = {
   ATHLETIC_IN_RANGE: 'Your assessment results are in range for this level’s standards.',
   ATHLETIC_NOT_ASSESSED: 'There is no assessment result for this level yet.',
   ACADEMIC_FIT: ACADEMIC_FIT_REASONS.SCORES_AT_OR_ABOVE,
+  ACADEMIC_OPEN_ADMISSION: ACADEMIC_FIT_REASONS.OPEN_ADMISSION,
   ACADEMIC_STRETCH: ACADEMIC_FIT_REASONS.SOME_SCORES_BELOW,
   ACADEMIC_REACH: 'Your scores are below this school’s reported ranges, or a current testing requirement isn’t met.',
   ACADEMIC_NOT_COMPARED: ACADEMIC_FIT_REASONS.NOTHING_COMPARED,

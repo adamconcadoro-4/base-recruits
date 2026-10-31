@@ -19,7 +19,17 @@ from __future__ import annotations
 
 from typing import Any, Callable, Iterable
 
-from .mappings import FIRST_TEST_POLICY_YEAR, LEVEL, OWNERSHIP, PREDOMINANT_DEGREE, TEST_POLICY_SINCE_2024, locale_setting
+from .mappings import (
+    FIRST_TEST_POLICY_YEAR,
+    LEVEL,
+    OPEN_ADMISSIONS,
+    OWNERSHIP,
+    PREDOMINANT_DEGREE,
+    PROGRAM_AREAS,
+    PROGRAM_LEVELS,
+    TEST_POLICY_SINCE_2024,
+    locale_setting,
+)
 
 API = "https://api.data.gov/ed/collegescorecard/v1/schools"
 HOMEPAGE = "https://collegescorecard.ed.gov/"
@@ -47,6 +57,82 @@ COST_FIELDS = {
     "tuition_out_of_state": "cost.tuition.out_of_state",
 }
 ENROLLMENT_FIELDS = {"undergraduate_enrollment": "student.size"}
+
+# Fetched in a second request per batch, so the main request's field list (and
+# URL) stays as it was. A field the API doesn't recognise is dropped and
+# reported, never fatal: see fetch_extras.
+OPEN_ADMISSIONS_FIELD = "school.open_admissions_policy"
+
+
+def program_paths() -> list[str]:
+    return [f"academics.program.{level}.{area}" for level in PROGRAM_LEVELS for area in PROGRAM_AREAS]
+
+
+def extra_fields_for(year: int | None) -> list[str]:
+    fields = ["id", OPEN_ADMISSIONS_FIELD]
+    if year is not None:
+        fields.extend(f"{year}.{path}" for path in program_paths())
+    return fields
+
+
+def _unknown_fields(response: dict[str, Any]) -> list[str]:
+    """Field names the API says it doesn't recognise (its 400 error body)."""
+    names: list[str] = []
+    for error in response.get("errors") or []:
+        if isinstance(error, dict) and error.get("error") == "field_not_found" and isinstance(error.get("input"), str):
+            names.append(error["input"])
+    return names
+
+
+def _fetch_batch(batch: list[int], fields: list[str], get_json: Callable[[str, dict[str, str]], dict[str, Any]],
+                 rejected: list[str]) -> tuple[list[dict[str, Any]] | None, list[str]]:
+    """One batch, dropping fields the API rejects (up to five rounds). None when the API errors without saying why."""
+    for _ in range(5):
+        page = get_json(API, {"id": ",".join(str(u) for u in batch), "fields": ",".join(fields), "per_page": str(BATCH_SIZE)})
+        if not page.get("errors"):
+            return page.get("results", []), fields
+        unknown = [f for f in _unknown_fields(page) if f in fields and f != "id"]
+        if not unknown:
+            return None, fields
+        rejected.extend(unknown)
+        fields = [f for f in fields if f not in unknown]
+    return None, fields
+
+
+def fetch_extras(
+    unitids: list[int], years: list[int], get_json: Callable[[str, dict[str, str]], dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[str], int | None]:
+    """Open-admission flags and programs offered for the given unit ids.
+
+    Programs are requested for one data year only (76 fields per year keeps the
+    request short): the newest candidate year whose first batch reports
+    programs for at least a quarter of the schools. Returns the records, the
+    field names the API rejected, and that year (None when no year qualifies).
+    Rejected fields are removed and the request retried, so one unknown name
+    can't sink the whole refresh; an error the API doesn't explain skips the
+    extras and the snapshot is built without them.
+    """
+    rejected: list[str] = []
+    if not unitids:
+        return [], rejected, None
+    probe = unitids[:BATCH_SIZE]
+    programs_year: int | None = None
+    for year in sorted(years, reverse=True):
+        rows, _ = _fetch_batch(probe, extra_fields_for(year), get_json, rejected)
+        if rows is None:
+            return [], rejected + ["(unexplained error: extras skipped)"], None
+        reported = sum(1 for r in rows if any(r.get(f"{year}.{p}") is not None for p in program_paths()))
+        if rows and reported / len(rows) >= 0.25:
+            programs_year = year
+            break
+    fields = [f for f in extra_fields_for(programs_year) if f not in rejected]
+    results: list[dict[str, Any]] = []
+    for start in range(0, len(unitids), BATCH_SIZE):
+        rows, fields = _fetch_batch(unitids[start:start + BATCH_SIZE], fields, get_json, rejected)
+        if rows is None:
+            return [], rejected + ["(unexplained error: extras skipped)"], None
+        results.extend(rows)
+    return results, sorted(set(rejected)), programs_year
 
 
 def fields_for(years: Iterable[int]) -> list[str]:
@@ -109,7 +195,31 @@ def _rate(value: Any) -> float | None:
     return None
 
 
-def normalize(record: dict[str, Any], admissions_year: int | None, cost_year: int | None, enrollment_year: int | None) -> tuple[dict[str, Any], list[tuple[str, str]]]:
+def programs_offered(record: dict[str, Any], programs_year: int | None) -> dict[str, Any] | None:
+    """The CIP families an institution offers on campus, per level, for one data year; None when not reported."""
+    if programs_year is None:
+        return None
+    out: dict[str, Any] = {"scorecard_year": programs_year}
+    reported = False
+    for level, name in PROGRAM_LEVELS.items():
+        offered = []
+        for area in PROGRAM_AREAS:
+            value = record.get(f"{programs_year}.academics.program.{level}.{area}")
+            if value is not None:
+                reported = True
+            if value == 1:
+                offered.append(area)
+        out[name] = sorted(offered)
+    return out if reported else None
+
+
+def normalize(
+    record: dict[str, Any],
+    admissions_year: int | None,
+    cost_year: int | None,
+    enrollment_year: int | None,
+    programs_year: int | None = None,
+) -> tuple[dict[str, Any], list[tuple[str, str]]]:
     """One Scorecard record -> institution facts, admissions and costs, plus issues."""
     issues: list[tuple[str, str]] = []
     facts: dict[str, Any] = {
@@ -135,6 +245,10 @@ def normalize(record: dict[str, Any], admissions_year: int | None, cost_year: in
         if size is not None and size >= 0:
             enrollment = {"term": f"Fall {enrollment_year}", "scorecard_year": enrollment_year, "value": size}
     facts["undergraduate_enrollment"] = enrollment
+
+    open_code = record.get(OPEN_ADMISSIONS_FIELD)
+    facts["open_admission"] = OPEN_ADMISSIONS.get(open_code) if isinstance(open_code, int) and not isinstance(open_code, bool) else None
+    facts["programs"] = programs_offered(record, programs_year)
 
     admissions = None
     if admissions_year is not None:
