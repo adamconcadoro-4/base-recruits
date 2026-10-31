@@ -64,6 +64,17 @@ test.describe('visitors (no account)', () => {
     await expect(page.getByRole('article', { name: 'Long Beach City College' })).toHaveCount(0);
   });
 
+  test('a school with a published GPA range shows it with its source (F51)', async ({ page }) => {
+    await page.goto('/schools/rowan-university-nj');
+    const admissions = page.getByRole('region', { name: 'Admissions' });
+    await expect(admissions.getByRole('heading', { name: 'High school GPA' })).toBeVisible();
+    await expect(admissions.getByText('Middle half of the Fall 2024 class')).toBeVisible();
+    await expect(admissions.getByText('3.00–3.99')).toBeVisible();
+    await expect(admissions.getByText('Average 3.48')).toBeVisible();
+    await expect(admissions.getByText(/Common Data Set 2024–25/)).toBeVisible();
+    await expect(admissions.getByText(/doesn’t say whether these GPAs are weighted/)).toBeVisible();
+  });
+
   test('a school page shows every figure with its source and year', async ({ page }) => {
     await page.goto('/schools/stanford-university-ca');
     await expect(page.getByRole('heading', { level: 1, name: 'Stanford University' })).toBeVisible();
@@ -77,7 +88,9 @@ test.describe('visitors (no account)', () => {
     await expect(admissions.getByRole('heading', { name: 'The Fall 2024 entering class (historical)' })).toBeVisible();
     await expect(admissions.getByText('3.6%')).toBeVisible();
     await expect(admissions.getByText('770–800')).toBeVisible();
-    await expect(admissions.getByText('Not reported in federal data')).toBeVisible();
+    // Stanford's Common Data Set publishes no GPA range we've recorded, so none is shown or estimated.
+    await expect(admissions.getByRole('heading', { name: 'High school GPA' })).toBeVisible();
+    await expect(admissions.getByText('Not published.')).toBeVisible();
     const cost = page.getByRole('region', { name: 'Published cost' });
     await expect(cost.getByText('Sticker prices for the 2025–26 academic year, before any financial aid.')).toBeVisible();
     await expect(cost.getByText('$92,892')).toBeVisible();

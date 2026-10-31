@@ -31,11 +31,11 @@ import {
 import { isSignedIn } from '@/lib/auth/session';
 import { COMPARE_COOKIE, readCompareCookie } from '@/lib/registry/compare-selection';
 import { APPLICANT_LABELS, entryLabel } from '@/lib/registry/policy';
-import { currentPolicies, getSchool, mySavedSlugs } from '@/lib/registry/queries';
+import { currentPolicies, getSchool, gpaRanges, mySavedSlugs } from '@/lib/registry/queries';
 import { SLUG_PATTERN } from '@/lib/registry/search-params';
 import { POWER4_CONFERENCE_NAMES, power4Conference } from '@/lib/matching/power4';
 import type { SchoolEvidence } from '@/lib/matching/rules';
-import { APPLICANT_TYPES } from '@/lib/registry/types';
+import { APPLICANT_TYPES, type GpaRangeRow } from '@/lib/registry/types';
 
 type Params = Promise<{ slug: string }>;
 
@@ -57,6 +57,14 @@ export async function generateMetadata({ params }: { readonly params: Params }):
     openGraph: { title: `${school.institution.name} baseball | Base Recruits`, url: `/schools/${school.institution.slug}` },
   };
 }
+
+const formatGpa = (value: number) => value.toFixed(2);
+
+const GPA_WEIGHTING_TEXT: Readonly<Record<GpaRangeRow['weighting'], string>> = {
+  not_stated: 'The school doesn’t say whether these GPAs are weighted.',
+  weighted: 'The school says these are weighted GPAs.',
+  unweighted: 'The school says these are unweighted GPAs.',
+};
 
 function Row({ label, children }: { readonly label: ReactNode; readonly children: ReactNode }) {
   return (
@@ -93,7 +101,14 @@ export default async function SchoolPage({ params }: { readonly params: Params }
 
   const { institution, program, admissions, costs } = school;
   const active = program?.status === 'active';
-  const [policyMap, signedIn, cookieStore] = await Promise.all([currentPolicies([institution.slug]), isSignedIn(), cookies()]);
+  const [policyMap, gpaMap, signedIn, cookieStore] = await Promise.all([
+    currentPolicies([institution.slug]),
+    gpaRanges([institution.slug]),
+    isSignedIn(),
+    cookies(),
+  ]);
+  // A GPA range the school published (F51); null when none is on record or it didn't load.
+  const gpa = gpaMap === 'failed' ? null : (gpaMap.get(institution.slug) ?? null);
   const policies = policyMap === 'failed' ? null : (policyMap.get(institution.slug) ?? []);
   const savedSlugs = signedIn ? await mySavedSlugs() : null;
   const compareSelection = readCompareCookie(cookieStore.get(COMPARE_COOKIE)?.value);
@@ -118,6 +133,7 @@ export default async function SchoolPage({ params }: { readonly params: Params }
       source_url: p.source_url,
       verified_at: p.verified_at,
     })),
+    gpa: gpa ? { low: gpa.low, high: gpa.high, term: gpa.entering_term, weighting: gpa.weighting } : null,
   };
   const thisYear = new Date().getUTCFullYear();
   // Division I schools in a Power 4 conference are compared with the Power 4 benchmarks (F50).
@@ -342,9 +358,6 @@ export default async function SchoolPage({ params }: { readonly params: Params }
                 <Row label="ACT composite, middle 50%">
                   <Value value={admissions.act_composite_25}>{formatRange(admissions.act_composite_25, admissions.act_composite_75)}</Value>
                 </Row>
-                <Row label="GPA">
-                  <span className="text-slate italic">Not reported in federal data</span>
-                </Row>
               </dl>
               {hasSat || admissions.act_composite_25 !== null ? (
                 <p className="mt-4 text-sm text-slate">
@@ -368,6 +381,45 @@ export default async function SchoolPage({ params }: { readonly params: Params }
                   this school. Open-admission and two-year colleges usually don&apos;t report them.
                 </>
               )}
+            </p>
+          )}
+
+          <h3 className="mt-8 text-2xl text-navy">High school GPA</h3>
+          {gpaMap === 'failed' ? (
+            <p className="mt-2 text-slate">GPA figures didn&apos;t load. Refresh the page to try again.</p>
+          ) : gpa ? (
+            <>
+              <dl className="mt-2">
+                <Row label={`Middle half of the ${gpa.entering_term} class`}>
+                  <span>
+                    {formatGpa(gpa.low)}–{formatGpa(gpa.high)}
+                  </span>
+                  {gpa.average !== null ? <span className="block text-sm">Average {formatGpa(Number(gpa.average))}</span> : null}
+                </Row>
+              </dl>
+              <p className="mt-2 text-sm text-slate">
+                From{' '}
+                {gpa.source_kind === 'common_data_set'
+                  ? `the school’s Common Data Set${gpa.cds_year ? ` ${gpa.cds_year.slice(0, 4)}–${gpa.cds_year.slice(7)}` : ''}`
+                  : 'the school’s class profile'}{' '}
+                (<ExternalLink href={gpa.source_url}>{gpa.source_title ?? linkHost(gpa.source_url) ?? 'source'}</ExternalLink>).{' '}
+                {gpa.source_kind === 'common_data_set'
+                  ? 'The school publishes GPAs in bands, so the range runs from the bottom of one band to the top of another. '
+                  : ''}
+                {GPA_WEIGHTING_TEXT[gpa.weighting]} About a quarter of the class was below this range: it is not a minimum, and it
+                describes the whole entering class, not recruited athletes.
+              </p>
+            </>
+          ) : institution.open_admission ? (
+            <p className="mt-2">
+              <span className="font-semibold">Any GPA with a high school diploma or equivalent.</span> This school reports an open
+              admission policy to the College Scorecard, so it has no GPA range to compare with. Some programs within a school
+              can still have their own requirements.
+            </p>
+          ) : (
+            <p className="mt-2">
+              <span className="text-slate italic">Not published.</span> We haven&apos;t found a GPA range this school published, so
+              &ldquo;Your fit&rdquo; doesn&apos;t compare your GPA here. We don&apos;t estimate it.
             </p>
           )}
         </Section>

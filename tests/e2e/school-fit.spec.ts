@@ -50,6 +50,7 @@ test('enter numbers once, see the fit on every school page, then forget them', a
   await expect(jc.getByRole('heading', { name: 'Your fit with Long Beach City College' })).toBeVisible();
   // An open-admission school (College Scorecard) is an academic fit even without admissions figures (F48).
   await expect(page.getByText('Open admission', { exact: true })).toBeVisible();
+  await expect(page.getByText('Any GPA with a high school diploma or equivalent.')).toBeVisible();
   await expect(jc.getByText('Academic fit', { exact: true }).first()).toBeVisible();
   await expect(jc.getByText('Not checked', { exact: true }).first()).toBeVisible();
   // 88 mph meets the junior-college guideline (NCSA), so with an academic fit the school is a Strong fit.

@@ -1,12 +1,12 @@
 # School Suggestions — Rulebook
 
 The written rules behind Base Recruits' school suggestions, approved by the founder on 2026-10-30 and 2026-10-31
-(decisions F15, F43–F47 and F50 in `docs/decisions.md`). Every rule here is implemented in `src/lib/matching/` and covered by a test. Changing a
+(decisions F15, F43–F51 in `docs/decisions.md`). Every rule here is implemented in `src/lib/matching/` and covered by a test. Changing a
 rule means changing this page, the code and its version number in the same pull request.
 
 | Rule set | Code | Version |
 | --- | --- | --- |
-| Score comparison (unchanged) | `rules.ts` | `RULES_VERSION` 2026-10-23.1 |
+| Score and GPA comparison | `rules.ts` | `RULES_VERSION` 2026-10-31.1 |
 | Academic fit labels | `fit.ts` | `FIT_RULES_VERSION` 2026-10-31.1 |
 | Eligibility to compete | `eligibility.ts` | `ELIGIBILITY_RULES_VERSION` 2026-10-30.1 |
 | Combined suggestions | `suggestions.ts` | `SUGGESTION_RULES_VERSION` 2026-10-31.1 |
@@ -32,14 +32,14 @@ are counted as set aside.
 
 ## 2. Academic fit (per school)
 
-Taken only from the existing score comparison; no new cut-offs.
+Taken only from the score and GPA comparison; no new cut-offs.
 
 | Label | When |
 | --- | --- |
-| Academic fit | Every score compared is within or above the school's reported range, and no checked requirement is unmet; **or the school has an open admission policy** (F48) |
-| Academic stretch | Some compared scores are below a reported range |
-| Academic reach | Every compared score is below the reported ranges, or a checked current requirement is not met (a required test the player won't send), for first-year and transfer applicants alike |
-| Academics not compared | Nothing could be compared: no scores entered or sent, test-blind, no reported ranges, or a transfer applicant (first-year ranges are never applied to transfers) |
+| Academic fit | Every score or GPA compared is within or above the school's reported range, and no checked requirement is unmet; **or the school has an open admission policy** (F48) |
+| Academic stretch | Some compared numbers are below a reported range |
+| Academic reach | Every compared number is below the reported ranges, or a checked current requirement is not met (a required test the player won't send), for first-year and transfer applicants alike |
+| Academics not compared | Nothing could be compared: no scores or GPA entered, scores not sent or test-blind with no GPA range, no reported ranges, or a transfer applicant (first-year ranges are never applied to transfers) |
 
 Reported ranges are the middle 50% of a past entering class as a whole, not recruited athletes; that caveat is shown with
 every comparison.
@@ -49,10 +49,27 @@ admits any applicant, or only requires a high school diploma or equivalent) is a
 say, with the reason "open admission" shown. A checked current requirement the player won't meet still makes it a Reach.
 Most junior colleges are open admission; before this rule they could never be placed academically.
 
+**GPA against a published range (F51).** Where the school published its entering class's high school GPAs, the player's
+GPA is compared with the middle half of that class, like a test score:
+
+- **Sources:** the school's Common Data Set (section C11, all enrolled first-year students) or its own class-profile page
+  (a published 25th–75th percentile range), recorded with the link and year (`public.gpa_ranges`). Nothing is estimated;
+  a school without a published range shows "Not published" and the GPA isn't compared.
+- **From Common Data Set bands:** the range runs from the bottom of the band holding the 25th percentile to the top of the
+  band holding the 75th (`private.cds_gpa_middle_half`), so it is as wide as the bands, never narrower. Bands are scaled to
+  their own total, because published columns often add to 99–101%.
+- **Weighted or unweighted:** compared either way (the founder's decision, 2026-10-31). Most schools don't say which, and
+  the page says so every time: an unweighted GPA can look lower than it is against weighted figures.
+- **Scale:** only GPAs on a 4.0 scale are compared, because the published ranges are on a 4.0 scale.
+- **Independent of tests:** the GPA is compared even when scores aren't sent or the school is test-blind. A range more than
+  two classes before the player's entry year is flagged as dated.
+- **Coverage (2026-10-31):** 17 schools, all in New York, New Jersey and Connecticut. Ranges are added from the admin
+  school page as more are found.
+
 ## 3. Eligibility to compete (per level)
 
-Schools don't report GPA in the federal data, so GPA is checked against each level's published minimum **to compete as
-an entering freshman**. This is never an admission check.
+Separately from any GPA range a school published (§2), GPA is checked against each level's published minimum **to compete
+as an entering freshman**. This is never an admission check.
 
 | Level | Rule checked | Source (checked 2026-10-30) |
 | --- | --- | --- |
@@ -214,6 +231,9 @@ Every active program's page has a **Your fit** section (`src/components/matching
   every outside number exactly as published. A change arrives as a pull request for the founder to approve.
 - **Sources with published sample sizes** for D1 and D2 are being looked for to corroborate or replace BaseballPath,
   which publishes none.
+- **GPA ranges** exist for 17 schools (§2). No free dataset covers every school: the source is each school's own Common
+  Data Set or class profile, and many leave GPA blank. Collection continues by region; a licensed dataset is the fast
+  route to full coverage.
 - **Coverage:** in the 2024-25 registry snapshot 739 of 1,670 programs report SAT ranges. Schools without ranges (many
   test-optional four-year schools and most junior colleges) fall under "academics not compared".
 - **Pages:** each school page shows "Your fit" (§6). The full suggestions list page, and the paywall and billing it

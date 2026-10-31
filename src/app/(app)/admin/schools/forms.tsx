@@ -1,11 +1,12 @@
 'use client';
 
-import { startTransition, useActionState, type FormEvent } from 'react';
+import { startTransition, useActionState, useState, type FormEvent } from 'react';
 
 import {
   addSchoolAction,
   resolveCorrectionAction,
   setAdmissionsPolicyAction,
+  setGpaRangeAction,
   setListingAction,
   updateProgramAction,
 } from '@/app/(app)/admin/schools/actions';
@@ -14,6 +15,7 @@ import { SelectField, TextAreaField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { IDLE, type ActionState } from '@/lib/forms/action-state';
+import { CDS_GPA_BANDS } from '@/lib/registry/gpa';
 
 export interface ProgramFormValues {
   readonly institutionId: string;
@@ -324,6 +326,71 @@ export function ResolveReportForm({ reportId }: { readonly reportId: string }) {
         <SubmitButton name="status" value="dismissed" variant="secondary" pendingLabel="Saving…">
           Dismiss
         </SubmitButton>
+      </div>
+    </form>
+  );
+}
+
+/**
+ * Records a high school GPA range (F51) from the school's Common Data Set (section C11 bands, all enrolled
+ * first-year students) or its own class-profile page (a published 25th–75th percentile range).
+ */
+export function GpaRangeForm({ unitid, slug, years }: { readonly unitid: number; readonly slug: string; readonly years: readonly number[] }) {
+  const [state, action, pending] = useActionState<ActionState, FormData>(setGpaRangeAction, IDLE);
+  const [kind, setKind] = useState('common_data_set');
+  const errors = state.fieldErrors ?? {};
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    startTransition(() => action(data));
+  }
+  return (
+    <form action={action} onSubmit={submit} className="grid gap-5 lg:grid-cols-2" noValidate aria-label="Record a published GPA range">
+      <input type="hidden" name="unitid" value={unitid} />
+      <input type="hidden" name="slug" value={slug} />
+      <SelectField id="g-kind" name="sourceKind" label="Where the numbers come from" value={kind} onChange={(e) => setKind(e.currentTarget.value)} error={errors.sourceKind}>
+        <option value="common_data_set">Common Data Set (section C11)</option>
+        <option value="school_profile">The school&apos;s class profile (middle 50% GPA)</option>
+      </SelectField>
+      <SelectField id="g-year" name="enteringYear" label="Entering class (fall)" defaultValue={String(years[1] ?? years[0] ?? '')} error={errors.enteringYear} hint={kind === 'common_data_set' ? 'A Common Data Set 2025-2026 describes fall 2025.' : undefined}>
+        {years.map((y) => (
+          <option key={y} value={y}>
+            Fall {y}
+          </option>
+        ))}
+      </SelectField>
+      {kind === 'common_data_set' ? (
+        <fieldset className="grid gap-4 sm:grid-cols-3 lg:col-span-2">
+          <legend className="mb-2 font-semibold text-graphite">C11 percentages, column for all enrolled students (blank counts as 0)</legend>
+          {CDS_GPA_BANDS.map((label, i) => (
+            <TextField key={label} id={`g-band${i}`} name={`band${i}`} label={label} inputMode="decimal" error={errors[`band${i}`]} autoComplete="off" />
+          ))}
+        </fieldset>
+      ) : (
+        <>
+          <TextField id="g-low" name="low" label="25th percentile GPA (4.0 scale)" inputMode="decimal" error={errors.low} autoComplete="off" />
+          <TextField id="g-high" name="high" label="75th percentile GPA (4.0 scale)" inputMode="decimal" error={errors.high} autoComplete="off" />
+        </>
+      )}
+      <TextField id="g-average" name="average" label="Average GPA as printed (optional)" hint="Leave blank if it's on another scale, such as 89.3." inputMode="decimal" error={errors.average} autoComplete="off" />
+      <TextField id="g-submitting" name="percentSubmitting" label="Percent submitting a GPA (optional)" inputMode="decimal" error={errors.percentSubmitting} autoComplete="off" />
+      <SelectField id="g-weighting" name="weighting" label="Does the school say if these are weighted?" defaultValue="not_stated" error={errors.weighting}>
+        <option value="not_stated">Not stated</option>
+        <option value="weighted">Weighted</option>
+        <option value="unweighted">Unweighted</option>
+      </SelectField>
+      <TextField id="g-title" name="sourceTitle" label="Document or page title (optional)" maxLength={200} />
+      <TextField id="g-source" name="sourceUrl" type="url" label="Link to the document or page you read" error={errors.sourceUrl} className="lg:col-span-2" />
+      <TextAreaField id="g-note" name="note" label="What you checked" maxLength={1000} error={errors.note} className="lg:col-span-2" />
+      <div className="space-y-3 lg:col-span-2">
+        {state.message ? (
+          <Notice tone={state.status === 'error' ? 'error' : 'success'} live>
+            {state.message}
+          </Notice>
+        ) : null}
+        <Button type="submit" disabled={pending} aria-disabled={pending}>
+          {pending ? 'Saving…' : 'Record GPA range'}
+        </Button>
       </div>
     </form>
   );

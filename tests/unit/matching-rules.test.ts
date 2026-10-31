@@ -127,11 +127,12 @@ describe('historical benchmarks', () => {
     expect(result.benchmarks[1]).toMatchObject({ key: 'sat_math', status: 'not_comparable', reasons: ['SCORE_NOT_ENTERED'] });
   });
 
-  it('GPA is never compared, because schools do not report it in the data used', () => {
+  it('GPA is not compared when the school published no GPA range; nothing is estimated', () => {
     expect(compareSchool(unchecked, applicant()).benchmarks.find((b) => b.key === 'gpa')).toMatchObject({
       status: 'not_reported',
       reasons: ['GPA_NOT_REPORTED_BY_SCHOOLS'],
     });
+    expect(compareSchool(unchecked, applicant()).evidence.reasons).toContain('GPA_NOT_REPORTED_BY_SCHOOLS');
   });
 
   it('flags ranges that are more than two classes old', () => {
@@ -222,5 +223,57 @@ describe('input validation', () => {
 
   it('rejects an unknown applicant type instead of guessing', () => {
     expect(parseApplicantInput({ ...raw, applicantType: 'graduate' }, 2026).ok).toBe(false);
+  });
+});
+
+describe('GPA against a published range (F51)', () => {
+  const withGpa: SchoolEvidence = { ...unchecked, gpa: { low: 3.25, high: 3.99, term: 'Fall 2025', weighting: 'not_stated' } };
+  const gpaOf = (evidence: SchoolEvidence, input: ApplicantInput) => compareSchool(evidence, input).benchmarks.find((b) => b.key === 'gpa');
+  const at = (value: number, type: 'unweighted' | 'weighted' | 'unknown' = 'unweighted', scale = 4) => applicant({ gpa: { value, scale, type } });
+
+  it('places the GPA below, within or above the middle half, weighted or not, and says the school didn’t state which', () => {
+    expect(gpaOf(withGpa, at(3.2))).toMatchObject({ status: 'below', low: 3.25, high: 3.99, term: 'Fall 2025', applicant: 3.2 });
+    expect(gpaOf(withGpa, at(3.25))?.status).toBe('within');
+    expect(gpaOf(withGpa, at(4.0, 'weighted'))?.status).toBe('above');
+    expect(gpaOf(withGpa, at(3.6, 'unknown'))?.reasons).toEqual(['GPA_RANGE_PUBLISHED', 'WHOLE_CLASS_NOT_ATHLETES', 'GPA_WEIGHTING_NOT_STATED']);
+    expect(gpaOf(withGpa, at(3.2))?.reasons).toContain('BELOW_RANGE_IS_NOT_A_REQUIREMENT');
+    expect(gpaOf({ ...withGpa, gpa: { low: 3.25, high: 3.99, term: 'Fall 2025', weighting: 'unweighted' } }, at(3.6))?.reasons).not.toContain('GPA_WEIGHTING_NOT_STATED');
+  });
+
+  it('compares only GPAs on a 4.0 scale', () => {
+    expect(gpaOf(withGpa, at(4.5, 'weighted', 5))).toMatchObject({ status: 'not_comparable', reasons: ['GPA_SCALE_NOT_COMPARABLE'] });
+    expect(gpaOf(withGpa, at(92, 'unknown', 100))).toMatchObject({ status: 'not_comparable', reasons: ['GPA_SCALE_NOT_COMPARABLE'] });
+  });
+
+  it('flags a GPA range more than two classes old', () => {
+    const old: SchoolEvidence = { ...withGpa, gpa: { low: 3.25, high: 3.99, term: 'Fall 2023', weighting: 'not_stated' } };
+    expect(gpaOf(old, applicant({ entryYear: 2027 }))?.reasons).toContain('HISTORICAL_DATA_STALE');
+    expect(gpaOf(old, applicant({ entryYear: 2025 }))?.reasons).not.toContain('HISTORICAL_DATA_STALE');
+  });
+
+  it('is compared even when test scores are not sent or not used, and counts in the score grouping', () => {
+    const noScores = applicant({ sat: null, submitScores: 'no', gpa: { value: 3.0, scale: 4, type: 'unweighted' } });
+    expect(gpaOf(withGpa, noScores)?.status).toBe('below');
+    expect(scoreGroup(compareSchool(withGpa, noScores))).toBe('below');
+    expect(gpaOf({ ...withGpa, currentPolicies: [{ applicant_type: 'first_year', entry_year: 2027, test_policy: 'not_considered', ...CHECKED }] }, at(3.5))?.status).toBe('within');
+    // SAT within or above and GPA below: mixed.
+    expect(scoreGroup(compareSchool(withGpa, applicant({ sat: { erw: 760, math: 800 }, gpa: { value: 3.0, scale: 4, type: 'unweighted' } })))).toBe('mixed');
+  });
+
+  it('a GPA range counts as reported evidence, also for a school with no test-score figures', () => {
+    const gpaOnly: SchoolEvidence = { ...noAdmissionsData, gpa: { low: 2.5, high: 3.49, term: 'Fall 2025', weighting: 'not_stated' } };
+    const result = compareSchool(gpaOnly, applicant({ gpa: { value: 3.0, scale: 4, type: 'unweighted' } }));
+    expect(result.benchmarks.find((b) => b.key === 'gpa')?.status).toBe('within');
+    expect(result.evidence.status).toBe('partial');
+    expect(result.evidence.reasons).not.toContain('GPA_NOT_REPORTED_BY_SCHOOLS');
+    expect(scoreGroup(result)).toBe('at_or_above');
+  });
+
+  it('never applies first-year GPA ranges to transfer applicants', () => {
+    expect(gpaOf(withGpa, applicant({ applicantType: 'transfer' }))).toMatchObject({ status: 'not_comparable', reasons: ['TRANSFER_FIRST_YEAR_DATA_NOT_APPLICABLE'] });
+  });
+
+  it('has wording for every GPA reason', () => {
+    for (const code of ['GPA_RANGE_PUBLISHED', 'GPA_WEIGHTING_NOT_STATED', 'GPA_SCALE_NOT_COMPARABLE'] as const) expect(REASONS[code].length).toBeGreaterThan(10);
   });
 });
