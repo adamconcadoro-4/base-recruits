@@ -208,25 +208,45 @@ class ScorecardExtrasTests(unittest.TestCase):
             self.assertRegex(area, r"^[a-z][a-z_]*$")
             self.assertRegex(cip, r"^[0-9]{2}$")
 
-    def test_fetch_extras_drops_fields_the_api_rejects_and_retries(self):
+    def test_fetch_extras_finds_the_newest_year_with_programs_and_drops_rejected_fields(self):
         calls = []
 
         def fake(url, params):
             fields = params["fields"].split(",")
-            calls.append(len(fields))
+            calls.append((params["id"].count(",") + 1, len(fields)))
             bad = [f for f in fields if f.endswith(".military")]
             if bad:
                 return {"errors": [{"error": "field_not_found", "input": f} for f in bad]}
-            return {"results": [{"id": int(i), "school.open_admissions_policy": 1} for i in params["id"].split(",")]}
+            ids = [int(i) for i in params["id"].split(",")]
+            rows = []
+            for i in ids:
+                row = {"id": i, "school.open_admissions_policy": 1}
+                # Only 2024 has program data.
+                row.update({f: 1 for f in fields if f.startswith("2024.academics.")})
+                rows.append(row)
+            return {"results": rows}
 
-        results, rejected = scorecard.fetch_extras([1, 2, 3], [2024], fake)
-        self.assertEqual(len(results), 3)
-        self.assertEqual(sorted(rejected), ["2024.academics.program.assoc.military", "2024.academics.program.bachelors.military"])
-        self.assertEqual(calls[0] - calls[1], 2)
+        results, rejected, year = scorecard.fetch_extras(list(range(1, 151)), [2025, 2024, 2023], fake)
+        self.assertEqual(year, 2024)
+        self.assertEqual(len(results), 150)
+        self.assertEqual(rejected, [
+            "2024.academics.program.assoc.military", "2024.academics.program.bachelors.military",
+            "2025.academics.program.assoc.military", "2025.academics.program.bachelors.military",
+        ])
+        self.assertTrue(all(fields <= 2 + 76 for _, fields in calls), "never more than one year of program fields per request")
+
+    def test_fetch_extras_without_program_data_still_returns_open_admission(self):
+        def fake(url, params):
+            return {"results": [{"id": int(i), "school.open_admissions_policy": 2} for i in params["id"].split(",")]}
+
+        results, rejected, year = scorecard.fetch_extras([1, 2], [2025, 2024], fake)
+        self.assertIsNone(year)
+        self.assertEqual([r["school.open_admissions_policy"] for r in results], [2, 2])
+        self.assertEqual(rejected, [])
 
     def test_fetch_extras_gives_up_quietly_on_an_unexplained_error(self):
-        results, rejected = scorecard.fetch_extras([1], [2024], lambda url, params: {"errors": [{"error": "boom"}]})
-        self.assertEqual(results, [])
+        results, rejected, year = scorecard.fetch_extras([1], [2024], lambda url, params: {"errors": [{"error": "boom"}]})
+        self.assertEqual((results, year), ([], None))
         self.assertEqual(rejected, ["(unexplained error: extras skipped)"])
 
 

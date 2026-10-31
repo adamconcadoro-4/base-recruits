@@ -62,16 +62,15 @@ ENROLLMENT_FIELDS = {"undergraduate_enrollment": "student.size"}
 # URL) stays as it was. A field the API doesn't recognise is dropped and
 # reported, never fatal: see fetch_extras.
 OPEN_ADMISSIONS_FIELD = "school.open_admissions_policy"
-PROGRAMS_KEY_PATH = "academics.program.bachelors.business_marketing"
 
 
 def program_paths() -> list[str]:
     return [f"academics.program.{level}.{area}" for level in PROGRAM_LEVELS for area in PROGRAM_AREAS]
 
 
-def extra_fields_for(years: Iterable[int]) -> list[str]:
+def extra_fields_for(year: int | None) -> list[str]:
     fields = ["id", OPEN_ADMISSIONS_FIELD]
-    for year in years:
+    if year is not None:
         fields.extend(f"{year}.{path}" for path in program_paths())
     return fields
 
@@ -85,34 +84,55 @@ def _unknown_fields(response: dict[str, Any]) -> list[str]:
     return names
 
 
+def _fetch_batch(batch: list[int], fields: list[str], get_json: Callable[[str, dict[str, str]], dict[str, Any]],
+                 rejected: list[str]) -> tuple[list[dict[str, Any]] | None, list[str]]:
+    """One batch, dropping fields the API rejects (up to five rounds). None when the API errors without saying why."""
+    for _ in range(5):
+        page = get_json(API, {"id": ",".join(str(u) for u in batch), "fields": ",".join(fields), "per_page": str(BATCH_SIZE)})
+        if not page.get("errors"):
+            return page.get("results", []), fields
+        unknown = [f for f in _unknown_fields(page) if f in fields and f != "id"]
+        if not unknown:
+            return None, fields
+        rejected.extend(unknown)
+        fields = [f for f in fields if f not in unknown]
+    return None, fields
+
+
 def fetch_extras(
     unitids: list[int], years: list[int], get_json: Callable[[str, dict[str, str]], dict[str, Any]],
-) -> tuple[list[dict[str, Any]], list[str]]:
+) -> tuple[list[dict[str, Any]], list[str], int | None]:
     """Open-admission flags and programs offered for the given unit ids.
 
-    Returns the records and the field names the API rejected. Rejected fields
-    are removed and the request retried, so one unknown name can't sink the
-    whole refresh; if the API reports an error it doesn't explain, the extras
-    are skipped (empty result) and the snapshot is built without them.
+    Programs are requested for one data year only (76 fields per year keeps the
+    request short): the newest candidate year whose first batch reports
+    programs for at least a quarter of the schools. Returns the records, the
+    field names the API rejected, and that year (None when no year qualifies).
+    Rejected fields are removed and the request retried, so one unknown name
+    can't sink the whole refresh; an error the API doesn't explain skips the
+    extras and the snapshot is built without them.
     """
-    fields = extra_fields_for(years)
     rejected: list[str] = []
+    if not unitids:
+        return [], rejected, None
+    probe = unitids[:BATCH_SIZE]
+    programs_year: int | None = None
+    for year in sorted(years, reverse=True):
+        rows, _ = _fetch_batch(probe, extra_fields_for(year), get_json, rejected)
+        if rows is None:
+            return [], rejected + ["(unexplained error: extras skipped)"], None
+        reported = sum(1 for r in rows if any(r.get(f"{year}.{p}") is not None for p in program_paths()))
+        if rows and reported / len(rows) >= 0.25:
+            programs_year = year
+            break
+    fields = [f for f in extra_fields_for(programs_year) if f not in rejected]
     results: list[dict[str, Any]] = []
     for start in range(0, len(unitids), BATCH_SIZE):
-        batch = unitids[start:start + BATCH_SIZE]
-        for _ in range(5):
-            page = get_json(API, {"id": ",".join(str(u) for u in batch), "fields": ",".join(fields), "per_page": str(BATCH_SIZE)})
-            if not page.get("errors"):
-                results.extend(page.get("results", []))
-                break
-            unknown = [f for f in _unknown_fields(page) if f in fields and f != "id"]
-            if not unknown:
-                return [], rejected + ["(unexplained error: extras skipped)"]
-            rejected.extend(unknown)
-            fields = [f for f in fields if f not in unknown]
-        else:
-            return [], rejected + ["(too many rejected fields: extras skipped)"]
-    return results, rejected
+        rows, fields = _fetch_batch(unitids[start:start + BATCH_SIZE], fields, get_json, rejected)
+        if rows is None:
+            return [], rejected + ["(unexplained error: extras skipped)"], None
+        results.extend(rows)
+    return results, sorted(set(rejected)), programs_year
 
 
 def fields_for(years: Iterable[int]) -> list[str]:

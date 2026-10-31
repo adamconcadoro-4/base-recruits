@@ -88,7 +88,7 @@ def build(api_key: str, eada_year: int | None = None, capture: set[int] | None =
         lambda url, params: json.loads(_get(url, {**params, "api_key": api_key})),
     )
     by_id = {r["id"]: r for r in records if isinstance(r.get("id"), int)}
-    extras, rejected_fields = scorecard.fetch_extras(
+    extras, rejected_fields, programs_year = scorecard.fetch_extras(
         unitids, candidate_years,
         lambda url, params: _get_json_allowing_400(url, {**params, "api_key": api_key}, api_key),
     )
@@ -99,7 +99,6 @@ def build(api_key: str, eada_year: int | None = None, capture: set[int] | None =
     admissions_year = scorecard.choose_year(found, candidate_years, "admissions.admission_rate.overall")
     cost_year = scorecard.choose_year(found, candidate_years, "cost.tuition.in_state")
     enrollment_year = scorecard.choose_year(found, candidate_years, "student.size")
-    programs_year = scorecard.choose_year(found, candidate_years, scorecard.PROGRAMS_KEY_PATH)
 
     out_records: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = [
