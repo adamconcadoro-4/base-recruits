@@ -26,10 +26,18 @@ test('enter numbers once, see the fit on every school page, then forget them', a
   await expect(fit.getByText(/Add your position and baseball numbers to see your overall fit/)).toBeVisible();
   await expect(fit.getByText('Not enough data', { exact: true })).toHaveCount(0);
 
-  // Baseball numbers complete the picture: an 86 mph fastball is in the D1 typical range (public benchmarks).
+  // Stanford plays in the ACC, so it uses the Power 4 benchmarks (F50): 86 mph is in the D1 typical range but below
+  // the Power 4 one (87 mph and up), so the school is left out of the suggestions.
   await fit.getByRole('button', { name: 'Edit my numbers' }).click();
   await fit.getByLabel('Main position').selectOption('pitcher');
   await fit.getByLabel('Fastball, top velocity (mph)').fill('86');
+  await fit.getByRole('button', { name: 'See your fit' }).click();
+  await expect(fit.getByText(/below the Power 4 typical range/)).toBeVisible();
+  await expect(fit.getByText(/plays in the ACC, a Power 4 conference/)).toBeVisible();
+
+  // 88 mph is in the Power 4 range: baseball numbers complete the picture.
+  await fit.getByRole('button', { name: 'Edit my numbers' }).click();
+  await fit.getByLabel('Fastball, top velocity (mph)').fill('88');
   await fit.getByRole('button', { name: 'See your fit' }).click();
   await expect(fit.getByText('In range', { exact: true })).toBeVisible();
   await expect(fit.getByText('Reach', { exact: true })).toBeVisible();
@@ -44,7 +52,7 @@ test('enter numbers once, see the fit on every school page, then forget them', a
   await expect(page.getByText('Open admission', { exact: true })).toBeVisible();
   await expect(jc.getByText('Academic fit', { exact: true }).first()).toBeVisible();
   await expect(jc.getByText('Not checked', { exact: true }).first()).toBeVisible();
-  // 86 mph meets the junior-college guideline (NCSA), so with an academic fit the school is a Strong fit.
+  // 88 mph meets the junior-college guideline (NCSA), so with an academic fit the school is a Strong fit.
   await expect(jc.getByText('In range', { exact: true })).toBeVisible();
   await expect(jc.getByText('Strong fit', { exact: true })).toBeVisible();
   await expect(jc.getByRole('link', { name: /NCSA/ })).toBeVisible();

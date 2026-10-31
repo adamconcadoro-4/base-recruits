@@ -1,7 +1,7 @@
 # School Suggestions — Rulebook
 
 The written rules behind Base Recruits' school suggestions, approved by the founder on 2026-10-30 and 2026-10-31
-(decisions F15, F43–F47 in `docs/decisions.md`). Every rule here is implemented in `src/lib/matching/` and covered by a test. Changing a
+(decisions F15, F43–F47 and F50 in `docs/decisions.md`). Every rule here is implemented in `src/lib/matching/` and covered by a test. Changing a
 rule means changing this page, the code and its version number in the same pull request.
 
 | Rule set | Code | Version |
@@ -9,8 +9,9 @@ rule means changing this page, the code and its version number in the same pull 
 | Score comparison (unchanged) | `rules.ts` | `RULES_VERSION` 2026-10-23.1 |
 | Academic fit labels | `fit.ts` | `FIT_RULES_VERSION` 2026-10-31.1 |
 | Eligibility to compete | `eligibility.ts` | `ELIGIBILITY_RULES_VERSION` 2026-10-30.1 |
-| Combined suggestions | `suggestions.ts` | `SUGGESTION_RULES_VERSION` 2026-10-30.1 |
-| Athletic benchmarks and the in-range rule | `athletic.ts` | `PUBLIC_BENCHMARKS` public-2026-10-31 (Paul's standards replace it when loaded) |
+| Combined suggestions | `suggestions.ts` | `SUGGESTION_RULES_VERSION` 2026-10-31.1 |
+| Athletic benchmarks and the in-range rule | `athletic.ts` | `PUBLIC_BENCHMARKS` public-2026-10-31.1 (Paul's standards replace it when loaded) |
+| Power 4 conference members | `power4.ts` | `POWER4_CHECKED_ON` 2026-10-31 |
 
 ## 1. What goes in
 
@@ -135,8 +136,14 @@ no hidden score.
 - **D1, D2, D3:** BaseballPath, "What Numbers Do You Need to Play D1, D2, or D3 Baseball?" (published 2026-06-08, updated
   2026-10-20). Each player's best showcase number on their Prep Baseball Report profile, classes of 2024–26, grouped by
   the level they committed to. Measured, but sample sizes aren't published and it's a commercial site, so it is re-checked
-  every month (`docs/benchmark-sources.md`). D1 uses its "Other D1" (non–Power 4) figures, because the registry doesn't separate
-  Power 4.
+  every month (`docs/benchmark-sources.md`). D1 uses its "Other D1" (non–Power 4) figures, except at schools in a Power 4
+  conference (below).
+- **Power 4 (F50):** a Division I school in the ACC, Big Ten, Big 12 or SEC is compared with the same page's "Power 4"
+  figures. Membership is each conference's baseball teams as its own site listed them (63 schools, checked 2026-10-31,
+  `src/lib/matching/power4.ts`), matched by federal unit ID. For the Power 4, "the next level down" is "Other D1". The
+  source gives a Power 4 corner-infield 60 but no "Other D1" one, so corner infielders aren't compared on the 60 at
+  Power 4 schools either. Membership is re-checked every month with the benchmarks. A partner standards set without its
+  own Power 4 tier judges Power 4 schools by its Division I standard.
 - **NAIA and junior college:** NCSA, "College Baseball Recruiting Guidelines and Measurables" (published 2018-08-17,
   modified 2026-03-16). Guidelines with no published data; NAIA shares NCSA's D3 column (decision F47). Shown as
   "guideline", with the wording as published.
@@ -146,8 +153,8 @@ under for times):
 
 | How the floor is set | When |
 | --- | --- |
-| Low end of the typical range (average − 1 standard deviation) | The source gives a range: fastball and exit velocity, D1–D3 |
-| Average of the next level down | The source gives only an average (60-yard, throwing velocities, pop time) at D1 and D2 |
+| Low end of the typical range (average − 1 standard deviation) | The source gives a range: fastball and exit velocity, Power 4 and D1–D3 |
+| Average of the next level down | The source gives only an average (60-yard, throwing velocities, pop time) at Power 4, D1 and D2 |
 | The level's own average | D3 metrics with only an average, because no lower level is measured |
 | The guideline itself (its minimum, or the slower/lower end of its range) | NAIA and junior college |
 
@@ -157,7 +164,17 @@ for everyone else. A metric is compared only when the player entered it and the 
 estimated. Known consequences:
 
 - Catchers can't be placed at NAIA or junior college (only pop time has a guideline there).
-- Corner infielders are compared on the 60 only at D3, the one level the source reports it for.
+- Corner infielders are compared on the 60 only at D3, the one level with a figure for both it and the level below.
+- A player can be in range for Division I but below at Power 4 schools; those schools are then set aside like any level
+  the player is below.
+
+| Power 4 floor (F50) | Value | How set |
+| --- | --- | --- |
+| Top fastball | 87 mph | Low end of the Power 4 typical range (87–95) |
+| Exit velocity | 91 mph | Low end of the Power 4 typical range (91–103) |
+| 60-yard, outfield / middle infield | 6.91 s / 7.05 s | "Other D1" average |
+| Infield / outfield / catcher velocity | 84 / 86 / 78 mph | "Other D1" average |
+| Pop time | 1.99 s | "Other D1" average |
 - NCSA's NAIA 60-yard guideline (6.9–7.0) is stricter than the measured D3 average (7.13–7.29); both are shown as published.
 
 ## 5. Guarantees
