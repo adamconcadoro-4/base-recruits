@@ -1,6 +1,6 @@
 /**
  * The athletic side of school suggestions: a player's baseball numbers
- * compared with per-level benchmarks (founder decisions F44, F46, F47,
+ * compared with per-level benchmarks (founder decisions F44, F46, F47, F50,
  * 2026-10-31; docs/matching-rulebook.md §4a).
  *
  * - Benchmarks come in versioned sets. The set in use today is PUBLIC_BENCHMARKS,
@@ -139,6 +139,11 @@ export interface BenchmarkSet {
   readonly checkedOn: string;
   readonly sources: Readonly<Record<string, BenchmarkSource>>;
   readonly floors: Readonly<Record<Level, readonly Floor[]>>;
+  /**
+   * Division I floors for schools in a Power 4 conference (src/lib/matching/power4.ts).
+   * When a set has none, those schools use the set's Division I floors.
+   */
+  readonly power4Floors?: readonly Floor[];
 }
 
 const BP = 'baseballpath-2026-10';
@@ -166,14 +171,14 @@ const ncsa = (metric: AthleticMetric, value: number, sourceText: string, sixtyGr
 /**
  * Public benchmarks, checked 2026-10-31. Every number as each source published it is recorded in
  * docs/benchmark-sources.md, which a monthly scheduled task compares with the live pages; keep the two in step.
- * D1 uses the source's "Other D1"
- * (non–Power 4) figures, because the registry doesn't separate Power 4.
+ * D1 uses the source's "Other D1" (non–Power 4) figures; schools in a Power 4
+ * conference use its Power 4 figures (F50), where the level one down is "Other D1".
  * NAIA and junior college use NCSA guidelines (F47); NAIA shares NCSA's D3
  * column. Values not given as numbers (JUCO "upper 70s" infield velocity) and
  * metrics a source doesn't cover are left out, never estimated.
  */
 export const PUBLIC_BENCHMARKS: BenchmarkSet = {
-  version: 'public-2026-10-31',
+  version: 'public-2026-10-31.1',
   kind: 'public',
   name: 'Public benchmarks',
   checkedOn: '2026-10-31',
@@ -246,6 +251,18 @@ export const PUBLIC_BENCHMARKS: BenchmarkSet = {
       ncsa('pop_time_s', 2.1, '2.1 or below'),
     ],
   },
+  // Power 4: typical-range lows where the source gives a range, otherwise the "Other D1" average.
+  // The source gives a Power 4 corner-infield 60 (7.15 s) but no "Other D1" one, so it is left out.
+  power4Floors: [
+    bp('fastball_mph', 87, 'typical_range_low', 91),
+    bp('exit_velocity_mph', 91, 'typical_range_low', 97.25),
+    bp('sixty_yard_s', 6.91, 'next_level_average', 6.83, 'outfield'),
+    bp('sixty_yard_s', 7.05, 'next_level_average', 6.93, 'middle_infield'),
+    bp('infield_velocity_mph', 84, 'next_level_average', 86),
+    bp('outfield_velocity_mph', 86, 'next_level_average', 88),
+    bp('catcher_velocity_mph', 78, 'next_level_average', 80),
+    bp('pop_time_s', 1.99, 'next_level_average', 1.97),
+  ],
 };
 
 // ---------------------------------------------------------------------------
@@ -304,6 +321,8 @@ export interface MetricComparison {
 
 export interface AthleticLevelDetail extends AthleticLevelResult {
   readonly level: Level;
+  /** True when the Power 4 floors were used (a Division I school in a Power 4 conference). */
+  readonly power4: boolean;
   /** Metrics with both a player number and a benchmark at this level. */
   readonly comparisons: readonly MetricComparison[];
   /** Position metrics this level's benchmarks don't cover. */
@@ -313,9 +332,9 @@ export interface AthleticLevelDetail extends AthleticLevelResult {
   readonly minCompared: number;
 }
 
-function floorFor(set: BenchmarkSet, level: Level, metric: AthleticMetric, position: Position): Floor | null {
+function floorFor(floors: readonly Floor[], metric: AthleticMetric, position: Position): Floor | null {
   const group = SIXTY_GROUP[position];
-  const match = set.floors[level].find((f) => f.metric === metric && (metric !== 'sixty_yard_s' || f.sixtyGroup === group));
+  const match = floors.find((f) => f.metric === metric && (metric !== 'sixty_yard_s' || f.sixtyGroup === group));
   return match ?? null;
 }
 
@@ -326,14 +345,17 @@ function meetsFloor(metric: AthleticMetric, value: number, floor: Floor): boolea
 /**
  * One level's result. In range when at least half of the compared metrics meet
  * the level's floor; not enough data when fewer than the position's minimum
- * are compared.
+ * are compared. `power4` asks for the Power 4 floors; it applies only to
+ * Division I and only when the set has them.
  */
-export function evaluateLevel(input: AthleticInput, level: Level, set: BenchmarkSet = PUBLIC_BENCHMARKS): AthleticLevelDetail {
+export function evaluateLevel(input: AthleticInput, level: Level, set: BenchmarkSet = PUBLIC_BENCHMARKS, power4 = false): AthleticLevelDetail {
+  const usePower4 = power4 && level === 'ncaa_d1' && set.power4Floors !== undefined;
+  const floors = usePower4 ? (set.power4Floors ?? []) : set.floors[level];
   const comparisons: MetricComparison[] = [];
   const notCovered: AthleticMetric[] = [];
   const notEntered: AthleticMetric[] = [];
   for (const metric of POSITION_METRICS[input.position]) {
-    const floor = floorFor(set, level, metric, input.position);
+    const floor = floorFor(floors, metric, input.position);
     const player = input.metrics[metric];
     if (!floor) notCovered.push(metric);
     else if (player === undefined) notEntered.push(metric);
@@ -342,13 +364,21 @@ export function evaluateLevel(input: AthleticInput, level: Level, set: Benchmark
   const minCompared = MIN_COMPARED[input.position];
   const met = comparisons.filter((c) => c.meets).length;
   const status = comparisons.length < minCompared ? 'not_enough_data' : met * 2 >= comparisons.length ? 'in_range' : 'below';
-  return { level, status, standardsVersion: set.version, comparisons, notCovered, notEntered, minCompared };
+  return { level, power4: usePower4, status, standardsVersion: set.version, comparisons, notCovered, notEntered, minCompared };
+}
+
+export interface AthleticEvaluation extends AthleticProfile {
+  readonly details: Readonly<Partial<Record<Level, AthleticLevelDetail>>>;
+  /** The Division I comparison with the Power 4 floors, when the set has them. */
+  readonly power4Detail: AthleticLevelDetail | null;
 }
 
 /** Every level's result, ready for the suggestion engine. */
-export function evaluateAthletic(input: AthleticInput | null, set: BenchmarkSet = PUBLIC_BENCHMARKS): AthleticProfile & { readonly details: Readonly<Partial<Record<Level, AthleticLevelDetail>>> } {
-  if (!input) return { byLevel: {}, details: {} };
+export function evaluateAthletic(input: AthleticInput | null, set: BenchmarkSet = PUBLIC_BENCHMARKS): AthleticEvaluation {
+  if (!input) return { byLevel: {}, details: {}, power4Detail: null };
   const details = Object.fromEntries(LEVELS.map((level) => [level, evaluateLevel(input, level, set)])) as Record<Level, AthleticLevelDetail>;
   const byLevel = Object.fromEntries(LEVELS.map((level) => [level, { status: details[level].status, standardsVersion: set.version }])) as Record<Level, AthleticLevelResult>;
-  return { byLevel, details };
+  if (set.power4Floors === undefined) return { byLevel, details, power4Detail: null };
+  const power4Detail = evaluateLevel(input, 'ncaa_d1', set, true);
+  return { byLevel, details, power4Detail, ncaaD1Power4: { status: power4Detail.status, standardsVersion: set.version } };
 }

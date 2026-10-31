@@ -11,6 +11,7 @@ import {
   parseAthleticInput,
   type AthleticInput,
   type AthleticMetric,
+  type BenchmarkSet,
 } from '@/lib/matching/athletic';
 import { LEVELS, type Level } from '@/lib/matching/eligibility';
 import type { ApplicantInput, SchoolEvidence } from '@/lib/matching/rules';
@@ -34,7 +35,7 @@ const floorValue = (level: Level, metric: AthleticMetric, group?: string) =>
 
 describe('the public benchmark set', () => {
   it('records the checked numbers, so any change is a reviewed edit', () => {
-    expect(PUBLIC_BENCHMARKS.version).toBe('public-2026-10-31');
+    expect(PUBLIC_BENCHMARKS.version).toBe('public-2026-10-31.1');
     // BaseballPath typical-range lows (average − 1 SD), "Other D1" for D1.
     expect([floorValue('ncaa_d1', 'fastball_mph'), floorValue('ncaa_d2', 'fastball_mph'), floorValue('ncaa_d3', 'fastball_mph')]).toEqual([85, 81, 78]);
     expect([floorValue('ncaa_d1', 'exit_velocity_mph'), floorValue('ncaa_d2', 'exit_velocity_mph'), floorValue('ncaa_d3', 'exit_velocity_mph')]).toEqual([89, 87, 85]);
@@ -90,6 +91,66 @@ describe('the public benchmark set', () => {
     }
   });
 });
+
+const power4Value = (metric: AthleticMetric, group?: string) =>
+  PUBLIC_BENCHMARKS.power4Floors?.find((f) => f.metric === metric && (group === undefined || f.sixtyGroup === group))?.value;
+
+describe('the Power 4 benchmarks (F50)', () => {
+  it('records the checked numbers: typical-range lows, otherwise the "Other D1" average', () => {
+    expect([power4Value('fastball_mph'), power4Value('exit_velocity_mph')]).toEqual([87, 91]);
+    expect([power4Value('sixty_yard_s', 'outfield'), power4Value('sixty_yard_s', 'middle_infield')]).toEqual([6.91, 7.05]);
+    expect([power4Value('infield_velocity_mph'), power4Value('outfield_velocity_mph'), power4Value('catcher_velocity_mph'), power4Value('pop_time_s')]).toEqual([84, 86, 78, 1.99]);
+    for (const floor of PUBLIC_BENCHMARKS.power4Floors ?? []) {
+      expect(PUBLIC_BENCHMARKS.sources[floor.source]?.kind).toBe('measured');
+      expect(floor.basis === 'typical_range_low' || floor.basis === 'next_level_average').toBe(true);
+    }
+  });
+
+  it('never fills a gap: no corner-infield 60, because the source gives no "Other D1" one', () => {
+    expect(power4Value('sixty_yard_s', 'corner_infield')).toBeUndefined();
+  });
+
+  it('every Power 4 floor is at least as strict as the Division I one', () => {
+    for (const floor of PUBLIC_BENCHMARKS.power4Floors ?? []) {
+      const d1 = floorValue('ncaa_d1', floor.metric, floor.metric === 'sixty_yard_s' ? floor.sixtyGroup : undefined);
+      expect(d1).not.toBeUndefined();
+      if (d1 === undefined) continue;
+      if (floor.metric === 'sixty_yard_s' || floor.metric === 'pop_time_s') expect(floor.value <= d1).toBe(true);
+      else expect(floor.value >= d1).toBe(true);
+    }
+  });
+
+  it('applies only to Division I, and only when asked', () => {
+    const pitcher = (mph: number): AthleticInput => ({ position: 'pitcher', metrics: { fastball_mph: mph } });
+    expect(evaluateLevel(pitcher(86), 'ncaa_d1')).toMatchObject({ status: 'in_range', power4: false });
+    expect(evaluateLevel(pitcher(86), 'ncaa_d1', PUBLIC_BENCHMARKS, true)).toMatchObject({ status: 'below', power4: true });
+    expect(evaluateLevel(pitcher(87), 'ncaa_d1', PUBLIC_BENCHMARKS, true)).toMatchObject({ status: 'in_range', power4: true });
+    expect(evaluateLevel(pitcher(82), 'ncaa_d2', PUBLIC_BENCHMARKS, true)).toMatchObject({ status: 'in_range', power4: false });
+  });
+
+  it('a set without Power 4 floors (a partner set) uses its Division I floors for those schools', () => {
+    const { version, name, checkedOn, sources, floors } = PUBLIC_BENCHMARKS;
+    const partner: BenchmarkSet = { version: `${version}-partner-test`, kind: 'partner', name, checkedOn, sources, floors };
+    expect(evaluateLevel({ position: 'pitcher', metrics: { fastball_mph: 86 } }, 'ncaa_d1', partner, true)).toMatchObject({ status: 'in_range', power4: false });
+    expect(evaluateAthletic({ position: 'pitcher', metrics: { fastball_mph: 86 } }, partner)).toMatchObject({ power4Detail: null });
+    expect(evaluateAthletic({ position: 'pitcher', metrics: { fastball_mph: 86 } }, partner).ncaaD1Power4).toBeUndefined();
+  });
+
+  it('gives the suggestion engine a separate Power 4 result', () => {
+    const result = evaluateAthletic(outfielderOf({ exit_velocity_mph: 90, sixty_yard_s: 6.95, outfield_velocity_mph: 85 }));
+    expect(result.byLevel.ncaa_d1?.status).toBe('in_range');
+    expect(result.ncaaD1Power4).toEqual({ status: 'below', standardsVersion: PUBLIC_BENCHMARKS.version });
+    expect(result.power4Detail?.comparisons.map((c) => [c.metric, c.meets])).toEqual([
+      ['exit_velocity_mph', false],
+      ['sixty_yard_s', false],
+      ['outfield_velocity_mph', false],
+    ]);
+  });
+});
+
+function outfielderOf(metrics: AthleticInput['metrics']): AthleticInput {
+  return { position: 'outfield', metrics };
+}
 
 describe('parseAthleticInput', () => {
   it('a blank position means no baseball numbers, not an error', () => {
@@ -155,7 +216,7 @@ describe('the typical-range rule', () => {
   });
 
   it('no baseball numbers: no athletic result at any level', () => {
-    expect(evaluateAthletic(null)).toEqual({ byLevel: {}, details: {} });
+    expect(evaluateAthletic(null)).toEqual({ byLevel: {}, details: {}, power4Detail: null });
   });
 });
 

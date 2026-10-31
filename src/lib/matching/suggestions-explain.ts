@@ -164,5 +164,10 @@ export const ATHLETIC_STATUS_TEXT: Readonly<Record<AthleticStatus, string>> = {
   not_enough_data: 'Not enough of your numbers could be compared with this level’s benchmarks.',
 };
 
+/** Shown when a Division I school in a Power 4 conference is compared with the Power 4 benchmarks (F50). */
+export function power4Note(conference: string): string {
+  return `This school plays in the ${conference}, a Power 4 conference, so your numbers are compared with players who committed to Power 4 programs (ACC, Big Ten, Big 12 and SEC). “One level down” here means other Division I programs.`;
+}
+
 export const SELF_REPORTED_NOTE =
   'Based on numbers you entered yourself; Base Recruits hasn’t measured or verified them. Compare like with like: these benchmarks use best showcase numbers.';

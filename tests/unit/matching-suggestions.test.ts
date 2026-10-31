@@ -150,6 +150,31 @@ describe('suggestSchools', () => {
     expect(list.groups.strong_fit.map((s) => s.school.slug)).toEqual(['d2-fit']);
   });
 
+  it('a Power 4 school uses the Power 4 result; other Division I schools keep the Division I one (F50)', () => {
+    const p4 = [
+      candidate('p4-fit', 'Pawpaw University', 'ncaa_d1', AT, { power4: true }),
+      candidate('d1-fit', 'Alder University', 'ncaa_d1', AT),
+    ];
+    const profile: AthleticProfile = {
+      byLevel: { ncaa_d1: { status: 'in_range', standardsVersion: STANDARDS } },
+      ncaaD1Power4: { status: 'below', standardsVersion: STANDARDS },
+    };
+    const list = suggestSchools(p4, player(), profile);
+    expect(list.groups.strong_fit.map((s) => [s.school.slug, s.power4])).toEqual([['d1-fit', false]]);
+    expect(list.excluded.ATHLETIC_BELOW_LEVEL).toBe(1);
+    const both = suggestSchools(p4, player(), { ...profile, ncaaD1Power4: { status: 'in_range', standardsVersion: STANDARDS } });
+    expect(both.groups.strong_fit.map((s) => [s.school.slug, s.power4])).toEqual([
+      ['d1-fit', false],
+      ['p4-fit', true],
+    ]);
+    // Standards with no Power 4 result (for example a partner release) judge every Division I school the same way.
+    const plain = suggestSchools(p4, player(), { byLevel: profile.byLevel });
+    expect(plain.groups.strong_fit.map((s) => [s.school.slug, s.power4])).toEqual([
+      ['d1-fit', false],
+      ['p4-fit', false],
+    ]);
+  });
+
   it('without athletic results, nothing is hidden: every school is Not enough data, with its academic label', () => {
     const list = suggestSchools(schools, player(), NO_ATHLETIC_DATA);
     expect(list.groups.strong_fit).toHaveLength(0);
