@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 
+import { SchoolFitPanel } from '@/components/matching/school-fit-panel';
 import { CompareToggle } from '@/components/registry/compare-toggle';
 import { SourceList } from '@/components/registry/source-list';
 import { SaveButton } from '@/components/shortlist/save-button';
@@ -32,6 +33,7 @@ import { COMPARE_COOKIE, readCompareCookie } from '@/lib/registry/compare-select
 import { APPLICANT_LABELS, entryLabel } from '@/lib/registry/policy';
 import { currentPolicies, getSchool, mySavedSlugs } from '@/lib/registry/queries';
 import { SLUG_PATTERN } from '@/lib/registry/search-params';
+import type { SchoolEvidence } from '@/lib/matching/rules';
 import { APPLICANT_TYPES } from '@/lib/registry/types';
 
 type Params = Promise<{ slug: string }>;
@@ -99,6 +101,23 @@ export default async function SchoolPage({ params }: { readonly params: Params }
   const handAdded = program !== null && program.source.id === 'official_site';
   const sameTuition = costs !== null && costs.tuition_in_state !== null && costs.tuition_in_state === costs.tuition_out_of_state;
   const hasSat = admissions !== null && (admissions.sat_erw_25 !== null || admissions.sat_math_25 !== null);
+  // What "Your fit" compares against: the reported past-class ranges and any checked current testing policy.
+  const fitEvidence: SchoolEvidence = {
+    slug: institution.slug,
+    admissionsTerm: admissions?.term ?? null,
+    satErw: [admissions?.sat_erw_25 ?? null, admissions?.sat_erw_75 ?? null],
+    satMath: [admissions?.sat_math_25 ?? null, admissions?.sat_math_75 ?? null],
+    actComposite: [admissions?.act_composite_25 ?? null, admissions?.act_composite_75 ?? null],
+    historicalTestPolicy: admissions?.test_policy ?? null,
+    currentPolicies: (policies ?? []).map((p) => ({
+      applicant_type: p.applicant_type,
+      entry_year: p.entry_year,
+      test_policy: p.test_policy,
+      source_url: p.source_url,
+      verified_at: p.verified_at,
+    })),
+  };
+  const thisYear = new Date().getUTCFullYear();
 
   return (
     <>
@@ -228,6 +247,18 @@ export default async function SchoolPage({ params }: { readonly params: Params }
             <p>No baseball program is on record for this school.</p>
           )}
         </Section>
+
+        {program && active ? (
+          <Section id="your-fit" title="Your fit">
+            <SchoolFitPanel
+              schoolName={institution.name}
+              division={program.division.code}
+              evidence={fitEvidence}
+              thisYear={thisYear}
+              athletic={null}
+            />
+          </Section>
+        ) : null}
 
         <Section id="admissions" title="Admissions">
           <h3 className="text-2xl text-navy">Current testing policy</h3>

@@ -122,7 +122,23 @@ no hidden score.
 - **Explained.** Every suggestion carries its reasons and the versions of every rule set that produced it.
 - **No outcome claims.** Wording never promises admission, a roster spot, a scholarship or a coach's interest.
 
-## 6. Known gaps (next steps)
+## 6. On each school page ("Your fit")
+
+Every active program's page has a **Your fit** section (`src/components/matching/school-fit-panel.tsx`, rules in
+`src/lib/matching/school-fit.ts`). It applies exactly the rules above to that one school:
+
+- The player enters their numbers once. They are compared in the browser and remembered **on this device only**
+  (`src/lib/matching/player-store.ts`, decision F45): never sent to Base Recruits, never put in a link, and removed by
+  "Forget my numbers". Stored values are validated again every time they are used.
+- It shows the overall group, then the three parts: athletic level, academics (with the school's reported ranges next to
+  the player's scores) and the academic minimum to compete, each with its reasons.
+- Until athletic standards are loaded, the athletic part reads "not available yet" and the overall result is Not
+  enough data; the academic label and the eligibility check still show.
+- If the player is below the level's athletic standard, the page says the school isn't in their suggestions (the list
+  sets it aside) and shows the academic comparison only.
+- Schools outside the five levels show the academic comparison only.
+
+## 7. Known gaps (next steps)
 
 - **Paul's standards:** the table, import and per-level calculation are built once his sample and his "in range" rule
   arrive; until then every level is "not enough data".
@@ -130,4 +146,5 @@ no hidden score.
   test-optional four-year schools and most junior colleges) fall under "academics not compared".
 - **Open admission:** junior colleges usually report no admissions figures because admission is open. Loading the federal
   open-admissions flag from College Scorecard would let them be treated as an academic fit instead of "not compared".
-- **Page:** the suggestions page (and the paywall and billing it sits behind) is the next build.
+- **Pages:** each school page shows "Your fit" (§6). The full suggestions list page, and the paywall and billing it
+  sits behind, are the next build. "Your fit" is open to everyone until the paywall exists (F19).
