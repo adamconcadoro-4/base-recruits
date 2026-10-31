@@ -121,6 +121,8 @@ no hidden score.
   moves a school to a lower group.
 - **Explained.** Every suggestion carries its reasons and the versions of every rule set that produced it.
 - **No outcome claims.** Wording never promises admission, a roster spot, a scholarship or a coach's interest.
+- **No numeric fit score.** Results are named groups and labels (Strong fit, Possible fit, Reach; Academic fit, stretch,
+  reach), never a number such as 87/100 or a percentage (founder decision, 2026-10-30).
 
 ## 6. On each school page ("Your fit")
 
