@@ -63,9 +63,13 @@ GPA is compared with the middle half of that class, like a test score:
 - **Scale:** only GPAs on a 4.0 scale are compared, because the published ranges are on a 4.0 scale.
 - **Independent of tests:** the GPA is compared even when scores aren't sent or the school is test-blind. A range more than
   two classes before the player's entry year is flagged as dated.
-- **Coverage (2026-10-31):** 20 schools, all in New York, New Jersey and Connecticut (19 from Common Data Sets, 1 from a
-  class profile). A further 14 publish only an average, which isn't compared. Ranges are added from the admin school page
-  as more are found.
+- **Coverage (2026-10-31):** 112 schools (111 from Common Data Sets, 1 from a class profile): 20 in New York, New Jersey
+  and Connecticut, and 92 more found through the free College Transitions Common Data Set repository, each read from the
+  school's own website. A further 14 publish only an average, which isn't compared. Ranges are added from the admin
+  school page as more are found.
+- **Held out:** a school whose weighted figures fill the 4.0 band, so that its middle half would be 4.00–4.00 (Georgia
+  Tech, Georgia, UNC Chapel Hill, Tennessee, William & Mary), isn't recorded: every unweighted GPA under 4.0 would read
+  "below", which overstates the gap.
 
 ## 3. Eligibility to compete (per level)
 
@@ -232,7 +236,7 @@ Every active program's page has a **Your fit** section (`src/components/matching
   every outside number exactly as published. A change arrives as a pull request for the founder to approve.
 - **Sources with published sample sizes** for D1 and D2 are being looked for to corroborate or replace BaseballPath,
   which publishes none.
-- **GPA ranges** exist for 20 schools (§2). No free dataset covers every school: the source is each school's own Common
+- **GPA ranges** exist for 112 schools (§2). No free dataset covers every school: the source is each school's own Common
   Data Set or class profile, and many leave GPA blank. Collection continues by region; a licensed dataset is the fast
   route to full coverage.
 - **Coverage:** in the 2024-25 registry snapshot 739 of 1,670 programs report SAT ranges. Schools without ranges (many

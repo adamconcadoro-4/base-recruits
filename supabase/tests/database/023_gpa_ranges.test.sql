@@ -30,10 +30,18 @@ select tests.ok(
 
 -- ================================================================ the seed
 select tests.ok(
-  (select count(*) from public.gpa_ranges where is_current) = 20
-  and (select count(*) from public.gpa_ranges where source_kind = 'common_data_set' and weighting = 'not_stated') = 19
-  and (select count(*) from public.gpa_ranges where source_kind = 'school_profile' and weighting = 'not_stated') = 1,
-  'twenty ranges are seeded (19 Common Data Sets, 1 class profile), none stating whether GPAs are weighted');
+  (select count(*) from public.gpa_ranges where is_current) = 112
+  and (select count(*) from public.gpa_ranges where source_kind = 'common_data_set') = 111
+  and (select count(*) from public.gpa_ranges where source_kind = 'school_profile') = 1
+  and (select count(*) from public.gpa_ranges where weighting <> 'not_stated') = 1
+  and (select weighting from public.gpa_ranges where unitid = 262129) = 'weighted',
+  '112 ranges are seeded (111 Common Data Sets, 1 class profile); only New College of Florida states its GPAs are weighted');
+select tests.ok(
+  not exists (select 1 from public.gpa_ranges where unitid in (139755, 139959, 199120, 221759, 231624)),
+  'schools whose weighted figures fill the 4.0 band (a 4.00–4.00 range) are held out');
+select tests.ok(
+  (select count(*) from (select unitid from public.gpa_ranges group by unitid having count(*) > 1) d) = 0,
+  'no school is seeded twice');
 select tests.ok(
   (select array[low, high] from public.gpa_ranges where unitid = 196158) = array[3.00, 4.00]::numeric[]
   and (select array[low, high] from public.gpa_ranges where unitid = 190600) = array[2.50, 3.74]::numeric[]
@@ -55,7 +63,7 @@ select tests.ok(
 -- ================================================================ who can read
 select tests.authenticate_as_anon();
 select tests.ok(
-  tests.visible_count('select 1 from public.gpa_ranges') = 20,
+  tests.visible_count('select 1 from public.gpa_ranges') = 112,
   'signed-out visitors can read published ranges');
 select tests.throws('select note from public.gpa_ranges limit 1', '42501', 'internal notes are not readable');
 select tests.throws('select recorded_by from public.gpa_ranges limit 1', '42501', 'who recorded a range is not readable');
