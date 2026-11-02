@@ -3,7 +3,8 @@
  *
  * The site is indexed only when BOTH are true:
  *  - NEXT_PUBLIC_APP_ENV is `production`, and
- *  - ALLOW_INDEXING is exactly `true` (a server-only Vercel variable).
+ *  - ALLOW_INDEXING is exactly `true` (a server-only Vercel variable), and
+ *  - the site is not private (SITE_PRIVATE, see src/config/site-access.ts).
  *
  * Previews, staging, local builds and a production build without the switch
  * all send `noindex` on every page and a robots.txt that disallows crawling.
@@ -11,7 +12,7 @@
  * custom domain); see docs/deployment.md.
  */
 export function indexingAllowed(env: Readonly<Record<string, string | undefined>> = process.env): boolean {
-  return env.NEXT_PUBLIC_APP_ENV === 'production' && env.ALLOW_INDEXING === 'true';
+  return env.NEXT_PUBLIC_APP_ENV === 'production' && env.ALLOW_INDEXING === 'true' && env.SITE_PRIVATE !== 'true';
 }
 
 /** Signed-in areas. Never useful in search results, and they redirect to log in. */
