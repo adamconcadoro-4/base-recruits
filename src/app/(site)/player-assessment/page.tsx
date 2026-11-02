@@ -93,6 +93,7 @@ export default function PlayerAssessmentPage() {
           <li>It does not predict recruiting, admission, scholarships or the level you will play at.</li>
           <li>It does not assess injury risk and is not a medical evaluation.</li>
           <li>Video estimates are limited by the camera, the angle and the frame rate, and every result says so.</li>
+          <li>Video uploads are for athletes 18 and older for now.</li>
           <li>
             Video is stored privately, and you can delete a clip at any time. Nothing is sent to an outside analysis service unless you ask for a SeamState swing analysis. Then our own video service reads that clip, and only still frames, cropped to the hitter and without a name, go to our AI provider.
           </li>

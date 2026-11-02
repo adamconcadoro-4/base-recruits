@@ -8,7 +8,7 @@ import { formatDateTime } from '@/components/assessment/result-format';
 import { SelectField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { CAMERA_VIEWS, CAMERA_VIEW_LABELS, TIMING_BASIS_LABELS } from '@/lib/assessment/catalog/context';
-import { getMediaForAssessment, type AssessmentRow } from '@/lib/assessment/server/queries';
+import { getMediaForAssessment, getVideoOpen, type AssessmentRow } from '@/lib/assessment/server/queries';
 import { TIMING_BASES, type AssessmentRelation } from '@/lib/assessment/types';
 import { seamstateReadiness } from '@/lib/seamstate/server/config';
 import {
@@ -31,7 +31,10 @@ export async function ClipsStep({
   readonly videoEnabled: boolean;
   readonly relation: AssessmentRelation;
 }) {
-  const clips = await getMediaForAssessment(row.id);
+  const [clips, videoOpen] = await Promise.all([
+    getMediaForAssessment(row.id),
+    videoEnabled ? getVideoOpen(row.athlete_id) : Promise.resolve(false),
+  ]);
   const ready = clips.filter((clip) => clip.status === 'uploaded');
   const unit = row.discipline === 'hitting' ? 'swings' : 'pitches';
 
@@ -65,8 +68,14 @@ export async function ClipsStep({
         </p>
       </div>
 
-      {videoEnabled ? (
+      {videoOpen ? (
         <ClipUploader assessmentId={row.id} />
+      ) : videoEnabled ? (
+        <Notice tone="attention" title="Video uploads are for athletes 18 and older">
+          {relation === 'athlete'
+            ? 'You can still record ratings, charted outcomes and measured values. Clips can be added once you are 18, or if your date of birth is missing, once it is recorded on your account.'
+            : 'You can still record ratings, charted outcomes and measured values for this athlete. Clips can be added once they are 18.'}
+        </Notice>
       ) : (
         <Notice tone="attention" title="Video uploads are switched off for now">
           You can still record ratings, charted outcomes and measured values. Clips can be added once uploads open.
