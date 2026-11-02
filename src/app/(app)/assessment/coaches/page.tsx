@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { CoachCodeForm } from '@/app/(app)/assessment/coaches/coach-code-form';
+import { AthleteComparisonGroups, GuardianComparisonRequests } from '@/app/(app)/assessment/coaches/comparison-groups';
 import {
   approveCoachLinkAction,
   cancelCoachCodeAction,
@@ -199,8 +200,12 @@ export default async function ConnectionsPage() {
                 )}
               </div>
             </DashboardSection>
+
+            {account.userId ? <AthleteComparisonGroups athleteId={account.userId} /> : null}
           </>
         ) : null}
+
+        {account.roles.includes('parent') ? <GuardianComparisonRequests /> : null}
 
         {isDevelopmentCoach ? (
           <DashboardSection

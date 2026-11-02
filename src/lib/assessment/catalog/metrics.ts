@@ -91,7 +91,7 @@ export interface MetricDefinition {
 /** Shared text for every reference-percentile match (see benchmarks in the scoring docs). */
 export const BENCHMARK_COMPATIBILITY =
   'A reference percentile is shown only from an approved dataset with the same metric definition and version, ' +
-  'protocol, unit, summary statistic, pitch type, device kind and cohort (age band and competition level). ' +
+  'protocol, unit, summary statistic, pitch type, device kind, device model (for ball trackers and bat sensors) and cohort (age band and competition level). ' +
   'Rubric ratings are never compared with a population.';
 
 const RUBRIC_COMMON = {

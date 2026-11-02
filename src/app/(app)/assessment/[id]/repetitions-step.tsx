@@ -12,7 +12,8 @@ import { ScrollTable } from '@/components/assessment/scroll-table';
 import { ActionForm } from '@/components/assessment/action-form';
 import { SelectField, TextField } from '@/components/ui/field';
 import { StatusChip } from '@/components/ui/status-chip';
-import { DEVICE_KIND_LABELS, PITCH_TYPE_LABELS } from '@/lib/assessment/catalog/context';
+import { PITCH_TYPE_LABELS } from '@/lib/assessment/catalog/context';
+import { NAMED_DEVICES, OTHER_DEVICE_CHOICES, choiceForStored } from '@/lib/assessment/catalog/devices';
 import { requireMetric, type MetricDefinition } from '@/lib/assessment/catalog/metrics';
 import type { ProtocolDefinition } from '@/lib/assessment/catalog/protocols';
 import { EVIDENCE_LABELS } from '@/lib/assessment/labels';
@@ -25,7 +26,7 @@ import {
   type ObservationRow,
   type RepetitionRow,
 } from '@/lib/assessment/server/queries';
-import { DEVICE_KINDS, PITCH_TYPES } from '@/lib/assessment/types';
+import { PITCH_TYPES } from '@/lib/assessment/types';
 import { UNIT_LABELS } from '@/lib/assessment/units';
 
 const smallControl = 'block min-h-10 w-full rounded-md border-2 border-field bg-white px-2';
@@ -296,6 +297,7 @@ function MetricEntry({
 }) {
   const byRep = new Map(observations.filter((o) => o.repetition_id).map((o) => [o.repetition_id as string, o]));
   const lastDevice = observations.find((o) => o.device_label);
+  const stored = choiceForStored(lastDevice?.device_kind ?? null, lastDevice?.device_label ?? null);
   const needsDevice = metric.requiresDevice;
   const boolean = metric.valueKind === 'boolean';
   const recorded = observations.filter((o) => o.value !== null).length;
@@ -337,26 +339,43 @@ function MetricEntry({
             {needsDevice ? (
               <>
                 <SelectField
-                  id={`dk-${metric.key}`}
-                  name="device_kind"
-                  label="Device kind"
+                  id={`dv-${metric.key}`}
+                  name="device"
+                  label="Device"
                   required
-                  defaultValue={lastDevice?.device_kind ?? ''}
+                  defaultValue={stored.choice}
+                  hint="Results are only compared with others from the same device."
                 >
                   <option value="">Choose</option>
-                  {DEVICE_KINDS.filter((kind) => kind !== 'motion_capture' && kind !== 'force_plate').map((kind) => (
-                    <option key={kind} value={kind}>
-                      {DEVICE_KIND_LABELS[kind]}
-                    </option>
-                  ))}
+                  <optgroup label="Ball trackers">
+                    {NAMED_DEVICES.filter((d) => d.kind === 'ball_tracking').map((d) => (
+                      <option key={d.model} value={d.model}>
+                        {d.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Bat sensors">
+                    {NAMED_DEVICES.filter((d) => d.kind === 'bat_sensor').map((d) => (
+                      <option key={d.model} value={d.model}>
+                        {d.label}
+                      </option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Other">
+                    {OTHER_DEVICE_CHOICES.map((choice) => (
+                      <option key={choice.value} value={choice.value}>
+                        {choice.label}
+                      </option>
+                    ))}
+                  </optgroup>
                 </SelectField>
                 <TextField
-                  id={`dl-${metric.key}`}
-                  name="device_label"
-                  label="Device name or model"
-                  required
+                  id={`do-${metric.key}`}
+                  name="device_other"
+                  label="Name or model"
+                  hint="Only for a device not in the list."
                   maxLength={80}
-                  defaultValue={lastDevice?.device_label ?? ''}
+                  defaultValue={stored.otherName}
                 />
               </>
             ) : null}
