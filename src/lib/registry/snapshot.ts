@@ -11,7 +11,12 @@ import { canonicalJson } from './canonical-json';
 export const SNAPSHOT_FORMAT = 'base-recruits.registry-snapshot/1';
 const SNAPSHOT_NAME = /^registry-[0-9]{4}-[0-9]{2}\.json$/;
 
-/** Snapshots ship with the app (data/snapshots), produced and reviewed through the data-refresh workflow. */
+/**
+ * Snapshots ship with the app (data/snapshots), produced and reviewed through the data-refresh workflow.
+ * next.config.ts already bundles data/snapshots/*.json with the admin import page, so the reads below
+ * carry turbopackIgnore: without it the build cannot tell which files a runtime path means and
+ * would bundle the whole project into the server function.
+ */
 export function snapshotDirectory(): string {
   return path.join(process.cwd(), 'data', 'snapshots');
 }
@@ -79,7 +84,7 @@ export class SnapshotError extends Error {}
 
 export async function snapshotNames(directory = snapshotDirectory()): Promise<string[]> {
   try {
-    return (await readdir(directory)).filter((n) => SNAPSHOT_NAME.test(n)).sort().reverse();
+    return (await readdir(/* turbopackIgnore: true */ directory)).filter((n) => SNAPSHOT_NAME.test(n)).sort().reverse();
   } catch {
     return [];
   }
@@ -89,7 +94,7 @@ export async function snapshotNames(directory = snapshotDirectory()): Promise<st
 export async function loadSnapshot(name: string, directory = snapshotDirectory()): Promise<SnapshotFile> {
   const names = await snapshotNames(directory);
   if (!SNAPSHOT_NAME.test(name) || !names.includes(name)) throw new SnapshotError('That snapshot is not available.');
-  const bytes = await readFile(path.join(directory, name));
+  const bytes = await readFile(path.join(/* turbopackIgnore: true */ directory, name));
   let parsed: unknown;
   try {
     parsed = JSON.parse(bytes.toString('utf8'));

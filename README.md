@@ -22,7 +22,7 @@ Stage 1 (accounts, roles, consent, coach verification): `docs/reports/stage-1.md
 
 - PostgreSQL 15+ server binaries (`initdb`, `pg_ctl`, `psql`) for the database test suite
   - macOS: `brew install postgresql@16` · Ubuntu: `apt install postgresql`
-- Node.js 22.12+ and npm
+- Node.js 22.12+ or 24 and npm (production on Vercel runs Node 24, the version CI tests)
 - Supabase CLI and Docker, for the local Supabase stack (`supabase start`) the app and end-to-end tests use
 
 ## Run the app locally
