@@ -53,6 +53,7 @@ These mirror `supabase/config.toml`. Security depends on them (see the README).
 | `SUPABASE_SECRET_KEY` | A secret key (`sb_secret_…`, same page). Server-only. Entered in Vercel by the founder; never pasted into chats, issues or commits |
 | `NEXT_PUBLIC_ASSESSMENT_ENABLED` | Leave **unset** until the founder opens Assessment (decision F21). `true` shows the Assessment tab, its public pages and the development coach sign-up option, and adds the Supabase origin to the media and connect content-security rules. The database switch on the admin page must also be on before anything can be recorded |
 | `ALLOW_INDEXING` | Leave **unset** until launch sign-off (decision F14). Set to `true` only in Production to let search engines index the site; with it unset every page is `noindex` and `robots.txt` disallows crawling |
+| `SITE_PRIVATE` | `true` takes the site off the public web without deleting anything (2026-11-02). Everyone sees a "coming soon" page except people signed in as adamconcadoro@gmail.com or jcaceres120@gmail.com; the sign-in, sign-up, code and reset pages and `/api/seamstate/*` stay reachable, sign-up is refused for other emails, and indexing is off. Delete it (or set anything else) and redeploy to go public again. See `src/config/site-access.ts` |
 
 Vercel's Hobby plan does not allow commercial use. Move the Vercel account to Pro before the public launch.
 
