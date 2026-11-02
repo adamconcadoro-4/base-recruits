@@ -86,7 +86,7 @@ test('a forgotten password is reset with an emailed code', async ({ page }) => {
   const account = await createAccount({ role: 'athlete', name: 'Reset Synthetic', dateOfBirth: yearsAgo(20) });
   const requestedAt = new Date(Date.now() - 2000);
   await page.goto('/login');
-  await page.getByRole('link', { name: 'Forgot your password?' }).click();
+  await page.getByRole('link', { name: /Forgot your password/ }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Set or reset your password' })).toBeVisible();
   await page.getByLabel('Email', { exact: true }).fill(account.email);
   await page.getByRole('button', { name: 'Email me a code' }).click();
@@ -216,6 +216,7 @@ test('after an emailed-code login, an account without a passkey is offered Face 
   await expect(page).toHaveURL('/saved');
 
   // "Not now" is remembered on this browser.
+  await page.goto('/athlete');
   await page.getByRole('button', { name: 'Sign out' }).click();
   await logIn(page, account.email);
   await expect(page).toHaveURL('/athlete');
