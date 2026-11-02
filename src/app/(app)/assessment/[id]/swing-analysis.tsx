@@ -49,7 +49,7 @@ export function SwingAnalysisIntro({
   return (
     <section aria-labelledby="seamstate-title" className="max-w-3xl space-y-3 border-2 border-rule p-5">
       <h3 id="seamstate-title" className="text-2xl text-navy">
-        SeamState swing analysis
+        Assessment swing analysis
       </h3>
       <p>Record your swing. Understand what is working. Know what to practice next.</p>
       {!available ? (
@@ -65,7 +65,7 @@ export function SwingAnalysisIntro({
         </p>
       ) : permission === 'waiting_for_guardian' ? (
         <Notice tone="attention" title="Waiting for a parent or guardian">
-          A linked parent or legal guardian needs to approve SeamState analysis from their Base Recruits account before any clip is
+          A linked parent or legal guardian needs to approve Assessment swing analysis from their Base Recruits account before any clip is
           analyzed.
         </Notice>
       ) : permission === 'not_allowed' && relation === 'athlete' ? (
@@ -75,10 +75,10 @@ export function SwingAnalysisIntro({
             Nothing is sent until you ask for an analysis of a specific clip. If you are under 18, a linked parent or legal guardian must
             approve this too. You can turn it off at any time.
           </p>
-          <ActionForm action={allowSwingAnalysisAction} fields={{ assessmentId }} submitLabel="Allow SeamState analysis" variant="secondary" size="sm" />
+          <ActionForm action={allowSwingAnalysisAction} fields={{ assessmentId }} submitLabel="Allow Assessment swing analysis" variant="secondary" size="sm" />
         </div>
       ) : permission === 'not_allowed' ? (
-        <p className="text-slate">The athlete needs to allow SeamState analysis from their own account before a clip can be analyzed.</p>
+        <p className="text-slate">The athlete needs to allow Assessment swing analysis from their own account before a clip can be analyzed.</p>
       ) : (
         <p className="text-slate">We couldn’t load the permission for swing analysis. Refresh the page to try again.</p>
       )}
@@ -86,11 +86,11 @@ export function SwingAnalysisIntro({
         <ActionForm
           action={stopSwingAnalysisPermissionAction}
           fields={{ assessmentId, grantId }}
-          submitLabel="Turn off SeamState analysis"
+          submitLabel="Turn off Assessment swing analysis"
           pendingLabel="Turning off…"
           variant="secondary"
           size="sm"
-          confirm="Turn off SeamState analysis? Nothing more is sent, and any analysis under way is cancelled. Finished reports stay."
+          confirm="Turn off Assessment swing analysis? Nothing more is sent, and any analysis under way is cancelled. Finished reports stay."
         />
       ) : null}
     </section>

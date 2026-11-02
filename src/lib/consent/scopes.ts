@@ -143,10 +143,11 @@ export const CONSENT_SCOPES: Readonly<Record<ConsentScope, ConsentScopeRule>> = 
     requiresGuardianApprovalForMinor: true,
     maxDurationDays: 365,
     // Wording pending counsel review (decision L12).
-    textVersion: 'seamstate-analysis-v1',
-    label: 'SeamState swing analysis',
+    // v2 (2026-11-02): the feature's name changed from SeamState to Assessment swing analysis.
+    textVersion: 'seamstate-analysis-v2',
+    label: 'Assessment swing analysis',
     description:
-      'Let Base Recruits send still frames from your swing videos, cropped to the hitter and without your name, to its AI analysis provider to create SeamState swing reports.',
+      'Let Base Recruits send still frames from your swing videos, cropped to the hitter and without your name, to its AI analysis provider to create Assessment swing reports.',
   },
 };
 

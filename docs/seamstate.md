@@ -1,5 +1,7 @@
 # SeamState — Base Recruits Assessment engine (design, Milestone 1)
 
+> **Name on the site (F59, 2026-11-02):** people see this feature as **Assessment swing analysis**. "SeamState" stays as the internal name in code, the database, environment variables and the `seamstate-worker` service.
+
 Status: **design approved 2026-10-27 (F30–F35); build in progress on a branch.** Nothing in this document is built yet unless a section says so. SeamState lives inside
 Assessment (`docs/assessment.md`), uses the same accounts, athletes, relations, switches and private storage, and stays
 off until the founder opens Assessment (decision F21). Founder decisions this design needs are listed in §11 and in

@@ -79,7 +79,7 @@ export async function stopSwingAnalysisPermissionAction(_previous: ActionState, 
   if (error) return failure(withDiagnostics(userMessageForDatabaseError(error), error));
   revalidatePath(`/assessment/${field(formData, 'assessmentId')}`);
   revalidatePath('/athlete');
-  return success('SeamState analysis is off. Nothing more is sent, and any analysis under way is cancelled.');
+  return success('Assessment swing analysis is off. Nothing more is sent, and any analysis under way is cancelled.');
 }
 
 export async function reviewFindingAction(_previous: ActionState, formData: FormData): Promise<ActionState> {

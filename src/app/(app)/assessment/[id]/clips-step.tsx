@@ -63,7 +63,7 @@ export async function ClipsStep({
         </p>
         <p className="text-sm text-slate">
           Video is stored privately, and you can delete a clip at any time. Nothing is sent to an outside analysis service unless you
-          ask for a SeamState swing analysis. Then our own video service reads that clip, and only still frames, cropped to the
+          ask for an Assessment swing analysis. Then our own video service reads that clip, and only still frames, cropped to the
           hitter and without a name, go to our AI provider.
         </p>
       </div>
