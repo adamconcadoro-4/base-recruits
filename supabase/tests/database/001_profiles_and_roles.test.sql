@@ -12,6 +12,7 @@ select tests.create_user('admin', 'parent', 'admin@baserecruits.test', p_date_of
 -- Isolate the bootstrap test from any administrators already in the target
 -- database (relevant when run against a shared dev project; rolled back).
 delete from public.user_roles where role = 'admin';
+select tests.allow_admin_email('admin');
 select private.bootstrap_first_admin('admin@baserecruits.test');
 
 -- ---------------------------------------------------------------- signup trigger
