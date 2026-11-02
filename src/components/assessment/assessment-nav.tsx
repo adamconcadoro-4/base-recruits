@@ -13,6 +13,7 @@ const SECTIONS = [
   { href: '/assessment/training', label: 'Training Plan' },
   { href: '/assessment/home-practice', label: 'Home Practice' },
   { href: '/assessment/progress', label: 'Progress' },
+  { href: '/assessment/events', label: 'Event Results' },
   { href: '/assessment/coaches', label: 'Connections' },
 ] as const;
 
