@@ -2,8 +2,9 @@
 
 import { redirect } from 'next/navigation';
 
-import { codeOnlySchema, verificationSchema } from '@/app/(auth)/signup/schema';
+import { codeOnlySchema, signupVerificationSchema, verificationSchema } from '@/app/(auth)/signup/schema';
 import { checkBirthDate, todayUtc } from '@/lib/age/age-policy';
+import { afterSignInPath } from '@/lib/auth/after-sign-in';
 import { blockAgeGate } from '@/lib/auth/age-gate';
 import { clearPendingVerification, readPendingVerification } from '@/lib/auth/pending-verification';
 import { safeNextPath } from '@/lib/auth/route-access';
@@ -15,7 +16,7 @@ const START_AGAIN = 'This code request has expired. Start again to get a new cod
 
 /**
  * Verify the emailed code, then, as the person who proved they own the email,
- * set the account's password, sign out every other session, and apply the
+ * set the account's password (if one was chosen: optional at sign-up), sign out every other session, and apply the
  * sign-up details from this browser. Anything someone else attached to an
  * unconfirmed account for this email is gone: the database wipes any earlier
  * password and metadata at the moment the email is confirmed
@@ -26,7 +27,7 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
   if (!pending) return failure(START_AGAIN);
   if (pending.purpose === 'login') return logInWithCode(pending.email, pending.next, formData);
 
-  const parsed = verificationSchema.safeParse({
+  const parsed = (pending.purpose === 'signup' ? signupVerificationSchema : verificationSchema).safeParse({
     code: field(formData, 'code').replace(/\s+/g, ''),
     password: typeof formData.get('password') === 'string' ? (formData.get('password') as string) : '',
   });
@@ -51,7 +52,11 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
     });
   }
 
-  const { error: passwordError } = await supabase.auth.updateUser({ password: parsed.data.password });
+  // A password is optional at sign-up (Face ID or an emailed code work
+  // instead); a password reset always sets one.
+  const { error: passwordError } = parsed.data.password
+    ? await supabase.auth.updateUser({ password: parsed.data.password })
+    : { error: null };
   if (passwordError && passwordError.code !== 'same_password') {
     // The account now has no usable password (the earlier one, if any, was
     // wiped at confirmation). Sign out; the owner can set one with a new code.
@@ -101,7 +106,7 @@ export async function verifyCodeAction(_previous: ActionState, formData: FormDat
   }
 
   await clearPendingVerification();
-  redirect('/dashboard');
+  redirect(await afterSignInPath(supabase, '/dashboard'));
 }
 
 /** Logging in with the emailed code alone: no password is read or changed, other sessions stay signed in. */
@@ -118,7 +123,7 @@ async function logInWithCode(email: string, next: string | undefined, formData: 
     });
   }
   await clearPendingVerification();
-  redirect(safeNextPath(next, '/dashboard'));
+  redirect(await afterSignInPath(supabase, safeNextPath(next, '/dashboard')));
 }
 
 export async function resendCodeAction(_previous: ActionState, _formData: FormData): Promise<ActionState> {

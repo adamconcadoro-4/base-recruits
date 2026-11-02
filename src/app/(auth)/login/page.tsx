@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { LoginForm } from '@/app/(auth)/login/login-form';
+import { PasskeySignInButton } from '@/components/auth/passkey-sign-in-button';
 import { ButtonLink } from '@/components/ui/button';
 import { safeNextPath } from '@/lib/auth/route-access';
 
@@ -27,18 +28,24 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
           Create a free account
         </Link>
       </p>
-      <LoginForm next={next} />
-      <div className="mt-8 border-t-2 border-rule pt-6">
-        <p className="text-slate">Rather not type a password?</p>
-        <ButtonLink href={codeHref} variant="secondary" className="mt-3">
+      <div className="mt-8 space-y-4">
+        <PasskeySignInButton next={next} />
+        <ButtonLink href={codeHref} variant="secondary" className="w-full sm:w-auto">
           Email me a sign-in code
         </ButtonLink>
+        <p className="text-sm text-slate">
+          Face ID or fingerprint works once you’ve set it up on this device. An emailed code always works.
+        </p>
       </div>
-      <p className="mt-6">
-        <Link href="/reset" className="font-semibold text-royal-ink underline">
-          Forgot your password?
-        </Link>
-      </p>
+      <div className="mt-8 border-t-2 border-rule pt-6">
+        <h2 className="text-2xl text-navy">Or use your password</h2>
+        <LoginForm next={next} />
+        <p className="mt-6">
+          <Link href="/reset" className="font-semibold text-royal-ink underline">
+            Forgot your password, or want to set one?
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

@@ -33,11 +33,15 @@ export function VerifyForm({ purpose }: { readonly purpose: 'signup' | 'reset' |
             id="password"
             name="password"
             type="password"
-            label={purpose === 'signup' ? 'Create a password' : 'New password'}
-            hint={`At least ${MINIMUM_PASSWORD_LENGTH} characters. Avoid very long passwords with accented letters or emoji.`}
+            label={purpose === 'signup' ? 'Create a password (optional)' : 'New password'}
+            hint={
+              purpose === 'signup'
+                ? `You can skip this: next you can set up Face ID or fingerprint sign-in, and an emailed code always works. If you choose a password, use at least ${MINIMUM_PASSWORD_LENGTH} characters.`
+                : `At least ${MINIMUM_PASSWORD_LENGTH} characters. Avoid very long passwords with accented letters or emoji.`
+            }
             autoComplete="new-password"
             error={errors.password}
-            required
+            required={purpose !== 'signup'}
           />
         )}
         {state.status === 'error' && state.message ? (

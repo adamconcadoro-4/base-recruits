@@ -96,7 +96,17 @@ export function sql(statement: string): string {
   }).trim();
 }
 
+/**
+ * Logs in through the site's password form. The test administrator signs in
+ * with its passkey instead, because admin pages need a passkey check (F57).
+ */
 export async function logIn(page: Page, email: string, password = PASSWORD): Promise<void> {
+  if (email === process.env.E2E_ADMIN_EMAIL) {
+    const { logInAsAdmin } = await import('./passkey');
+    await logInAsAdmin(page.context(), process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000');
+    await page.goto('/dashboard');
+    return;
+  }
   await page.goto('/login');
   await page.getByLabel('Email', { exact: true }).fill(email);
   await page.getByLabel('Password', { exact: true }).fill(password);
@@ -172,7 +182,7 @@ export async function signUpThroughSite(
  * import screen uses (create, stage in chunks, review, publish), signed in as
  * the test administrator. Real records only; nothing here is invented.
  */
-export async function publishBundledRegistry(adminEmail: string): Promise<void> {
+export async function publishBundledRegistry(): Promise<void> {
   const { readdirSync, readFileSync } = await import('node:fs');
   const path = await import('node:path');
   const { createHash } = await import('node:crypto');
@@ -188,9 +198,8 @@ export async function publishBundledRegistry(adminEmail: string): Promise<void> 
     issues: { unitid: number | null }[];
     records: { unitid: number }[];
   };
-  const admin = publicClient();
-  const { error: signInError } = await admin.auth.signInWithPassword({ email: adminEmail, password: PASSWORD });
-  if (signInError) throw new Error(`admin sign-in failed: ${signInError.message}`);
+  const { adminApiClient } = await import('./passkey');
+  const admin = await adminApiClient();
   const { data: jobId, error: createError } = await admin.rpc('admin_create_import_job', {
     p_snapshot_name: name,
     p_snapshot_sha256: createHash('sha256').update(bytes).digest('hex'),

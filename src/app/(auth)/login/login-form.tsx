@@ -12,7 +12,7 @@ export function LoginForm({ next }: { readonly next: string }) {
   const [state, logIn] = useActionState<ActionState, FormData>(logInAction, IDLE);
   const errors = state.fieldErrors ?? {};
   return (
-    <form action={logIn} className="mt-8 space-y-6" noValidate>
+    <form action={logIn} className="mt-6 space-y-6" noValidate>
       <input type="hidden" name="next" value={next} />
       <TextField id="email" name="email" type="email" label="Email" autoComplete="email" error={errors.email} required />
       <TextField

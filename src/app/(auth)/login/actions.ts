@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { emailSchema } from '@/app/(auth)/signup/schema';
+import { afterSignInPath } from '@/lib/auth/after-sign-in';
 import { setPendingVerification } from '@/lib/auth/pending-verification';
 import { safeNextPath } from '@/lib/auth/route-access';
 import { failure, field, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
@@ -29,10 +30,10 @@ export async function logInAction(_previous: ActionState, formData: FormData): P
     if (error.status === 429 || error.code === 'over_request_rate_limit') {
       return failure('Too many attempts. Please wait a few minutes and try again.');
     }
-    return failure('That email and password don’t match an account.');
+    return failure('That email and password don’t match an account. No password yet? Use Face ID or an emailed code.');
   }
 
-  redirect(safeNextPath(field(formData, 'next'), '/dashboard'));
+  redirect(await afterSignInPath(supabase, safeNextPath(field(formData, 'next'), '/dashboard')));
 }
 
 /**

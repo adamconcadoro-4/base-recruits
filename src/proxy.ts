@@ -1,7 +1,8 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { COMING_SOON_HTML, siteAccessAllowed } from '@/config/site-access';
+import { COMING_SOON_HTML, TEAM_ACCESS_PATH, privateSiteDecision, teamCode, type PrivateSiteDecision } from '@/config/site-access';
+import { TEAM_PASS_COOKIE, teamPassValid } from '@/lib/auth/team-pass';
 import { findProtectedRoute, signedOutRedirectFor } from '@/lib/auth/route-access';
 import { sessionCookieOptions } from '@/lib/supabase/cookie-options';
 
@@ -10,7 +11,8 @@ import { sessionCookieOptions } from '@/lib/supabase/cookie-options';
  *  1. refreshes the Supabase session cookie, and
  *  2. sends anonymous visitors on protected prefixes to sign in, and
  *  3. while the site is private (SITE_PRIVATE=true), shows everyone except the
- *     team a "coming soon" page (src/config/site-access.ts).
+ *     team a "coming soon" page, and asks for the team code (SITE_TEAM_CODE)
+ *     before the sign-in pages (src/config/site-access.ts).
  * It never changes the comparison selection: only form posts do.
  * Role, onboarding and coach-verification gates run in the protected layouts
  * (src/lib/auth/guard.ts), and the database enforces everything again with RLS.
@@ -27,13 +29,24 @@ function comingSoon(): NextResponse {
   });
 }
 
+/** The coming-soon page, or (for the sign-in pages) the team code step. */
+function privateResponse(decision: Exclude<PrivateSiteDecision, 'allow'>, request: NextRequest): NextResponse {
+  if (decision === 'coming_soon') return comingSoon();
+  const redirect = NextResponse.redirect(new URL(TEAM_ACCESS_PATH, request.url), 303);
+  redirect.headers.set('Cache-Control', 'no-store');
+  return redirect;
+}
+
 export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const isProtected = findProtectedRoute(request.nextUrl.pathname) !== null;
 
+  const hasTeamPass = await teamPassValid(request.cookies.get(TEAM_PASS_COOKIE)?.value, teamCode());
+
   if (!url || !key) {
-    if (!siteAccessAllowed(request.nextUrl.pathname, null)) return comingSoon();
+    const decision = privateSiteDecision(request.nextUrl.pathname, null, hasTeamPass);
+    if (decision !== 'allow') return privateResponse(decision, request);
     // Supabase is not configured (e.g. a marketing-only preview): public pages
     // still work; protected pages cannot.
     return isProtected
@@ -65,8 +78,9 @@ export async function proxy(request: NextRequest) {
   const signedIn = typeof data?.claims?.sub === 'string';
   const email = signedIn && typeof data?.claims?.email === 'string' ? data.claims.email : null;
 
-  if (!siteAccessAllowed(request.nextUrl.pathname, email)) {
-    const blocked = comingSoon();
+  const decision = privateSiteDecision(request.nextUrl.pathname, email, hasTeamPass);
+  if (decision !== 'allow') {
+    const blocked = privateResponse(decision, request);
     for (const cookie of response.cookies.getAll()) blocked.cookies.set(cookie);
     return blocked;
   }

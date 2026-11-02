@@ -43,7 +43,7 @@ export default async function VerifyPage() {
       ) : (
         <p className="mt-4 text-lg">
           If <span className="font-semibold break-all">{pending.email}</span> can receive email, we sent it a 6-digit code.
-          Enter it here{pending.purpose === 'signup' ? ' and choose a password to finish creating your account' : ' with your new password'}.
+          Enter it here{pending.purpose === 'signup' ? ' to finish creating your account' : ' with your new password'}.
         </p>
       )}
       <VerifyForm purpose={pending.purpose} />

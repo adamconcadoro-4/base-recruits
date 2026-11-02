@@ -38,6 +38,18 @@ enable_signup = true
 enable_anonymous_sign_ins = false
 minimum_password_length = 10
 
+# Passkeys (Face ID, Touch ID, fingerprint, device PIN), decision F57. Locally
+# they work on http://localhost:3000 (a passkey can't belong to 127.0.0.1); the
+# end-to-end tests use a software passkey for the same relying party
+# (tests/e2e/passkey.ts). Production is set in the dashboard: docs/deployment.md.
+[auth.passkey]
+enabled = true
+
+[auth.webauthn]
+rp_display_name = "Base Recruits"
+rp_id = "localhost"
+rp_origins = ["http://localhost:3000"]
+
 [auth.rate_limit]
 email_sent = 1000
 sign_in_sign_ups = 1000

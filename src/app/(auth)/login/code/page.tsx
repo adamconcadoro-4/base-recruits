@@ -24,7 +24,7 @@ export default async function LoginCodePage({ searchParams }: { searchParams: Se
       <LoginCodeForm next={next} />
       <p className="mt-6">
         <Link href={passwordHref} className="font-semibold text-royal-ink underline">
-          Log in with your password instead
+          Log in with Face ID, fingerprint or a password instead
         </Link>
       </p>
     </div>
