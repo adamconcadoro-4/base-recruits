@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { drill as findDrill } from '@/lib/assessment/catalog/drills';
-import { isSessionTemplateId } from '@/lib/assessment/catalog/session-templates';
+import { focusProblem, isSessionTemplateId, sessionTemplate } from '@/lib/assessment/catalog/session-templates';
 import { PRACTICE_COUNT_FIELDS, practiceCountsProblem, type PracticeCountFields } from '@/lib/assessment/practice-counts';
 import { callRpc, numberField, rpcAction, switchedOff, textOrNull } from '@/lib/assessment/server/actions';
 import { field, failure, type ActionState } from '@/lib/forms/action-state';
@@ -44,6 +44,8 @@ export async function createPlanAction(_previous: ActionState, formData: FormDat
   if (assignments.length === 0) return failure('Choose at least one drill.');
   const session = field(formData, 'session');
   if (session && !isSessionTemplateId(session)) return failure('Choose one of the hitting sessions.');
+  const tooManyFocus = focusProblem(sessionTemplate(session), assignments.map((item) => item.drill_key ?? ''));
+  if (tooManyFocus) return failure(tooManyFocus);
   const { data, error } = await callRpc<string>('create_training_plan', {
     p_athlete_id: athleteId,
     p_source_revision_id: field(formData, 'revisionId'),

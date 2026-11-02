@@ -6,7 +6,15 @@ import { TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { DRILL_REQUIREMENTS, DRILL_REQUIREMENT_LABELS, drillsFor, worksOn, type DrillRequirement } from '@/lib/assessment/catalog/drills';
 import { PILLARS } from '@/lib/assessment/catalog/pillars';
-import { SESSION_TEMPLATES, sessionTitle, templateAssignments, type SessionTemplate } from '@/lib/assessment/catalog/session-templates';
+import { drillGroups } from '@/lib/assessment/catalog/drill-groups';
+import {
+  focusAssignments,
+  PROGRESSION_STAGES,
+  sessionTitle,
+  templateAssignments,
+  WORKBOOK_SESSIONS,
+  type SessionTemplate,
+} from '@/lib/assessment/catalog/session-templates';
 import { findingsFrom, MAX_FOCUS_AREAS, suggestPlan, type Finding } from '@/lib/assessment/recommendations';
 import type { RevisionRow } from '@/lib/assessment/server/queries';
 
@@ -47,7 +55,8 @@ export function PlanBuilder({
     if (!findings.some((item) => item.metricKey === finding.metricKey)) findings.push(finding);
   }
   const sessionDrills = session ? templateAssignments(session) : [];
-  const sessionKeys = new Set(sessionDrills.map((item) => item.drill.key));
+  const focusDrills = session ? focusAssignments(session) : [];
+  const sessionKeys = new Set([...sessionDrills, ...focusDrills].map((item) => item.drill.key));
   const suggestions = suggestion.suggestions.filter((item) => !sessionKeys.has(item.drill.key));
   const shownKeys = new Set([...sessionKeys, ...suggestions.map((item) => item.drill.key)]);
   const otherDrills = drillsFor(revision.discipline).filter((drill) => !shownKeys.has(drill.key));
@@ -86,7 +95,7 @@ export function PlanBuilder({
                 <input type="radio" name="session" value="" defaultChecked={!session} className="mt-1 size-5 shrink-0" />
                 <span>Suggestions from this report</span>
               </label>
-              {SESSION_TEMPLATES.map((item) => (
+              {WORKBOOK_SESSIONS.map((item) => (
                 <label key={item.id} className="flex min-h-11 items-start gap-2">
                   <input type="radio" name="session" value={item.id} defaultChecked={session?.id === item.id} className="mt-1 size-5 shrink-0" />
                   <span>
@@ -98,6 +107,23 @@ export function PlanBuilder({
             <p className="text-sm text-slate">
               Sessions come from the Base Recruits hitting development workbook. Minutes are estimates: adjust to how the player
               feels, not the clock.
+            </p>
+            <p className="pt-2 font-semibold">Or a stage of the six-stage hitting progression</p>
+            <div className="grid gap-2 md:grid-cols-2">
+              {PROGRESSION_STAGES.map((item) => (
+                <label key={item.id} className="flex min-h-11 items-start gap-2">
+                  <input type="radio" name="session" value={item.id} defaultChecked={session?.id === item.id} className="mt-1 size-5 shrink-0" />
+                  <span>{sessionTitle(item)}</span>
+                </label>
+              ))}
+            </div>
+            <p className="text-sm text-slate">
+              Each stage pairs a rear-leg, a front-leg and an upper-body drill, four drill reps then four normal swings each, between
+              a baseline and an exit check. Start at Stage 1 and repeat a stage rather than advancing on the calendar.{' '}
+              <a href="/assessment/hitting/progression" className="font-semibold text-royal-ink underline">
+                How the six stages work
+              </a>
+              .
             </p>
           </fieldset>
         ) : null}
@@ -173,7 +199,11 @@ export function PlanBuilder({
           {session ? (
             <div className="space-y-3">
               <h3 className="text-xl font-semibold">{sessionTitle(session)}</h3>
-              <p className="text-sm">The session&apos;s drills, in order. The plan keeps the whole session outline, including the warm-up.</p>
+              <p className="text-sm">
+                {session.stage
+                  ? 'The stage’s three drills, in order. The plan keeps the whole stage card, including the baseline and exit check.'
+                  : 'The session’s drills, in order. The plan keeps the whole session outline, including the warm-up.'}
+              </p>
               {sessionDrills.map((item) => {
                 const value = `${item.drill.key}@${item.drill.version}`;
                 const lacking = missing(item.drill.requires);
@@ -204,6 +234,46 @@ export function PlanBuilder({
                   </div>
                 );
               })}
+              {focusDrills.length > 0 ? (
+                <div className="space-y-3">
+                  <h3 className="pt-3 text-xl font-semibold">Optional focus block (choose at most one)</h3>
+                  <p className="text-sm">
+                    Add one posture, balance or medicine-ball block before the rear-leg block when the day&apos;s need calls for it,
+                    or none. It adds four task reps and four normal swings. Medicine-ball work needs a coach-selected ball and an
+                    approved throwing area.
+                  </p>
+                  {focusDrills.map((item) => {
+                    const value = `${item.drill.key}@${item.drill.version}`;
+                    const lacking = missing(item.drill.requires);
+                    return (
+                      <div key={value} className="space-y-3 border-2 border-dashed border-rule p-4">
+                        <label className="flex gap-3">
+                          <input type="checkbox" name="drill" value={value} className="mt-1 size-5 shrink-0" />
+                          <span>
+                            <span className="block font-semibold">
+                              {item.option.label}: {item.drill.name}
+                            </span>
+                            <span className="block text-sm">{item.option.run}</span>
+                            {lacking.length > 0 ? (
+                              <span className="block text-sm text-slate">
+                                Needs {lacking.map((need) => DRILL_REQUIREMENT_LABELS[need].toLowerCase()).join(' and ')}.
+                              </span>
+                            ) : null}
+                          </span>
+                        </label>
+                        <input type="hidden" name={`reason:${value}`} value={item.reason} />
+                        <TextField id={`dosage-${item.drill.key}`} name={`dosage:${value}`} label="Dosage" maxLength={200} defaultValue={item.dosage} />
+                        <details>
+                          <summary className="cursor-pointer text-sm font-semibold text-royal-ink underline">How to do it</summary>
+                          <div className="mt-2">
+                            <DrillDetails drill={item.drill} />
+                          </div>
+                        </details>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
               {suggestions.length > 0 ? <h3 className="pt-3 text-xl font-semibold">Also suggested from this report</h3> : null}
             </div>
           ) : null}
@@ -239,31 +309,50 @@ export function PlanBuilder({
           {otherDrills.length > 0 ? (
             <details className="border-2 border-dashed border-rule p-4">
               <summary className="cursor-pointer font-semibold text-royal-ink underline">Add other drills from the library</summary>
-              <div className="mt-4 space-y-4">
-                {otherDrills.map((drill) => {
-                  const value = `${drill.key}@${drill.version}`;
-                  return (
-                    <div key={value} className="space-y-3 border-t border-rule pt-4">
-                      <label className="flex gap-3">
-                        <input type="checkbox" name="drill" value={value} className="mt-1 size-5 shrink-0" />
-                        <span>
-                          <span className="block font-semibold">{drill.name}</span>
-                          <span className="block text-sm">{drill.purpose}</span>
-                        </span>
-                      </label>
-                      <div className="grid gap-3 md:grid-cols-2">
-                        <TextField
-                          id={`reason-${drill.key}`}
-                          name={`reason:${value}`}
-                          label="Why this drill"
-                          maxLength={600}
-                          defaultValue={`Chosen ${isCoach ? 'by the development coach' : 'by the athlete'} to work on ${worksOn(drill)}.`}
-                        />
-                        <TextField id={`dosage-${drill.key}`} name={`dosage:${value}`} label="Dosage" maxLength={200} defaultValue={drill.dosage} />
-                      </div>
-                    </div>
-                  );
-                })}
+              <div className="mt-4 space-y-6">
+                {drillGroups(otherDrills).map((group) => (
+                  <details key={group.label} className="space-y-4">
+                    <summary className="cursor-pointer font-semibold">
+                      {group.label} ({group.drills.length})
+                    </summary>
+                    <p className="mt-1 text-sm text-slate">{group.description}</p>
+                    {group.drills.map((drill) => {
+                      const value = `${drill.key}@${drill.version}`;
+                      return (
+                        <div key={value} className="space-y-3 border-t border-rule pt-4">
+                          <label className="flex gap-3">
+                            <input type="checkbox" name="drill" value={value} className="mt-1 size-5 shrink-0" />
+                            <span>
+                              <span className="block font-semibold">{drill.name}</span>
+                              <span className="block text-sm">{drill.purpose}</span>
+                              {drill.requires.length > 0 ? (
+                                <span className="block text-sm text-slate">
+                                  Needs {drill.requires.map((need) => DRILL_REQUIREMENT_LABELS[need].toLowerCase()).join(' and ')}.
+                                </span>
+                              ) : null}
+                            </span>
+                          </label>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            <TextField
+                              id={`reason-${drill.key}`}
+                              name={`reason:${value}`}
+                              label="Why this drill"
+                              maxLength={600}
+                              defaultValue={`Chosen ${isCoach ? 'by the development coach' : 'by the athlete'} to work on ${worksOn(drill)}.`.slice(0, 600)}
+                            />
+                            <TextField id={`dosage-${drill.key}`} name={`dosage:${value}`} label="Dosage" maxLength={200} defaultValue={drill.dosage} />
+                          </div>
+                          <details>
+                            <summary className="cursor-pointer text-sm font-semibold text-royal-ink underline">How to do it</summary>
+                            <div className="mt-2">
+                              <DrillDetails drill={drill} />
+                            </div>
+                          </details>
+                        </div>
+                      );
+                    })}
+                  </details>
+                ))}
               </div>
             </details>
           ) : null}

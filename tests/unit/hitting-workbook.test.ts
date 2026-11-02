@@ -10,9 +10,9 @@ import { HOME_MENU, HOME_SAFETY, HOME_SESSIONS, HOME_STEPS, PARENT_LANGUAGE } fr
 import {
   isSessionTemplateId,
   SESSION_TEMPLATE_IDS,
-  SESSION_TEMPLATES,
   sessionTemplate,
   templateAssignments,
+  WORKBOOK_SESSIONS as SESSION_TEMPLATES,
 } from '@/lib/assessment/catalog/session-templates';
 import { HELD_BACK_REHEARSALS, WORKBOOK_DRILLS, workbookDrillKey } from '@/lib/assessment/catalog/workbook-drills';
 import { HITTING_WORKBOOK, siteText, withWorkbookNames, workbookName } from '@/lib/assessment/hitting-workbook/content';
@@ -164,6 +164,7 @@ describe('swing-flaw guide', () => {
     const open = new Set(drillsFor('hitting').map((item) => item.key));
     for (const flaw of FLAWS) {
       expect(flaw.drills.length).toBeGreaterThan(0);
+      expect(new Set(flaw.drills).size).toBe(flaw.drills.length);
       for (const id of flaw.drills) expect(open.has(workbookDrillKey(id))).toBe(true);
       for (const text of [flaw.whatYouSee, flaw.checks, flaw.cue, flaw.avoid, flaw.progressMarker, flaw.retest]) expect(text.length).toBeGreaterThan(5);
     }
@@ -219,6 +220,7 @@ describe('session templates', () => {
       const source = HITTING_WORKBOOK.sessions.find((entry) => entry.sourceId === item.id);
       expect(item.blocks.map((entry) => [entry.label, entry.minutes])).toEqual(source?.blocks.map((entry) => [entry.label, entry.minutes]));
       expect(item.totalMinutes).toBe(source?.blocks.reduce((sum, entry) => sum + entry.minutes, 0));
+      expect(item.kind).toBe('session');
       for (const entry of item.blocks) {
         expect(entry.activity).not.toMatch(/\b(?:WR\d|WU\d{2}|[HRMG]\d{2})\b(?! ?\))/);
         expect(entry.activity).not.toMatch(/Readiness Log|Video Log/);
@@ -254,11 +256,12 @@ describe('session templates', () => {
   });
 
   it('matches the session ids the database accepts', () => {
-    const sql = readFileSync('supabase/migrations/20261028000200_hitting_workbook_sessions_counts.sql', 'utf8');
+    const sql = readFileSync('supabase/migrations/20261102000400_hitting_master_workbook.sql', 'utf8');
     const listed = SESSION_TEMPLATE_IDS.map((id) => `'${id}'`).join(', ');
     expect(sql).toContain(`session_template in (${listed})`);
     expect(sql).toContain(`v_template not in (${listed})`);
     expect(isSessionTemplateId('S2')).toBe(true);
+    expect(isSessionTemplateId('ST6')).toBe(true);
     expect(isSessionTemplateId('S4')).toBe(false);
   });
 });

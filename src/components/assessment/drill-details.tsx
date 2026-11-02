@@ -8,15 +8,23 @@ export function DrillDetails({ drill }: { readonly drill: DrillDefinition }) {
       <p>{drill.purpose}</p>
       <p>
         <span className="font-semibold">Works on:</span> {worksOn(drill)}
+        {source?.book === 'master' ? ` · body area: ${source.section.toLowerCase()}` : ''}
         {source?.level ? ` · level: ${source.level}` : ''}
       </p>
       <p>
         <span className="font-semibold">Equipment:</span> {drill.equipment.join(', ')}
         {drill.requires.length > 0 ? ` · needs ${drill.requires.map((item) => DRILL_REQUIREMENT_LABELS[item].toLowerCase()).join(', ')}` : ''}
       </p>
-      <p>
-        <span className="font-semibold">Set-up:</span> {drill.setup}
-      </p>
+      {drill.setup ? (
+        <p>
+          <span className="font-semibold">Set-up:</span> {drill.setup}
+        </p>
+      ) : null}
+      {source?.related ? (
+        <p>
+          <span className="font-semibold">Builds on:</span> {source.related}
+        </p>
+      ) : null}
       <div>
         <p className="font-semibold">Steps</p>
         <ol className="list-decimal space-y-1 pl-5">
@@ -25,14 +33,16 @@ export function DrillDetails({ drill }: { readonly drill: DrillDefinition }) {
           ))}
         </ol>
       </div>
-      <div>
-        <p className="font-semibold">Cues</p>
-        <ul className="list-disc space-y-1 pl-5">
-          {drill.cues.map((cue) => (
-            <li key={cue}>{cue}</li>
-          ))}
-        </ul>
-      </div>
+      {drill.cues.length > 0 ? (
+        <div>
+          <p className="font-semibold">Cues</p>
+          <ul className="list-disc space-y-1 pl-5">
+            {drill.cues.map((cue) => (
+              <li key={cue}>{cue}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {source?.mistake ? (
         <p>
           <span className="font-semibold">Common mistake:</span> {source.mistake}
@@ -63,9 +73,33 @@ export function DrillDetails({ drill }: { readonly drill: DrillDefinition }) {
           <span className="font-semibold">Safety:</span> {source.safety}
         </p>
       ) : null}
+      {source?.filming ? (
+        <details>
+          <summary className="cursor-pointer font-semibold text-royal-ink underline">Filming it and reviewing the video</summary>
+          <div className="mt-2 space-y-2">
+            <p>
+              <span className="font-semibold">Camera:</span> {source.filming.views}
+            </p>
+            <p>
+              <span className="font-semibold">Part of the swing to review:</span> {source.filming.phase}
+            </p>
+            <p>
+              <span className="font-semibold">What to look for:</span> {source.filming.review}
+            </p>
+            <p>
+              <span className="font-semibold">Example feedback:</span> “{source.filming.feedback}”
+            </p>
+            <p>
+              <span className="font-semibold">What video can&apos;t tell you:</span> {source.filming.limits}
+            </p>
+            <p className="text-slate">These are review guidelines for a coach watching video, not a measurement or a diagnosis.</p>
+          </div>
+        </details>
+      ) : null}
       {source ? (
         <p className="text-slate">
-          From the Base Recruits hitting development workbook ({source.sourceId}). Reviewed by Base Recruits hitting coaches.
+          From the Base Recruits hitting {source.book === 'master' ? 'master' : 'development'} workbook ({source.sourceId}).{' '}
+          {source.coachReviewed ? 'Reviewed by Base Recruits hitting coaches.' : 'Not yet reviewed by Base Recruits hitting coaches.'}
         </p>
       ) : null}
     </div>
