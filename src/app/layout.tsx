@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Archivo } from 'next/font/google';
 import type { ReactNode } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { indexingAllowed } from '@/lib/seo/indexing';
 
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { readonly children: ReactNode 
           Skip to main content
         </a>
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
