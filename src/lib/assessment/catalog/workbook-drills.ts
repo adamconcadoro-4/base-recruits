@@ -63,9 +63,10 @@ function splitEquipment(value: string): string[] {
 
 function source(
   item: { sourceId: string; sourceSheet: string; sourceRow: number },
-  rest: Omit<WorkbookDrillSource, 'sourceId' | 'sourceSheet' | 'sourceRow'>,
+  rest: Omit<WorkbookDrillSource, 'sourceId' | 'sourceSheet' | 'sourceRow' | 'book' | 'coachReviewed'>,
 ): WorkbookDrillSource {
-  return { sourceId: item.sourceId, sourceSheet: item.sourceSheet, sourceRow: item.sourceRow, ...rest };
+  // Base Recruits hitting coaches reviewed the Development Workbook's drills and targets (F38).
+  return { sourceId: item.sourceId, book: 'development', coachReviewed: true, sourceSheet: item.sourceSheet, sourceRow: item.sourceRow, ...rest };
 }
 
 function fromDrill(item: WorkbookDrill): DrillDefinition {

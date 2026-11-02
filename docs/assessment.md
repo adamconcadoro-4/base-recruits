@@ -342,6 +342,55 @@ which of its drills are on the home menu.
 - SeamState (pull request #19) picks drills by measure, so it will reach the workbook drills through their measures
   once merged; linking flaws to SeamState's mechanics directly belongs in that pull request.
 
+## 11b. Hitting Master Workbook (body-area drills and the six-stage progression)
+
+Decision F56. The founder's "Baseball Hitting Master Workbook" (compiled 2026-11-01) is added **beside** the
+Development Workbook (section 11), never replacing it. The stored copy
+(`data/hitting-workbook/Baseball_Hitting_Master_Workbook.xlsx`, SHA-256 `3eef391b…eb31`) is the founder-approved
+version: every drill's branded name was replaced with a generic Base Recruits name, and every outside organisation's
+name, link and source reference was removed (founder's request, 2026-11-02). The Sources tab is now "Basis & Limits".
+The extraction script refuses a workbook that contains an outside name, a link, a source reference or one of the old
+branded names. Whether Base Recruits hitting coaches have reviewed this workbook is not yet confirmed, so drill pages
+and stage cards say "Not yet reviewed by Base Recruits hitting coaches" and SeamState marks its suggestions from it as
+not coach-reviewed (`MASTER_WORKBOOK_COACH_REVIEWED` in `hitting-workbook/master.ts`).
+
+### What is imported
+
+| Workbook | Where it goes | Notes |
+| --- | --- | --- |
+| Drill Library #1–#69 | Drill library, keys `hit-mw01` … `hit-mw69` (`catalog/master-drills.ts`) | Six body areas: top hand/back arm (1–12), front leg (13–21), rear leg (22–33), posture (34–45), balance/head control (46–57), medicine ball (58–69; #30 is also a medicine-ball throw). Objective → purpose; steps kept whole; the last step (the round size) → starting dose. The five "AI" fields become "Filming it and reviewing the video" on the drill (camera, part of the swing, what to look for, example feedback, what video can't tell you), described as review guidelines, not measurement |
+| Flaw-to-drill cheat sheet | `catalog/master-flaw-links.ts` | Mapped by Base Recruits onto the site's 18 flaws (the workbook's own labels differ) and added **after** each flaw's Development Workbook drills, so existing suggestions don't change. For a coach to review |
+| Coach Cards, stages 1–6 | `catalog/session-templates.ts` (ids `ST1`–`ST6`); "Start from" in the plan builder; `/assessment/hitting/progression` | Each stage: goal, the one cue to say, kit, preparation → 6 baseline swings → rear-leg, front-leg and upper-body blocks (4 drill reps, then 4 normal swings) → 6 uncued exit swings → review; optional posture, balance or medicine-ball focus (at most one, checked in the action and in `create_training_plan`) |
+| Practice Plan: how to use, equipment, session structure, advancement, workload adjustments, pairing substitutions, focus alternatives, medicine-ball module | `/assessment/hitting/progression` | Shown as written, drill numbers spelled out ("#22" → "Rear-Hip Hinge Pause (MW22)") |
+| "What to record" column, Training Logs, per-repetition review, medicine-ball log | Not imported | The record column asks for readiness and restrictions (health data, F39); the site's plans and logs do the logs' job |
+
+`scripts/hitting-workbook/extract_master.py` checks the expected counts (7 sheets, 69 drills in 6 body areas, 6 stage
+cards with three blocks and P/B/M focus each, 7 structure blocks, 8 how-to-use notes, 5 equipment notes, 8 advancement
+rules, 4 workload adjustments, 6 substitutions, 7 focus alternatives, 12 medicine-ball rules, 6 limitations, blank
+training logs) and writes `src/lib/assessment/hitting-workbook/master-v1.json` (content version `hitting-master-v1`).
+
+### Which measures a drill works on
+
+Each body area has its own measures (top hand/back arm → barrel delivery and contact-point consistency; front leg →
+stride direction, balance and lower-body consistency; rear leg → load repeatability and lower-body consistency;
+posture → balance and contact-point consistency; balance/head control → balance), plus every measure whose flaws list
+the drill. Medicine-ball drills and the three pitch-recognition drills (MW55–MW57) link to no measure: they are never
+suggested automatically, a coach or athlete adds them by choice, and the drill says it is not scored in the assessment.
+
+### Requirements
+
+Plans now know a fourth thing an athlete may not have: **a coach to supervise**. Every medicine-ball drill needs one
+(coach-selected ball of known mass, approved wall or landing area, no rebound catching), as do the raised platform
+(MW19), the crossed-leg load (MW27), the kneeling rear-leg rise (MW32) and the coach-counted dry swing (MW46). Toss
+drills (MW02, MW55–MW57) need a partner; drills built on video review (MW10, MW20, MW29, MW31, MW34, MW44, MW52, MW54)
+need a camera. SeamState suggests drills assuming only a camera, so it never suggests these coach or partner drills.
+
+### Browsing
+
+`/assessment/hitting/drills` lists every hitting drill open to new plans, grouped by Development Workbook section,
+rehearsals and Master Workbook body area, each with its full instructions. The plan builder's "Add other drills" uses
+the same groups. Both pages are linked from Assessment → Hitting.
+
 ## 12. Named devices, event results and comparison groups
 
 Decisions F52–F54 (founder, 2026-11-01 and 2026-11-02). Migration

@@ -1,0 +1,2517 @@
+{
+  "version": "hitting-master-v1",
+  "source": {
+    "file": "Baseball_Hitting_Master_Workbook.xlsx",
+    "sha256": "3eef391b549e791d9ad745a44830e9d3656be0ab87e4e57c1539bb3de180eb31",
+    "sheets": [
+      "Start Here",
+      "Drill Library",
+      "Practice Plan",
+      "Coach Cards",
+      "AI & Safety",
+      "Training Logs",
+      "Basis & Limits"
+    ]
+  },
+  "drills": [
+    {
+      "sourceId": "MW01",
+      "number": 1,
+      "category": "Top hand / back arm",
+      "name": "One-Hand Top-Hand Tee",
+      "related": null,
+      "objective": "Build top-hand barrel control with a coordinated turn rather than a forced arm push.",
+      "equipment": "Tee, short/light one-hand bat or manageable choked-up bat, soft balls, net.",
+      "steps": [
+        "Set the tee at a comfortable middle-zone contact point.",
+        "Grip with the top hand only; rest the free hand on your chest.",
+        "Rehearse the turn slowly, allowing the rear elbow to move naturally.",
+        "Hit at controlled effort without forcing the arm straight or pinning the elbow to the ribs.",
+        "Complete 6–10 reps, then five normal two-hand swings."
+      ],
+      "filming": {
+        "views": "Open-side plus protected front/oblique view; track rear shoulder, elbow, wrist, grip, torso, hips, knob, cap, ball, and visible hand landmarks.",
+        "phase": "Swing initiation through contact and early follow-through.",
+        "review": "Plot rear-elbow movement relative to the grip and torso alongside barrel arrival at the ball. Flag candidate bat drag when an elbow-ahead pattern persists while barrel delivery remains delayed relative to matched controlled reps, not from normal lag alone. Flag candidate casting when the grip moves outward early and the hand/barrel path widens before reaching the ball. Review possible early rollover only if visible hand orientation turns over before the contact interval; otherwise withhold that label. Record the free hand leaving the chest separately as drill compliance.",
+        "feedback": "Your rear elbow moved ahead of the grip while the barrel stayed behind longer than in your controlled reps. Reduce effort and rehearse delivering the barrel with the turn.",
+        "limits": "One-hand mechanics are not a two-hand template. A barrel below the hands or an elbow ahead in one image is insufficient evidence of a flaw."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 6
+    },
+    {
+      "sourceId": "MW02",
+      "number": 2,
+      "category": "Top hand / back arm",
+      "name": "Top-Hand Soft Toss",
+      "related": null,
+      "objective": "Transfer top-hand control to a moving ball while maintaining a comfortable contact orientation.",
+      "equipment": "Light one-hand bat, soft balls, net, trained tosser positioned outside the swing arc and protected as appropriate.",
+      "steps": [
+        "Use the top hand only and place the free hand on your chest.",
+        "Have the tosser deliver consistent, gentle tosses into a comfortable hitting zone.",
+        "Make a smooth turn to meet the ball; do not force the wrist into position.",
+        "Allow a natural follow-through instead of holding the palm rigid after contact.",
+        "Take 5–8 controlled tosses, then a short two-hand round."
+      ],
+      "filming": {
+        "views": "Side view for ball timing plus a protected oblique close view of the top hand; track ball, bat, rear arm, hips, shoulders, wrist, thumb, and finger bases.",
+        "phase": "Toss release → swing initiation → contact interval → early follow-through.",
+        "review": "Classify toss location before comparing reps. Track hand orientation in the camera-calibrated frame and flag possible early rollover only when a repeatable visible turnover starts before contact, with sufficient hand detail to distinguish it from whole-arm turning. Track early reaching as increasing elbow extension and hand-to-torso distance before the ball arrives. Compare pelvis/torso movement with matched reps as context, without declaring an “arm-only swing” from a single projected hip angle.",
+        "feedback": "On these similar tosses, your top hand began turning over before the bat reached the ball. Try a slower rep and let the ball reach the contact point.",
+        "limits": "An inconsistent toss can change timing and reach. A pull-side ground ball is an outcome, not confirmation of rollover; occluded hands require “not assessable.”"
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 7
+    },
+    {
+      "sourceId": "MW03",
+      "number": 3,
+      "category": "Top hand / back arm",
+      "name": "Back-Elbow Slot Pause",
+      "related": null,
+      "objective": "Explore rear-arm organization during the turn without forcing a fixed elbow height or slot angle.",
+      "equipment": "Light bat, tee, soft balls, net; optional mirror or video replay for slow rehearsals.",
+      "steps": [
+        "Begin in your normal stance and load.",
+        "Slowly turn to an early delivery position selected with a coach, then pause for one count.",
+        "Check that the arm and bat remain comfortable and controllable; do not jam the elbow into the hip.",
+        "Reset fully before taking a continuous tee swing.",
+        "Alternate three slow pause rehearsals with five controlled swings."
+      ],
+      "filming": {
+        "views": "Side and protected front/oblique views; track rear shoulder, elbow, wrist, grip, shoulders, hips, bat, and tee.",
+        "phase": "Load → slow turn → pause; analyze the subsequent full swing separately.",
+        "review": "Measure rear-elbow height and motion relative to the shoulder and torso, rather than the image floor alone. Flag candidate excessive elbow drop when elbow/hand descent combines with a repeated barrel-path deviation below the intended delivery path for the same tee location, followed by a late correction. Review outward elbow separation when elbow motion away from the torso accompanies outward hand travel and a widened barrel approach. Verify the pause as a separate compliance event.",
+        "feedback": "Your elbow and grip dropped together before the barrel entered the delivery path, then you lifted back toward the ball. Rehearse the turn more slowly without forcing the elbow down.",
+        "limits": "Normal elbow lowering, rear-shoulder tilt, and barrel depth are not automatically errors. A held pose does not prove that the same organization persists at full speed."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 8
+    },
+    {
+      "sourceId": "MW04",
+      "number": 4,
+      "category": "Top hand / back arm",
+      "name": "Open Top-Hand Tee",
+      "related": null,
+      "objective": "Explore a relaxed top-hand contact with the handle while the bottom hand securely controls the bat.",
+      "equipment": "Light bat, tee, soft balls, net; close hand-view camera if available.",
+      "steps": [
+        "Keep a secure bottom-hand grip and rest the open top hand lightly against the handle.",
+        "Begin with slow dry turns; do not attempt the drill if the bat cannot be controlled securely.",
+        "Add gentle tee swings toward a comfortable opposite-field target.",
+        "Allow the torso to turn naturally rather than holding the shoulders rigid.",
+        "Complete 5–8 reps, then restore the normal grip and compare."
+      ],
+      "filming": {
+        "views": "Side and oblique hand views; track both hands, finger joints when visible, rear elbow, shoulders, hips, grip, bat, and ball.",
+        "phase": "Setup through contact, with a separate normal-grip comparison.",
+        "review": "Check whether the top fingers visibly wrap around the handle after starting open; report this as re-grip/drill compliance, not measured grip tension. Review candidate drag when the rear elbow advances relative to the grip while the barrel remains delayed compared with controlled reps using the same open-hand setup. Review pulling away when the hands leave the delivery region early together with increased torso displacement and disrupted contact, rather than judging shoulder rotation alone.",
+        "feedback": "Your top fingers closed around the handle before contact. Return to a slower rehearsal while keeping secure control with the bottom hand.",
+        "limits": "Finger posture cannot measure grip pressure or which hand generates force. Hidden fingers cannot establish re-gripping, and opposite-field flight does not prove correct mechanics."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 9
+    },
+    {
+      "sourceId": "MW05",
+      "number": 5,
+      "category": "Top hand / back arm",
+      "name": "Split-Grip Contact Tee",
+      "related": null,
+      "objective": "Increase awareness of hand coordination and arm extension timing with a comfortably separated grip.",
+      "equipment": "Light bat with sufficient safe grip area, tee, soft balls, net, optional grip-position tape.",
+      "steps": [
+        "Separate the hands a small, comfortable distance while keeping both securely on the handle.",
+        "Slowly rehearse to the intended contact position without a ball.",
+        "Check for comfortable elbows and wrists; do not force either elbow to a fixed angle.",
+        "Add controlled tee swings with a natural follow-through.",
+        "Take 6–10 reps, then five normal-grip swings."
+      ],
+      "filming": {
+        "views": "Side plus protected front/oblique view; track each shoulder, elbow, wrist, hand, grip position, torso, bat, and ball.",
+        "phase": "Setup → swing initiation → contact → early follow-through.",
+        "review": "Verify that hand spacing remains intentional. Plot each elbow's extension relative to barrel delivery; flag candidate early reach/lockout when the rear arm straightens well before the matched contact window while the grip moves outward and the barrel requires a wider approach. Review candidate drag only when rear-elbow advancement and delayed barrel arrival occur together. Review possible rollover using visible hand orientation before contact, never wrist vertical ordering alone.",
+        "feedback": "Your rear arm straightened early and the hands moved away from your torso before the barrel reached the ball. Reduce speed and compare with your shorter, controlled delivery.",
+        "limits": "Split grip intentionally changes leverage and joint positions. Elbow convergence, crossed wrists in projection, and a straight arm at one instant are not independent diagnoses."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 10
+    },
+    {
+      "sourceId": "MW06",
+      "number": 6,
+      "category": "Top hand / back arm",
+      "name": "Top-Hand Release Tee",
+      "related": null,
+      "objective": "Practice a controlled post-contact top-hand release without changing the pre-contact delivery to force it.",
+      "equipment": "Manageable bat, tee, soft balls, net, clear follow-through space.",
+      "steps": [
+        "Begin with slow two-hand dry swings.",
+        "Keep both hands on the bat through the intended contact point.",
+        "Allow the top hand to release during the post-contact follow-through while the bottom hand retains control.",
+        "Finish naturally without forcing a high finish or a particular chest direction.",
+        "Take 5–8 gentle tee swings, then compare normal swings."
+      ],
+      "filming": {
+        "views": "Side view plus a protected close oblique hand view; track both wrists/fingers, the handle's grip region, elbows, shoulders, torso, bat, and ball.",
+        "phase": "Immediately before contact → contact interval → visible release → finish.",
+        "review": "Detect release from visible finger opening and separation of the top hand from its grip location, corroborated across frames. Flag premature release for this drill only if separation clearly precedes contact, not merely because the wrist moves away from the knob. Analyze possible early rollover independently in the pre-contact window. Track loss of control after release as an abrupt bat-path change, recovery step, or disrupted finish compared with controlled reps.",
+        "feedback": "Your top hand left the handle before the contact interval. Use a slower two-hand delivery and let the release happen afterward.",
+        "limits": "Hand occlusion can mimic release. There is no universal millisecond release deadline, and a one-hand finish is not required for a successful game swing."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 11
+    },
+    {
+      "sourceId": "MW07",
+      "number": 7,
+      "category": "Top hand / back arm",
+      "name": "Top-Hand Extension Hold",
+      "related": null,
+      "objective": "Develop awareness of a comfortable through-contact position and controlled deceleration.",
+      "equipment": "Very light training bat, tee, soft balls, net.",
+      "steps": [
+        "Start with a slow top-hand-only dry rehearsal; keep the free hand on the chest.",
+        "Move through the contact region into a comfortable extended position without locking the elbow.",
+        "Decelerate gently and hold the position for two seconds; never abruptly stop a full-speed swing.",
+        "Add very low-effort soft-ball tee reps only if comfortable.",
+        "Complete 5–8 reps, then compare with smooth two-hand swings."
+      ],
+      "filming": {
+        "views": "Side and oblique views; track rear shoulder/elbow/wrist, torso, top-hand landmarks, bat, and ball if used.",
+        "phase": "Contact-region passage → deceleration → hold; no impact timestamp is assigned to dry reps.",
+        "review": "Track elbow-extension progression, grip travel relative to the torso, and bat direction through the selected region. Flag candidate early withdrawal when the hand reverses inward or wraps away before completing the coach-selected rehearsal path, with visible loss of delivery control. Review possible early rollover only before contact, not from the eventual hold orientation. Measure hold duration and gross movement while separating low-confidence landmark jitter from actual movement.",
+        "feedback": "Your hand returned toward your torso before you reached the planned hold position. Make the rehearsal slower and finish the controlled path without forcing the elbow straight.",
+        "limits": "The hold is an artificial constraint, not a required game-swing finish. The bat travels on a curved path; straight-line extension and an exactly palm-up finish are not universal requirements."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 12
+    },
+    {
+      "sourceId": "MW08",
+      "number": 8,
+      "category": "Top hand / back arm",
+      "name": "Double-Tee Path Swings",
+      "related": null,
+      "objective": "Provide adjustable feedback on an unwanted early barrel-path deviation.",
+      "equipment": "Contact tee, soft adjustable rear obstacle or flexible second tee, bat, soft balls, net.",
+      "steps": [
+        "Set the contact tee at a comfortable location.",
+        "Have a coach position a soft rear obstacle to target the observed deviation without blocking the hitter's controlled path.",
+        "Rehearse very slowly to verify safe clearance.",
+        "Add controlled tee swings; reset or reposition the obstacle if it encourages chopping or an awkward swing.",
+        "Take 6–10 reps, then remove the obstacle and compare."
+      ],
+      "filming": {
+        "views": "Side plus oblique cross-check; track knob, cap, ball, both obstacle boundaries, grip, rear elbow, shoulders, and hips.",
+        "phase": "Swing initiation through contact, retaining frames immediately before any obstacle touch.",
+        "review": "Track the bat as a segment and estimate its clearance from the obstacle. Mark constraint contact only with corroborating evidence such as visible overlap in appropriate views plus obstacle deflection; image overlap alone may be depth ambiguity. Review candidate early barrel dump/drag when the barrel takes a repeated early downward/backward deviation and arrives late relative to matched reps, with the elbow–hand relationship supplying context. Also flag a new steep compensating approach as an unintended response to the setup.",
+        "feedback": "The barrel contacted the rear obstacle before approaching the ball. Review the preceding path with your coach, and adjust the obstacle if it blocks your controlled swing.",
+        "limits": "Obstacle contact does not prove bat drag. Natural barrel depth varies with pitch location, and keeping the barrel above the hands throughout the swing is not the goal."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 13
+    },
+    {
+      "sourceId": "MW09",
+      "number": 9,
+      "category": "Top hand / back arm",
+      "name": "Soft-Net Hand-Path Swings",
+      "related": null,
+      "objective": "Explore hand-path control without pushing the hands outward prematurely.",
+      "equipment": "Soft net or virtual boundary, light bat, clear space; no hard wall or fence contact.",
+      "steps": [
+        "With a coach, choose a safe boundary that allows a controlled swing rather than standing at a fixed bat-length distance.",
+        "Start with slow dry turns and no ball.",
+        "Allow the hands and barrel to turn naturally without reaching toward the boundary.",
+        "Stop and reset after contact with the soft net; do not force the elbows against the body.",
+        "Complete 6–10 slow reps, then compare unrestricted swings."
+      ],
+      "filming": {
+        "views": "Protected oblique/front view plus side view if available; track grip, rear elbow, shoulders, hips, bat segment, and net plane.",
+        "phase": "Load through the coach-selected contact-region passage and follow-through; there is no actual ball-contact event.",
+        "review": "Express hand travel relative to the moving torso rather than a fixed screen point. Flag candidate casting when the grip moves outward early while the barrel arc widens toward the boundary, relative to safe reference reps. Treat confirmed net contact as a compliance event and inspect the approach frames to distinguish reaching from simply poor obstacle placement. Review candidate drag only if elbow advancement and delayed barrel delivery are also visible, not from a torso-midline crossing alone.",
+        "feedback": "Your hands moved toward the net before the barrel reached the planned delivery region. Slow the rehearsal and compare the hand path with your unrestricted controlled rep.",
+        "limits": "A single view cannot reliably distinguish net contact from projection overlap. Avoiding a net can encourage an unnaturally cramped swing, so obstacle clearance alone is not success."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 14
+    },
+    {
+      "sourceId": "MW10",
+      "number": 10,
+      "category": "Top hand / back arm",
+      "name": "Rear-Elbow Path Video Check",
+      "related": null,
+      "objective": "Make the rear-elbow/hand relationship visible without physically restricting the arm.",
+      "equipment": "Camera/tripod and on-screen overlay, light bat, tee, soft balls, net; no rigid elbow barrier.",
+      "steps": [
+        "Record a few controlled swings from side and protected front/oblique views.",
+        "With a coach, identify the rear elbow and grip through the delivery.",
+        "Overlay their paths relative to the torso; do not place a hard object in the elbow path.",
+        "Rehearse slowly, then hit controlled tee reps without deliberately pinning the elbow back.",
+        "Review 5–8 reps for a repeatable pattern rather than judging one pose."
+      ],
+      "filming": {
+        "views": "Synchronized side and front/oblique views preferred; track rear shoulder/elbow/wrist, both hands, torso midline proxy, knob, cap, and ball.",
+        "phase": "Swing initiation through contact.",
+        "review": "Plot torso-relative rear-elbow and grip trajectories together with bat-axis progression. Flag candidate racing-elbow bat drag when the elbow repeatedly advances relative to the grip while the barrel remains delayed and requires a late delivery adjustment compared with controlled reps. Use front view to inspect the elbow–hand relationship and side view to inspect barrel arrival; neither alone establishes the diagnosis. Show the entire flagged interval rather than a single elbow-stack image.",
+        "feedback": "Across these reps, your rear elbow moved ahead of the grip while the barrel stayed behind until late. Compare the highlighted sequence with your controlled rep at lower effort.",
+        "limits": "A navel is not necessarily a detected landmark; use a labeled torso-midline proxy. Elbow crossing or stacking in projection can be normal or camera-dependent, and a virtual boundary must not become a universal anatomical rule."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 15
+    },
+    {
+      "sourceId": "MW11",
+      "number": 11,
+      "category": "Top hand / back arm",
+      "name": "Opposite-Field Deep Tee",
+      "related": null,
+      "objective": "Practice a deeper contact location and opposite-field intent while reviewing pre-contact hand control.",
+      "equipment": "Tee, bat, balls, net, marked opposite-field target; camera covering initial ball flight if feasible.",
+      "steps": [
+        "Place the tee slightly deeper than the hitter's usual middle-zone contact point, within comfortable reach.",
+        "Mark a safe opposite-field target.",
+        "Swing smoothly without steering the shoulders rigidly toward the target or forcing the palm to stay up.",
+        "Record target hits and contact quality separately from mechanical observations.",
+        "Take 8–10 reps, then compare a short set at the original tee position."
+      ],
+      "filming": {
+        "views": "Side view for contact depth plus protected oblique hand view and calibrated ball-flight view if available; track hands, rear arm, torso, bat, ball, tee, and target.",
+        "phase": "Swing initiation → pre-contact window → impact → initial ball departure.",
+        "review": "Match comparisons to the same tee depth. Review possible early rollover when visible hand orientation turns over before contact, independently of where the ball travels. Review early reaching/pulling across when outward hand travel or early withdrawal changes the approach before the deeper contact point. Log ball direction as a separate outcome and overlay actual contact position for context.",
+        "feedback": "Your hands began withdrawing across the body before the deeper contact point on these reps. Reduce effort and compare the approach with your controlled opposite-field rep.",
+        "limits": "Hitting opposite field does not rule out rollover, and a pull-side ground ball does not prove it. True spray or launch angles require suitable geometry; a single uncalibrated view supports only limited directional estimates."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 16
+    },
+    {
+      "sourceId": "MW12",
+      "number": 12,
+      "category": "Top hand / back arm",
+      "name": "Top-Hand Delivery, One-Hand Finish",
+      "related": null,
+      "objective": "Explore coordinated hand delivery and a controlled follow-through without exaggerating independent arm forces.",
+      "equipment": "Light or manageable bat, tee, soft balls, net, clear follow-through space.",
+      "steps": [
+        "Use a comfortable normal grip for this simplified version; do not force an inverted wrist position.",
+        "Rehearse a smooth two-hand delivery through the contact region.",
+        "Treat “push-pull” as a feel cue, not an instruction to shove one arm straight or yank the other backward.",
+        "If comfortable, allow a top-hand release after contact while retaining bottom-hand control.",
+        "Complete 6–10 reps, then compare with normal swings."
+      ],
+      "filming": {
+        "views": "Side plus protected oblique/front view; track both shoulders, elbows, wrists, visible hand landmarks, head, hips, bat, and ball.",
+        "phase": "Swing initiation through contact, release if used, and finish.",
+        "review": "Compare both elbow-extension trajectories with grip and barrel delivery. Flag candidate early top-arm shove when rear-arm extension and outward grip travel begin early together, or candidate early withdrawal when the grip redirects inward before reaching the intended contact region. Review possible rollover only with usable pre-contact hand orientation. Record head/trunk displacement alongside delivery changes, rather than treating head movement or a bent front elbow alone as a fault. Verify any optional release occurs after the contact interval.",
+        "feedback": "Your rear arm straightened early while the hands moved outward, changing the approach to the ball. Reduce the push-pull exaggeration and try a smoother coordinated turn.",
+        "limits": "Video kinematics cannot tell how much force each hand contributes or whether a player is truly pushing versus pulling. A bent front elbow, natural follow-through, or one-hand finish is not automatically defective."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 17
+    },
+    {
+      "sourceId": "MW13",
+      "number": 13,
+      "category": "Front leg",
+      "name": "Stride-to-Landing Hold",
+      "related": null,
+      "objective": "Practice a repeatable, controlled stride landing before adding the swing.",
+      "equipment": "Flat non-slip surface; floor tape for a comfortable landing target; optional bat for dry rehearsal.",
+      "steps": [
+        "Start in your normal batting stance.",
+        "Make your normal load and stride without swinging.",
+        "Land comfortably without deliberately snapping the knee straight.",
+        "Hold the landing for two seconds, then reset.",
+        "Perform 6–10 controlled repetitions."
+      ],
+      "filming": {
+        "views": "Side plus protected front view; track lead hip, knee, ankle, heel, toe, pelvis midpoint, and head.",
+        "phase": "Final stride frames, first visible foot contact, and the two-second hold.",
+        "review": "Plot projected knee angle, heel/toe displacement, and pelvis travel. Flag a candidate unstable landing when the knee continues folding while the pelvis keeps advancing, the planted foot slides, or the hitter needs a recovery step. Record a near-straight landing for coach review only if it coincides with a visible jolt or loss of control; an angle alone is not a failure.",
+        "feedback": "Your front foot landed, but your knee and hips kept moving forward during the hold. Rehearse landing and settling before adding the swing.",
+        "limits": "The no-swing drill cannot establish whether the leg braces effectively during a full swing or how much weight it carries."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 18
+    },
+    {
+      "sourceId": "MW14",
+      "number": 14,
+      "category": "Front leg",
+      "name": "Paused-Landing Tee Swings",
+      "related": null,
+      "objective": "Connect a controlled landing to rotation without an extra forward surge.",
+      "equipment": "Tee, light or regular bat suited to the hitter, balls, net.",
+      "steps": [
+        "Set the tee at a comfortable middle-zone contact point.",
+        "Load and stride, then pause for one to two seconds.",
+        "Swing smoothly from the paused position without another step.",
+        "Let the lead leg support the turn without forcing lockout.",
+        "Alternate five paused swings with five continuous swings."
+      ],
+      "filming": {
+        "views": "Side view; track both hips, lead knee/ankle, head, shoulders, bat, and ball.",
+        "phase": "Landing → pause → swing restart → contact.",
+        "review": "Verify the pause separately from swing mechanics. Compare pelvis-forward travel and knee-angle change after restart with the hitter's controlled reps. Flag a candidate forward-collapse pattern when renewed knee flexion and continuing pelvis translation occur together into contact. A stable bent knee is not automatically a missing block.",
+        "feedback": "You held the landing, then shifted forward again as the bat started. Try turning from the position you already established.",
+        "limits": "Compare paused reps with paused reps first; the pause intentionally changes rhythm, so its timing is not a live-swing template."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 19
+    },
+    {
+      "sourceId": "MW15",
+      "number": 15,
+      "category": "Front leg",
+      "name": "Walk-Up Momentum Swings",
+      "related": null,
+      "objective": "Practice controlling an exaggerated forward approach before rotating through the ball.",
+      "equipment": "Tee, bat, balls, net, clear approach area; optional floor marks.",
+      "steps": [
+        "Begin one or two small steps behind the hitting position.",
+        "Rehearse a slow walk-up without a swing first.",
+        "Step through into your usual stride position.",
+        "Receive the landing under control, then rotate and hit; do not stomp or jam the knee.",
+        "Start with 6–8 moderate-speed reps and stop if balance deteriorates."
+      ],
+      "filming": {
+        "views": "Wide side view capturing the entire approach; track hips, knees, ankles, feet, head, bat, and ball.",
+        "phase": "Last approach step → lead-foot landing → contact → finish.",
+        "review": "Estimate image-plane pelvis velocity before and after landing using a fixed camera. Flag continued forward travel when it combines with increasing knee flexion, foot sliding, or an unplanned recovery step. Distinguish the intended approach motion from unwanted motion after landing; do not penalize the walk-up itself.",
+        "feedback": "Your hips continued traveling forward after your front foot landed, and you needed an extra step. Reduce approach speed and keep the landing controlled.",
+        "limits": "Pelvis deceleration is a movement proxy, not a direct measure of braking force or energy transfer; a knee passing the toe alone is not a flaw."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 20
+    },
+    {
+      "sourceId": "MW16",
+      "number": 16,
+      "category": "Front leg",
+      "name": "Front-Leg Post Finish",
+      "related": null,
+      "objective": "Practice a controlled finish supported by the lead leg.",
+      "equipment": "Tee, light bat, balls, net, flat non-slip surface.",
+      "steps": [
+        "Rehearse a slow dry swing.",
+        "As you complete the swing, allow the rear foot to lift rather than jumping onto the lead leg.",
+        "Hold the single-leg finish for two seconds with a comfortable knee position.",
+        "Reset between reps; return to a two-foot finish if control is poor.",
+        "Try 5–8 controlled tee swings."
+      ],
+      "filming": {
+        "views": "Side and front views; track both feet, lead knee/hip, pelvis, shoulders, and head.",
+        "phase": "Contact through the balance hold.",
+        "review": "Detect rear-foot clearance and time until it touches down. Count extra hops or steps and measure pelvis/trunk sway relative to the planted foot. Flag repeated knee displacement together with foot rolling or a recovery movement as an alignment/control issue for review, not a diagnosis from a single front-view frame.",
+        "feedback": "You held the finish for less than one second and put the rear foot down to recover. Reduce swing speed and work toward a controlled hold.",
+        "limits": "This deliberately constrained finish is a drill goal, not a required game-swing finish. A skeleton's hip midpoint is not a measured whole-body center of mass."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 21
+    },
+    {
+      "sourceId": "MW17",
+      "number": 17,
+      "category": "Front leg",
+      "name": "High-Tee Transfer Check",
+      "related": null,
+      "objective": "Check whether landing and lead-leg control persist when tee height changes.",
+      "equipment": "Adjustable tee, bat, balls, net; mark the tee height and position.",
+      "steps": [
+        "Begin with a few comfortable middle-height tee swings.",
+        "Raise the tee to the upper part of the hitter's strike zone.",
+        "Keep the landing routine consistent and swing at controlled effort.",
+        "Alternate middle-height and high-tee sets.",
+        "Compare contact and balance without forcing a particular spine tilt or knee angle."
+      ],
+      "filming": {
+        "views": "Side plus front view if available; track lead leg, hips, shoulders, bat axis, ball, and tee.",
+        "phase": "Plant through contact, with each rep labeled by tee height.",
+        "review": "Compare forward pelvis travel, knee motion, and torso position within each height condition. Flag a repeated high-tee pattern only when visible loss of lower-body control accompanies a change in barrel delivery or contact. Record misses and ball flight as outcomes separate from the mechanical label.",
+        "feedback": "On the higher tee, your front knee continued bending and your pelvis moved farther forward than in your controlled reps. Review the landing sequence alongside the bat path.",
+        "limits": "A pop-up, miss, steep bat path, or good line drive does not prove that front-leg bracing failed or succeeded. This is a transfer check, not an isolated diagnostic test."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 22
+    },
+    {
+      "sourceId": "MW18",
+      "number": 18,
+      "category": "Front leg",
+      "name": "Landing-Foot Tape Line",
+      "related": null,
+      "objective": "Improve landing consistency and identify uncontrolled foot sliding without preventing natural rotation.",
+      "equipment": "Tee, bat, balls, net, flat floor tape; no rigid object beside the stride foot.",
+      "steps": [
+        "Mark the hitter's comfortable landing area with tape.",
+        "Rehearse a normal stride into the area.",
+        "Add a controlled swing while keeping the foot supported.",
+        "Allow a comfortable toe angle and natural pivot; do not glue the foot to the ground.",
+        "Complete 8–10 reps, resetting after any slip."
+      ],
+      "filming": {
+        "views": "Elevated oblique or protected front view plus side view; track lead heel, toe, ankle, knee, hips, and the tape target.",
+        "phase": "Landing through contact.",
+        "review": "Estimate landing location, foot translation, and orientation over time. Separate rotation around a reasonably stable base from a sliding heel, abrupt foot displacement, or a loss of support accompanied by trunk sway. Mark out-of-target landings as drill-compliance events, not automatic swing flaws.",
+        "feedback": "Your heel slid away from the landing mark as your torso turned. Slow the rep and check surface traction and landing control.",
+        "limits": "Natural foot opening or rear-heel lift is not automatically a sequencing defect. Use ground-plane calibration before interpreting precise foot angles."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 23
+    },
+    {
+      "sourceId": "MW19",
+      "number": 19,
+      "category": "Front leg",
+      "name": "Raised Front-Foot Platform",
+      "related": null,
+      "objective": "Explore lead-leg support with the front foot pre-positioned on a stable raised surface.",
+      "equipment": "Low, wide, non-slip platform; tee, bat, balls, net; coach supervision.",
+      "steps": [
+        "Check that the platform cannot rock or slide.",
+        "Place the whole lead foot on it before starting; do not stride onto it at speed.",
+        "Adjust the stance and tee for comfortable reach.",
+        "Make slow, controlled swings, keeping the foot supported and avoiding forced knee extension.",
+        "Perform 5–8 reps, then compare with flat-ground swings."
+      ],
+      "filming": {
+        "views": "Side plus oblique view showing the platform edges; track lead foot outline, ankle/knee/hip, pelvis, and trunk.",
+        "phase": "Setup → swing → finish; there is no new stride-foot landing in this version.",
+        "review": "Monitor whether the foot stays on the support surface, whether the platform moves, and whether knee flexion and forward trunk/pelvis travel increase together. Flag a loss of support immediately as a drill-safety event; flag repeated forward collapse for coaching review.",
+        "feedback": "Your front foot moved toward the platform edge during rotation. Stop, reset the equipment, and resume only with a stable base.",
+        "limits": "Calibrate the raised support plane separately from the floor. Do not compare its raw joint positions directly with flat-ground reps or infer weight distribution from them."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 24
+    },
+    {
+      "sourceId": "MW20",
+      "number": 20,
+      "category": "Front leg",
+      "name": "Stride Height Guide",
+      "related": null,
+      "objective": "Build awareness of unnecessary upward or forward movement during the stride.",
+      "equipment": "Camera/tripod, floor tape, virtual on-screen head-height guide; optional tee, bat, balls, net.",
+      "steps": [
+        "Record the hitter's comfortable stance and controlled stride.",
+        "Draw an on-screen guide around the usual head-height range rather than using a rigid overhead bar.",
+        "Rehearse the stride without swinging.",
+        "Review whether you rise, drop, or surge beyond your controlled pattern.",
+        "Add 5–8 easy tee swings while allowing natural movement."
+      ],
+      "filming": {
+        "views": "Fixed side view; track head center, shoulders, hips, both ankles, heel, and toe.",
+        "phase": "Load through landing; assess post-plant travel separately.",
+        "review": "Plot vertical head/pelvis excursion and forward pelvis travel against the hitter's reference reps. Flag rising when both head and pelvis rise unexpectedly; flag a candidate lunge when excessive forward travel continues beyond landing with reduced control. Measure stride as lead-foot displacement from its starting location, not simply distance between both feet at landing.",
+        "feedback": "Your head and pelvis rose during the stride, then dropped again as you started the swing. Try a smoother stride at lower effort.",
+        "limits": "A long stride or moving head is not inherently wrong. Require a repeatable change from controlled reps and a related control problem before labeling it a flaw."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 25
+    },
+    {
+      "sourceId": "MW21",
+      "number": 21,
+      "category": "Front leg",
+      "name": "One-and-One Front-Leg Swings",
+      "related": null,
+      "objective": "Compare lead-leg action in a normal swing with a second, no-stride swing.",
+      "equipment": "Tee, bat, balls, net; hitter or helper resets the ball only after the bat is still.",
+      "steps": [
+        "Take one normal tee swing and come to a safe stop.",
+        "Keep the feet in a comfortable position while the ball is reset.",
+        "Reset the hands and soften the lead knee comfortably.",
+        "Take a second controlled swing without another stride.",
+        "Repeat 4–5 pairs, allowing the knee to firm without snapping it straight."
+      ],
+      "filming": {
+        "views": "Side and front views; track lead hip/knee/ankle, both feet, pelvis, trunk, bat, and ball.",
+        "phase": "First swing → complete stop → reset → second swing → contact.",
+        "review": "Pair the reps and verify the no-stride reset. Compare knee-angle trajectories and pelvis travel aligned to each contact. Flag repeated knee folding with forward drift in the second swing, or a sudden extension accompanied by a body rise or loss of balance. Do not grade the second swing against the first swing's stride timing.",
+        "feedback": "In the no-stride rep, your knee kept bending as your hips moved forward. Reduce effort and rehearse the turn from a stable setup.",
+        "limits": "No single contact knee angle is required. A naturally bent but stable knee is not a failure, and these videos cannot measure joint loading."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 26
+    },
+    {
+      "sourceId": "MW22",
+      "number": 22,
+      "category": "Rear leg",
+      "name": "Rear-Hip Hinge Pause",
+      "related": null,
+      "objective": "Practice a comfortable rear-hip loading position without substituting an uncontrolled squat, catcherward sway, or forward torso fold.",
+      "equipment": "Flat non-slip floor, camera or mirror, optional floor tape; no bat required initially.",
+      "steps": [
+        "Begin in a comfortable batting stance with soft knees.",
+        "Make a small load toward the rear side while hinging comfortably at the hips; do not push the knee to a prescribed position.",
+        "Keep the feet supported and the torso comfortable rather than forcing a deep bend.",
+        "Pause for two seconds, then return smoothly to the start.",
+        "Complete 6–8 rehearsals, then compare a few normal dry loads or gentle tee swings."
+      ],
+      "filming": {
+        "views": "Side plus oblique view; track rear hip, knee, ankle, heel/toe, both hips, shoulders, and head.",
+        "phase": "Stance → load → hold → reset; there is no ball-contact event.",
+        "review": "Compare pelvis travel, projected rear-knee angle, and torso/thigh orientation with coach-approved hinge reps. Flag candidate sinking/collapse when increasing knee flexion and pelvis descent continue into the hold with foot movement or a recovery adjustment. Flag candidate load sway when catcherward travel exceeds the controlled pattern and must be reversed abruptly to regain balance. Review excessive torso folding only with a related loss of control, not from trunk lean alone.",
+        "feedback": "During the hold, your rear knee kept folding and your pelvis continued dropping. Try a smaller hinge that you can hold comfortably without another adjustment.",
+        "limits": "Video cannot confirm where foot pressure is concentrated, how strongly the glute is working, or whether the spine is anatomically neutral. A bent knee and some catcherward movement are normal possibilities, not independent failures."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 27
+    },
+    {
+      "sourceId": "MW23",
+      "number": 23,
+      "category": "Rear leg",
+      "name": "Coil-and-Freeze Stride",
+      "related": null,
+      "objective": "Explore a small, controlled turn into the rear side without forcing a large twist or replacing the turn with a sway.",
+      "equipment": "Flat non-slip surface, camera or mirror, optional light bat and floor tape.",
+      "steps": [
+        "Take your normal stance and begin without a bat.",
+        "Make a small comfortable coil into the rear side while allowing the torso to respond naturally.",
+        "Freeze briefly without forcing the rear knee outward or inward.",
+        "Reset, then repeat with a slow stride to a controlled landing.",
+        "Perform 6–8 repetitions; add gentle tee swings only after the movement feels comfortable."
+      ],
+      "filming": {
+        "views": "Protected front/oblique plus side view; track both hips and shoulders, rear hip/knee/ankle, feet, and head.",
+        "phase": "Initial load through the brief hold, then the optional stride as a separate phase.",
+        "review": "Track pelvis/torso orientation changes together with pelvis translation and rear-foot motion. Review candidate sway-dominant loading when the body travels toward the catcher without the intended visible turn and then needs a corrective move. Review candidate over-coiling when a larger turn repeatedly accompanies foot sliding, a sudden posture change, or difficulty exiting into the stride. Verify the hold independently as drill compliance.",
+        "feedback": "Your larger coil moved you off your controlled starting base and you had to reset the rear foot. Make the turn smaller and keep the transition comfortable.",
+        "limits": "A projected hip line does not quantify anatomical hip internal rotation or stored elastic energy. Do not score a maximum coil angle or require the shoulders to stay motionless; an obscured far hip makes precise orientation analysis unreliable."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 28
+    },
+    {
+      "sourceId": "MW24",
+      "number": 24,
+      "category": "Rear leg",
+      "name": "Step-Back Tee Swings",
+      "related": null,
+      "objective": "Link a deliberate rear-foot step to a controlled load and forward stride.",
+      "equipment": "Tee, manageable bat, soft balls, net, clear space behind the stance; optional protected soft-toss progression.",
+      "steps": [
+        "Begin slightly forward of your usual hitting spot so a small backward step leaves comfortable reach.",
+        "Take a short step toward the catcher with the rear foot and gather into the rear side.",
+        "Move smoothly into the normal lead-foot stride without a backward hop or forced pause.",
+        "Turn and hit at controlled effort, allowing natural rear-foot motion.",
+        "Complete 6–10 reps, then compare normal swings from the same contact location."
+      ],
+      "filming": {
+        "views": "Wide side view plus oblique cross-check; track both feet, rear knee/hip, pelvis, shoulders, head, bat, and ball.",
+        "phase": "Rear-foot lift → backward landing → forward stride → contact.",
+        "review": "Confirm actual backward rear-foot displacement rather than a lift-and-replace, recording this as drill compliance. Flag candidate oversized step/hop when the rearward move creates airborne or recovery motion that interrupts the forward transition. Review candidate early extension when rear-knee/hip straightening coincides with a body rise or movement toward the plate before lead-foot landing and disrupted delivery. Review uncontrolled forward travel after the step together with balance and contact changes, not merely stride length.",
+        "feedback": "Your backward step became a hop, then you rushed the stride to reach the ball. Use a smaller step and blend it into the forward move.",
+        "limits": "This drill intentionally adds rearward movement, so normal-swing displacement thresholds do not apply. Visible heel lift does not prove early unloading, and video cannot verify glute activation or weight-distribution percentages."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 29
+    },
+    {
+      "sourceId": "MW25",
+      "number": 25,
+      "category": "Rear leg",
+      "name": "Wide-Stance Rocker Swings",
+      "related": null,
+      "objective": "Build rhythm between a rear-side gather and the turn without adding a stride.",
+      "equipment": "Tee, manageable bat, soft balls, net, flat non-slip surface.",
+      "steps": [
+        "Start in a comfortably wider-than-normal stance, not a forced split.",
+        "Keep the feet in their setup locations while rocking gently toward the front side and then the rear side.",
+        "Blend the rearward gather directly into a controlled swing.",
+        "Allow a natural heel lift or pivot; do not twist against a deliberately fixed foot.",
+        "Complete 6–8 reps, then compare normal swings."
+      ],
+      "filming": {
+        "views": "Side and protected oblique views; track hips, shoulders, rear knee, both ankles/feet, head, bat, and ball.",
+        "phase": "Forward rock → rearward rock → reversal into the turn → contact.",
+        "review": "Segment the deliberate rocking cycles before reviewing the swing. Flag candidate excessive rear-side sink when the rearward rock produces added knee folding and pelvis descent followed by an abrupt upward correction. Review candidate hanging-back/reaching pattern when the pelvis continues moving catcherward while the grip reaches toward the ball and contact/control differs from matched successful rocker reps. Detect unintended steps separately from natural foot pivoting.",
+        "feedback": "At the end of the rearward rock, you sank lower and then rose abruptly as the bat started. Use a smaller rocking motion and a smoother change of direction.",
+        "limits": "The deliberate rocking is not itself sway to be eliminated. Apparent hanging back is a movement description, not proof that weight stayed on the rear foot; tee placement and the intentionally wide stance must be considered."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 30
+    },
+    {
+      "sourceId": "MW26",
+      "number": 26,
+      "category": "Rear leg",
+      "name": "Rear-Leg Balance Start",
+      "related": null,
+      "objective": "Practice rear-leg balance and a controlled transition into the stride, distinct from holding a front-leg finish.",
+      "equipment": "Tee, light bat, soft balls, net, flat non-slip ground; optional support for no-bat balance rehearsal only.",
+      "steps": [
+        "Begin without a bat and lift the lead foot only as high as comfortable.",
+        "Balance briefly on the rear leg with a soft knee; lower the foot if you need to recover.",
+        "Move into a controlled lead-foot landing instead of jumping or falling forward.",
+        "Add a gentle tee swing once the transition is comfortable.",
+        "Take 5–8 reps, then return to your normal leg lift and stride."
+      ],
+      "filming": {
+        "views": "Side plus protected front view; track rear hip/knee/ankle, rear heel/toe, lead foot, pelvis, shoulders, head, bat, and ball.",
+        "phase": "Lead-foot lift → balance hold → stride → landing → contact.",
+        "review": "Verify lead-foot clearance and measure hold duration, pelvis sway, and rear-foot displacement. Flag rear-leg balance loss when the rear foot hops, the lead foot touches down unexpectedly, or knee/pelvis motion requires recovery. Review candidate collapse during departure when increased rear-knee flexion and pelvis drop accompany a rushed fall into landing rather than the controlled reference pattern. Distinguish hold instability from later swing issues.",
+        "feedback": "You needed a rear-foot hop before starting the stride. Lower the lead-leg lift and find a brief comfortable hold before adding the swing.",
+        "limits": "Single-leg balance performance does not diagnose weakness or predict hitting ability. Neither a high knee lift nor a long static hold is required in the game swing, and the hip midpoint is not a measured whole-body center of mass."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 31
+    },
+    {
+      "sourceId": "MW27",
+      "number": 27,
+      "category": "Rear leg",
+      "name": "Crossed-Leg Load and Stride",
+      "related": null,
+      "objective": "Practice maintaining a comfortable rear-side load while moving out of a crossed-leg setup.",
+      "equipment": "Tee, light/manageable bat, soft balls, net; clear non-slip area and coach supervision.",
+      "steps": [
+        "Rehearse without a bat first, gently crossing the lead leg in front of the rear leg without locking the legs together.",
+        "Find a small comfortable rear-hip hinge and coil.",
+        "Lift and uncross the lead foot into a controlled forward stride.",
+        "Blend the landing into a smooth swing; do not hold the rear knee rigid or overreach.",
+        "Complete 5–8 controlled reps, then compare your regular setup."
+      ],
+      "filming": {
+        "views": "Side and front/oblique views; track both hips/shoulders, rear hip/knee/ankle, both feet, head, bat, and ball.",
+        "phase": "Crossed setup → uncrossing → stride → contact.",
+        "review": "Label the deliberate crossing separately so it is not mistaken for a knee-alignment flaw. Review candidate premature loss of hinge when rear-leg straightening combines with the pelvis/body rising or moving toward the plate before landing, followed by a corrective swing path. Review excessive or shortened stride only when it accompanies rushing, recovery, or inconsistent contact relative to matched Hook ’Em reps. Check that the feet actually clear one another.",
+        "feedback": "As you uncrossed, your body rose before the lead foot landed, then you dropped back toward the ball. Use a shorter, slower forward move while keeping the setup comfortable.",
+        "limits": "A crossed-leg setup increases occlusion and can swap tracked leg identities. Withhold knee-angle flags if the model loses the rear leg; do not infer a precise hip–shoulder separation angle from an uncalibrated 2D view."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 32
+    },
+    {
+      "sourceId": "MW28",
+      "number": 28,
+      "category": "Rear leg",
+      "name": "Offset Open-Stance Swings",
+      "related": null,
+      "objective": "Explore rear-hip loading and posture control from an open, no-stride setup.",
+      "equipment": "Tee, bat, soft balls, net, optional floor tape showing the comfortable open stance.",
+      "steps": [
+        "Open your stance comfortably, with the lead foot farther from the plate than the rear foot.",
+        "Mark the setup so repeated trials begin from the same position.",
+        "Make a small coil into the rear side without a stride.",
+        "Swing smoothly toward a middle-field target, allowing natural foot pivoting and torso motion.",
+        "Complete 6–10 reps, then compare normal-stance swings separately."
+      ],
+      "filming": {
+        "views": "Side plus protected front/oblique view; track rear hip/knee/ankle, both feet, pelvis, shoulders, head, bat, and ball.",
+        "phase": "Open setup → coil → turn → contact.",
+        "review": "Establish the starting open orientation before measuring changes. Review candidate over-coil/posture loss when an enlarged loading turn accompanies rear-foot sliding, knee/hip instability, or a rapid body rise. Flag candidate early extension when rear-leg straightening occurs with pelvis movement toward the plate and a delivery correction relative to controlled offset-open reps. Record optional upper-body rollover or barrel-path observations separately using the original hand-analysis rules.",
+        "feedback": "Your larger coil was followed by a rear-foot slide and a rise toward the ball. Reduce the coil and keep this open-stance rep controlled.",
+        "limits": "Open hips at setup are intentional, not premature opening. Knee/hip projections differ from a square stance, and natural pelvis rotation cannot be judged as a fault solely because the foot pivots or the ball goes to the pull side."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 33
+    },
+    {
+      "sourceId": "MW29",
+      "number": 29,
+      "category": "Rear leg",
+      "name": "No-Bat Lower-Half Turns",
+      "related": null,
+      "objective": "Observe how the rear hip, knee, and foot participate in the turn without managing a swinging bat.",
+      "equipment": "Flat non-slip area, floor tape, camera; arms crossed comfortably at the chest instead of holding a bat.",
+      "steps": [
+        "Start in a normal stance with arms folded loosely across the chest.",
+        "Make your usual load and a small comfortable stride.",
+        "Pause briefly after landing, then turn smoothly through a comfortable range.",
+        "Let the rear knee, hip, and foot move together naturally rather than manually twisting the shoe or squeezing the knees together.",
+        "Take 6–8 reps, remove the pause, and then compare gentle bat swings."
+      ],
+      "filming": {
+        "views": "Side plus protected front/oblique views; track both hips/shoulders, rear knee/ankle/heel/toe, lead foot, and head.",
+        "phase": "Load → landing/pause → turn onset → finish; no ball-contact frame exists.",
+        "review": "Display the relative onset and progression of pelvis, rear-knee, and foot movement. Flag candidate isolated rear-foot spinning only when the shoe repeatedly turns before a coordinated body turn and is accompanied by sliding, wobble, or a corrective movement. Review apparent knee buckling only when repeated lateral displacement combines with foot rolling or loss of balance, cross-checked in both views.",
+        "feedback": "Your rear shoe turned first while your pelvis remained nearly still, and you needed a balance correction. Rehearse a smooth body turn instead of deliberately twisting the foot.",
+        "limits": "Timing here is descriptive, not a universal hips–knee–foot sequence. This no-bat rehearsal cannot establish bat timing, impact power, joint torque, or whether inward knee motion is harmful."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 34
+    },
+    {
+      "sourceId": "MW30",
+      "number": 30,
+      "category": "Rear leg",
+      "name": "Rotational Medicine-Ball Throw",
+      "related": null,
+      "objective": "Rehearse a rear-side gather followed by coordinated rotation and a controlled release without bat contact.",
+      "equipment": "Light medicine ball selected by a qualified coach, suitable throwing wall or clear designated landing area, non-slip floor; no nearby bystanders.",
+      "steps": [
+        "Stand side-on to the target with both feet comfortably supported.",
+        "Hold the ball near the rear hip and make a small comfortable gather.",
+        "Rotate and release the ball with both hands toward the target at controlled effort.",
+        "Allow natural rear-foot motion and finish balanced; do not catch a hard rebound.",
+        "Reset fully for 4–6 throws; use no-ball rehearsals if the ball changes posture or control."
+      ],
+      "filming": {
+        "views": "Side/oblique views covering the whole throw and floor; track both hips/shoulders, rear knee/ankle/foot, both hands, ball, and head.",
+        "phase": "Gather → forward/rotational move → ball release → recovery.",
+        "review": "Use release, not bat contact, as the event anchor. Review candidate rear-side sink/early rise when knee flexion and pelvis drop are followed by abrupt extension and a balance correction before release. Review candidate arm-dominant rehearsal when the hands/ball move substantially while pelvis/torso movement is limited relative to controlled throws, without claiming the arms supplied all force. Record slips and unplanned steps as control events.",
+        "feedback": "The ball moved forward while your torso stayed nearly still, then you stepped to recover. Use a lighter ball or a no-ball rehearsal and blend the turn into the release.",
+        "limits": "Ball distance or speed does not isolate rear-leg power or predict bat speed. This drill changes the implement and movement task; video alone cannot measure hand force, rear-foot pressure, torque, or muscle activation."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 35
+    },
+    {
+      "sourceId": "MW31",
+      "number": 31,
+      "category": "Rear leg",
+      "name": "Rear-Foot Tape Outline",
+      "related": null,
+      "objective": "Make rear-foot movement visible without forcing a fixed heel position or treating every pivot as an error.",
+      "equipment": "Tee, bat, soft balls, net, flat floor tape, camera; no cone or rigid obstacle beside the moving foot.",
+      "steps": [
+        "Mark the rear foot's initial location with flat tape.",
+        "Record several slow dry turns without deliberately twisting the rear shoe.",
+        "Add controlled tee swings and allow the heel to lift, pivot, or reposition naturally as needed.",
+        "Review the foot together with the knee, hip, and balance; do not try to keep the shoe inside the outline throughout the swing.",
+        "Take 6–10 reps and compare with ordinary swings."
+      ],
+      "filming": {
+        "views": "Low oblique view of the feet plus full-body side view; track rear shoe outline, heel, toe, ankle, knee, hip, pelvis, lead foot, bat, and ball.",
+        "phase": "Load through contact and early finish.",
+        "review": "Separate rear-foot translation, rotation, and heel height rather than combining them into one “spin” score. Flag candidate uncontrolled rear-foot slip/spin when abrupt movement relative to the floor accompanies rear-knee/pelvis disruption or a recovery step. Compare timing with pelvis movement and contact, but log a smooth heel lift or pivot as an observation rather than a failure. Do not interpret tape crossing as a failed rep.",
+        "feedback": "Your rear foot slid abruptly as the turn began, and your pelvis shifted to recover. Check traction and reduce effort before reviewing the movement again.",
+        "limits": "A foot can pivot or leave the ground in a controlled swing. Shoe appearance does not reveal pressure distribution; a rigid ‘heel down’ or ‘shoelaces down’ rule is not supported by this proposed system."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 36
+    },
+    {
+      "sourceId": "MW32",
+      "number": 32,
+      "category": "Rear leg",
+      "name": "Kneeling Rear-Leg Rise",
+      "related": null,
+      "objective": "Challenge rear-leg control while rising into a batting position, then transfer that control into a stride.",
+      "equipment": "Firm knee pad on non-slip ground, coach supervision, optional tee/light bat/soft balls/net; no unstable dome required.",
+      "steps": [
+        "Begin without a bat, with the rear foot planted and the lead knee resting comfortably on the pad.",
+        "Rise slowly using a comfortable range until the lead knee clears the pad; do not force the movement if painful or uncontrolled.",
+        "Find a brief controlled position, then step the lead foot into the batting stance.",
+        "Only if stable, add a gentle swing after the rise and landing; do not rush directly from the pad into a hard swing.",
+        "Perform 3–5 repetitions or substitute drill 26 if you need repeated assistance."
+      ],
+      "filming": {
+        "views": "Side plus front/oblique view showing the pad and both feet; track rear hip/knee/ankle, lead knee/foot, pelvis, shoulders, head, pad, and bat/ball if used.",
+        "phase": "Knee-down setup → rise → brief control phase → stride → optional contact.",
+        "review": "Verify lead-knee clearance and track rear-foot displacement, pelvis rise, and trunk movement. Flag candidate unstable rise when a backward rock, hop, foot slip, repeated lead-knee touchdown, or abrupt forward fall replaces the controlled transition. Review apparent rear-knee alignment changes only with corroborating foot/body instability. Separate difficulty in the rise from faults in the later swing.",
+        "feedback": "You rocked backward and shifted the rear foot before clearing the pad. Stop the swing progression and use the simpler standing balance drill.",
+        "limits": "A controlled rise necessarily involves knee/hip extension and upward motion; those are not “early extension” faults in this phase. Failure cannot diagnose strength, mobility, pain, or injury, and this advanced variation is not required for every hitter."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 37
+    },
+    {
+      "sourceId": "MW33",
+      "number": 33,
+      "category": "Rear leg",
+      "name": "Shuffle-Step Swings",
+      "related": null,
+      "objective": "Integrate the rear-leg gather with extra forward movement and a coordinated transition into the swing.",
+      "equipment": "Tee or protected soft toss, bat, soft balls, net, clear non-slip approach lane; optional floor marks.",
+      "steps": [
+        "Begin farther toward the catcher than your normal hitting spot.",
+        "Rehearse a small controlled shuffle toward the hitting position with no ball first; do not cross or tangle the feet.",
+        "Gather briefly on the rear side as the lead foot moves into its landing.",
+        "Blend the movement into a smooth turn and hit at moderate effort.",
+        "Take 6–8 reps, then compare normal swings; add toss timing only after the footwork is controlled."
+      ],
+      "filming": {
+        "views": "Wide side plus protected oblique view; track both feet, rear knee/hip, pelvis, shoulders, head, bat, ball, and toss release if applicable.",
+        "phase": "Shuffle initiation → rear-foot gather → lead-foot landing → contact → recovery.",
+        "review": "Identify the footfalls before comparing timing. Review candidate rushed rear-side departure when the gather becomes an abrupt rise/hop and the hitter requires a last-second landing or delivery correction. Review a candidate stalled/hanging-back transition when forward progression stops unexpectedly while the hands reach for the ball. Also flag continuing forward collapse or sliding after landing, using the front-leg rules rather than blaming the rear leg automatically. Log contact-location variability as an outcome, not a causal diagnosis.",
+        "feedback": "Your shuffle finished late, leaving a rushed landing before contact. Slow the approach or begin the movement earlier relative to the toss.",
+        "limits": "Extra forward travel is intentional in this drill. A mistimed toss, starting too far from the tee, or variable shuffle length can mimic a rear-leg issue; compare similar setups and do not equate more movement with more power."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 38
+    },
+    {
+      "sourceId": "MW34",
+      "number": 34,
+      "category": "Posture",
+      "name": "Hinge-to-Landing Posture Rehearsal",
+      "related": null,
+      "objective": "Establish a comfortable torso/pelvis relationship and carry it into the stride.",
+      "equipment": "Camera, floor tape, flat ground; no bat initially.",
+      "steps": [
+        "Start in a comfortable stance.",
+        "Make a small hip hinge without forcing a deep squat or arched back.",
+        "Add a slow load and stride, then pause at landing.",
+        "Reset if you need to rise, fold farther, or step to recover.",
+        "Take 6–8 rehearsals, then compare gentle normal tee swings."
+      ],
+      "filming": {
+        "views": "Side plus oblique; shoulders, hips, head, knees, feet.",
+        "phase": "Setup → load → landing hold.",
+        "review": "Trace torso-axis orientation, pelvis height, and foot support. Review candidate excessive folding when added forward bend accompanies pelvis drop and a late rise to recover; review candidate early rise when torso/pelvis elevation disrupts the landing. Compare with a comfortable reference, not a prescribed angle.",
+        "feedback": "Use a smaller hinge that you can carry into the landing without another adjustment.",
+        "limits": "A torso proxy cannot assess spinal neutrality, strength, or pain. Some head drop and posture change during loading may be normal."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 39
+    },
+    {
+      "sourceId": "MW35",
+      "number": 35,
+      "category": "Posture",
+      "name": "Shoulder-Line Posture Turns",
+      "related": null,
+      "objective": "Explore torso turning and pitch-specific tilt without managing a bat swing.",
+      "equipment": "Folded arms or short foam rod held gently across the upper chest; tee as a visual target; clear space.",
+      "steps": [
+        "Rehearse with folded arms first.",
+        "If using a rod, hold it below the neck without pressure or trapping it behind the shoulders.",
+        "Turn slowly toward an imaginary middle-height contact point.",
+        "Reset and rehearse a comfortably higher or lower target; let the torso adjust.",
+        "Complete 6–8 slow reps, then normal tee swings without the rod."
+      ],
+      "filming": {
+        "views": "Side and oblique; shoulders, hips, knees, head, rod endpoints.",
+        "phase": "Landing-ready setup through slow turn.",
+        "review": "Compare torso and shoulder orientation with target height and pelvis motion. Flag candidate loss of organized tilt only when rising/diving or retreat accompanies a disrupted turn or recovery. Track rod slippage separately so a moving implement does not masquerade as shoulder motion.",
+        "feedback": "Turn toward this target smoothly instead of rising first and correcting down.",
+        "limits": "Rod angle is not spinal angle; rotation changes its 2D projection. The drill does not require perfectly level shoulders or one tilt for every pitch."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 40
+    },
+    {
+      "sourceId": "MW36",
+      "number": 36,
+      "category": "Posture",
+      "name": "Slow Delivery-Path Rehearsal",
+      "related": null,
+      "objective": "Observe torso organization while rehearsing an approach to contact.",
+      "equipment": "Light bat, contact tee, optional second soft visual reference, net.",
+      "steps": [
+        "Set a comfortable contact point and mark an earlier delivery region with a soft reference.",
+        "Slowly rehearse the barrel approaching the ball without hitting either object.",
+        "Let the torso turn rather than forcing a straight-line barrel path.",
+        "Remove the extra reference before controlled ball contact.",
+        "Alternate 3–4 dry rehearsals with a short normal tee set."
+      ],
+      "filming": {
+        "views": "Side plus oblique; torso/hips, head, grip, bat endpoints, tee.",
+        "phase": "Early delivery through the contact region.",
+        "review": "Review a torso rise, plateward dive, or catcherward retreat that coincides with a late barrel redirection compared with matched dry reps. Record crossing a reference region as compliance, not a diagnosis. Inspect whether removing the reference restores or preserves natural delivery.",
+        "feedback": "Your torso rose and the barrel redirected just before the target. Slow the rehearsal and review the whole turn.",
+        "limits": "The reference is not a prescribed bat-path rail. A lower barrel or curved path is not automatically dumping, and apparent contact in one image may be depth overlap."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 41
+    },
+    {
+      "sourceId": "MW37",
+      "number": 37,
+      "category": "Posture",
+      "name": "No-Stride Posture Swings",
+      "related": null,
+      "objective": "Review torso control with the stride removed before restoring normal movement.",
+      "equipment": "Tee, manageable bat, soft balls, net.",
+      "steps": [
+        "Set a comfortable no-stride base and normal grip.",
+        "Make a small load without stepping.",
+        "Turn through the ball at easy effort, allowing natural tilt and foot pivot.",
+        "Finish comfortably rather than freezing the torso.",
+        "Take 6–8 reps, then compare normal-stride swings."
+      ],
+      "filming": {
+        "views": "Side and front/oblique; shoulders, hips, head, knees/feet, bat/ball.",
+        "phase": "No-stride load → turn → contact → finish.",
+        "review": "Review candidate early extension when torso rising or pelvis movement toward the plate accompanies lost support or a delivery correction before contact. Distinguish normal finish rising from pre-contact change. Compare no-stride and stride conditions separately.",
+        "feedback": "Turn from the comfortable setup without first rising toward the ball.",
+        "limits": "No-stride success does not establish full-swing transfer. Video cannot identify lumbar loading or prove that a particular joint caused the path change."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 42
+    },
+    {
+      "sourceId": "MW38",
+      "number": 38,
+      "category": "Posture",
+      "name": "Low-Tee Posture Swings",
+      "related": null,
+      "objective": "Adapt to a low pitch with controlled body organization instead of an abrupt dip or reach.",
+      "equipment": "Adjustable tee, bat, soft balls, net.",
+      "steps": [
+        "Set the tee in a comfortably reachable lower strike-zone location.",
+        "Rehearse the target slowly before swinging.",
+        "Allow comfortable torso and leg adjustments rather than forcing only the arms down.",
+        "Hit at controlled effort and reset between reps.",
+        "Take 6–8 reps, then compare a few middle-height swings separately."
+      ],
+      "filming": {
+        "views": "Side plus oblique; torso, pelvis, both knees, head, grip, bat/ball, tee.",
+        "phase": "Load through contact.",
+        "review": "Compare low-pitch references. Review candidate dip-and-rise when abrupt pelvis/head descent is followed by an upward correction and changed barrel delivery; review rising away from the low target with an exaggerated reach. Record contact quality separately.",
+        "feedback": "Make the adjustment to the lower target smoothly instead of dropping and lifting at the last moment.",
+        "limits": "More side bend or knee flexion can be appropriate here. A ground ball or pop-up alone cannot prove posture loss, and there is no universal low-pitch torso angle."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 43
+    },
+    {
+      "sourceId": "MW39",
+      "number": 39,
+      "category": "Posture",
+      "name": "High-Tee Posture Swings",
+      "related": null,
+      "objective": "Organize the body for a higher pitch without excessive preparatory folding or a late stand-up correction.",
+      "equipment": "Adjustable tee, bat, soft balls, net.",
+      "steps": [
+        "Put the tee in a comfortably reachable upper strike-zone position.",
+        "Establish a comfortable setup rather than exaggerating a low-pitch hinge.",
+        "Swing smoothly without locking the knees or shoulders.",
+        "Compare the whole delivery, not only ball flight.",
+        "Complete 6–8 reps, then restore the normal tee location."
+      ],
+      "filming": {
+        "views": "Side plus oblique; shoulders, hips, head, knees, bat/ball, tee.",
+        "phase": "Load/landing through contact.",
+        "review": "Review repeated additional folding during the stride followed by an abrupt rise or reach to the high ball. Compare within this height condition and track whether a calmer setup reduces the correction. Separate a front-leg observation from the posture label.",
+        "feedback": "Set up comfortably for this height so you do not need to stand up into the ball.",
+        "limits": "A taller organization than on a low pitch is not automatically early extension. High-tee contact cannot prove that the front leg blocked correctly."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 44
+    },
+    {
+      "sourceId": "MW40",
+      "number": 40,
+      "category": "Posture",
+      "name": "Mixed-Height Posture Tee",
+      "related": null,
+      "objective": "Change posture with pitch height while preserving control and delivery.",
+      "equipment": "Adjustable tee or safe toss setup, bat, soft balls, net, three marked height settings.",
+      "steps": [
+        "Begin with a comfortable middle-height rep.",
+        "Change to high, then low, resetting safely between balls.",
+        "Let the body adjust rather than trying to copy one pose.",
+        "Keep effort similar across locations.",
+        "Perform 2–3 rounds, then test normal swings at one matched baseline location."
+      ],
+      "filming": {
+        "views": "Side plus oblique; head, torso, pelvis, knees/feet, bat/ball and actual height.",
+        "phase": "Load through contact, tagged by location.",
+        "review": "Compare within-height patterns before cross-height trends. Review abrupt extra reaching, diving, or rising at a particular height together with disrupted delivery or recovery. Do not score appropriate height-dependent posture differences as inconsistency.",
+        "feedback": "The low setting caused a last-second dip. Slow that rep and find a comfortable adjustment before adding speed.",
+        "limits": "Three locations are three conditions, not one universal angle target. Ball-flight differences can have multiple causes."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 45
+    },
+    {
+      "sourceId": "MW41",
+      "number": 41,
+      "category": "Posture",
+      "name": "Low-Outside Tee Reach",
+      "related": null,
+      "objective": "Reach an outside-low contact point without an uncontrolled dive or retreat.",
+      "equipment": "Tee, bat, soft balls, net, opposite-field target.",
+      "steps": [
+        "Set a reachable lower-outside contact point with a coach.",
+        "Rehearse slowly to confirm you do not need to fall toward the plate.",
+        "Hit with comfortable opposite-field intent without locking the shoulders.",
+        "Adjust the tee if safe reach is impossible.",
+        "Take 6–8 reps, then normal middle-zone swings."
+      ],
+      "filming": {
+        "views": "Side plus protected pitcher-facing/oblique view; shoulders, pelvis, head, feet, hands, bat/ball.",
+        "phase": "Stride through contact.",
+        "review": "Separate plateward travel from pitcherward travel. Flag candidate diving/reaching when head/torso move toward the plate with foot instability or a late arm stretch relative to controlled same-location reps. Review backing away when it causes a recovery reach.",
+        "feedback": "You moved toward the plate and needed a late reach. Check tee distance before changing the swing.",
+        "limits": "Some reach and torso adjustment are appropriate outside. A hooked ball does not establish posture loss or rollover; first rule out an unsuitable setup."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 46
+    },
+    {
+      "sourceId": "MW42",
+      "number": 42,
+      "category": "Posture",
+      "name": "Short-Bat Posture Swings",
+      "related": null,
+      "objective": "Explore delivery and torso adjustment with a shorter implement, then test normal-bat transfer.",
+      "equipment": "Age/strength-appropriate light short bat or safely choked-up bat, tee, soft balls, net.",
+      "steps": [
+        "Choose a bat you can control; do not copy an adult weighted-trainer specification.",
+        "Set the tee within comfortable reach for that implement.",
+        "Take easy two-hand swings without lunging to compensate for length.",
+        "Reset or reposition the tee if reach is awkward.",
+        "Take 5–8 reps, then restore normal bat and baseline setup."
+      ],
+      "filming": {
+        "views": "Side plus oblique; head, shoulders/hips, knees/feet, grip, bat length/endpoints, ball.",
+        "phase": "Load through contact.",
+        "review": "Match short-bat reps to short-bat references. Review torso rising, plateward diving, or an arm-only reach when paired with control/path disruption. Evaluate normal-bat transfer separately rather than demanding identical joint positions.",
+        "feedback": "Use a reachable setup and a smooth turn instead of leaning farther for the short bat.",
+        "limits": "Implement length and mass alter the task; differences do not prove a mechanical flaw. Do not infer greater power or impose additional side bend as an automatic success criterion."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 47
+    },
+    {
+      "sourceId": "MW43",
+      "number": 43,
+      "category": "Posture",
+      "name": "Three-Stance Rotation Check",
+      "related": null,
+      "objective": "Maintain control while changing stance, without assuming one stance's posture fits every setup.",
+      "equipment": "Tee, bat, soft balls, net, floor marks.",
+      "steps": [
+        "Take one controlled open-stance swing.",
+        "Reset to a regular no-stride setup for one swing.",
+        "Reset to a comfortably closed stance for one swing.",
+        "Keep the range comfortable and allow natural foot release.",
+        "Perform two rounds, then test the normal stance separately."
+      ],
+      "filming": {
+        "views": "Side plus oblique; stance markers, feet, pelvis, torso, head, bat/ball.",
+        "phase": "Setup through contact, labeled by stance.",
+        "review": "Establish each stance's baseline orientation. Review a repeated rise/dive/retreat with loss of support or late barrel correction within that stance. Compare the normal-stance transfer without requiring other stance angles to match it.",
+        "feedback": "The closed setup made you lean away and reach. Reduce the stance change and keep the turn comfortable.",
+        "limits": "Deliberately open or closed hips are not faults. A projected shoulder-line change can reflect different camera geometry rather than lost posture."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 48
+    },
+    {
+      "sourceId": "MW44",
+      "number": 44,
+      "category": "Posture",
+      "name": "Torso Path Video Check",
+      "related": null,
+      "objective": "Make excessive torso retreat or plateward diving visible without restricting the head.",
+      "equipment": "Camera, virtual overlay, optional light bat and tee; no physical head contact.",
+      "steps": [
+        "Record a few comfortable dry turns.",
+        "Overlay broad reference traces for shoulder midpoint and pelvis rather than a rigid head box.",
+        "Repeat slow turns and review unexpected departures from the reference.",
+        "Add easy tee swings only when control is comfortable.",
+        "Complete 6–8 reps, then remove the overlay cue."
+      ],
+      "filming": {
+        "views": "Side and oblique; shoulder/hip midpoints, head, feet, bat if used.",
+        "phase": "Landing-ready setup through turn/contact region.",
+        "review": "Track torso translation and tilt together, comparing the same phase. Review retreat/dive only when repeatable and paired with correction or instability. Treat overlay crossing as a prompt for review, not an automatic failure.",
+        "feedback": "Your torso moved away from the delivery region before your hands reached it. Review the slow turn without trying to hold your head rigid.",
+        "limits": "This is a visualization adaptation, not a measured anatomical boundary. Head and torso trajectories need not stay fixed, and 2D traces cannot resolve all depth motion."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 49
+    },
+    {
+      "sourceId": "MW45",
+      "number": 45,
+      "category": "Posture",
+      "name": "Location-Change Transfer Tee",
+      "related": null,
+      "objective": "Test posture control outside a repeated tee condition.",
+      "equipment": "Adjustable tee or protected consistent tosser, bat, soft balls, net, location labels.",
+      "steps": [
+        "Begin with a short predictable middle-zone round.",
+        "Introduce one comfortable high or low location at a time.",
+        "Tell the hitter the location before the rep; vary order only after control is established.",
+        "Keep effort and feed quality similar.",
+        "Take 6–8 reps and finish with a matched middle-zone check."
+      ],
+      "filming": {
+        "views": "Side plus protected oblique; torso, head, pelvis, feet, hands, bat/ball and feed release.",
+        "phase": "Feed/load through contact, grouped by actual location.",
+        "review": "Review location-specific late dives, rises, retreats, or recovery, not variation in itself. Separate an inaccurate toss from the hitter's response and compare the final middle-zone set with its baseline.",
+        "feedback": "On the lower tosses you made a late downward correction. Return to a predictable low target before mixing heights.",
+        "limits": "This is a transfer task, not proof of improved vision or game performance. Do not merge different pitch locations into a single posture-failure rate."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 50
+    },
+    {
+      "sourceId": "MW46",
+      "number": 46,
+      "category": "Balance / head control",
+      "name": "Four-Count Dry Swing",
+      "related": null,
+      "objective": "Identify which phase introduces unwanted balance or head movement.",
+      "equipment": "Light bat or no bat, coach, flat floor, optional camera.",
+      "steps": [
+        "Start in a comfortable stance.",
+        "On count one, load; on two, stride and settle.",
+        "On three, identify an imaginary reachable contact location.",
+        "On four, make a slow dry swing and finish naturally.",
+        "Complete 4–6 reps, then remove the counts for normal swings."
+      ],
+      "filming": {
+        "views": "Side plus oblique; head, shoulders, hips, both feet, bat.",
+        "phase": "Four labeled events and transitions; no actual contact.",
+        "review": "Mark the first phase with a slip, unplanned step, head/torso surge, or recovery. Compare with controlled counted reps, and distinguish an intended pause from hesitation in normal swings.",
+        "feedback": "The extra step happened after the stride. Make the landing smaller before adding the turn.",
+        "limits": "This segmented rehearsal does not establish continuous-swing timing. Head movement is not an error merely because it crosses a static screen coordinate."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 51
+    },
+    {
+      "sourceId": "MW47",
+      "number": 47,
+      "category": "Balance / head control",
+      "name": "Small Toe-Tap Rhythm Swings",
+      "related": null,
+      "objective": "Rehearse a small rhythmic gather without bobbing or losing support.",
+      "equipment": "Tee, light/manageable bat, soft balls, net, non-slip floor.",
+      "steps": [
+        "Begin without a swing and make one or two small lead-foot taps within a comfortable stance.",
+        "Keep the rear foot supported without deliberately locking it.",
+        "Blend the last tap into the normal landing and a gentle tee swing.",
+        "Reset rather than repeatedly tapping through fatigue.",
+        "Take 5–8 reps, then normal swings without the taps."
+      ],
+      "filming": {
+        "views": "Side and oblique; both feet, knees, pelvis, head, torso, bat/ball.",
+        "phase": "Tap cycle → final landing → contact.",
+        "review": "Verify tap events and track whether head/pelvis bobbing increases or an unplanned hop/slip interrupts the transition. Review changes relative to controlled tap reps, not a no-stride standard.",
+        "feedback": "Make the taps smaller so you can move into the swing without hopping.",
+        "limits": "This is a simplified rhythm adaptation; taps intentionally add movement. It does not prove improved eye tracking or require a toe tap in the game swing."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 52
+    },
+    {
+      "sourceId": "MW48",
+      "number": 48,
+      "category": "Balance / head control",
+      "name": "Feet-Together Stride Swings",
+      "related": null,
+      "objective": "Expand from a compact starting base into a controlled hitting stance.",
+      "equipment": "Tee, bat, soft balls, net, floor marks.",
+      "steps": [
+        "Begin with feet comfortably closer together, not touching or on a narrow beam.",
+        "Rehearse a small lead-foot step into the normal stance.",
+        "Receive the step without falling or crossing the feet.",
+        "Add a controlled swing only after the footwork is comfortable.",
+        "Complete 5–8 reps, then normal-stance swings."
+      ],
+      "filming": {
+        "views": "Wide side plus oblique; both feet, knees, hips, head, shoulders, bat/ball.",
+        "phase": "Compact setup → step → landing → contact.",
+        "review": "Compare landing location, foot separation, head/pelvis travel, and recovery events. Flag overreaching or a rushed fall only when accompanied by loss of control or a late delivery correction, not because the stance widened.",
+        "feedback": "Use a shorter step so you arrive ready to turn rather than catching yourself.",
+        "limits": "Added forward travel is deliberate. Nose-over-foot position cannot measure balance forces, and starting too far from the tee can mimic a flaw."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 53
+    },
+    {
+      "sourceId": "MW49",
+      "number": 49,
+      "category": "Balance / head control",
+      "name": "Leg-Lift Stride Swings",
+      "related": null,
+      "objective": "Challenge lead-leg lift/lowering and stride control without a rigid balance-point hold.",
+      "equipment": "Tee, bat, soft balls, net; flat non-slip ground.",
+      "steps": [
+        "Start with a comfortably compact stance.",
+        "Lift the lead leg only as high as controlled.",
+        "Lower it smoothly into the forward move rather than jumping or locking the rear knee.",
+        "Land and take an easy swing; begin with dry rehearsals if needed.",
+        "Take 5–8 reps, then return to the normal stride."
+      ],
+      "filming": {
+        "views": "Side plus front/oblique; both feet, rear knee/hip, pelvis, head, torso, bat/ball.",
+        "phase": "Lift → lowering → stride → contact.",
+        "review": "Review unintended lead-foot touches, rear-foot hops, or forward/backward falls. Compare head motion relative to the moving torso and review only abrupt corrections associated with poor control. Separate feed timing from balance if using toss.",
+        "feedback": "Lower the leg lift and ride into the stride without a recovery hop.",
+        "limits": "A high leg lift is not a prerequisite for hitting. Task difficulty cannot diagnose weakness, vestibular problems, or injury."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 54
+    },
+    {
+      "sourceId": "MW50",
+      "number": 50,
+      "category": "Balance / head control",
+      "name": "Two-Foot Finish Hold",
+      "related": null,
+      "objective": "Practice controlled deceleration and observe recovery movements after contact.",
+      "equipment": "Tee, bat, soft balls, net.",
+      "steps": [
+        "Take a moderate-effort tee swing.",
+        "Decelerate naturally; do not stop the bat abruptly.",
+        "Hold the resulting comfortable finish for about two seconds without deliberately lifting a foot.",
+        "Note whether you step or hop to recover, then reset.",
+        "Complete 6–8 reps and compare normal finishes without a hold cue."
+      ],
+      "filming": {
+        "views": "Side plus oblique; both feet, pelvis, torso, head, bat/ball.",
+        "phase": "Contact → deceleration → hold.",
+        "review": "Measure hold duration after deceleration and mark unplanned steps, slips, or increasing sway. Rewind to pre-contact frames before attributing the finish to an earlier flaw; planned rear-foot release is not automatically a recovery step.",
+        "feedback": "Use less effort so you can finish without the extra recovery step.",
+        "limits": "This is not #16's single-front-leg finish requirement. A good posed finish cannot prove a good contact sequence or reveal weight distribution."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 55
+    },
+    {
+      "sourceId": "MW51",
+      "number": 51,
+      "category": "Balance / head control",
+      "name": "Contact-to-Finish Rehearsal",
+      "related": null,
+      "objective": "Explore comfortable follow-through control without a full-speed approach.",
+      "equipment": "Light bat, optional tee as a non-contact reference, clear space.",
+      "steps": [
+        "Slowly place the bat near a comfortable imagined contact position.",
+        "Move gently through the follow-through, allowing the body and head to turn naturally.",
+        "Settle into a comfortable finish without locking joints.",
+        "Reset fully; do not accelerate violently from the static position.",
+        "Take 4–6 rehearsals, then gentle normal swings."
+      ],
+      "filming": {
+        "views": "Side/oblique; grip, arms, bat, head, torso, pelvis, feet.",
+        "phase": "Preset contact-region start → follow-through → settle.",
+        "review": "Review wobble, sudden backward arching, or foot recovery during the rehearsal. Track head/torso motion without scoring ordinary rotation as pulling off. Compare transfer only in full normal swings.",
+        "feedback": "Make the finish smooth enough that you do not need to step to catch yourself.",
+        "limits": "The prescribed starting position is not actual impact and cannot diagnose early rollover, bat drag, or swing sequencing before contact."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 56
+    },
+    {
+      "sourceId": "MW52",
+      "number": 52,
+      "category": "Balance / head control",
+      "name": "Tee-Top Focus Swings",
+      "related": null,
+      "objective": "Reduce a rushed look-away during tee work without holding the neck rigid.",
+      "equipment": "Tee, manageable bat, soft balls, net, camera.",
+      "steps": [
+        "Locate the ball on the tee with a comfortable head position.",
+        "Make an easy normal swing.",
+        "Briefly retain attention in the contact area rather than immediately chasing ball flight.",
+        "Let the head turn naturally as the body finishes; do not pin chin to shoulder.",
+        "Take 5–8 reps, then remove the attention cue for normal swings."
+      ],
+      "filming": {
+        "views": "Side plus protected face-visible view; head center/orientation, shoulders, torso, bat/ball.",
+        "phase": "Pre-contact → contact interval → early follow-through.",
+        "review": "Review abrupt head rotation or translation before contact together with torso withdrawal or a delivery correction. Separate that from a natural post-contact look. If only the nose is visible, lower confidence rather than calling every displacement a lunge.",
+        "feedback": "Keep the contact area in mind through the swing, without forcing your head down.",
+        "limits": "The camera cannot prove the hitter watched contact, and a head turn alone does not establish gaze loss. Tee attention does not automatically transfer to a moving pitch."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 57
+    },
+    {
+      "sourceId": "MW53",
+      "number": 53,
+      "category": "Balance / head control",
+      "name": "Post-Swing Symbol Call",
+      "related": null,
+      "objective": "Add a simple attention-report task without placing a coach near the swing path.",
+      "equipment": "Tee with a securely placed flat symbol visible after ball removal, soft balls, bat, net; symbol changed only when bat is still.",
+      "steps": [
+        "Have a coach prepare a large symbol near the tee cup, concealed by the ball where practical.",
+        "Take a gentle tee swing without bending closer to read it.",
+        "Once the swing has safely finished, report the symbol.",
+        "Reset and change the symbol only after the hitter stops.",
+        "Take 4–6 reps, then remove the reporting task."
+      ],
+      "filming": {
+        "views": "Full-body side plus clear tee/symbol view; head, torso, feet, bat/ball, symbol.",
+        "phase": "Swing → ball departure → finish → spoken report.",
+        "review": "Record symbol/report correctness separately from movement. Review diving or delayed recovery caused by trying to read the cue, and stop the constraint if it disrupts the swing. Do not infer visual fixation from answer timing.",
+        "feedback": "Do not lean in to read the symbol. Finish comfortably, then give your answer.",
+        "limits": "A correct answer may come from a post-swing glance, prior visibility, or guessing; it does not prove attention at impact. This is not a vision-acuity test."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 58
+    },
+    {
+      "sourceId": "MW54",
+      "number": 54,
+      "category": "Balance / head control",
+      "name": "Slow-Motion Head-Path Review",
+      "related": null,
+      "objective": "Locate disruptive head movement by phase without imposing a motionless head.",
+      "equipment": "Camera, optional virtual trajectory overlay, light bat; no physical head guide.",
+      "steps": [
+        "Record comfortable slow dry swings.",
+        "Review load, landing, delivery, and finish separately.",
+        "Overlay the head path from controlled reps as a reference, not a rigid box.",
+        "Repeat at easy effort with one cue addressing the observed abrupt movement.",
+        "Take 4–6 rehearsals, then normal tee swings without the overlay cue."
+      ],
+      "filming": {
+        "views": "Fixed side plus face-visible oblique; multiple head points, shoulders, pelvis, feet, bat.",
+        "phase": "Load through finish, with no impact event for dry swings.",
+        "review": "Separate field-relative head travel from head movement relative to the torso and from estimated head rotation. Review abrupt changes only if repeatable and paired with lost control or disrupted delivery. Verify camera shake and tracking jumps before flagging.",
+        "feedback": "The abrupt head move appears as the swing starts. Slow that transition rather than trying to freeze your head for the whole rep.",
+        "limits": "A head trace is not eye tracking. Natural stride motion, pitch adjustment, and finish rotation remain permitted; an arbitrary two-inch box is not a universal standard."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 59
+    },
+    {
+      "sourceId": "MW55",
+      "number": 55,
+      "category": "Balance / head control",
+      "name": "No-Swing Pitch Tracking",
+      "related": null,
+      "objective": "Separate ball observation and stance control from swinging.",
+      "equipment": "Helmet, protected consistent tosser, soft balls, net; no bat initially.",
+      "steps": [
+        "Take a comfortable stance in a clear safe area.",
+        "Receive gentle predictable tosses without swinging or reaching to catch.",
+        "Attend to the ball from release into the receiving net.",
+        "After each toss, report a simple location such as high/middle/low.",
+        "Use 6–8 takes, then compare a short normal-swing set separately."
+      ],
+      "filming": {
+        "views": "Side plus protected face-visible view; head, torso, pelvis/feet, ball, release and zone reference.",
+        "phase": "Release → zone passage → report; no bat contact.",
+        "review": "Track visible head orientation/translation and stance recovery, comparing similar feeds. Score the stated location against labeled ball passage separately. A wrong call is a task outcome, not automatic evidence of poor balance or head motion.",
+        "feedback": "Keep a comfortable stance and make the location call after the ball passes.",
+        "limits": "The system cannot verify continuous gaze or perception from head pose. Flinching or an errant feed should prompt safety review, not a mechanical diagnosis."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 60
+    },
+    {
+      "sourceId": "MW56",
+      "number": 56,
+      "category": "Balance / head control",
+      "name": "Color-Call Takes",
+      "related": null,
+      "objective": "Add an explicit recognition response while preserving comfortable head and body control.",
+      "equipment": "Soft training balls with large visible colors/marks, helmet, protected gentle tosser, net; no bat.",
+      "steps": [
+        "Begin with slow, consistently delivered tosses and clearly distinguishable colors.",
+        "Take every toss without swinging or catching it.",
+        "Report the color after passage, without moving closer to the flight path.",
+        "Slow or simplify the feed if the marking is not reliably visible.",
+        "Complete 6–8 takes; score recognition separately from movement."
+      ],
+      "filming": {
+        "views": "Full-body plus clear ball view; ball identity, release, head/torso, feet.",
+        "phase": "Release → passage → report.",
+        "review": "Compare reported color with ground truth and count abstentions or unclear markings. Review lunging/ducking or recovery only as visible movement observations. Ensure color-label errors from the camera are not attributed to the hitter.",
+        "feedback": "Stay in the comfortable stance; if you cannot see the mark, say so and we will slow the toss.",
+        "limits": "Color calls do not measure gaze fixation, pitch-spin recognition, or visual acuity. Lighting, color-vision differences, and marking visibility can affect performance."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 61
+    },
+    {
+      "sourceId": "MW57",
+      "number": 57,
+      "category": "Balance / head control",
+      "name": "Controlled Take-or-Swing Reads",
+      "related": null,
+      "objective": "Test control when the hitter must decide, not merely repeat a predetermined swing.",
+      "equipment": "Helmet, bat, soft balls, protected consistent tosser, net, agreed reachable target window.",
+      "steps": [
+        "Agree on a simple comfortable swing window before the round.",
+        "Begin with predictable gentle feeds and a few clear takes outside that window.",
+        "Swing only at suitable feeds; take the others without a forced check swing.",
+        "Review the choice, body control, and contact outcome separately.",
+        "Use 6–8 deliveries, then a short matched normal-swing check if workload allows."
+      ],
+      "filming": {
+        "views": "Side plus protected oblique; head/torso, pelvis/feet, grip/bat, ball, release and target window.",
+        "phase": "Release → decision response → swing/contact or take → recovery.",
+        "review": "Label delivered location and actual swing/take before examining balance. Review repeated pre-contact head/torso surges with rushed footwork or recovery on comparable swing trials. Keep decision accuracy, head movement, contact, and balance in separate fields; use only swing trials for contact-based analysis.",
+        "feedback": "Make the same comfortable move and keep the option to take; do not rush just because the ball is coming.",
+        "limits": "A poor decision does not establish a head-control defect. Ordinary video cannot identify when the hitter perceived the pitch or diagnose anxiety, attention problems, or visual impairment."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 62
+    },
+    {
+      "sourceId": "MW58",
+      "number": 58,
+      "category": "Medicine ball",
+      "name": "Paused Standing Scoop Toss",
+      "related": null,
+      "objective": "Rehearse a comfortable rear-side gather and coordinated release without added approach momentum.",
+      "equipment": "Coach-selected light medicine ball, approved wall/landing lane, flat non-slip surface, target marker.",
+      "steps": [
+        "Stand side-on to the target with a comfortable base.",
+        "Hold the ball with both hands near the rear hip and make a small gather.",
+        "Pause briefly without sinking farther or twisting to end range.",
+        "Turn and scoop-release smoothly; allow natural foot motion and follow-through.",
+        "Let the ball stop, reset, and complete 4–6 total reps across comfortable directions."
+      ],
+      "filming": {
+        "views": "Side/oblique; hips, shoulders, rear knee/foot, hands, ball, head, target.",
+        "phase": "Gather → pause → turn → release → recovery.",
+        "review": "Verify the pause separately from throw quality. Review continued knee folding/pelvis descent followed by a rushed rise, or hand/ball travel that occurs with an abrupt torso correction. Compare matched paused throws, then assess normal swings independently.",
+        "feedback": "Use a smaller gather so you can turn and release without rising to recover.",
+        "limits": "A pause changes rhythm; throw speed/distance does not reveal rear-leg force or prove bat-speed improvement."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 63
+    },
+    {
+      "sourceId": "MW59",
+      "number": 59,
+      "category": "Medicine ball",
+      "name": "Split-Stance Scoop Toss",
+      "related": null,
+      "objective": "Explore lead-side support and rotation from a pre-set staggered base.",
+      "equipment": "Light medicine ball, approved target area, floor marks, non-slip surface.",
+      "steps": [
+        "Set the lead foot slightly closer to the target in a comfortable staggered stance.",
+        "Hold the ball near the rear hip; do not force a long split or locked front knee.",
+        "Make a small gather and rotate into a two-hand scoop release without adding a stride.",
+        "Allow a comfortable pivot and finish; stop if the feet slide.",
+        "Reset for 4–6 total throws, changing direction only after a safe setup."
+      ],
+      "filming": {
+        "views": "Side plus oblique; both feet/knees, pelvis, torso, hands, ball/target.",
+        "phase": "Pre-set stance → gather → release → finish; there is no new lead-foot landing.",
+        "review": "Review lead-knee folding together with continued pelvis travel and recovery, or deliberate knee lockout with a body jolt. Record an added step as compliance first, distinguishing a necessary safety recovery from intended foot release.",
+        "feedback": "Turn from the base you set rather than sliding forward through it.",
+        "limits": "A visible front-leg position does not measure braking force or weight transfer, and a stable bent knee is not a failed block."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 64
+    },
+    {
+      "sourceId": "MW60",
+      "number": 60,
+      "category": "Medicine ball",
+      "name": "Step-Back Scoop Toss",
+      "related": null,
+      "objective": "Connect a small rearward step to a smooth forward/rotational transition.",
+      "equipment": "Light medicine ball, approved target lane, clear approach space, floor marks.",
+      "steps": [
+        "Rehearse the footwork without a ball first.",
+        "Hold the ball comfortably and take a small rear-foot step away from the target along the intended movement line.",
+        "Gather, then move into a controlled lead-foot landing and turn.",
+        "Scoop-release without a hop or forced knee extension.",
+        "Wait for the ball to stop; complete 4–6 total throws, returning to #58 if control is poor."
+      ],
+      "filming": {
+        "views": "Wide side/oblique; both feet, rear knee/hip, pelvis, head/torso, hands, ball.",
+        "phase": "Rear step → gather → lead landing → release.",
+        "review": "Review an oversized step/hop with a rushed landing, or rear-side rise with a late arm correction. Compare against the same step-back task rather than penalizing intended rearward travel. Check ball position remains controllable during the approach.",
+        "feedback": "Shorten the backward step so the landing and release stay smooth.",
+        "limits": "This is a proposed combination, not a standard drill. Visible movement cannot establish pressure transfer, and added momentum must not be mistaken for greater intrinsic rotational power."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 65
+    },
+    {
+      "sourceId": "MW61",
+      "number": 61,
+      "category": "Medicine ball",
+      "name": "Step-In Rotational Toss",
+      "related": null,
+      "objective": "Blend a short approach with a controlled plant, turn, and release.",
+      "equipment": "Light medicine ball, approved target/landing lane, approach marks, non-slip surface.",
+      "steps": [
+        "Begin only a short comfortable step from the throwing setup.",
+        "Hold the ball securely and rehearse the approach at walking pace.",
+        "Step into the side-on release setup, receive the landing, then turn and throw.",
+        "Finish without a forced stop or running into the rebound lane.",
+        "Reset fully for 4–6 total throws; no run-up is required."
+      ],
+      "filming": {
+        "views": "Wide side plus oblique; both feet/knees, pelvis, torso/head, hands, ball/target.",
+        "phase": "Approach → landing → turn/release → recovery.",
+        "review": "Review continued forward collapse or foot sliding after landing with an awkward release/recovery. Separate the intended approach from unwanted post-landing travel; inspect whether the ball starts moving toward the target before a stable transition is established, without imposing a universal timing cutoff.",
+        "feedback": "Slow the step so you can turn from the landing instead of chasing the throw.",
+        "limits": "Approach speed changes output. A farther throw does not prove better front-leg bracing or improved hitting mechanics."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 66
+    },
+    {
+      "sourceId": "MW62",
+      "number": 62,
+      "category": "Medicine ball",
+      "name": "Small-Shuffle Scoop Toss",
+      "related": null,
+      "objective": "Coordinate extra footwork, a rear-side gather, and a controlled release.",
+      "equipment": "Light medicine ball, approved target, clear non-slip lane, optional footfall marks.",
+      "steps": [
+        "Rehearse a small sideways shuffle without crossing the feet.",
+        "Add the ball once the footwork is controlled.",
+        "Gather into the rear side, land on the lead side, and turn into the scoop throw.",
+        "Keep the approach modest; do not jump into release or chase a hard rebound.",
+        "Use 4–6 total throws with full resets, reverting to #61 or #58 if needed."
+      ],
+      "filming": {
+        "views": "Wide side/oblique; both feet, rear knee/hip, pelvis, torso/head, hands, ball.",
+        "phase": "Shuffle → gather → lead landing → release → recovery.",
+        "review": "Identify footfalls before judging timing. Review a hop, tangled feet, or stalled gather followed by a rushed arm throw and recovery. Distinguish planned approach steps from uncontrolled steps after release.",
+        "feedback": "Make the shuffle smaller so the gather and release stay connected.",
+        "limits": "This footwork adaptation is not a mandated swing pattern. Throw output cannot isolate rear-leg power, and different approach distances must not be pooled into one score."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 67
+    },
+    {
+      "sourceId": "MW63",
+      "number": 63,
+      "category": "Medicine ball",
+      "name": "Step-Behind Rotational Push Throw",
+      "related": null,
+      "objective": "Explore a controlled step-behind approach to a rotational push once simpler throws are reliable.",
+      "equipment": "Light coach-selected medicine ball, approved target lane, ample clear space; direct supervision.",
+      "steps": [
+        "Begin side-on with the ball near the rear shoulder, supported by both hands.",
+        "Rehearse a small rear-foot step behind the lead foot, then a lead-foot step toward the target.",
+        "Turn and push-release with the rear-side hand while the other hand guides safely.",
+        "Follow through comfortably without trapping or tangling the feet.",
+        "Allow the rebound to stop; use 4 total controlled throws or substitute #66."
+      ],
+      "filming": {
+        "views": "Side plus oblique; crossed-foot events, hips/shoulders, rear elbow/wrist, both hands, ball.",
+        "phase": "Cross-step → opening step → turn → release.",
+        "review": "Verify leg identity during crossing, then review foot tangling, late landing, abrupt torso correction, or uncomfortable-looking delivery that prompts the athlete to stop. Compare the shoulder-level push with shot-put references, not scoop trajectories.",
+        "feedback": "Remove the cross-step until you can land and release without tangling the feet.",
+        "limits": "Rebound catching is intentionally omitted. Do not infer shoulder loading, pain, or safe joint range from pose, and do not map a one-arm push directly to top-hand bat mechanics."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 68
+    },
+    {
+      "sourceId": "MW64",
+      "number": 64,
+      "category": "Medicine ball",
+      "name": "Tall-Kneeling Rotational Scoop",
+      "related": null,
+      "objective": "Explore comfortable rotational delivery with stepping removed.",
+      "equipment": "Very light suitable ball, firm knee pad, approved target area, coach supervision.",
+      "steps": [
+        "Kneel on both knees on the pad in a comfortable upright position.",
+        "Hold the ball in two hands and make a small comfortable turn to one side.",
+        "Rotate back toward the target and release gently without forcing a long backswing.",
+        "Allow comfortable hip/torso motion rather than pinning the pelvis.",
+        "Reset for 4 total throws across comfortable directions; choose standing work if kneeling is uncomfortable."
+      ],
+      "filming": {
+        "views": "Side/oblique; hips, shoulders, head, knees/pad, hands, ball.",
+        "phase": "Kneeling setup → gather → release → settle.",
+        "review": "Review uncontrolled leaning, rising off the pad, or a catch-up torso motion after the ball moves. Record pad/knee movement and recovery separately from the chosen torso pattern; there is no foot-stride event.",
+        "feedback": "Keep the turn within a comfortable range and use a lighter ball if you need to lean to release it.",
+        "limits": "Kneeling does not isolate one muscle group or prove core strength. A stable kneeling throw cannot establish lower-body sequencing in a normal swing."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 69
+    },
+    {
+      "sourceId": "MW65",
+      "number": 65,
+      "category": "Medicine ball",
+      "name": "Half-Kneeling Scoop Toss",
+      "related": null,
+      "objective": "Review rotational control from an asymmetric supported base.",
+      "equipment": "Very light suitable ball, firm pad, approved target, non-slip floor.",
+      "steps": [
+        "Place one knee on the pad and the other foot ahead in a comfortable stable position.",
+        "Start facing the target with the ball near the kneeling-side hip.",
+        "Make a modest gather, then rotate and scoop toward the target without striking the raised knee.",
+        "Reset fully; switch setup only when the ball is still.",
+        "Take 4 total reps, normally 2 per comfortable orientation, or return to standing if needed."
+      ],
+      "filming": {
+        "views": "Front/oblique plus side; lead foot/knee, kneeling knee/pad, hips/shoulders, head, hands, ball.",
+        "phase": "Setup → gather → release → recovery.",
+        "review": "Review lead-foot rocking/sliding, pelvis leaning, or a late arm lift to clear the leg. Tag which knee is down so mirrored views do not reverse the interpretation. A moving torso is expected; review control rather than enforcing a stationary pelvis.",
+        "feedback": "Adjust the setup so the ball clears your leg without a last-second lift or lean.",
+        "limits": "A knee-on-pad constraint changes the movement and may not suit the athlete. Camera projection does not diagnose hip mobility or determine a correct trunk-separation angle."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 70
+    },
+    {
+      "sourceId": "MW66",
+      "number": 66,
+      "category": "Medicine ball",
+      "name": "Standing Rotational Push Throw",
+      "related": null,
+      "objective": "Coordinate a rotational push with the body turn and a controlled finish.",
+      "equipment": "Light suitable medicine ball, approved target/landing lane, non-slip ground.",
+      "steps": [
+        "Stand side-on with the ball comfortably near the rear shoulder or upper chest.",
+        "Place the rear-side hand behind the ball and the other hand in support.",
+        "Make a small gather, rotate, and push-release toward a reachable target.",
+        "Do not force elbow lockout, wrist snap, or a high launch angle.",
+        "Reset for 4–6 total throws; reduce the load or return to a two-hand scoop if uncomfortable."
+      ],
+      "filming": {
+        "views": "Side/oblique; shoulders/hips, rear elbow/wrist, supporting hand, feet, head, ball.",
+        "phase": "Gather → turn → push/release → recovery.",
+        "review": "Review an early reach/push that accompanies limited torso movement and a late body correction relative to controlled same-task reps. Inspect abrupt leaning or foot recovery after release. Distinguish intentional elbow extension in a push from premature extension labels used in bat swings.",
+        "feedback": "Blend the body turn and the push instead of reaching first and catching up afterward.",
+        "limits": "Hand/arm force cannot be measured from this video. A rotational shot put is not a bat swing, and ball spin or flight alone cannot validate a kinetic-chain sequence."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 71
+    },
+    {
+      "sourceId": "MW67",
+      "number": 67,
+      "category": "Medicine ball",
+      "name": "Half-Kneeling Rotational Push",
+      "related": null,
+      "objective": "Explore comfortable upper-body push timing with stepping removed.",
+      "equipment": "Very light suitable ball, firm knee pad, approved target area, supervision.",
+      "steps": [
+        "Set a comfortable half-kneeling base facing the target.",
+        "Hold the ball near the rear-side shoulder with one hand behind and the other supporting.",
+        "Make a small turn and push-release without forcing a large twist.",
+        "Let the arms follow through and regain a comfortable base.",
+        "Complete 4 total throws or substitute #66 if kneeling is awkward."
+      ],
+      "filming": {
+        "views": "Side plus front/oblique; knees/foot/pad, hips/shoulders, both hands, rear elbow, ball, head.",
+        "phase": "Setup through release and recovery.",
+        "review": "Review torso side-fall, lead-foot sliding, or a late push after a balance correction. Track elbow extension as an intentional task feature, not an automatic “barring” fault. Record the actual kneeling orientation for matched comparisons.",
+        "feedback": "Use a smaller turn and lighter ball so the push does not pull you off the base.",
+        "limits": "This does not isolate the arms or establish top-hand strength. Pose cannot diagnose knee/shoulder stress, and visible compensations should prompt coaching review rather than a medical label."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 72
+    },
+    {
+      "sourceId": "MW68",
+      "number": 68,
+      "category": "Medicine ball",
+      "name": "Controlled Overhead Floor Slam",
+      "related": null,
+      "objective": "Practice a controlled raise, downward release, and recovery as a general athletic task.",
+      "equipment": "Appropriately light low/no-bounce slam ball rated for floor impact, approved floor, clear space, supervision.",
+      "steps": [
+        "Start with a comfortable stance and the ball supported in both hands.",
+        "Raise it only within a comfortable overhead range without forcing a back arch.",
+        "Use a controlled downward throw to a clear floor spot in front of, not under, the feet.",
+        "Keep clear of any rebound and wait until the ball stops before retrieval.",
+        "Perform 4 total slams; omit this drill if overhead movement or the facility setup is unsuitable."
+      ],
+      "filming": {
+        "views": "Side plus oblique; hands/ball, shoulders/hips, head, feet, floor target.",
+        "phase": "Raise → downward release → impact → recovery; ball impact is not hitter contact.",
+        "review": "Review abrupt backward lean during the raise, loss of support on release, unsafe foot proximity to the impact zone, or an uncontrolled attempt to catch a rebound. Expected downward torso motion is not a “posture collapse” by itself.",
+        "feedback": "Use a comfortable raise and place the slam safely ahead of your feet, then let the ball stop.",
+        "limits": "This is a general supplemental adaptation, not a hitting-specific mechanic or proof of front-leg blocking. Do not infer spinal loading from a torso line."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 73
+    },
+    {
+      "sourceId": "MW69",
+      "number": 69,
+      "category": "Medicine ball",
+      "name": "Medicine-Ball Carry and Place",
+      "related": null,
+      "objective": "Practice approaching, decelerating, and intentionally placing an object while maintaining control.",
+      "equipment": "Manageable medicine ball, stable broad low platform appropriate to the athlete, non-slip lane, clear reset area.",
+      "steps": [
+        "Pick up and hold the ball comfortably near the torso.",
+        "Walk a short marked path toward the platform; do not begin with a sprint.",
+        "Slow down and place the ball gently without dropping, throwing, or colliding with the platform.",
+        "Release only once the ball is supported, then step away.",
+        "Reset for 4 total placements; reduce load or distance if control deteriorates."
+      ],
+      "filming": {
+        "views": "Full-body side/oblique; feet, pelvis/torso/head, hands/ball, platform boundary.",
+        "phase": "Carry → approach/deceleration → placement → hand release → exit.",
+        "review": "Review extra recovery steps, a dropped ball, collision risk, or a rushed forward lean during placement. Confirm support before labeling a release successful; distinguish the intended placement bend from loss of posture.",
+        "feedback": "Slow earlier so you can place the ball rather than dropping it to catch your balance.",
+        "limits": "This is general movement control, not a direct batting drill. No ballistic release speed, swing-power score, or front-leg force can be inferred from completion time."
+      },
+      "sourceSheet": "Drill Library",
+      "sourceRow": 74
+    }
+  ],
+  "quickKey": [
+    {
+      "label": "4 + 4",
+      "text": "Four drill task reps, then four normal two-hand swings. Remove the drill constraint for the normal swings.",
+      "sourceRow": 11
+    },
+    {
+      "label": "Session order",
+      "text": "Prepare → 6 baseline swings → optional focus block → rear-leg block → front-leg block → upper-body block → 6 uncued exit swings.",
+      "sourceRow": 12
+    },
+    {
+      "label": "Volume",
+      "text": "Base session = 36 task reps. Add ONE posture (P), balance/head-control (B), OR medicine-ball (M) block, 4 + 4, for 44 task reps. Dry rehearsals, takes, and throws count as task reps, not necessarily swings; log warm-up and extra tests separately.",
+      "sourceRow": 13
+    },
+    {
+      "label": "Reduced version",
+      "text": "4 baseline → 2 + 2 per block → 4 exit = 20 task reps, or 24 with one focus block. For #3 use one dry rehearsal and one tee swing; for #21 use one two-swing pair.",
+      "sourceRow": 14
+    },
+    {
+      "label": "Controlled rep",
+      "text": "No slip or unplanned recovery, and the chosen movement issue is absent or improved against the coach-approved reference. Record contact quality separately; a hard hit alone is not a mechanical pass.",
+      "sourceRow": 15
+    },
+    {
+      "label": "Proposed advance rule",
+      "text": "At least 4 of 6 assessable normal exit swings controlled, no pain/new safety issue, and no material worsening from baseline; confirm with the next session's matched baseline. Reduced version: 3 of 4. These are coaching rules for this plan, not validated age-specific standards.",
+      "sourceRow": 16
+    },
+    {
+      "label": "Safety and video",
+      "text": "Scale to the hitter and total workload. Stop for pain, slipping, or unsafe bat control; never force a locked knee or rigid head. Use fixed full-body side video and a protected oblique view when available; uncertain footage is “not assessable,” not a failed rep.",
+      "sourceRow": 17
+    },
+    {
+      "label": "Medicine-ball kit",
+      "text": "Coach-selected manageable ball of known mass, approved throwing wall/landing area, non-slip floor, clear throw/rebound lane. A batting net is not assumed suitable. No rapid rebound catching; let the ball stop before retrieval, then clear the lane and rest as needed before normal swings.",
+      "sourceRow": 18
+    },
+    {
+      "label": "Medicine-ball count",
+      "text": "M means 4 throws TOTAL, normally 2 each comfortable direction, then 4 normal swings, not 4 throws per side. Reduced M = 2 throws total + 2 swings. Rehearsals count as extra; #58 can replace a harder M task at any stage.",
+      "sourceRow": 19
+    },
+    {
+      "label": "Medicine-ball review",
+      "text": "Observe release/recovery, not bat contact. Record ball mass/type and actual throws per direction; a successful throw does not prove hitting improvement or measure force/power.",
+      "sourceRow": 20
+    }
+  ],
+  "stages": [
+    {
+      "id": "ST1",
+      "number": 1,
+      "name": "Gather, Land, Deliver",
+      "blocks": [
+        {
+          "slot": "rear",
+          "drill": "MW22",
+          "dose": "4 + 4",
+          "run": "Small no-bat rear-hip hinge; brief hold; reset.",
+          "watch": "Continued sinking plus an extra body/foot adjustment.",
+          "sourceRow": 31
+        },
+        {
+          "slot": "front",
+          "drill": "MW13",
+          "dose": "4 + 4",
+          "run": "Stride without swinging; hold the comfortable landing about 2 seconds.",
+          "watch": "Sliding or needing a recovery step.",
+          "sourceRow": 32
+        },
+        {
+          "slot": "upper",
+          "drill": "MW01",
+          "dose": "4 + 4",
+          "run": "Gentle top-hand-only tee swings; free hand on chest; restore two hands.",
+          "watch": "Early reaching or elbow advancement with delayed barrel delivery.",
+          "sourceRow": 33
+        }
+      ],
+      "focus": [
+        {
+          "slot": "P",
+          "drill": "MW34",
+          "dose": "4 + 4",
+          "run": "Small hinge → slow stride → comfortable landing hold.",
+          "sourceRow": 38
+        },
+        {
+          "slot": "B",
+          "drill": "MW46",
+          "dose": "4 + 4",
+          "run": "Count load → stride → identify target → slow dry swing.",
+          "sourceRow": 39
+        },
+        {
+          "slot": "M",
+          "drill": "MW58",
+          "dose": "4 + 4",
+          "run": "Small rear-hip gather, brief pause, smooth scoop throw; watch for sinking and a recovery rise.",
+          "sourceRow": 40
+        }
+      ],
+      "sourceSheet": "Coach Cards",
+      "sourceRow": 24,
+      "goal": "Comfortable load, controlled landing, manageable barrel delivery.",
+      "cue": "Gather, land, then turn smoothly.",
+      "kit": "Middle-height tee, regular bat, light one-hand bat, soft balls, net, non-slip floor.",
+      "normalSwings": "Same middle-tee setting throughout; prepare first, then record 6 uncued baseline swings.",
+      "exit": "Six normal two-hand swings, no technique cue. Look for a controlled load/landing and delivery without recovery; 4/6 is provisional progress, confirmed next session.",
+      "next": "If not ready: Shorten the load and stride; reduce effort. Use light dry rehearsals instead of one-hand ball contact if control is poor."
+    },
+    {
+      "id": "ST2",
+      "number": 2,
+      "name": "Coil, Receive, Organize",
+      "blocks": [
+        {
+          "slot": "rear",
+          "drill": "MW23",
+          "dose": "4 + 4",
+          "run": "Small coil, brief pause, controlled stride; dry rehearsal.",
+          "watch": "Larger twist or sway requiring a foot/body correction.",
+          "sourceRow": 57
+        },
+        {
+          "slot": "front",
+          "drill": "MW14",
+          "dose": "4 + 4",
+          "run": "Land, pause 1–2 seconds, then swing without another step.",
+          "watch": "Knee folding plus a second forward pelvis surge.",
+          "sourceRow": 58
+        },
+        {
+          "slot": "upper",
+          "drill": "MW03",
+          "dose": "4 + 4",
+          "run": "2 slow dry slot pauses + 2 continuous tee swings = 4 drill reps.",
+          "watch": "Elbow/hand drop together with an unwanted barrel change and late correction.",
+          "sourceRow": 59
+        }
+      ],
+      "focus": [
+        {
+          "slot": "P",
+          "drill": "MW35",
+          "dose": "4 + 4",
+          "run": "Fold arms or use short foam rod; slowly turn toward a middle-height target.",
+          "sourceRow": 64
+        },
+        {
+          "slot": "B",
+          "drill": "MW47",
+          "dose": "4 + 4",
+          "run": "Small lead-foot taps into a gentle tee swing; avoid hopping.",
+          "sourceRow": 65
+        },
+        {
+          "slot": "M",
+          "drill": "MW59",
+          "dose": "4 + 4",
+          "run": "Pre-set comfortable staggered base, gather and scoop without a stride; watch for sliding or recovery.",
+          "sourceRow": 66
+        }
+      ],
+      "sourceSheet": "Coach Cards",
+      "sourceRow": 50,
+      "goal": "Carry a small loading turn into a controlled landing and arm delivery.",
+      "cue": "Turn smoothly from your landing.",
+      "kit": "Middle-height tee, manageable bat, soft balls, net; folded arms or short foam rod for optional P.",
+      "normalSwings": "Same middle-tee setting; begin with 6 baseline/retention swings.",
+      "exit": "Six uncued normal swings with the pauses removed. Seek a smooth turn without a second surge or abrupt barrel correction; 4/6 plus next-session retention advances.",
+      "next": "If not ready: Return to Stage 1 or reduce pauses. Do not pin the elbow down, freeze the torso, or preserve a segmented rhythm in normal swings."
+    },
+    {
+      "id": "ST3",
+      "number": 3,
+      "name": "Supported Turn, Controlled Reach",
+      "blocks": [
+        {
+          "slot": "rear",
+          "drill": "MW29",
+          "dose": "4 + 4",
+          "run": "Arms folded; load, small stride, comfortable no-bat turn.",
+          "watch": "Shoe twisting with wobble, slipping, or a recovery.",
+          "sourceRow": 83
+        },
+        {
+          "slot": "front",
+          "drill": "MW18",
+          "dose": "4 + 4",
+          "run": "Tape a comfortable landing area; swing while allowing natural pivot.",
+          "watch": "Abrupt heel sliding with loss of support, not normal rotation.",
+          "sourceRow": 84
+        },
+        {
+          "slot": "upper",
+          "drill": "MW05",
+          "dose": "4 + 4",
+          "run": "Small comfortable split grip, easy tee swings; restore normal grip.",
+          "watch": "Early rear-arm straightening plus outward hand travel/wider approach.",
+          "sourceRow": 85
+        }
+      ],
+      "focus": [
+        {
+          "slot": "P",
+          "drill": "MW37",
+          "dose": "4 + 4",
+          "run": "Easy no-stride tee swings; allow natural torso tilt.",
+          "sourceRow": 90
+        },
+        {
+          "slot": "B",
+          "drill": "MW50",
+          "dose": "4 + 4",
+          "run": "Decelerate naturally, then hold a comfortable finish about 2 seconds.",
+          "sourceRow": 91
+        },
+        {
+          "slot": "M",
+          "drill": "MW66",
+          "dose": "4 + 4",
+          "run": "Support ball near rear shoulder, turn and push-release; watch for an early reach followed by a body correction. Use #58 if uncomfortable.",
+          "sourceRow": 92
+        }
+      ],
+      "sourceSheet": "Coach Cards",
+      "sourceRow": 76,
+      "goal": "Coordinate the turn without forced foot spinning or early reaching.",
+      "cue": "Turn through a comfortable, supported stance.",
+      "kit": "Middle-height tee, soft balls, net, flat tape, light bat with safe split-grip space.",
+      "normalSwings": "Same tee setting and regular grip; begin with 6 baseline/retention swings.",
+      "exit": "Six uncued normal swings. Seek supported feet and controlled delivery; 4/6 plus next-session retention advances.",
+      "next": "If not ready: Remove the constraint and lower effort. Do not glue either foot down or use a posed finish as proof of good pre-contact mechanics."
+    },
+    {
+      "id": "ST4",
+      "number": 4,
+      "name": "Add Movement, Keep Control",
+      "blocks": [
+        {
+          "slot": "rear",
+          "drill": "MW24",
+          "dose": "4 + 4",
+          "run": "Small rear-foot step toward catcher → smooth stride → easy tee swing.",
+          "watch": "Hop or oversized step followed by a rushed landing.",
+          "sourceRow": 109
+        },
+        {
+          "slot": "front",
+          "drill": "MW21",
+          "dose": "4 + 4",
+          "run": "2 pairs: normal swing, safe reset, no-stride second swing. Both swings count.",
+          "watch": "Second-rep knee folding with drift, or abrupt rising and recovery.",
+          "sourceRow": 110
+        },
+        {
+          "slot": "upper",
+          "drill": "MW06",
+          "dose": "4 + 4",
+          "run": "Two hands through contact; allow later top-hand release with secure bottom-hand control.",
+          "watch": "Clearly pre-contact release or loss of bat control.",
+          "sourceRow": 111
+        }
+      ],
+      "focus": [
+        {
+          "slot": "P",
+          "drill": "MW38",
+          "dose": "4 + 4",
+          "run": "Reachable low tee; smooth adjustment; restore middle tee for normal swings.",
+          "sourceRow": 116
+        },
+        {
+          "slot": "B",
+          "drill": "MW49",
+          "dose": "4 + 4",
+          "run": "Modest lead-leg lift/lower into an easy tee swing; use dry reps if needed.",
+          "sourceRow": 117
+        },
+        {
+          "slot": "M",
+          "drill": "MW60",
+          "dose": "4 + 4",
+          "run": "Small rearward step → gather → land → scoop; watch for a hop or rushed landing.",
+          "sourceRow": 118
+        }
+      ],
+      "sourceSheet": "Coach Cards",
+      "sourceRow": 102,
+      "goal": "Introduce a small step-back while preserving landing and finish control.",
+      "cue": "Move smoothly into a balanced swing.",
+      "kit": "Middle-height tee, manageable bat, soft balls, net, clear space behind stance.",
+      "normalSwings": "Regular start and finish; begin with 6 baseline/retention swings.",
+      "exit": "Six uncued normal swings, without forced step-back or release. Seek control independent of the drill; 4/6 plus next-session retention advances.",
+      "next": "If not ready: Return to Stage 3; reduce movement. Do not force one-hand release or a high leg lift."
+    },
+    {
+      "id": "ST5",
+      "number": 5,
+      "name": "Rhythm Meets a Moving Ball",
+      "blocks": [
+        {
+          "slot": "rear",
+          "drill": "MW25",
+          "dose": "4 + 4",
+          "run": "4 small-rock tee swings; then 4 normal toss swings.",
+          "watch": "Extra sinking followed by a rise, or reaching while moving catcherward.",
+          "sourceRow": 135
+        },
+        {
+          "slot": "front",
+          "drill": "MW20",
+          "dose": "4 + 4",
+          "run": "4 dry strides under a virtual reference; then 4 normal toss swings.",
+          "watch": "Abrupt head/pelvis rise or forward surge with control loss.",
+          "sourceRow": 136
+        },
+        {
+          "slot": "upper",
+          "drill": "MW02",
+          "dose": "4 + 4",
+          "run": "4 gentle top-hand-only tosses; then 4 normal two-hand toss swings.",
+          "watch": "Early reaching; review rollover only if hand orientation is clearly visible.",
+          "sourceRow": 137
+        }
+      ],
+      "focus": [
+        {
+          "slot": "P",
+          "drill": "MW40",
+          "dose": "4 + 4",
+          "run": "Tee order middle → high → low → middle; then 4 normal toss swings.",
+          "sourceRow": 142
+        },
+        {
+          "slot": "B",
+          "drill": "MW55",
+          "dose": "4 + 4",
+          "run": "4 no-swing tosses with location reports; then 4 normal toss swings.",
+          "sourceRow": 143
+        },
+        {
+          "slot": "M",
+          "drill": "MW61",
+          "dose": "4 + 4",
+          "run": "Short walking approach → controlled landing → turn and scoop; watch for sliding or falling through release. Transfer to normal toss or the chosen tee version.",
+          "sourceRow": 144
+        }
+      ],
+      "sourceSheet": "Coach Cards",
+      "sourceRow": 128,
+      "goal": "Preserve control with predictable gentle tosses.",
+      "cue": "Move smoothly and meet the ball.",
+      "kit": "Tee, regular/light one-hand bats, helmet, soft balls, net, protected consistent tosser; virtual height guide only.",
+      "normalSwings": "Start: Check Stage 4 retention with 6 tee swings; if advancing to toss, add a separate 6-toss baseline and log the extra set.",
+      "exit": "Six uncued normal toss swings matching the toss baseline. Seek controlled delivery on comparable feeds; 4/6 plus retention advances.",
+      "next": "If not ready: Improve the toss or stay on the tee. Do not force a still head, infer gaze from head pose, or score an errant feed as a mechanical failure."
+    },
+    {
+      "id": "ST6",
+      "number": 6,
+      "name": "Integrate, Then Remove the Drills",
+      "blocks": [
+        {
+          "slot": "rear",
+          "drill": "MW33",
+          "dose": "4 + 4",
+          "run": "4 small-shuffle tee swings; then 4 normal swings.",
+          "watch": "Hop, rushed landing, or stalled move followed by reaching.",
+          "sourceRow": 161
+        },
+        {
+          "slot": "front",
+          "drill": "MW14",
+          "dose": "4 + 4",
+          "run": "4 paused tee swings without a second surge; then 4 normal swings.",
+          "watch": "Knee folding plus renewed forward travel.",
+          "sourceRow": 162
+        },
+        {
+          "slot": "upper",
+          "drill": "MW11",
+          "dose": "4 + 4",
+          "run": "4 reachable deeper-tee swings; then 4 normal swings at baseline setup.",
+          "watch": "Early reaching/withdrawal; do not diagnose from ball direction alone.",
+          "sourceRow": 163
+        }
+      ],
+      "focus": [
+        {
+          "slot": "P",
+          "drill": "MW45",
+          "dose": "4 + 4",
+          "run": "Four comfortable, initially announced location changes; then 4 matched normal swings.",
+          "sourceRow": 168
+        },
+        {
+          "slot": "B",
+          "drill": "MW57",
+          "dose": "4 + 4",
+          "run": "Four gentle swing/take deliveries with an agreed window; then 4 normal swings. Takes count as tasks.",
+          "sourceRow": 169
+        },
+        {
+          "slot": "M",
+          "drill": "MW62",
+          "dose": "4 + 4",
+          "run": "Small non-crossing shuffle → gather → land → scoop; watch for tangled feet or recovery. Return to the matched normal-swing setup afterward.",
+          "sourceRow": 170
+        }
+      ],
+      "sourceSheet": "Coach Cards",
+      "sourceRow": 154,
+      "goal": "Preserve normal-swing control after momentum and location tasks.",
+      "cue": "See it, move smoothly, and hit.",
+      "kit": "Tee, bat, helmet, soft balls, net, clear approach lane, protected consistent tosser if ready.",
+      "normalSwings": "One matched predictable toss setting, or tee-only version; begin with 6 baseline/retention swings.",
+      "exit": "Six uncued normal swings, without shuffle, pause, or deeper tee. Seek 4/6 controlled reps; confirm at a later matched normal-swing check before calling the progression retained.",
+      "next": "If ready: Optionally add six location-challenge swings if workload permits; log separately, never mix into the exit score. Otherwise stop and retain the simpler task."
+    }
+  ],
+  "decisions": [
+    {
+      "text": "Advance provisionally: Meet the chosen exit gate with safe control; confirm retention next session. Repeat or simplify: Comfortable but inconsistent, or constraints are not carrying over to normal swings.",
+      "sourceRow": 182
+    },
+    {
+      "text": "Fix capture: Too few assessable reps, hidden landmarks, camera movement, or unclear feed location. Stop the task: Pain, slipping, unsafe bat control, or repeated loss of balance; do not chase a passing score with extra swings.",
+      "sourceRow": 184
+    }
+  ],
+  "howToUse": [
+    {
+      "label": "Suggested cadence",
+      "text": "Use two skill sessions per week when compatible with the hitter's team practices, games, recovery, and other training. Six successful stages could occupy about three weeks, but repeating a stage is preferable to advancing on the calendar.",
+      "sourceRow": 15
+    },
+    {
+      "label": "Starting point",
+      "text": "Begin at Stage 1 unless a coach has already observed consistent control of the earlier tasks. Do not jump straight to momentum drills because a hitter can make hard contact.",
+      "sourceRow": 16
+    },
+    {
+      "label": "Session length",
+      "text": "Allow approximately 30–40 minutes, including preparation, equipment changes, rest, and video review. Treat this as a planning allowance rather than a performance target.",
+      "sourceRow": 17
+    },
+    {
+      "label": "Training dose",
+      "text": "The standard template contains 36 task repetitions: six baseline normal swings, twelve drill repetitions, twelve normal transfer swings, and six exit swings. Dry movements count as drill repetitions; warm-up movements and any later challenge swings are additional and must be logged separately.",
+      "sourceRow": 18
+    },
+    {
+      "label": "One cue at a time",
+      "text": "Each block has its own cue. During normal swings, use just the session's simple integration cue rather than asking the hitter to consciously control the rear knee, front knee, elbow, and wrists simultaneously.",
+      "sourceRow": 19
+    },
+    {
+      "label": "Separate drills, not a combined trick swing",
+      "text": "Do not combine a step-back start, forced front-leg finish, and one-hand release in the same rep. Complete each constraint on its own, then remove it for the normal transfer swings.",
+      "sourceRow": 20
+    },
+    {
+      "label": "Transfer is the goal",
+      "text": "Better execution of a drill does not automatically mean a better normal swing. Judge the baseline and exit swings under matched tee/toss conditions and review mechanical evidence separately from contact outcomes.",
+      "sourceRow": 21
+    },
+    {
+      "label": "Focus options",
+      "text": "Retain the original 36-task-rep session, or select ONE posture (P), balance/head-control (B), OR medicine-ball (M) block. Each adds four drill task reps and four normal transfer swings for 44 total task reps; it is optional, not a new minimum workload. For medicine balls, four reps means four throws total, not four per side.",
+      "sourceRow": 22
+    }
+  ],
+  "equipment": [
+    {
+      "label": "Core kit",
+      "text": "Adjustable tee, manageable regular bat, short/light one-hand bat or safely choked-up light bat, soft practice balls, net, flat floor tape, and a non-slip hitting area.",
+      "sourceRow": 26
+    },
+    {
+      "label": "Video",
+      "text": "Fixed camera showing the full body, both feet, and bat arc. Add a synchronized protected front/oblique view when possible; keep cameras and people outside the swing and ball paths.",
+      "sourceRow": 27
+    },
+    {
+      "label": "Moving-ball work",
+      "text": "Use a competent tosser and appropriate protection, with consistent, gentle delivery. If tosses or tracking are unreliable, retain the tee version instead of increasing difficulty.",
+      "sourceRow": 28
+    },
+    {
+      "label": "Excluded from the standard progression",
+      "text": "Raised platforms, rigid elbow/foot barriers, medicine-ball throws, and the advanced kneeling-rise drill remain unnecessary for the base plan. The separate M option below permits supervised medicine-ball work only with a suitable ball, approved target, clear lane, and controlled technique.",
+      "sourceRow": 29
+    },
+    {
+      "label": "Safety",
+      "text": "Begin at easy, controlled effort; never force a locked knee, heel-down position, inward knee drive, or abrupt full-speed bat stop. Stop for pain, slipping, or repeated loss of control, and do not resume progression by simply adding more reps.",
+      "sourceRow": 30
+    }
+  ],
+  "structure": [
+    {
+      "block": "Preparation",
+      "dose": "Comfortable movement warm-up and a few easy dry swings; adjust to the hitter",
+      "task": "Confirm space, surface, bat control, and pain-free movement. Explain one session goal.",
+      "sourceRow": 37
+    },
+    {
+      "block": "Baseline",
+      "dose": "6 normal two-hand swings",
+      "task": "Use the stage's standard tee/toss setting with no special mechanical cue. These establish the comparison condition.",
+      "sourceRow": 38
+    },
+    {
+      "block": "Rear-leg block",
+      "dose": "4 rear-leg drill reps → 4 normal swings",
+      "task": "Rehearse the gather or movement transition, then remove the drill constraint.",
+      "sourceRow": 39
+    },
+    {
+      "block": "Front-leg block",
+      "dose": "4 front-leg drill reps → 4 normal swings",
+      "task": "Rehearse receiving the stride or supporting the turn, then restore the normal swing.",
+      "sourceRow": 40
+    },
+    {
+      "block": "Upper-body block",
+      "dose": "4 upper-body drill reps → 4 normal swings",
+      "task": "Rehearse arm/barrel delivery at manageable effort, then use a regular grip and finish.",
+      "sourceRow": 41
+    },
+    {
+      "block": "Exit check",
+      "dose": "6 normal two-hand swings",
+      "task": "Match the baseline setup, bat, pitch/tee location, and effort. Remove the technique cue for this check.",
+      "sourceRow": 42
+    },
+    {
+      "block": "Review",
+      "dose": "Brief comparison of baseline and exit clips",
+      "task": "Select one observation and decide: advance provisionally, repeat, simplify, or fix capture.",
+      "sourceRow": 43
+    }
+  ],
+  "advancement": [
+    {
+      "label": "Controlled normal rep",
+      "text": "The hitter completes the normal swing without a slip, unplanned recovery step, or other clear loss of control, and the chosen candidate flaw is absent or less pronounced relative to a coach-approved reference. Record contact quality separately; a hard hit alone does not qualify the mechanics.",
+      "sourceRow": 243
+    },
+    {
+      "label": "Provisional advance",
+      "text": "Aim for at least four controlled reps out of six assessable normal exit swings, with no pain, new safety issue, or material worsening from baseline. If baseline already meets the criterion, look for preserved control under the stage's task rather than forcing a numerical improvement.",
+      "sourceRow": 244
+    },
+    {
+      "label": "Retention check",
+      "text": "At the next session, use its first six normal baseline swings as a check of the prior stage. Begin under the prior stage's test condition before changing the feed; for the Stage 4→5 transition, do the retention check on the tee and add a separate six-toss baseline if proceeding, logging that extra set.",
+      "sourceRow": 245
+    },
+    {
+      "label": "Confirmed advance",
+      "text": "When the retention set also reaches the proposed four-of-six gate, proceed to the next stage. If retention fails, repeat or simplify the previous stage rather than adding a new constraint; Stage 6 also needs a later normal-swing check before calling the progression retained.",
+      "sourceRow": 246
+    },
+    {
+      "label": "Repeat",
+      "text": "If the exit set shows comfortable control but the target pattern remains inconsistent, keep the same stage at the next session. Do not simply double the volume.",
+      "sourceRow": 247
+    },
+    {
+      "label": "Simplify",
+      "text": "Remove one demand: shorten the load/step, reduce effort, switch moving ball to tee, return to two hands, or use a no-ball rehearsal. Do not compensate for poor one-hand control with a heavier bat or more forceful cues.",
+      "sourceRow": 248
+    },
+    {
+      "label": "Capture failure",
+      "text": "If fewer than six reps are assessable for the target, report “insufficient evidence,” retain the actual denominator, and fix camera position, light, or visibility. Do not count an occluded hand as a failed rollover rep or keep swinging indefinitely to fill a video quota.",
+      "sourceRow": 249
+    },
+    {
+      "label": "Stop",
+      "text": "Pain, a slipping surface, unsafe bat control, or repeated balance loss ends that task. Address the cause before resuming, and seek appropriate professional assessment for pain or injury concerns.",
+      "sourceRow": 250
+    }
+  ],
+  "adjustments": [
+    {
+      "situation": "New hitter, limited attention, or tiring quickly",
+      "adjustment": "Use 4 baseline swings; 2 drill reps + 2 normal swings per block; 4 exit swings. This is 20 task reps plus warm-up.",
+      "check": "Proposed gate becomes 3 of 4 assessable controlled exit reps, with the same later retention check; label this the reduced-dose version.",
+      "sourceRow": 257
+    },
+    {
+      "situation": "One-hand bat control is poor",
+      "adjustment": "Replace one-hand ball contact with light dry rehearsals, then normal two-hand swings; do not force the one-hand assignment.",
+      "check": "Evaluate ordinary two-hand delivery and control, not success at managing an unsuitable bat.",
+      "sourceRow": 258
+    },
+    {
+      "situation": "Tosser or moving-ball tracking is unavailable",
+      "adjustment": "Keep baseline, normal transfer, and exit on the same tee location.",
+      "check": "Record “tee transfer demonstrated”; do not claim moving-ball transfer.",
+      "sourceRow": 259
+    },
+    {
+      "situation": "Advanced hitter with good retention",
+      "adjustment": "Preserve the standard matched baseline/exit and add at most the planned optional location challenge when workload allows.",
+      "check": "Keep challenge performance separate from the baseline comparison and change one variable at a time.",
+      "sourceRow": 260
+    }
+  ],
+  "substitutions": [
+    {
+      "pattern": "Sinking or rising during the load, with recovery",
+      "rear": "#22 Rear-Hip Hinge Pause",
+      "front": "#20 Stride Height Guide",
+      "upper": "#1 One-Hand Top-Hand Tee, only if manageable",
+      "caution": "Look for coordinated knee/pelvis/head changes and actual control loss; do not eliminate normal knee bend.",
+      "sourceRow": 268
+    },
+    {
+      "pattern": "Uncontrolled forward travel after landing",
+      "rear": "#24 Step-Back Tee Swings at very small scale, or #22 if movement is too difficult",
+      "front": "#14 Paused-Landing Tee Swings",
+      "upper": "#5 Split-Grip Contact Tee",
+      "caution": "Review the landing and continued pelvis travel together; do not use a fixed knee angle or require the body to be motionless.",
+      "sourceRow": 269
+    },
+    {
+      "pattern": "Rear-foot slipping or deliberate shoe twisting",
+      "rear": "#31 Rear-Foot Tape Outline",
+      "front": "#18 Landing-Foot Tape Line",
+      "upper": "#5 Split-Grip Contact Tee",
+      "caution": "Review foot translation/rotation with body control. Natural pivoting and heel lift remain permitted.",
+      "sourceRow": 270
+    },
+    {
+      "pattern": "Persistent elbow-ahead pattern with delayed barrel delivery",
+      "rear": "#29 No-Bat Lower-Half Turns",
+      "front": "#13 Stride-to-Landing Hold",
+      "upper": "#10 Rear-Elbow Path Video Check, virtual overlay only",
+      "caution": "Confirm elbow–grip timing and barrel delivery across views. The lower-body pairing supplies context, not proof of causation.",
+      "sourceRow": 271
+    },
+    {
+      "pattern": "Visible hand turnover before contact on similar pitches",
+      "rear": "#25 Wide-Stance Rocker Swings at easy effort",
+      "front": "#14 Paused-Landing Tee Swings",
+      "upper": "#2 Top-Hand Soft Toss or #11 Opposite-Field Deep Tee",
+      "caution": "Require usable hand evidence; wrist crossover and ball direction alone cannot establish rollover.",
+      "sourceRow": 272
+    },
+    {
+      "pattern": "Loss of control when adding motion",
+      "rear": "#22 Rear-Hip Hinge Pause instead of shuffle/step-back",
+      "front": "#13 Stride-to-Landing Hold",
+      "upper": "#1 One-Hand Top-Hand Tee or a controlled two-hand tee round",
+      "caution": "Return to the simpler setup before adding speed, momentum, or a moving ball.",
+      "sourceRow": 273
+    }
+  ],
+  "focusAlternatives": [
+    {
+      "label": "Posture foundations",
+      "text": "#44 Torso Path Video Check can replace #34 when video feedback is more useful than a held landing; #36 Slow Delivery-Path Rehearsal can replace #35 for a slow bat-path rehearsal.",
+      "sourceRow": 179
+    },
+    {
+      "label": "Posture constraints",
+      "text": "#42 Short-Bat Posture Swings can replace #37 only with a suitable manageable implement. #41 Low-Outside Tee Reach can replace #38 after confirming the tee is safely reachable.",
+      "sourceRow": 180
+    },
+    {
+      "label": "Posture variation",
+      "text": "#39 High-Tee Posture Swings can replace #40 when one height needs work before mixing heights. #43 Three-Stance Rotation Check can replace #45 as four reps: open, regular no-stride, closed, regular no-stride, with small comfortable stance changes.",
+      "sourceRow": 181
+    },
+    {
+      "label": "Head/balance foundations",
+      "text": "#54 Slow-Motion Head-Path Review can replace #46 for slow video feedback; #48 Feet-Together Stride Swings can replace #47 if taps are confusing.",
+      "sourceRow": 182
+    },
+    {
+      "label": "Finish and attention",
+      "text": "#51 Contact-to-Finish Rehearsal can replace #50 when a gentle partial rehearsal is more manageable. #52 Tee-Top Focus Swings can replace #49 if the need is attention/head awareness rather than a harder leg-lift task.",
+      "sourceRow": 183
+    },
+    {
+      "label": "Recognition",
+      "text": "#56 Color-Call Takes can replace #55 when markings are clearly visible; use four no-swing takes, not four hits. #53 Post-Swing Symbol Call can replace #57 as a low-effort tee attention task, but is not equivalent evidence of pitch decisions.",
+      "sourceRow": 184
+    },
+    {
+      "label": "Avoid unsafe shortcuts",
+      "text": "Do not add head restraints, shirt biting, eyes-closed swings, wobble-board hitting, or a coach's hand near contact. An attention drill that creates neck stiffness or diving should be removed rather than intensified.",
+      "sourceRow": 185
+    }
+  ],
+  "medicineBall": [
+    {
+      "label": "Equipment gate",
+      "text": "A qualified coach selects a known, manageable ball and verifies the wall or landing area is appropriate. Use a clear non-slip lane, keep people and cameras out of the rebound path, and do not assume a batting net will safely stop a medicine ball.",
+      "sourceRow": 207
+    },
+    {
+      "label": "Rehearse first",
+      "text": "Perform a comfortable no-ball walkthrough as needed and log those extra reps. Throwing safely is a separate readiness decision from passing the hitting stage; an athlete can remain on #58 throughout the progression.",
+      "sourceRow": 208
+    },
+    {
+      "label": "Four total, not per side",
+      "text": "Use four discrete medicine-ball reps, normally two per comfortable direction when appropriate, with full resets. If the coach uses one direction only, still total four and record the choice; the reduced mode uses two total reps, not two per side.",
+      "sourceRow": 209
+    },
+    {
+      "label": "Normal transfer",
+      "text": "After the ball is safely stopped and the lane cleared, rest as needed and take four normal two-hand swings under the session's baseline condition. The M block contains no bat–medicine-ball contact and no simultaneous swinging/throwing.",
+      "sourceRow": 210
+    },
+    {
+      "label": "Same session totals",
+      "text": "Base = 36, selected M = 44; reduced base = 20, reduced M = 24. Warm-up/rehearsals, extra transition baselines, or challenge reps are additional; do not add a separate bilateral set without logging and adjusting workload.",
+      "sourceRow": 211
+    },
+    {
+      "label": "No rebound catching",
+      "text": "Wait until the ball stops before retrieval. Omit rapid partner exchanges, run-up competitions, and maximum-load attempts from these coach cards.",
+      "sourceRow": 212
+    },
+    {
+      "label": "Simplify",
+      "text": "Use #30 or #58 in any stage, use a lighter ball, or return to no-ball rehearsal. Never solve poor control by adding weight, effort, or extra throws.",
+      "sourceRow": 227
+    },
+    {
+      "label": "Kneeling alternatives",
+      "text": "#64, #65, and #67 can replace a selected medicine-ball task only if a coach finds the position comfortable and suitable. They change the task; do not claim they isolate a muscle or preserve the standing phase sequence.",
+      "sourceRow": 228
+    },
+    {
+      "label": "Advanced option",
+      "text": "#63 Step-Behind Rotational Push Throw is optional supervised work after simpler footwork is reliable, not an automatic next step or a required Stage 6 upgrade.",
+      "sourceRow": 229
+    },
+    {
+      "label": "Supplemental options",
+      "text": "#68 Controlled Overhead Floor Slam and #69 Medicine-Ball Carry and Place may replace the M task for a separately identified general movement goal. They are not equivalent tests of rotational hitting or excuses to stack more reps.",
+      "sourceRow": 230
+    },
+    {
+      "label": "Advance separately",
+      "text": "The hitting plan still uses the normal-swing exit/retention gate. A good throw does not count as a controlled normal swing; readiness for a more complex medicine-ball task is a separate coach decision with ball, direction, target, and effort held comparable.",
+      "sourceRow": 231
+    },
+    {
+      "label": "Do not infer power",
+      "text": "Log visible control, release/placement timing, target result, and any recovery. Label ball mass from verified metadata and report speed only with appropriate calibration; do not calculate a force, torque, gaze, or bat-speed score from pose alone.",
+      "sourceRow": 232
+    }
+  ],
+  "limitations": [
+    "The drills adapt common coaching drill families. Outside organisations’ names and links were removed at the founder’s request (2026-11-02), and every drill was given a generic Base Recruits name.",
+    "Nothing in this workbook is presented as a sourced fact. Instructions, rep counts, pairings, the six-stage order and the 4-of-6 advancement rule are coaching proposals, not validated biomechanical or age-specific standards.",
+    "The AI-analysis fields are proposed review rules for video, not a validated computer-vision system. Body pose cannot measure eye gaze, force, foot pressure or muscle activation.",
+    "The hitter’s age, training history, injury history and current workload are not known to the workbook. A coach scales the plan before use and makes every advancement decision.",
+    "Medicine-ball work needs a coach-selected ball of known, manageable mass, an approved wall or landing area, a clear lane and discrete throws. No rebound catching, no universal ball weight and no power score.",
+    "Stop any task for pain, slipping, unsafe bat control or repeated loss of balance, and seek appropriate professional advice for pain or injury concerns."
+  ]
+}
