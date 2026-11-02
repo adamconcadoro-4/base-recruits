@@ -13,7 +13,7 @@ Not imported: the training logs (blank templates) and the "What to record"
 column, which asks for readiness and restrictions (health data, decision F39).
 Every record keeps its source sheet and row. Counts are checked, and the script
 stops if any outside organisation's name, a web link, a source reference or a
-discarded drill name appears anywhere in the workbook (decision F55). Requires
+discarded drill name appears anywhere in the workbook (decision F56). Requires
 openpyxl (developer tool only; the app and CI read the JSON).
 """
 import hashlib
@@ -30,7 +30,7 @@ EXPECTED = {
 }
 VERSION = 'hitting-master-v1'
 
-# Names and links the founder asked to keep out of the workbook and the site (decisions F38 and F55), plus the
+# Names and links the founder asked to keep out of the workbook and the site (decisions F38 and F56), plus the
 # drill names this workbook arrived with, which were replaced by generic names.
 FORBIDDEN = re.compile(
     r'driveline|prospectus|google|mediapipe|baseball academy|red sox|pro speed|pinkman|o[\'’]leary|coach steve|'

@@ -2,7 +2,7 @@
  * Drill library. Three sources: the starter drills below (original Base
  * Recruits content), the Hitting Development Workbook drills
  * (catalog/workbook-drills.ts, decision F38) and the Hitting Master Workbook
- * drills (catalog/master-drills.ts, decision F55). Written instructions only (no
+ * drills (catalog/master-drills.ts, decision F56). Written instructions only (no
  * demonstration video exists yet, and none is linked). Mirrors
  * public.assessment_drills (key, version, discipline, pillars, name, active); a
  * contract test keeps them identical.

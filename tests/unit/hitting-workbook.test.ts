@@ -256,7 +256,7 @@ describe('session templates', () => {
   });
 
   it('matches the session ids the database accepts', () => {
-    const sql = readFileSync('supabase/migrations/20261102000300_hitting_master_workbook.sql', 'utf8');
+    const sql = readFileSync('supabase/migrations/20261102000400_hitting_master_workbook.sql', 'utf8');
     const listed = SESSION_TEMPLATE_IDS.map((id) => `'${id}'`).join(', ');
     expect(sql).toContain(`session_template in (${listed})`);
     expect(sql).toContain(`v_template not in (${listed})`);

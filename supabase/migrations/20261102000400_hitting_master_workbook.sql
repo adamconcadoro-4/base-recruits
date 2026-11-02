@@ -1,4 +1,4 @@
--- Hitting Master Workbook (decision F55).
+-- Hitting Master Workbook (decision F56).
 --
 -- 1. Adds the Master Workbook's 69 drills (MW01-MW69) to the drill library,
 --    beside the Development Workbook's drills. Nothing is replaced or switched

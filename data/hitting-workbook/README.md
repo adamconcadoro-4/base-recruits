@@ -24,7 +24,7 @@ A changed drill name or new drill also needs a migration for `public.assessment_
 `Baseball_Hitting_Master_Workbook.xlsx` (7 sheets, compiled 2026-11-01) is the founder's master hitting workbook: 69
 drills by body area, six coach stage cards, the paired practice plan, video-review notes and blank training logs. It
 is the content source for the Master Workbook drills (`hit-mw01` … `hit-mw69`) and the six-stage progression (decision
-F55, `docs/assessment.md` section 11b).
+F56, `docs/assessment.md` section 11b).
 
 - This copy has the founder's requested changes (2026-11-02): every drill has a generic name in place of its branded
   name, and every outside organisation's name, link and source reference was removed. The "Sources" sheet is now

@@ -10,7 +10,7 @@
  *   drill library are offered: S1 uses a youth game, and S4 and S8 use that
  *   workbook's medicine-ball work, none of which is imported.
  * - The six stages of the Hitting Master Workbook's paired progression, ST1–
- *   ST6 (decision F55), counted in reps: a rear-leg, a front-leg and an
+ *   ST6 (decision F56), counted in reps: a rear-leg, a front-leg and an
  *   upper-body drill, each four drill reps then four normal swings, between a
  *   six-swing baseline and a six-swing exit check. Each stage offers one
  *   optional focus block (posture, balance/head control or medicine ball);

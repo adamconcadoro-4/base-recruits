@@ -344,7 +344,7 @@ which of its drills are on the home menu.
 
 ## 11b. Hitting Master Workbook (body-area drills and the six-stage progression)
 
-Decision F55. The founder's "Baseball Hitting Master Workbook" (compiled 2026-11-01) is added **beside** the
+Decision F56. The founder's "Baseball Hitting Master Workbook" (compiled 2026-11-01) is added **beside** the
 Development Workbook (section 11), never replacing it. The stored copy
 (`data/hitting-workbook/Baseball_Hitting_Master_Workbook.xlsx`, SHA-256 `3eef391b…eb31`) is the founder-approved
 version: every drill's branded name was replaced with a generic Base Recruits name, and every outside organisation's

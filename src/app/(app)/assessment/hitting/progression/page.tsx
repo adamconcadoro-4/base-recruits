@@ -25,7 +25,7 @@ function Bullets({ items }: { readonly items: readonly LabelledText[] }) {
 const MEDICINE_BALL_KEY = ['Medicine-ball kit', 'Medicine-ball count', 'Medicine-ball review'];
 
 /**
- * The Hitting Master Workbook's paired practice progression (decision F55):
+ * The Hitting Master Workbook's paired practice progression (decision F56):
  * six stage cards, the session every stage follows, and the rules for
  * advancing, scaling, substituting and adding one focus block. Shown as
  * written in the workbook, with drill numbers spelled out as names.

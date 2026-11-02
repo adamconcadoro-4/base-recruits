@@ -1,4 +1,4 @@
--- Hitting Master Workbook (F55): its 69 drills join the library beside the
+-- Hitting Master Workbook (F56): its 69 drills join the library beside the
 -- Development Workbook's, and a hitting plan can start from one of the six
 -- progression stages with at most one optional focus drill.
 

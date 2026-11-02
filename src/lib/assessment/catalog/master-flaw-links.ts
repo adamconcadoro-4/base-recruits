@@ -1,6 +1,6 @@
 /**
  * Master Workbook drills that can help with each swing flaw in the
- * swing-flaw guide (T01–T18), most direct first (decision F55).
+ * swing-flaw guide (T01–T18), most direct first (decision F56).
  *
  * The Master Workbook has its own flaw-to-drill sheet with different labels
  * (for example "candidate bat drag" or "front-leg collapse"). This table maps

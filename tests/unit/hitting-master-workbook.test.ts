@@ -27,7 +27,7 @@ import { SAMPLE_REPORT } from '@/lib/assessment/sample';
 
 const ids = Array.from({ length: 69 }, (_, i) => `MW${String(i + 1).padStart(2, '0')}`);
 
-// The outside organisations the workbook arrived citing, and the branded drill names it arrived with (decision F55).
+// The outside organisations the workbook arrived citing, and the branded drill names it arrived with (decision F56).
 const OUTSIDE = /driveline|google|mediapipe|red sox|pinkman|hitting vault|rooney|overtime athletes|ritend|sklz|kershaw|gilmore|lone ranger|youtube|gamerun|maven|https?:\/\/|www\.|\[S\d{3}/i;
 const BRANDED = /palm-up punch|slot machine|hip pocket reload|brake check|pause & pounce|oppo laser|rock & rocket|step-back spark|shuffle-to-strike|count it calm|pocket-to-pop|marketing name/i;
 
@@ -61,7 +61,7 @@ describe('hitting master workbook content', () => {
   });
 
   it('collects no readiness or health information', () => {
-    // The workbook's "What to record" column asks for readiness and restrictions; it is not imported (F39, F55).
+    // The workbook's "What to record" column asks for readiness and restrictions; it is not imported (F39, F56).
     for (const item of MASTER_WORKBOOK.structure) expect(Object.keys(item).sort()).toEqual(['block', 'dose', 'sourceRow', 'task']);
     expect(JSON.stringify(MASTER_WORKBOOK.structure)).not.toMatch(/readiness|restrictions/i);
     expect(JSON.stringify(PROGRESSION_STAGES)).not.toMatch(/Record:|readiness/i);
@@ -221,7 +221,7 @@ describe('six-stage progression', () => {
   });
 
   it('matches the drills and focus rule the database checks', () => {
-    const sql = readFileSync('supabase/migrations/20261102000300_hitting_master_workbook.sql', 'utf8');
+    const sql = readFileSync('supabase/migrations/20261102000400_hitting_master_workbook.sql', 'utf8');
     for (const item of MASTER_DRILLS) expect(sql).toContain(`('${item.key}', 1, 'hitting', `);
     for (const item of PROGRESSION_STAGES) {
       const keys = item.stage?.focusOptions.map((option) => `'${option.drill.key}'`).join(', ');

@@ -19,7 +19,7 @@ export const MAX_DRILLS_PER_FINDING = 2;
 /**
  * The starter drill catalog has not been reviewed by a qualified hitting coach
  * yet (decision F26). Development Workbook drills have been (F38); Master
- * Workbook drills not yet (F55). Each suggestion carries its own label.
+ * Workbook drills not yet (F56). Each suggestion carries its own label.
  */
 export const DRILL_CATALOG_COACH_REVIEWED = false;
 
