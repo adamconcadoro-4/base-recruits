@@ -80,10 +80,10 @@ describe('the privacy wording and the SeamState lock', () => {
   const read = (path: string) => readFileSync(join(root, path), 'utf8');
   const OLD_PROMISE = 'never sent to an outside analysis service';
   const PRIVACY_PAGES = ['src/app/(app)/assessment/[id]/clips-step.tsx', 'src/app/(site)/player-assessment/page.tsx'];
-  // Approved by the founder on 2026-10-28 (F36).
+  // Approved by the founder on 2026-10-28 (F36); the feature name changed from SeamState to Assessment swing analysis on 2026-11-02.
   const APPROVED = [
     'Video is stored privately, and you can delete a clip at any time.',
-    'Nothing is sent to an outside analysis service unless you ask for a SeamState swing analysis.',
+    'Nothing is sent to an outside analysis service unless you ask for an Assessment swing analysis.',
     'Then our own video service reads that clip, and only still frames, cropped to the hitter and without a name, go to our AI provider.',
   ];
   const words = (text: string) => text.replace(/\s+/g, ' ');
