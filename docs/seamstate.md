@@ -20,7 +20,7 @@ Promise inside Assessment: **"Record your swing. Understand what is working. Kno
 | Video | Private bucket `assessment-media`, signed one-time upload, ≤ 200 MB, mp4/mov/webm, signed 15-minute playback links, deletion checked by the database. Video switch **off** pending legal review (F23, L9). **Nothing is transcoded, analysed or sent to an outside service** (F23 as decided) | `src/app/(app)/assessment/media-actions.ts`, `src/lib/assessment/server/storage.ts` |
 | Film Room | Frame stepping, playback speed, event markers (`load_start`, `foot_contact`, `swing_start`, `contact`, `finish`), notes, drawings, side-by-side comparison aligned on a marker | `src/app/(app)/assessment/film/` |
 | 9-Zone Hitting | Built from the founder's workbook (SHA-256 recorded): 9 zones, 39 drills, 9 stages, 5 pairings, 49 constraints; session builder, live tracker with predeclared assignments, review, development path | `docs/assessment.md` §10, `src/lib/assessment/zones/`, `data/zone-hitting/` |
-| Drills | 18 written Assessment drills + 39 workbook drills, **not yet reviewed by a qualified coach** (F26, F27) | `src/lib/assessment/catalog/drills.ts`, `src/lib/assessment/zones/content-v1.json` |
+| Drills | 18 written Assessment drills + 39 workbook drills; the founder confirmed on 2026-11-02 that all drills are coach-reviewed (F26, F27) | `src/lib/assessment/catalog/drills.ts`, `src/lib/assessment/zones/content-v1.json` |
 | Background jobs | None for media. Supabase `pg_cron` is used for daily maintenance only | README |
 | Workers, media processing, pose models | **None** | — |
 | Model providers | **None.** No API key, SDK or environment variable for any language or vision model | `.env.example` |
@@ -236,7 +236,7 @@ three settings (Milestone 4) follow.
 - **Swing report** (`/assessment/[id]/swing/[jobId]`): the video-check result with retake advice and which swings
   were not counted (F37), then "What looks
   effective", "Possible adjustments" (with "Also noted"), "Your next practice" (experiment, cue, catalog drills
-  labelled as not yet coach-reviewed, how to check it again) and "What this video cannot tell us". Every finding shows
+  labelled if not yet coach-reviewed, how to check it again) and "What this video cannot tell us". Every finding shows
   its evidence stills (signed one-hour links, read under the person's own permission), the evidence grade with its
   reasons and alternatives, "Show me in the Film Room" at the cited moment, and its review history. A development coach
   approves or rejects; anyone with access can add a note. Findings are labelled provisional until approved.
