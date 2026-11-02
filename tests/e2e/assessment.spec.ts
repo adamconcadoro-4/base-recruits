@@ -251,7 +251,7 @@ test('an athlete records, publishes and acts on a hitting self-assessment', asyn
 
 test('removing a clip deletes its file, and deleting a draft leaves no video behind', async ({ page }) => {
   test.setTimeout(120_000);
-  const athlete = await createAccount({ role: 'athlete', name: 'Harper Synthetic', dateOfBirth: yearsAgo(17) });
+  const athlete = await createAccount({ role: 'athlete', name: 'Harper Synthetic', dateOfBirth: yearsAgo(19) });
   const id = await draftFor(athlete);
   const stored = (assessmentId: string) =>
     sql(`select count(*) from storage.objects o join public.assessment_media m on m.storage_path = o.name

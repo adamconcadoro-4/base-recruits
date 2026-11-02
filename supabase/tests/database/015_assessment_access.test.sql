@@ -241,6 +241,15 @@ select public.admin_set_assessment_switches(true, true);
 select tests.authenticate_as('adult');
 select tests.remember_job('clip', (select media_id from public.begin_assessment_upload(tests.job('adult_assessment'), 'swing.mp4', 'video/mp4', 5000000,
   'side_facing', 'real_time', null, 'Tee, side view')));
+select tests.ok(public.assessment_video_open(tests.id('adult')), 'uploads are open for an athlete 18 or older');
+select tests.authenticate_as('minor');
+select tests.remember_job('minor_assessment', public.create_assessment(tests.id('minor'), 'hitting-video', 1, current_date, '{"rep_goal": 10}'));
+select tests.ok(not public.assessment_video_open(tests.id('minor')), 'uploads are closed for an athlete under 18, and the page can say so');
+select tests.throws(format($$select * from public.begin_assessment_upload(%L, 'swing.mov', 'video/quicktime', 5000000, null, 'real_time', null, null)$$,
+                           tests.job('minor_assessment')), 'BR004', 'no clip can be started for an athlete under 18 (F40)');
+select tests.authenticate_as('other');
+select tests.throws(format('select public.assessment_video_open(%L)', tests.id('minor')), 'BR002', 'only people who can work on an athlete''s assessments can ask');
+select tests.authenticate_as('adult');
 select tests.ok((select storage_path from public.assessment_media where id = tests.job('clip'))
                 = tests.id('adult') || '/' || tests.job('adult_assessment') || '/' || tests.job('clip') || '.mp4',
   'clips are stored under the athlete and assessment');
