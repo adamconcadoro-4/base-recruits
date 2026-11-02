@@ -13,6 +13,9 @@ export default async function globalSetup(): Promise<void> {
   } catch (error) {
     if (!String(error).includes('already')) throw error;
   }
+  // Administrator access is limited to approved addresses (F55). Approve the
+  // test administrator's address in this throwaway test database only.
+  sql(`insert into private.admin_allowed_emails (email, note) values ('${email}', 'end-to-end test administrator') on conflict do nothing`);
   const hasAdmin = sql("select exists (select 1 from public.user_roles where role = 'admin')");
   if (hasAdmin !== 't') {
     sql(`select private.bootstrap_first_admin('${email}')`);

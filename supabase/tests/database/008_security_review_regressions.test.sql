@@ -78,6 +78,7 @@ select tests.authenticate_as_service_role();
 select tests.throws(format('insert into public.user_roles (user_id, role) values (%L, ''admin'')', tests.id('open')),
   '42501', 'R5: the service role cannot grant admin directly');
 select tests.clear_authentication();
+select tests.allow_admin_email('open');
 insert into public.user_roles (user_id, role) values (tests.id('open'), 'admin');
 select tests.ok(
   exists (select 1 from public.audit_events where action = 'row.user_roles.insert'

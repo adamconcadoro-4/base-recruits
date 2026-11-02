@@ -119,6 +119,7 @@ select tests.ok(not private.is_verified_coach(tests.id('leaving_coach')), 'N4: a
 
 -- ---------------------------------------------------------------- N5: audit coverage
 insert into public.user_roles (user_id, role) values (tests.id('teen_parent'), 'coach');
+select tests.allow_admin_email('teen_parent');
 update public.user_roles set role = 'admin' where user_id = tests.id('teen_parent') and role = 'coach';
 select tests.ok(
   exists (select 1 from public.audit_events where action = 'row.user_roles.update'

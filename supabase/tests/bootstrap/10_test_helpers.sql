@@ -84,12 +84,29 @@ $$;
 
 -- Grant the admin role to a fixture directly (works whether or not the target
 -- database already has administrators).
+-- Approve a fixture's email for administrator access (decision F55). Rolled
+-- back with the rest of the test, like every fixture.
+create function tests.allow_admin_email(p_name text) returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into private.admin_allowed_emails (email, note)
+  select lower(btrim(u.email)), 'test fixture'
+    from tests.fixtures f join auth.users u on u.id = f.id
+   where f.name = p_name
+  on conflict do nothing;
+end;
+$$;
+
 create function tests.make_admin(p_name text) returns void
 language plpgsql
 security definer
 set search_path = ''
 as $$
 begin
+  perform tests.allow_admin_email(p_name);
   insert into public.user_roles (user_id, role)
   select f.id, 'admin' from tests.fixtures f where f.name = p_name
   on conflict do nothing;
