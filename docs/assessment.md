@@ -350,9 +350,10 @@ Development Workbook (section 11), never replacing it. The stored copy
 version: every drill's branded name was replaced with a generic Base Recruits name, and every outside organisation's
 name, link and source reference was removed (founder's request, 2026-11-02). The Sources tab is now "Basis & Limits".
 The extraction script refuses a workbook that contains an outside name, a link, a source reference or one of the old
-branded names. Whether Base Recruits hitting coaches have reviewed this workbook is not yet confirmed, so drill pages
-and stage cards say "Not yet reviewed by Base Recruits hitting coaches" and SeamState marks its suggestions from it as
-not coach-reviewed (`MASTER_WORKBOOK_COACH_REVIEWED` in `hitting-workbook/master.ts`).
+branded names. The founder confirmed on 2026-11-02 that Base Recruits hitting coaches have reviewed the drills, the
+flaw mapping and the stage rules, so drill pages and stage cards say "Reviewed by Base Recruits hitting coaches" and
+SeamState treats its suggestions from it as coach-reviewed (`MASTER_WORKBOOK_COACH_REVIEWED` in
+`hitting-workbook/master.ts`).
 
 ### What is imported
 

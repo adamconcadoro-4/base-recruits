@@ -20,11 +20,12 @@
 import raw from '@/lib/assessment/hitting-workbook/master-v1.json';
 
 /**
- * Whether Base Recruits hitting coaches have reviewed this workbook. Until they
- * have, drill pages say so and SeamState marks its suggestions from it as not
- * coach-reviewed. Change to true (with a decision note) once they have.
+ * Whether Base Recruits hitting coaches have reviewed this workbook: the
+ * founder confirmed the review on 2026-11-02 (decision F56). While false,
+ * drill pages say "Not yet reviewed" and SeamState marks its suggestions from
+ * it as not coach-reviewed.
  */
-export const MASTER_WORKBOOK_COACH_REVIEWED = false;
+export const MASTER_WORKBOOK_COACH_REVIEWED = true;
 
 export const MASTER_CATEGORIES = ['Top hand / back arm', 'Front leg', 'Rear leg', 'Posture', 'Balance / head control', 'Medicine ball'] as const;
 export type MasterCategory = (typeof MASTER_CATEGORIES)[number];
