@@ -78,6 +78,12 @@ describe('team code in front of sign-in (SITE_TEAM_CODE)', () => {
     expect(privateSiteDecision('/dashboard', 'someone@example.com', true, WITH_CODE)).toBe('coming_soon');
   });
 
+  it('lets test accounts an administrator opened see the site, but not look-alike emails', () => {
+    expect(privateSiteDecision('/assessment', { email: 'player-1a2b3c4d@test.baserecruits.app', testAccount: true }, false, WITH_CODE)).toBe('allow');
+    expect(privateSiteDecision('/assessment', { email: 'player-1a2b3c4d@test.baserecruits.app' }, false, WITH_CODE)).toBe('coming_soon');
+    expect(privateSiteDecision('/assessment', { email: 'adamconcadoro+athlete@gmail.com', testAccount: false }, true, WITH_CODE)).toBe('coming_soon');
+  });
+
   it('lets signed-in team members straight through', () => {
     expect(privateSiteDecision('/login', 'adamconcadoro@gmail.com', false, WITH_CODE)).toBe('allow');
     expect(privateSiteDecision('/admin', 'jcaceres120@gmail.com', false, WITH_CODE)).toBe('allow');

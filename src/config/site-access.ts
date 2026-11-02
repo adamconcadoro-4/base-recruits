@@ -7,7 +7,9 @@
  *  - the sign-in, sign-up, code and reset pages, so the team can get in
  *    (behind a team code when SITE_TEAM_CODE is set, see below);
  *  - the SeamState API routes, which check their own secrets; and
- *  - anyone signed in with a team email below.
+ *  - anyone signed in with a team email below, and test accounts an
+ *    administrator opened (Admin → Test accounts), which no one can sign in to
+ *    any other way.
  * Sign-up is refused for every other email while the site is private, and
  * search engines are told not to index anything.
  *
@@ -50,17 +52,24 @@ function needsTeamCode(pathname: string): boolean {
 
 export type PrivateSiteDecision = 'allow' | 'coming_soon' | 'team_code';
 
+/** The signed-in account as the proxy sees it: its email, and whether the server created it as a test account. */
+export interface SiteViewer {
+  readonly email: string | null;
+  readonly testAccount?: boolean;
+}
+
 /**
- * What a request may see. `email` is the signed-in account's email (or null);
- * `hasTeamPass` is whether this browser entered the current team code.
+ * What a request may see. `viewer` is the signed-in account (or its email, or
+ * null); `hasTeamPass` is whether this browser entered the current team code.
  */
 export function privateSiteDecision(
   pathname: string,
-  email: string | null,
+  viewer: SiteViewer | string | null,
   hasTeamPass: boolean,
   env: Readonly<Record<string, string | undefined>> = process.env,
 ): PrivateSiteDecision {
-  if (!sitePrivate(env) || isTeamEmail(email)) return 'allow';
+  const signedIn: SiteViewer = typeof viewer === 'string' || viewer === null ? { email: viewer } : viewer;
+  if (!sitePrivate(env) || isTeamEmail(signedIn.email) || signedIn.testAccount === true) return 'allow';
   if (!openWhilePrivate(pathname)) return 'coming_soon';
   if (needsTeamCode(pathname) && teamCode(env) !== null && !hasTeamPass) return 'team_code';
   return 'allow';

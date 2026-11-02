@@ -77,8 +77,10 @@ export async function proxy(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const signedIn = typeof data?.claims?.sub === 'string';
   const email = signedIn && typeof data?.claims?.email === 'string' ? data.claims.email : null;
+  // App metadata only the server can set (src/lib/test-accounts/server.ts).
+  const testAccount = signedIn && typeof data?.claims?.app_metadata?.br_test_account_requested_by === 'string';
 
-  const decision = privateSiteDecision(request.nextUrl.pathname, email, hasTeamPass);
+  const decision = privateSiteDecision(request.nextUrl.pathname, { email, testAccount }, hasTeamPass);
   if (decision !== 'allow') {
     const blocked = privateResponse(decision, request);
     for (const cookie of response.cookies.getAll()) blocked.cookies.set(cookie);
