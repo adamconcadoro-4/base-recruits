@@ -48,6 +48,22 @@ export async function DisciplinePage({ discipline, searchParams }: { readonly di
             </ButtonLink>
           </DashboardSection>
         ) : null}
+        {discipline === 'hitting' ? (
+          <DashboardSection
+            id="hitting-drills"
+            title="Hitting drills and the six-stage progression"
+            description="Every hitting drill with written instructions, grouped by workbook section and body area, and a six-stage practice progression that pairs a rear-leg, a front-leg and an upper-body drill each session."
+          >
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href="/assessment/hitting/drills" variant="secondary">
+                Hitting drill library
+              </ButtonLink>
+              <ButtonLink href="/assessment/hitting/progression" variant="secondary">
+                Six-stage progression
+              </ButtonLink>
+            </div>
+          </DashboardSection>
+        ) : null}
         <DashboardSection id="latest-report" title="Latest report">
           {latest ? <ReportCard revision={latest} /> : <p className="text-slate">No published {discipline} report yet.</p>}
         </DashboardSection>

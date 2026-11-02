@@ -11,8 +11,12 @@
  * Chasing (T15) and freezing (T16) are pitch decisions, which the assessment
  * does not measure; they are practised and counted in 9-Zone Hitting decision
  * rounds, so no assessment measure links to them.
+ *
+ * Each flaw's drills are the Development Workbook's own list followed by the
+ * Master Workbook drills mapped to it (catalog/master-flaw-links.ts, F55).
  */
 
+import { MASTER_FLAW_DRILLS } from '@/lib/assessment/catalog/master-flaw-links';
 import { HITTING_WORKBOOK, siteText, withWorkbookNames, type WorkbookFlaw } from '@/lib/assessment/hitting-workbook/content';
 
 export type FlawId =
@@ -41,9 +45,10 @@ export const DECISION_FLAWS: readonly FlawId[] = ['T15', 'T16'];
 
 const forSite = (text: string) => withWorkbookNames(siteText(text));
 
-/** The guide as shown on the site: ids in the text spelled out as names, no references to the workbook's own sheets. */
+/** The guide as shown on the site: ids in the text spelled out as names, no references to the workbook's own sheets, Master Workbook drills added. */
 export const FLAWS: readonly WorkbookFlaw[] = HITTING_WORKBOOK.flaws.map((item) => ({
   ...item,
+  drills: [...item.drills, ...(MASTER_FLAW_DRILLS[item.sourceId as FlawId] ?? [])],
   whatYouSee: forSite(item.whatYouSee),
   checks: forSite(item.checks),
   contributors: forSite(item.contributors),

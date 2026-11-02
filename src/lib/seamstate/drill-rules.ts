@@ -18,13 +18,13 @@ export const DRILL_RULES_VERSION = 'seamstate-drills-v1';
 export const MAX_DRILLS_PER_FINDING = 2;
 /**
  * The starter drill catalog has not been reviewed by a qualified hitting coach
- * yet (decision F26). Workbook drills have been (F38), so each suggestion
- * carries its own label.
+ * yet (decision F26). Development Workbook drills have been (F38); Master
+ * Workbook drills not yet (F55). Each suggestion carries its own label.
  */
 export const DRILL_CATALOG_COACH_REVIEWED = false;
 
 function coachReviewed(drill: DrillDefinition): boolean {
-  return DRILL_CATALOG_COACH_REVIEWED || drill.workbook !== undefined;
+  return DRILL_CATALOG_COACH_REVIEWED || drill.workbook?.coachReviewed === true;
 }
 
 export interface DrillSuggestion {

@@ -1,7 +1,8 @@
 /**
- * Drill library. Two sources: the starter drills below (original Base
- * Recruits content) and the Hitting Development Workbook drills
- * (catalog/workbook-drills.ts, decision F38). Written instructions only (no
+ * Drill library. Three sources: the starter drills below (original Base
+ * Recruits content), the Hitting Development Workbook drills
+ * (catalog/workbook-drills.ts, decision F38) and the Hitting Master Workbook
+ * drills (catalog/master-drills.ts, decision F55). Written instructions only (no
  * demonstration video exists yet, and none is linked). Mirrors
  * public.assessment_drills (key, version, discipline, pillars, name, active); a
  * contract test keeps them identical.
@@ -13,17 +14,19 @@
  * every pitching dosage defers to the pitcher's existing throwing plan.
  */
 
+import { MASTER_DRILLS } from '@/lib/assessment/catalog/master-drills';
 import { PILLARS } from '@/lib/assessment/catalog/pillars';
 import { WORKBOOK_DRILLS } from '@/lib/assessment/catalog/workbook-drills';
 import type { Discipline, PillarKey } from '@/lib/assessment/types';
 
-export const DRILL_REQUIREMENTS = ['partner', 'radar', 'video'] as const;
+export const DRILL_REQUIREMENTS = ['partner', 'radar', 'video', 'coach'] as const;
 export type DrillRequirement = (typeof DRILL_REQUIREMENTS)[number];
 
 export const DRILL_REQUIREMENT_LABELS: Readonly<Record<DrillRequirement, string>> = {
   partner: 'A partner to toss or catch',
   radar: 'A radar or tracking device',
   video: 'A phone or camera to film',
+  coach: 'A coach to supervise',
 };
 
 export interface DrillDefinition {
@@ -56,14 +59,29 @@ export interface DrillDefinition {
 }
 
 export interface WorkbookDrillSource {
-  /** The workbook's own id, e.g. "H07" or "R03". */
+  /** The workbook's own id, e.g. "H07", "R03" or "MW22". */
   readonly sourceId: string;
   readonly kind: 'drill' | 'rehearsal';
+  /** Which workbook: the Development Workbook (H, R) or the Master Workbook (MW). */
+  readonly book: 'development' | 'master';
+  /** Whether Base Recruits hitting coaches have reviewed this workbook's drills. */
+  readonly coachReviewed: boolean;
+  /** Development Workbook section ("A – Tee Contact & Barrel Control") or Master Workbook body area ("Rear leg"). */
   readonly section: string;
   readonly level: string | null;
   readonly mistake: string | null;
   readonly correction: string | null;
   readonly safety: string | null;
+  /** Master Workbook: the drills this one builds on, with names. */
+  readonly related?: string | null;
+  /** Master Workbook: how to film the drill and what to look for on video. */
+  readonly filming?: {
+    readonly views: string;
+    readonly phase: string;
+    readonly review: string;
+    readonly feedback: string;
+    readonly limits: string;
+  };
   readonly sourceSheet: string;
   readonly sourceRow: number;
 }
@@ -495,7 +513,7 @@ const STARTER_DRILLS: readonly DrillDefinition[] = [
   },
 ];
 
-const DRILL_LIST: readonly DrillDefinition[] = [...STARTER_DRILLS, ...WORKBOOK_DRILLS];
+const DRILL_LIST: readonly DrillDefinition[] = [...STARTER_DRILLS, ...WORKBOOK_DRILLS, ...MASTER_DRILLS];
 
 /** Every drill, including replaced ones (existing plans still show them). */
 export const DRILLS: readonly DrillDefinition[] = DRILL_LIST;
@@ -511,10 +529,13 @@ export function drillsFor(discipline: Discipline): readonly DrillDefinition[] {
 
 /**
  * What a drill works on, in words: its pillars, or for a drill outside the
- * scored pillars: swing decisions, or else the drill's purpose.
+ * scored pillars: swing decisions, medicine-ball work, or else the drill's purpose.
  */
 export function worksOn(item: DrillDefinition): string {
   if (item.pillars.length > 0) return item.pillars.map((key) => PILLARS[key].name).join(', ');
-  if (item.workbook?.section.startsWith('D ')) return 'Swing decisions (not scored in the assessment; counted in 9-Zone Hitting decision rounds)';
+  if (item.workbook?.section.startsWith('D ') || /^Swing decisions are not scored/.test(item.reassessment)) {
+    return 'Swing decisions (not scored in the assessment; counted in 9-Zone Hitting decision rounds)';
+  }
+  if (item.workbook?.section === 'Medicine ball') return 'Medicine-ball movement and control (not scored in the assessment)';
   return item.purpose.replace(/\.$/, '');
 }
