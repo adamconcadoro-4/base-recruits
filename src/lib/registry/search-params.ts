@@ -8,6 +8,7 @@
 import { z } from 'zod';
 
 import { normalizeDivisionValues } from './divisions';
+import { isProgramArea, type ProgramArea } from './program-areas';
 import { STATE_NAMES } from './states';
 import { CONTROLS, LEVELS, SETTINGS, SORTS, TEST_POLICIES, type DivisionCode, type SchoolSort } from './types';
 
@@ -73,6 +74,8 @@ export interface ExplorerState {
   readonly size: SizeBand | null;
   readonly rate: RateChoice | null;
   readonly cost: CostChoice | null;
+  /** A program area the school must offer (bachelor's or associate). */
+  readonly major: ProgramArea | null;
   readonly sort: SchoolSort | null;
   readonly page: number;
   readonly compare: readonly string[];
@@ -97,6 +100,7 @@ export function parseExplorerParams(raw: RawParams): ExplorerState {
   const size = one(raw, 'size');
   const rate = one(raw, 'rate');
   const cost = one(raw, 'cost');
+  const major = one(raw, 'major');
   const sort = one(raw, 'sort');
   const pageRaw = one(raw, 'page');
   const page = pageSchema.safeParse(pageRaw ?? '1');
@@ -117,6 +121,7 @@ export function parseExplorerParams(raw: RawParams): ExplorerState {
   if (size && !(size in SIZE_BANDS)) ignored.push(describeIgnored('enrollment', size));
   if (rate && !(rate in RATE_CHOICES)) ignored.push(describeIgnored('admission rate', rate));
   if (cost && !(COST_CHOICES as readonly string[]).includes(cost)) ignored.push(describeIgnored('cost', cost));
+  if (major && !isProgramArea(major)) ignored.push(describeIgnored('major', major));
   if (sort && !(SORTS as readonly string[]).includes(sort)) ignored.push(describeIgnored('sort', sort));
   if (pageRaw !== undefined && !page.success) ignored.push(describeIgnored('page', pageRaw));
 
@@ -131,6 +136,7 @@ export function parseExplorerParams(raw: RawParams): ExplorerState {
     size: size && size in SIZE_BANDS ? (size as SizeBand) : null,
     rate: rate && rate in RATE_CHOICES ? (rate as RateChoice) : null,
     cost: cost && (COST_CHOICES as readonly string[]).includes(cost) ? (cost as CostChoice) : null,
+    major: major && isProgramArea(major) ? major : null,
     sort: sort && (SORTS as readonly string[]).includes(sort) ? (sort as SchoolSort) : null,
     page: page.success ? page.data : 1,
     compare: parseCompareList(all(raw, 'compare')),
@@ -164,6 +170,7 @@ export function toSearchArgs(state: ExplorerState, pageSize: number = PAGE_SIZE)
     p_sort: sort === 'relevance' && !state.q ? 'name' : sort,
     p_limit: limit,
     p_offset: (state.page - 1) * limit,
+    p_program_areas: state.major ? [state.major] : null,
   };
 }
 
@@ -178,7 +185,8 @@ export function activeFilterCount(state: ExplorerState): number {
     state.tests.length +
     (state.size ? 1 : 0) +
     (state.rate ? 1 : 0) +
-    (state.cost ? 1 : 0)
+    (state.cost ? 1 : 0) +
+    (state.major ? 1 : 0)
   );
 }
 
@@ -186,7 +194,7 @@ export function activeFilterCount(state: ExplorerState): number {
 export function hasFilters(state: ExplorerState): boolean {
   return Boolean(
     state.state || state.divisions.length || state.controls.length || state.levels.length || state.settings.length ||
-      state.tests.length || state.size || state.rate || state.cost,
+      state.tests.length || state.size || state.rate || state.cost || state.major,
   );
 }
 
@@ -197,6 +205,7 @@ export function figureFilters(state: ExplorerState): string[] {
   if (state.tests.length) notes.push('test policy');
   if (state.size) notes.push('enrollment');
   if (state.cost) notes.push('cost of attendance');
+  if (state.major) notes.push('programs offered');
   return notes;
 }
 
@@ -214,6 +223,7 @@ export function explorerQuery(state: ExplorerState, changes: Partial<ExplorerSta
   if (next.size) params.set('size', next.size);
   if (next.rate) params.set('rate', next.rate);
   if (next.cost) params.set('cost', next.cost);
+  if (next.major) params.set('major', next.major);
   if (next.sort) params.set('sort', next.sort);
   if (next.page > 1) params.set('page', String(next.page));
   const text = params.toString();

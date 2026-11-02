@@ -49,7 +49,7 @@ Three enforcement layers, each sufficient to stop a data leak on its own:
 | Entitlements | Capability catalog, free-core guarantees, premium gating (billing later) | 1 → 6 | `…000600`, `src/lib/entitlements/`, `src/config/plans.ts` |
 | Institutions & programs | Registry of institutions and verified baseball programs, sources, imports | 2 (Pillar A) | — |
 | Admissions source registry | Admissions statistics with cohort definitions and provenance | 2 | — |
-| Academic matching | Explainable rule-based classifications, versioned | 3 (Pillar B) | — |
+| Academic matching | Explainable rule-based classifications, versioned; school suggestions combining academic fit, eligibility to compete and per-level athletic standards (`docs/matching-rulebook.md`) | 3 (Pillar B) | `src/lib/matching/` |
 | Shortlists | Guest (on-device) and synced unlimited shortlists | 3 | — |
 | Athlete recruiting profiles | Profile, metrics with evidence status, video | 4 | — |
 | Coach portal | Search consented athletes, boards, messaging with guardrails | 4 (Pillar C) | — |
@@ -185,8 +185,14 @@ confirmed status is never overwritten by an import for the same or an older seas
 everything about them are visible only to administrators. Reviewer ids, internal notes and import ids are excluded by
 column grants. All writes go through admin-only SECURITY DEFINER functions.
 
-**What is not imported yet.** GPA (not in federal data), majors, conferences (admin-verified only), net price (its
-reference year could not be confirmed; each school's net price calculator is linked instead).
+**Also imported (2026-10-31).** Each school's open admission policy and the program areas (two-digit CIP families) it
+offers on campus at the bachelor's and associate level, from the same College Scorecard feed (`institutions.open_admission`,
+`bachelors_areas`, `associate_areas`, `programs_source_year`; codes in `program_areas`). They travel in the snapshot's
+facts through the same staging, review, publish and rollback (decisions F48, F49).
+
+**What is not imported yet.** GPA (not in federal data), specific majors (four-digit programs), conferences
+(admin-verified only), net price (its reference year could not be confirmed; each school's net price calculator is
+linked instead).
 
 ## 7. Environments
 

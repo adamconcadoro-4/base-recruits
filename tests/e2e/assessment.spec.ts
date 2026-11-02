@@ -121,8 +121,8 @@ test('an athlete records, publishes and acts on a hitting self-assessment', asyn
   // Measured exit velocity (with its device) and charted solid contact.
   await page.locator('summary', { hasText: 'Exit velocity' }).click();
   const velocity = page.getByTestId('entry-hit_exit_velocity_mph');
-  await velocity.getByLabel('Device kind').selectOption('radar');
-  await velocity.getByLabel('Device name or model').fill('Test radar');
+  await velocity.getByLabel('Device', { exact: true }).selectOption('other:radar');
+  await velocity.getByLabel('Name or model', { exact: true }).fill('Test radar');
   for (const [index, value] of ['78', '81.5', '80', '79', '83', '77'].entries()) {
     await velocity.getByLabel(`#${index + 1}`, { exact: true }).fill(value);
   }

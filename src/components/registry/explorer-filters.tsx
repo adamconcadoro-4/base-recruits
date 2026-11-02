@@ -6,6 +6,7 @@ import { SelectField, TextField } from '@/components/ui/field';
 import { ResponsiveDetails } from '@/components/ui/responsive-details';
 import { DIVISION_GROUPS } from '@/lib/registry/divisions';
 import { CONTROL_LABELS, LEVEL_LABELS, SETTING_LABELS, TEST_POLICY_LABELS } from '@/lib/registry/labels';
+import { PROGRAM_AREA_CHOICES } from '@/lib/registry/program-areas';
 import { COST_CHOICES, RATE_CHOICES, SIZE_BANDS, activeFilterCount, type ExplorerState } from '@/lib/registry/search-params';
 import { STATE_OPTIONS } from '@/lib/registry/states';
 import { CONTROLS, SETTINGS, TEST_POLICIES } from '@/lib/registry/types';
@@ -142,6 +143,20 @@ export function ExplorerFilters({
             {COST_CHOICES.map((c) => (
               <option key={c} value={c}>
                 {`Up to $${Number(c).toLocaleString('en-US')} a year`}
+              </option>
+            ))}
+          </SelectField>
+          <SelectField
+            id="f-major"
+            name="major"
+            label="Major (program area)"
+            hint="Offered on campus at the bachelor’s or associate level, as reported to the College Scorecard."
+            defaultValue={state.major ?? ''}
+          >
+            <option value="">Any major</option>
+            {PROGRAM_AREA_CHOICES.map(([code, name]) => (
+              <option key={code} value={code}>
+                {name}
               </option>
             ))}
           </SelectField>

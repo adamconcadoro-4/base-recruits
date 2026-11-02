@@ -107,6 +107,10 @@ export default async function AdminPage() {
         ·{' '}
         <Link href="/admin/test-accounts" className="font-semibold text-royal-ink underline">
           Test accounts (try the site as a player or parent)
+        </Link>{' '}
+        ·{' '}
+        <Link href="/admin/comparison-groups" className="font-semibold text-royal-ink underline">
+          Comparison groups
         </Link>
       </PageTitle>
       {queueResult.error || recentResult.error ? (

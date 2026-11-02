@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { deviceFromChoice } from '@/lib/assessment/catalog/devices';
 import { protocol as findProtocol } from '@/lib/assessment/catalog/protocols';
 import { callRpc, numberField, rpcAction, switchedOff, textOrNull } from '@/lib/assessment/server/actions';
 import { deleteClipFiles } from '@/lib/assessment/server/storage';
@@ -166,6 +167,20 @@ export async function deleteRepetitionAction(_previous: ActionState, formData: F
 
 // ------------------------------------------------------------------ observations
 
+/**
+ * The device fields for an observation. The entry form sends the picker's
+ * choice ("device", plus "device_other" for an unnamed device); older forms
+ * send the kind and name directly.
+ */
+function deviceFields(formData: FormData): { ok: true; kind: string | null; label: string | null } | { ok: false; error: string } {
+  const choice = textOrNull(formData, 'device');
+  if (choice === null) {
+    return { ok: true, kind: textOrNull(formData, 'device_kind'), label: textOrNull(formData, 'device_label') };
+  }
+  const device = deviceFromChoice(choice, textOrNull(formData, 'device_other'));
+  return device.ok ? { ok: true, kind: device.kind, label: device.label } : device;
+}
+
 export async function recordObservationAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const id = field(formData, 'assessmentId');
   const unable = field(formData, 'unable') === 'true' || field(formData, 'value') === 'unable';
@@ -179,6 +194,8 @@ export async function recordObservationAction(_previous: ActionState, formData: 
       if (value === null || Number.isNaN(value)) return failure('Enter a number or choose a rating.', { value: 'Enter a value.' });
     }
   }
+  const device = deviceFields(formData);
+  if (!device.ok) return failure(device.error, { device: device.error });
   return rpcAction(
     'record_assessment_observation',
     {
@@ -189,8 +206,8 @@ export async function recordObservationAction(_previous: ActionState, formData: 
       p_unable_to_assess: unable,
       p_quality_reason: textOrNull(formData, 'reason'),
       p_evidence_category: textOrNull(formData, 'evidence'),
-      p_device_kind: textOrNull(formData, 'device_kind'),
-      p_device_label: textOrNull(formData, 'device_label'),
+      p_device_kind: device.kind,
+      p_device_label: device.label,
       p_source_timestamp: null,
       p_note: textOrNull(formData, 'note'),
     },
@@ -208,6 +225,8 @@ export async function recordRepetitionValuesAction(_previous: ActionState, formD
   if (off) return off;
   const id = field(formData, 'assessmentId');
   const metricKey = field(formData, 'metric');
+  const device = deviceFields(formData);
+  if (!device.ok) return failure(device.error, { device: device.error });
   let saved = 0;
   const problems: string[] = [];
   for (const [name, raw] of formData.entries()) {
@@ -231,8 +250,8 @@ export async function recordRepetitionValuesAction(_previous: ActionState, formD
       p_unable_to_assess: false,
       p_quality_reason: null,
       p_evidence_category: textOrNull(formData, 'evidence'),
-      p_device_kind: textOrNull(formData, 'device_kind'),
-      p_device_label: textOrNull(formData, 'device_label'),
+      p_device_kind: device.kind,
+      p_device_label: device.label,
       p_source_timestamp: null,
       p_note: null,
     });

@@ -19,7 +19,9 @@ import {
   THROWING_HANDS,
   VIDEO_MIME_TYPES,
 } from '@/lib/assessment/catalog/context';
+import { DEVICE_MODELS, deviceModelFor } from '@/lib/assessment/catalog/devices';
 import { DRILLS } from '@/lib/assessment/catalog/drills';
+import { SHOWCASE_MEASURES, SHOWCASE_SOURCES } from '@/lib/assessment/catalog/showcase';
 import { HITTING_EVENTS, METRIC_LIST, PITCHING_EVENTS } from '@/lib/assessment/catalog/metrics';
 import { PROTOCOLS, requireProtocol } from '@/lib/assessment/catalog/protocols';
 import { computeAssessmentResults, type EngineObservation, type EngineTarget } from '@/lib/assessment/engine';
@@ -181,6 +183,10 @@ describe.skipIf(!DATABASE_URL)('assessment catalog: database and TypeScript agre
       ['assessment_observations_source', SOURCE_KINDS],
       ['assessment_observations_quality', QUALITY_STATES],
       ['assessment_observations_device_kind', DEVICE_KINDS],
+      ['assessment_observations_device_model', DEVICE_MODELS],
+      ['assessment_benchmark_releases_device_model', DEVICE_MODELS],
+      ['athlete_showcase_results_measure', SHOWCASE_MEASURES.map((item) => item.key)],
+      ['athlete_showcase_results_source', SHOWCASE_SOURCES],
       ['assessment_media_mime', VIDEO_MIME_TYPES],
       ['assessment_media_timing_basis', TIMING_BASES],
       ['assessment_media_status', MEDIA_STATUSES],
@@ -194,6 +200,29 @@ describe.skipIf(!DATABASE_URL)('assessment catalog: database and TypeScript agre
     for (const [constraint, values] of cases) {
       expect({ constraint, values: checkValues(constraint) }).toEqual({ constraint, values: sorted(values) });
     }
+  });
+
+  it('device models', () => {
+    const cases: Array<[string, string]> = [
+      ['ball_tracking', 'Rapsodo'],
+      ['ball_tracking', 'Rapsodo Hitting 2.0'],
+      ['ball_tracking', 'TrackMan'],
+      ['ball_tracking', 'Trackman B1'],
+      ['bat_sensor', 'Blast Motion'],
+      ['bat_sensor', 'blast'],
+      ['bat_sensor', 'Diamond Kinetics'],
+      ['bat_sensor', 'DK SwingTracker'],
+      ['bat_sensor', 'dk'],
+      ['bat_sensor', 'Darkhorse'],
+      ['radar', 'Rapsodo'],
+      ['ball_tracking', 'Blast Motion'],
+      ['radar', 'Pocket radar'],
+      ['other', 'TrackMan'],
+    ];
+    const db = rows<{ m: string | null }>(
+      cases.map(([kind, label]) => `select private.assessment_device_model('${kind}', '${label}') as m`).join(' union all '),
+    ).map((row) => row.m);
+    expect(db).toEqual(cases.map(([kind, label]) => deviceModelFor(kind, label)));
   });
 
   it('unit conversions', () => {

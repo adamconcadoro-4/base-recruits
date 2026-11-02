@@ -1,5 +1,5 @@
 /**
- * Generic CSV measurement import (no vendor-specific formats).
+ * Generic CSV measurement import (no vendor-specific column layouts yet).
  *
  * File format, one measurement per row (header names are matched without
  * regard to case, spaces or punctuation; the person can also map columns):
@@ -13,7 +13,10 @@
  *   unit            required  e.g. mph, km/h, m/s, ms, s, deg, rpm, in, cm, yes_no
  *   acquisition     required  sensor_measurement, video_estimate or observation
  *   device_kind     sensor    radar, ball_tracking, bat_sensor, motion_capture, force_plate, other
- *   device          sensor    the device's name or model, e.g. "Pocket radar"
+ *   device          sensor    the device's name or model, e.g. "Pocket radar". The named
+ *                             devices (Rapsodo, TrackMan, Blast Motion, Diamond Kinetics)
+ *                             are recognised, stored under one name, and fill in their
+ *                             own device kind when device_kind is blank
  *   recorded_at     optional  ISO 8601 date-time from the device
  *
  * Rubric ratings and derived values cannot be imported. The database checks
@@ -21,6 +24,7 @@
  * preview, column mapping, row-level errors and in-file duplicate detection.
  */
 
+import { recogniseDevice } from '@/lib/assessment/catalog/devices';
 import { requireMetric, metric as findMetric } from '@/lib/assessment/catalog/metrics';
 import { DEVICE_KINDS, EVIDENCE_CATEGORIES, PITCH_TYPES, isDiscipline, type DeviceKind, type Discipline, type EvidenceCategory, type PitchType } from '@/lib/assessment/types';
 import { convertToCanonical, normalizeUnit } from '@/lib/assessment/units';
@@ -247,8 +251,16 @@ export function validateRows(
       if ((DEVICE_KINDS as readonly string[]).includes(deviceKindText)) deviceKind = deviceKindText as DeviceKind;
       else reasons.push(`“${cell(cells, 'device_kind')}” is not a recognized device kind.`);
     }
-    const deviceLabel = cell(cells, 'device') || null;
+    let deviceLabel = cell(cells, 'device') || null;
     if (deviceLabel && deviceLabel.length > 80) reasons.push('The device name is longer than 80 characters.');
+    // A named device (F52) is stored under one name and its own kind, so its
+    // values match its comparison groups and never read as two devices.
+    const named = recogniseDevice(deviceLabel);
+    if (named) {
+      if (deviceKindText === '') deviceKind = named.kind;
+      if (deviceKind === named.kind) deviceLabel = named.label;
+      else if (deviceKind) reasons.push(`${named.label} is a ${named.kind === 'bat_sensor' ? 'bat sensor' : 'ball tracker'}; use device_kind ${named.kind}.`);
+    }
     if (definition?.requiresDevice && (!deviceKind || !deviceLabel)) {
       reasons.push('Sensor values need both a device kind and a device name.');
     }

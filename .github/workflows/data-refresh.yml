@@ -38,7 +38,11 @@ jobs:
           python3 -m data.pipeline.build \
             --out data/snapshots/registry.json \
             --capture 100654,100706,110635,117645,166027,199120,243744 \
-            --capture-out data/pipeline/tests/fixtures/source_capture.json | tee "${RUNNER_TEMP}/summary.json"
+            --capture-out data/pipeline/tests/fixtures/source_capture.json 2> "${RUNNER_TEMP}/build-errors.txt" | tee "${RUNNER_TEMP}/summary.json" || {
+            # Show why in the run's summary (the key is masked; the pipeline never prints URLs).
+            echo "::error title=Build snapshot failed::$(tail -n 6 "${RUNNER_TEMP}/build-errors.txt" | tr '\n' ' ')"
+            exit 1
+          }
           season=$(python3 -c "import json;print(json.load(open('data/snapshots/registry.json'))['sources'][0]['season'])")
           mv data/snapshots/registry.json "data/snapshots/registry-${season}.json"
           echo "::notice title=Registry snapshot ${season}::$(python3 -c "import json;s=json.load(open('data/snapshots/registry-${season}.json'))['summary'];print(', '.join(f'{k}={v}' for k,v in s.items() if not isinstance(v, dict)))")"

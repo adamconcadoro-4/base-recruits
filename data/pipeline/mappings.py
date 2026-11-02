@@ -67,3 +67,59 @@ TEST_POLICY_SINCE_2024 = {
     3: "not_considered",
 }
 FIRST_TEST_POLICY_YEAR = 2024
+
+# College Scorecard school.open_admissions_policy (IPEDS OPENADMP): 1 = the
+# institution has an open admission policy (accepts any applicant, or only
+# requires a high school diploma or equivalent), 2 = it does not. Any other
+# value (IPEDS uses 3 for institutions that enroll no first-time students) is
+# left blank, never guessed.
+OPEN_ADMISSIONS = {1: True, 2: False}
+
+# College Scorecard academics.program.<level>.<area>: whether an institution
+# offers a program in each two-digit CIP family. 0 = not offered, 1 = offered,
+# 2 = offered only by distance education. Only 1 counts as offered here: a
+# student-athlete studies on campus. Keys are Scorecard's developer-friendly
+# names; values are the CIP family code. Base Recruits stores the keys.
+PROGRAM_AREAS: dict[str, str] = {
+    "agriculture": "01",
+    "resources": "03",
+    "architecture": "04",
+    "ethnic_cultural_gender": "05",
+    "communication": "09",
+    "communications_technology": "10",
+    "computer": "11",
+    "personal_culinary": "12",
+    "education": "13",
+    "engineering": "14",
+    "engineering_technology": "15",
+    "language": "16",
+    "family_consumer_science": "19",
+    "legal": "22",
+    "english": "23",
+    "humanities": "24",
+    "library": "25",
+    "biological": "26",
+    "mathematics": "27",
+    "military": "29",
+    "multidiscipline": "30",
+    "parks_recreation_fitness": "31",
+    "philosophy_religious": "38",
+    "theology_religious_vocation": "39",
+    "physical_science": "40",
+    "science_technology": "41",
+    "psychology": "42",
+    "security_law_enforcement": "43",
+    "public_administration_social_service": "44",
+    "social_science": "45",
+    "construction": "46",
+    "mechanic_repair_technology": "47",
+    "precision_production": "48",
+    "transportation": "49",
+    "visual_performing": "50",
+    "health": "51",
+    "business_marketing": "52",
+    "history": "54",
+}
+
+# Scorecard program level -> the name Base Recruits stores it under.
+PROGRAM_LEVELS = {"bachelors": "bachelors", "assoc": "associate"}

@@ -70,7 +70,7 @@ usable, limited (counts, flagged), excluded (does not count), unable to assess (
 | --- | --- | --- |
 | Rubric | `25 × (rating − 1)` from written anchors 1–5 | Rubric metrics. A development coach's rating is used over a self-rating |
 | Coach target | Linear between the coach's two values (higher or lower is better), or a range with a falloff distance | Only when the athlete's development coach set a target; the target is shown |
-| Reference percentile | `100 × (below + 0.5 × equal) / count`, one value per athlete | Only from an approved dataset matching metric version, protocol, unit, statistic, pitch type, device kind and cohort. None exist |
+| Reference percentile | `100 × (below + 0.5 × equal) / count`, one value per athlete | Only from an approved dataset (an outside source, or a comparison group of opted-in athletes, section 12) with at least 30 athletes, matching metric version, protocol, unit, statistic, pitch type, device kind, device model (ball trackers and bat sensors) and cohort. None is approved yet |
 | Descriptive | No score | Everything else, including measured values without a target |
 
 Summaries: median for repeated measures (peak shown separately, never as the typical value), rate for yes/no charts
@@ -341,3 +341,47 @@ which of its drills are on the home menu.
 - A browsable page for the flaw guide; today it appears through plan suggestions.
 - SeamState (pull request #19) picks drills by measure, so it will reach the workbook drills through their measures
   once merged; linking flaws to SeamState's mechanics directly belongs in that pull request.
+
+## 12. Named devices, event results and comparison groups
+
+Decisions F52–F54 (founder, 2026-11-01 and 2026-11-02). Migration
+`supabase/migrations/20261102000100_device_models_comparison_groups.sql`; database tests
+`supabase/tests/database/024_device_models_comparison_groups.test.sql`.
+
+### Named devices (F52)
+
+| Where | What happens |
+| --- | --- |
+| Entry form (`[id]/repetitions-step.tsx`) | One "Device" picker: Rapsodo and TrackMan (ball trackers), Blast Motion and Diamond Kinetics (bat sensors), or another radar gun, ball tracker, bat sensor or device with a typed name. The choice is stored as the device kind and one fixed name |
+| File import (`src/lib/assessment/csv.ts`) | The four names are recognised in the `device` column; a blank `device_kind` is filled in, the name is stored the same way as the picker, and a wrong kind is a row error |
+| Database | `assessment_observations.device_model` is set by a trigger from the kind and name (`private.assessment_device_model`), whatever path wrote the row |
+| References | A ball-tracker or bat-sensor reference must name its `device_model`; the percentile matches it against the model of every value the result used |
+
+Device names appear only in the pickers, as plain labels with no links. No maker's export column layout is built
+yet: the generic import columns apply until a sample export from each device is in hand.
+
+### Event results (F53)
+
+`/assessment/events`, table `athlete_showcase_results`. The athlete's side or their development coach records a
+showcase or event number (exit velocity, bat speed, fastball, infield, outfield or catcher velocity, 60-yard, pop time)
+with the event (PBR or another), name, date and an optional https link to the event profile. Only the development
+coach can mark a result checked. Results are shown apart from Assessment results and are never combined with them.
+Nothing is read from any outside site.
+
+### Comparison groups (F54)
+
+| Step | Who | Function |
+| --- | --- | --- |
+| Open opting in (after counsel approves the wording) | Administrator | `admin_set_comparison_groups_open` (Admin → Comparison groups) |
+| Opt in to wording `comparison-groups-v1` | The athlete only | `join_comparison_groups` (Connections page) |
+| Agree for an athlete under 18 | A linked parent or legal guardian | `approve_comparison_groups` |
+| Leave, removing the athlete's values from every group | The athlete, or that parent or guardian | `leave_comparison_groups` |
+| Build a draft group | Administrator | `admin_build_comparison_group`: one value per counted athlete, from their most recent matching current published report in the dates given; coach-reviewed reports only unless unticked; test accounts never |
+| Approve (30 athletes or more) or retire | Administrator | `admin_set_benchmark_release_status` |
+
+Who counts (`private.in_comparison_groups`): an adult who opted in, or an athlete under 18 whose opt-in a parent or
+legal guardian agreed to and who can still act for them. Values are stored under a key made from the group and the
+athlete (`oa-` + md5), with no name, so groups can't be joined to each other. The opt-in table has no direct read
+access; the athlete and family see their status through `comparison_group_status` and
+`my_comparison_group_requests`. Health data and video are never used.
+

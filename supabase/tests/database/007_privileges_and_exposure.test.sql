@@ -10,13 +10,15 @@ select tests.ok(
   (select array_agg(t.tablename::text order by t.tablename) from pg_tables t
     where t.schemaname = 'public' and has_any_column_privilege('anon', format('%I.%I', t.schemaname, t.tablename), 'SELECT'))
   = array['admissions_policies', 'admissions_statistics', 'athletic_associations', 'athletic_divisions', 'baseball_programs',
-          'capabilities', 'data_sources', 'institution_aliases', 'institution_costs', 'institutions', 'plan_capabilities'],
+          'capabilities', 'data_sources', 'gpa_ranges', 'institution_aliases', 'institution_costs', 'institutions', 'plan_capabilities',
+          'program_areas'],
   'anonymous visitors can read only the capability catalog and the public school registry');
 select tests.ok(
   not exists (
     select 1 from (values ('baseball_programs', 'verified_by'), ('baseball_programs', 'verification_note'),
                           ('baseball_programs', 'import_job_id'), ('institutions', 'import_job_id'),
-                          ('admissions_statistics', 'import_job_id'), ('institution_costs', 'import_job_id')) c(t, col),
+                          ('admissions_statistics', 'import_job_id'), ('institution_costs', 'import_job_id'),
+                          ('gpa_ranges', 'note'), ('gpa_ranges', 'recorded_by')) c(t, col),
                   unnest(array['anon', 'authenticated']) as r(role_name)
      where has_column_privilege(r.role_name, format('public.%I', c.t), c.col, 'SELECT')),
   'who reviewed a program, their notes and import ids are not readable through the Data API');
@@ -71,7 +73,7 @@ select tests.ok(
   (select array_agg(p.proname::text order by p.proname)
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname in ('public', 'private') and has_function_privilege('anon', p.oid, 'EXECUTE'))
-  = array['compare_schools', 'current_admissions_policies', 'get_school', 'registry_coverage', 'schools_by_slugs',
+  = array['compare_schools', 'current_admissions_policies', 'get_school', 'gpa_ranges_for', 'registry_coverage', 'schools_by_slugs',
           'search_schools'],
   'anonymous visitors can execute only the free school-registry reads');
 select tests.ok(
@@ -84,29 +86,34 @@ select tests.ok(
      from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'EXECUTE'))
   = array['add_assessment_annotation', 'add_assessment_repetitions', 'add_training_assignment', 'add_zone_round',
-          'admin_add_baseball_program', 'admin_add_benchmark_values', 'admin_create_benchmark_release',
-          'admin_create_import_job', 'admin_discard_import_job', 'admin_finalize_import_job', 'admin_grant_role',
-          'admin_publish_import_job', 'admin_resolve_correction_report', 'admin_restage_import_job',
-          'admin_retire_admissions_policy', 'admin_review_coach', 'admin_revoke_role', 'admin_set_admissions_policy',
-          'admin_set_assessment_switches', 'admin_set_benchmark_release_status',
-          'admin_set_import_decision', 'admin_set_institution_listing', 'admin_set_seamstate_settings', 'admin_setup_test_family', 'admin_stage_import_rows',
-          'admin_test_account_email', 'admin_update_baseball_program', 'approve_consent_as_guardian', 'approve_development_coach_link',
-          'approve_family_link', 'approve_training_plan', 'approve_zone_next_plan', 'assessment_athletes', 'assessment_family_access',
-          'assessment_switches', 'assessment_video_open', 'begin_assessment_deletion', 'begin_assessment_upload', 'cancel_development_coach_invite', 'cancel_family_invite',
-          'compare_schools', 'complete_assessment_upload', 'complete_onboarding', 'complete_training_plan',
-          'create_assessment', 'create_development_coach_invite', 'create_family_invite', 'create_reassessment',
-          'create_training_plan', 'create_zone_session', 'current_admissions_policies', 'decline_development_coach_link', 'delete_assessment',
+          'admin_add_baseball_program', 'admin_add_benchmark_values', 'admin_benchmark_releases', 'admin_build_comparison_group',
+          'admin_comparison_group_settings', 'admin_create_benchmark_release', 'admin_create_import_job',
+          'admin_discard_import_job', 'admin_finalize_import_job', 'admin_grant_role', 'admin_publish_import_job',
+          'admin_resolve_correction_report', 'admin_restage_import_job', 'admin_retire_admissions_policy',
+          'admin_retire_gpa_range', 'admin_review_coach', 'admin_revoke_role', 'admin_set_admissions_policy',
+          'admin_set_assessment_switches', 'admin_set_benchmark_release_status', 'admin_set_comparison_groups_open',
+          'admin_set_gpa_range', 'admin_set_import_decision', 'admin_set_institution_listing', 'admin_set_seamstate_settings',
+          'admin_setup_test_family', 'admin_stage_import_rows', 'admin_test_account_email', 'admin_update_baseball_program',
+          'approve_comparison_groups', 'approve_consent_as_guardian', 'approve_development_coach_link', 'approve_family_link',
+          'approve_training_plan', 'approve_zone_next_plan', 'assessment_athletes', 'assessment_family_access',
+          'assessment_switches', 'assessment_video_open', 'begin_assessment_deletion', 'begin_assessment_upload', 'cancel_development_coach_invite',
+          'cancel_family_invite', 'check_showcase_result', 'compare_schools', 'comparison_group_status',
+          'complete_assessment_upload', 'complete_onboarding', 'complete_training_plan', 'create_assessment',
+          'create_development_coach_invite', 'create_family_invite', 'create_reassessment', 'create_training_plan',
+          'create_zone_session', 'current_admissions_policies', 'decline_development_coach_link', 'delete_assessment',
           'delete_assessment_annotation', 'delete_assessment_observation', 'delete_assessment_repetition',
-          'delete_training_log', 'delete_zone_event', 'delete_zone_session', 'end_development_coach_link', 'end_family_link', 'get_school', 'grant_consent',
-          'guardian_consent_requests', 'import_assessment_measurements', 'list_development_coach_links',
-          'list_family_links', 'log_training', 'log_zone_event', 'my_assessment_report_shares', 'my_consent_grants',
-          'my_development_coach_invites', 'my_saved_schools', 'preview_assessment_report', 'publish_assessment',
-          'record_assessment_observation', 'record_birthdate', 'record_interval_from_markers',
-          'redeem_development_coach_invite', 'redeem_family_invite', 'registry_coverage', 'remove_assessment_media',
-          'remove_training_assignment', 'reopen_assessment', 'replace_training_assignment', 'retire_assessment_target', 'review_zone_round', 'review_zone_session',
-          'revoke_consent', 'save_schools', 'schools_by_slugs', 'seamstate_cancel_analysis', 'seamstate_permission', 'seamstate_request_analysis',
-          'seamstate_review_finding', 'seamstate_switches', 'search_schools', 'set_assessment_baseline',
-          'set_assessment_repetition_status', 'set_assessment_status', 'set_assessment_target',
+          'delete_showcase_result', 'delete_training_log', 'delete_zone_event', 'delete_zone_session',
+          'end_development_coach_link', 'end_family_link', 'get_school', 'gpa_ranges_for', 'grant_consent',
+          'guardian_consent_requests', 'import_assessment_measurements', 'join_comparison_groups', 'leave_comparison_groups',
+          'list_development_coach_links', 'list_family_links', 'log_training', 'log_zone_event', 'my_assessment_report_shares',
+          'my_comparison_group_requests', 'my_consent_grants', 'my_development_coach_invites', 'my_saved_schools',
+          'preview_assessment_report', 'publish_assessment', 'record_assessment_observation', 'record_birthdate',
+          'record_interval_from_markers', 'record_showcase_result', 'redeem_development_coach_invite', 'redeem_family_invite',
+          'registry_coverage', 'remove_assessment_media', 'remove_training_assignment', 'reopen_assessment',
+          'replace_training_assignment', 'retire_assessment_target', 'review_zone_round', 'review_zone_session',
+          'revoke_consent', 'save_schools', 'schools_by_slugs', 'seamstate_cancel_analysis', 'seamstate_permission',
+          'seamstate_request_analysis', 'seamstate_review_finding', 'seamstate_switches', 'search_schools',
+          'set_assessment_baseline', 'set_assessment_repetition_status', 'set_assessment_status', 'set_assessment_target',
           'set_observation_quality', 'set_reassessment_date', 'set_training_plan_notes', 'set_zone_assignment', 'set_zone_stage',
           'share_assessment_reports_with_coach', 'share_assessments_with_family', 'shared_assessment_reports',
           'submit_coach_affiliation', 'submit_correction_report', 'unsave_school', 'update_assessment_context',

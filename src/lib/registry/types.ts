@@ -75,8 +75,16 @@ export interface SchoolSummary {
   readonly cost_of_attendance: number | null;
   readonly tuition_in_state: number | null;
   readonly tuition_out_of_state: number | null;
+  /** College Scorecard open admission policy; absent from schools_by_slugs, null when not reported. */
+  readonly open_admission?: boolean | null;
   readonly relevance: number;
   readonly total_count: number;
+}
+
+/** A program area offered at one level (public.program_areas). */
+export interface ProgramAreaRef {
+  readonly code: string;
+  readonly name: string;
 }
 
 export interface SourceRef {
@@ -107,6 +115,14 @@ export interface SchoolRecord {
     readonly setting: CampusSetting | null;
     readonly undergraduate_enrollment: number | null;
     readonly enrollment_term: string | null;
+    /** College Scorecard open admission policy; null when not reported (older imports too). */
+    readonly open_admission?: boolean | null;
+    /** Program areas offered on campus, for one College Scorecard data year; null when not reported. */
+    readonly programs?: {
+      readonly scorecard_year: number;
+      readonly bachelors: readonly ProgramAreaRef[];
+      readonly associate: readonly ProgramAreaRef[];
+    } | null;
     readonly aliases: readonly string[];
     readonly source: SourceRef;
   };
@@ -169,6 +185,24 @@ export interface CurrentPolicy {
   readonly source_url: string;
   readonly source_title: string | null;
   readonly verified_at: string;
+}
+
+/** public.gpa_ranges_for: a high school GPA range the school published (founder decision F51). */
+export interface GpaRangeRow {
+  readonly slug: string;
+  readonly source_kind: 'common_data_set' | 'school_profile';
+  /** The entering class it describes, e.g. "Fall 2024". */
+  readonly entering_term: string;
+  readonly cds_year: string | null;
+  /** The middle half of the class on a 4.0 scale. */
+  readonly low: number;
+  readonly high: number;
+  readonly average: number | null;
+  readonly percent_submitting: number | null;
+  readonly weighting: 'not_stated' | 'weighted' | 'unweighted';
+  readonly source_url: string;
+  readonly source_title: string | null;
+  readonly recorded_at: string;
 }
 
 /** public.registry_coverage */
