@@ -23,6 +23,23 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'off',
+    // Every test starts as if "Not now" was chosen on the Face ID offer, so
+    // sign-ins land where they always did; auth.spec.ts tests the offer itself.
+    storageState: {
+      cookies: [
+        {
+          name: 'br_passkey_offer_skipped',
+          value: '1',
+          domain: new URL(baseURL).hostname,
+          path: '/',
+          expires: -1,
+          httpOnly: true,
+          secure: false,
+          sameSite: 'Lax',
+        },
+      ],
+      origins: [],
+    },
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },

@@ -1,4 +1,5 @@
-import { PASSWORD, createAccount, publicClient, publishBundledRegistry, sql, yearsAgo } from './support';
+import { adminApiClient, registerSoftwarePasskey } from './passkey';
+import { PASSWORD, admin, createAccount, publicClient, publishBundledRegistry, sql, yearsAgo } from './support';
 
 /**
  * Creates the one test administrator through the documented bootstrap path
@@ -22,13 +23,24 @@ export default async function globalSetup(): Promise<void> {
   }
   process.env.E2E_ADMIN_EMAIL = email;
 
+  // Administrators need a passkey check (F57). Give the test administrator a
+  // software passkey (replacing any from earlier runs) and share it with the tests.
+  const { data: users } = await admin().auth.admin.listUsers({ perPage: 1000 });
+  const adminId = users?.users.find((user) => user.email === email)?.id;
+  if (!adminId) throw new Error('test administrator not found');
+  const { data: oldPasskeys } = await admin().auth.admin.passkey.listPasskeys({ userId: adminId });
+  for (const old of oldPasskeys ?? []) await admin().auth.admin.passkey.deletePasskey({ userId: adminId, passkeyId: old.id });
+  const owner = publicClient();
+  const { error: ownerSignIn } = await owner.auth.signInWithPassword({ email, password: PASSWORD });
+  if (ownerSignIn) throw new Error(`admin sign-in failed: ${ownerSignIn.message}`);
+  process.env.E2E_ADMIN_PASSKEY = JSON.stringify(await registerSoftwarePasskey(owner));
+  await owner.auth.signOut();
+
   // Assessment ships switched off. Turn both database switches on through the
   // admin function, as an administrator would from the admin page. (The site
   // switch, NEXT_PUBLIC_ASSESSMENT_ENABLED, is set for the build in CI.)
   if (process.env.NEXT_PUBLIC_ASSESSMENT_ENABLED === 'true') {
-    const adminClient = publicClient();
-    const { error: signInError } = await adminClient.auth.signInWithPassword({ email, password: PASSWORD });
-    if (signInError) throw new Error(`admin sign-in failed: ${signInError.message}`);
+    const adminClient = await adminApiClient();
     const { error: switchError } = await adminClient.rpc('admin_set_assessment_switches', { p_enabled: true, p_video_enabled: true });
     if (switchError) throw new Error(`admin_set_assessment_switches failed: ${switchError.message}`);
     await adminClient.auth.signOut();
@@ -38,6 +50,6 @@ export default async function globalSetup(): Promise<void> {
   const published = sql("select exists (select 1 from public.data_import_jobs where status = 'published')");
   if (published !== 't') {
     sql("update public.data_import_jobs set status = 'discarded', discarded_at = now() where status in ('staging', 'staged')");
-    await publishBundledRegistry(email);
+    await publishBundledRegistry();
   }
 }

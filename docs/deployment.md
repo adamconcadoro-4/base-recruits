@@ -42,6 +42,20 @@ These mirror `supabase/config.toml`. Security depends on them (see the README).
 | Email templates: Confirm signup, Magic link, Reset password, Change email address, Invite user | Subject `Your Base Recruits code`; body `supabase/templates/email-code.html` (the 6-digit code only, no link) |
 | SMTP | Custom sender on a Base Recruits domain (decision F7). Until then Supabase's built-in sender is used, which is heavily rate-limited and meant for testing by the project's own team, not real users |
 
+## Passkeys (Face ID and fingerprint sign-in, decision F57)
+
+In the Supabase dashboard: **Authentication → Passkeys** (Sign In / Providers on some dashboard versions), turn on
+**Enable Passkey authentication**, then set:
+
+| Setting | Value |
+| --- | --- |
+| Relying Party Display Name | `Base Recruits` |
+| Relying Party ID | `baserecruits.app` (never change it once people have passkeys: every passkey stops working) |
+| Relying Party Origins | `https://baserecruits.app` |
+
+Until this is on, the site keeps working with emailed codes and passwords, the Face ID buttons say it isn't switched
+on yet, and **admin pages stay closed** (they need a passkey check).
+
 ## Web app environment variables (Vercel, Production)
 
 | Name | Value |
@@ -53,6 +67,7 @@ These mirror `supabase/config.toml`. Security depends on them (see the README).
 | `SUPABASE_SECRET_KEY` | A secret key (`sb_secret_…`, same page). Server-only. Entered in Vercel by the founder; never pasted into chats, issues or commits |
 | `NEXT_PUBLIC_ASSESSMENT_ENABLED` | Leave **unset** until the founder opens Assessment (decision F21). `true` shows the Assessment tab, its public pages and the development coach sign-up option, and adds the Supabase origin to the media and connect content-security rules. The database switch on the admin page must also be on before anything can be recorded |
 | `ALLOW_INDEXING` | Leave **unset** until launch sign-off (decision F14). Set to `true` only in Production to let search engines index the site; with it unset every page is `noindex` and `robots.txt` disallows crawling |
+| `SITE_TEAM_CODE` | Optional, server-only (Secret is fine). While `SITE_PRIVATE=true`, a code of at least 8 characters here makes the sign-in, sign-up, code and reset pages ask for it first (`/team-access`, decision F58). Use four or more random words. Changing it makes every browser enter the new code; redeploy after changing it |
 | `SITE_PRIVATE` | `true` takes the site off the public web without deleting anything (2026-11-02). Everyone sees a "coming soon" page except people signed in as adamconcadoro@gmail.com or jcaceres120@gmail.com; the sign-in, sign-up, code and reset pages and `/api/seamstate/*` stay reachable, sign-up is refused for other emails, and indexing is off. Delete it (or set anything else) and redeploy to go public again. See `src/config/site-access.ts` |
 
 Vercel's Hobby plan does not allow commercial use. Move the Vercel account to Pro before the public launch.

@@ -123,7 +123,10 @@ as $$
 $$;
 
 -- Act as a signed-in user, exactly as PostgREST does for a verified JWT.
-create function tests.authenticate_as(p_name text) returns void
+-- p_amr is the token's sign-in record (Supabase's `amr` claim). By default the
+-- session signed in with a passkey just now, which administrators need (F57);
+-- tests of that rule pass another record.
+create function tests.authenticate_as(p_name text, p_amr jsonb default null) returns void
 language plpgsql
 as $$
 declare
@@ -134,7 +137,10 @@ begin
   end if;
   perform set_config('role', 'authenticated', true);
   perform set_config('request.jwt.claims',
-    json_build_object('sub', v_id, 'role', 'authenticated', 'aud', 'authenticated')::text, true);
+    json_build_object(
+      'sub', v_id, 'role', 'authenticated', 'aud', 'authenticated',
+      'amr', coalesce(p_amr, jsonb_build_array(jsonb_build_object('method', 'passkey', 'timestamp', floor(extract(epoch from now()))::bigint)))
+    )::text, true);
 end;
 $$;
 

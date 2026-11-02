@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+import { adminApiClient } from './passkey';
 import {
   PASSWORD,
   createAccount,
@@ -85,8 +86,8 @@ test('a forgotten password is reset with an emailed code', async ({ page }) => {
   const account = await createAccount({ role: 'athlete', name: 'Reset Synthetic', dateOfBirth: yearsAgo(20) });
   const requestedAt = new Date(Date.now() - 2000);
   await page.goto('/login');
-  await page.getByRole('link', { name: 'Forgot your password?' }).click();
-  await expect(page.getByRole('heading', { level: 1, name: 'Reset your password' })).toBeVisible();
+  await page.getByRole('link', { name: /Forgot your password/ }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Set or reset your password' })).toBeVisible();
   await page.getByLabel('Email', { exact: true }).fill(account.email);
   await page.getByRole('button', { name: 'Email me a code' }).click();
   await reachVerifyPage(page);
@@ -197,4 +198,69 @@ test('a crafted next= link cannot send someone to another site after login', asy
   await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
   await page.getByRole('button', { name: 'Log in', exact: true }).click();
   await expect(page).toHaveURL('/athlete');
+});
+
+test('after an emailed-code login, an account without a passkey is offered Face ID once', async ({ page }) => {
+  await page.context().clearCookies({ name: 'br_passkey_offer_skipped' });
+  const account = await createAccount({ role: 'athlete', name: 'Passkey Offer', dateOfBirth: yearsAgo(20) });
+  const requestedAt = new Date(Date.now() - 2000);
+  await page.goto('/login/code?next=/saved');
+  await page.getByLabel('Email', { exact: true }).fill(account.email);
+  await page.getByRole('button', { name: 'Email me a sign-in code' }).click();
+  await reachVerifyPage(page);
+  await page.getByLabel('6-digit code').fill(await emailCode(account.email, requestedAt));
+  await page.getByRole('button', { name: 'Log in', exact: true }).click();
+  await expect(page).toHaveURL('/settings/passkey?next=%2Fsaved');
+  await expect(page.getByRole('heading', { level: 1, name: 'Log in faster next time' })).toBeVisible();
+  await page.getByRole('button', { name: 'Not now' }).click();
+  await expect(page).toHaveURL('/saved');
+
+  // "Not now" is remembered on this browser.
+  await page.goto('/athlete');
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await logIn(page, account.email);
+  await expect(page).toHaveURL('/athlete');
+});
+
+test('a password is optional when signing up', async ({ page }) => {
+  const email = uniqueEmail('nopassword');
+  const requestedAt = new Date(Date.now() - 2000);
+  await page.goto('/signup');
+  await fillBirthDate(page, yearsAgo(19));
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('radio', { name: /Student-athlete/ }).check();
+  await page.getByLabel('Your name').fill('No Password');
+  await page.getByLabel('Email', { exact: true }).fill(email);
+  await page.getByRole('button', { name: 'Email me a code' }).click();
+  await reachVerifyPage(page);
+  await page.getByLabel('6-digit code').fill(await emailCode(email, requestedAt));
+  await page.getByRole('button', { name: 'Create my account' }).click();
+  await expect(page).toHaveURL('/athlete');
+  await expect(page.getByRole('heading', { level: 1, name: 'Welcome, No Password' })).toBeVisible();
+});
+
+test('admin pages ask an administrator who logged in with a password to confirm with a passkey', async ({ page }) => {
+  const email = process.env.E2E_ADMIN_EMAIL ?? 'e2e-admin@example.test';
+  await page.goto('/login');
+  await page.getByLabel('Email', { exact: true }).fill(email);
+  await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+  await page.getByRole('button', { name: 'Log in', exact: true }).click();
+  await page.waitForURL((url) => url.pathname !== '/login');
+  await page.goto('/admin');
+  await expect(page.getByRole('heading', { level: 1, name: 'Confirm it’s you' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Confirm with Face ID or fingerprint' })).toBeVisible();
+});
+
+test('the database refuses administrator actions without a recent passkey check', async () => {
+  const client = publicClient();
+  const email = process.env.E2E_ADMIN_EMAIL ?? 'e2e-admin@example.test';
+  const { error: signInError } = await client.auth.signInWithPassword({ email, password: PASSWORD });
+  expect(signInError).toBeNull();
+  // Administrators can read every profile; without the check only their own.
+  const { data: ownOnly } = await client.from('profiles').select('id');
+  expect(ownOnly?.length).toBe(1);
+
+  const checked = await adminApiClient();
+  const { data: everyone } = await checked.from('profiles').select('id');
+  expect(everyone?.length ?? 0).toBeGreaterThan(1);
 });

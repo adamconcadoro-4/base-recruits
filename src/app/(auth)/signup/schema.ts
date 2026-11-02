@@ -27,12 +27,25 @@ export const codeOnlySchema = z.object({
   code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code from the email.'),
 });
 
+const passwordRule = z
+  .string()
+  .min(MINIMUM_PASSWORD_LENGTH, `Use at least ${MINIMUM_PASSWORD_LENGTH} characters.`)
+  .refine((value) => new TextEncoder().encode(value).length <= MAXIMUM_PASSWORD_BYTES, 'Use a shorter password.');
+
+/** Password reset: the code and a new password. */
 export const verificationSchema = z.object({
   code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code from the email.'),
-  password: z
-    .string()
-    .min(MINIMUM_PASSWORD_LENGTH, `Use at least ${MINIMUM_PASSWORD_LENGTH} characters.`)
-    .refine((value) => new TextEncoder().encode(value).length <= MAXIMUM_PASSWORD_BYTES, 'Use a shorter password.'),
+  password: passwordRule,
+});
+
+/** Sign-up: the code, and a password only if the person wants one (Face ID or emailed codes work without). */
+export const signupVerificationSchema = z.object({
+  code: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code from the email.'),
+  password: z.string().superRefine((value, context) => {
+    if (value === '') return;
+    const result = passwordRule.safeParse(value);
+    if (!result.success) context.addIssue({ code: 'custom', message: result.error.issues[0]?.message ?? 'Choose a stronger password.' });
+  }),
 });
 
 /** "2008-03-07" from month/day/year fields. */
