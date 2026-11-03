@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isTeamEmail, privateSiteDecision, siteAccessAllowed, sitePrivate, teamCode, teamCodeHtml } from '@/config/site-access';
+import { emailSignInRefused, isTeamEmail, privateSiteDecision, siteAccessAllowed, sitePrivate, teamCode, teamCodeHtml } from '@/config/site-access';
 import { sameText, teamPassValid, teamPassValue } from '@/lib/auth/team-pass';
 import { indexingAllowed } from '@/lib/seo/indexing';
 
@@ -105,5 +105,18 @@ describe('team code in front of sign-in (SITE_TEAM_CODE)', () => {
   it('shows the error only after a wrong code', () => {
     expect(teamCodeHtml({ wrong: false })).not.toContain('role="alert"');
     expect(teamCodeHtml({ wrong: true })).toContain('That code isn');
+  });
+});
+
+describe('sign-in lock while private', () => {
+  it('refuses every email except the two team emails', () => {
+    expect(emailSignInRefused('adamconcadoro@gmail.com', PRIVATE)).toBe(false);
+    expect(emailSignInRefused(' JCaceres120@gmail.com ', PRIVATE)).toBe(false);
+    expect(emailSignInRefused('someone@example.com', PRIVATE)).toBe(true);
+    expect(emailSignInRefused('player-1234abcd@test.baserecruits.app', PRIVATE)).toBe(true);
+  });
+
+  it('refuses nothing once the site is public again', () => {
+    expect(emailSignInRefused('someone@example.com', PUBLIC)).toBe(false);
   });
 });

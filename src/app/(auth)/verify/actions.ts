@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { codeOnlySchema, signupVerificationSchema, verificationSchema } from '@/app/(auth)/signup/schema';
+import { emailSignInRefused, TEAM_ONLY_SIGN_IN_MESSAGE } from '@/config/site-access';
 import { checkBirthDate, todayUtc } from '@/lib/age/age-policy';
 import { afterSignInPath } from '@/lib/auth/after-sign-in';
 import { blockAgeGate } from '@/lib/auth/age-gate';
@@ -25,6 +26,10 @@ const START_AGAIN = 'This code request has expired. Start again to get a new cod
 export async function verifyCodeAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const pending = await readPendingVerification();
   if (!pending) return failure(START_AGAIN);
+  if (emailSignInRefused(pending.email)) {
+    await clearPendingVerification();
+    return failure(TEAM_ONLY_SIGN_IN_MESSAGE);
+  }
   if (pending.purpose === 'login') return logInWithCode(pending.email, pending.next, formData);
 
   const parsed = (pending.purpose === 'signup' ? signupVerificationSchema : verificationSchema).safeParse({
@@ -129,6 +134,7 @@ async function logInWithCode(email: string, next: string | undefined, formData: 
 export async function resendCodeAction(_previous: ActionState, _formData: FormData): Promise<ActionState> {
   const pending = await readPendingVerification();
   if (!pending) return failure(START_AGAIN);
+  if (emailSignInRefused(pending.email)) return failure(TEAM_ONLY_SIGN_IN_MESSAGE);
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email: pending.email,

@@ -81,6 +81,19 @@ export function isTeamEmail(email: string | null | undefined): boolean {
   return SITE_TEAM_EMAILS.some((teamEmail) => teamEmail === normalized);
 }
 
+/**
+ * Sign-in lock (founder, 2026-11-03: "dont allow email to log in besides
+ * adamconcadoro@gmail.com & jcaceres120@gmail.com"). While the site is private,
+ * the password, emailed-code, reset and sign-up forms refuse every other email
+ * before anything is sent. Test accounts are not affected: an administrator
+ * opens them from Admin → Test accounts and they never sign in by email.
+ */
+export function emailSignInRefused(email: string, env: Readonly<Record<string, string | undefined>> = process.env): boolean {
+  return sitePrivate(env) && !isTeamEmail(email);
+}
+
+export const TEAM_ONLY_SIGN_IN_MESSAGE = 'Sign-in is limited to the Base Recruits team right now.';
+
 function openWhilePrivate(pathname: string): boolean {
   return OPEN_WHILE_PRIVATE.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }

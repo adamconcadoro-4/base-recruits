@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { emailSchema } from '@/app/(auth)/signup/schema';
+import { emailSignInRefused, TEAM_ONLY_SIGN_IN_MESSAGE } from '@/config/site-access';
 import { setPendingVerification } from '@/lib/auth/pending-verification';
 import { failure, field, withDiagnostics, type ActionState } from '@/lib/forms/action-state';
 import { createClient } from '@/lib/supabase/server';
@@ -15,6 +16,7 @@ import { createClient } from '@/lib/supabase/server';
 export async function requestResetAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = emailSchema.safeParse(field(formData, 'email'));
   if (!parsed.success) return failure('Enter a valid email address.', { email: 'Enter a valid email address.' });
+  if (emailSignInRefused(parsed.data)) return failure(TEAM_ONLY_SIGN_IN_MESSAGE, { email: TEAM_ONLY_SIGN_IN_MESSAGE });
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({ email: parsed.data, options: { shouldCreateUser: false } });

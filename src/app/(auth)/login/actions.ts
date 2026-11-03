@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 
 import { emailSchema } from '@/app/(auth)/signup/schema';
+import { emailSignInRefused, TEAM_ONLY_SIGN_IN_MESSAGE } from '@/config/site-access';
 import { afterSignInPath } from '@/lib/auth/after-sign-in';
 import { setPendingVerification } from '@/lib/auth/pending-verification';
 import { safeNextPath } from '@/lib/auth/route-access';
@@ -20,6 +21,8 @@ export async function logInAction(_previous: ActionState, formData: FormData): P
       ...(password ? {} : { password: 'Enter your password.' }),
     });
   }
+
+  if (emailSignInRefused(email)) return failure(TEAM_ONLY_SIGN_IN_MESSAGE, { email: TEAM_ONLY_SIGN_IN_MESSAGE });
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -44,6 +47,7 @@ export async function logInAction(_previous: ActionState, formData: FormData): P
 export async function requestLoginCodeAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const parsed = emailSchema.safeParse(field(formData, 'email'));
   if (!parsed.success) return failure('Enter a valid email address.', { email: 'Enter a valid email address.' });
+  if (emailSignInRefused(parsed.data)) return failure(TEAM_ONLY_SIGN_IN_MESSAGE, { email: TEAM_ONLY_SIGN_IN_MESSAGE });
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({ email: parsed.data, options: { shouldCreateUser: false } });
