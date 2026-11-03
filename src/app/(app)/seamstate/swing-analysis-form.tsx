@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from 'react';
 
-import { requestSwingAnalysisAction } from '@/app/(app)/assessment/seamstate-actions';
+import { requestSwingAnalysisAction } from '@/app/(app)/seamstate/actions';
 import { SelectField, TextField } from '@/components/ui/field';
 import { SubmitButton } from '@/components/ui/submit-button';
 import { CAMERA_VIEWS, CAMERA_VIEW_LABELS, PITCH_TYPE_LABELS } from '@/lib/assessment/catalog/context';
@@ -59,13 +59,11 @@ function PitchOptions() {
  * view is optional.
  */
 export function SwingAnalysisForm({
-  assessmentId,
   mediaId,
   requestKey,
   defaultSide,
   defaultView,
 }: {
-  readonly assessmentId: string;
   readonly mediaId: string;
   /** Made on the server for this page view, so a double submit is one request. */
   readonly requestKey: string;
@@ -79,7 +77,6 @@ export function SwingAnalysisForm({
 
   return (
     <form action={formAction} className="space-y-5">
-      <input type="hidden" name="assessmentId" value={assessmentId} />
       <input type="hidden" name="mediaId" value={mediaId} />
       <input type="hidden" name="requestKey" value={requestKey} />
       <div className="grid gap-4 md:grid-cols-3">

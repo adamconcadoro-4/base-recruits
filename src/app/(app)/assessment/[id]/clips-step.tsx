@@ -1,22 +1,16 @@
 import Link from 'next/link';
 
 import { ClipUploader } from '@/app/(app)/assessment/[id]/clip-uploader';
-import { ClipSwingAnalysis, SwingAnalysisIntro } from '@/app/(app)/assessment/[id]/swing-analysis';
 import { removeMediaAction, updateMediaAction } from '@/app/(app)/assessment/media-actions';
 import { ActionForm } from '@/components/assessment/action-form';
 import { formatDateTime } from '@/components/assessment/result-format';
 import { SelectField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { CAMERA_VIEWS, CAMERA_VIEW_LABELS, TIMING_BASIS_LABELS } from '@/lib/assessment/catalog/context';
-import { getMediaForAssessment, getVideoOpen, type AssessmentRow } from '@/lib/assessment/server/queries';
+import { athleteQuery } from '@/lib/assessment/server/page-context';
+import { getMediaForAssessment, getVideoOpen, listAthletes, type AssessmentRow } from '@/lib/assessment/server/queries';
 import { TIMING_BASES, type AssessmentRelation } from '@/lib/assessment/types';
-import { seamstateReadiness } from '@/lib/seamstate/server/config';
-import {
-  getLatestJobsForClips,
-  getOwnSeamstateGrantId,
-  getSeamstatePermission,
-  getSeamstateSwitches,
-} from '@/lib/seamstate/server/queries';
+import { getSeamstateSwitches } from '@/lib/seamstate/server/queries';
 
 function sizeText(bytes: number): string {
   return bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
@@ -31,28 +25,20 @@ export async function ClipsStep({
   readonly videoEnabled: boolean;
   readonly relation: AssessmentRelation;
 }) {
-  const [clips, videoOpen] = await Promise.all([
+  const hitting = row.discipline === 'hitting';
+  const [clips, videoOpen, switches, athletes] = await Promise.all([
     getMediaForAssessment(row.id),
     videoEnabled ? getVideoOpen(row.athlete_id) : Promise.resolve(false),
+    hitting && videoEnabled ? getSeamstateSwitches() : Promise.resolve(null),
+    listAthletes(),
   ]);
   const ready = clips.filter((clip) => clip.status === 'uploaded');
   const unit = row.discipline === 'hitting' ? 'swings' : 'pitches';
 
-  // SeamState analyzes hitting clips only, and its screens show only while an administrator has it switched on.
-  // The privacy sentence below describes what it sends (decision F36).
-  const hitting = row.discipline === 'hitting';
-  const [switches, permission, jobs, grantId] = hitting
-    ? await Promise.all([
-        getSeamstateSwitches(),
-        getSeamstatePermission(row.athlete_id),
-        getLatestJobsForClips(ready.map((clip) => clip.id)),
-        relation === 'athlete' ? getOwnSeamstateGrantId() : Promise.resolve(null),
-      ])
-    : [null, 'unknown' as const, new Map(), null];
+  // SeamState (AI swing reports) is separate from Assessment and has its own page; hitting clips point to it.
+  // The privacy sentence below describes what SeamState sends (decision F36).
   const seamstateOn = hitting && videoEnabled && Boolean(switches?.enabled);
-  const available = seamstateOn && seamstateReadiness().ready;
-  const canRequest = available && permission === 'allowed';
-  const defaultSide = row.bats === 'right' || row.bats === 'left' ? row.bats : null;
+  const athlete = athletes.data.find((option) => option.athlete_id === row.athlete_id) ?? null;
 
   return (
     <div className="space-y-8">
@@ -63,7 +49,7 @@ export async function ClipsStep({
         </p>
         <p className="text-sm text-slate">
           Video is stored privately, and you can delete a clip at any time. Nothing is sent to an outside analysis service unless you
-          ask for an Assessment swing analysis. Then our own video service reads that clip, and only still frames, cropped to the
+          ask for a SeamState swing analysis. Then our own video service reads that clip, and only still frames, cropped to the
           hitter and without a name, go to our AI provider.
         </p>
       </div>
@@ -83,7 +69,13 @@ export async function ClipsStep({
       )}
 
       {seamstateOn ? (
-        <SwingAnalysisIntro assessmentId={row.id} available={available} permission={permission} relation={relation} grantId={grantId} />
+        <Notice title="Want an AI report on a swing clip?">
+          That’s SeamState, which is separate from this assessment.{' '}
+          <Link href={`/seamstate${athleteQuery(athlete)}`} className="font-semibold text-royal-ink underline">
+            Go to SeamState
+          </Link>{' '}
+          to upload a clip there and get a swing report.
+        </Notice>
       ) : null}
 
       <div className="space-y-4">
@@ -113,16 +105,6 @@ export async function ClipsStep({
                     </Link>
                   ) : null}
                 </div>
-                {seamstateOn && clip.status === 'uploaded' ? (
-                  <ClipSwingAnalysis
-                    assessmentId={row.id}
-                    mediaId={clip.id}
-                    job={jobs.get(clip.id)}
-                    canRequest={canRequest}
-                    defaultSide={defaultSide}
-                    defaultView={clip.camera_view}
-                  />
-                ) : null}
                 <details>
                   <summary className="cursor-pointer font-semibold text-royal-ink underline">Edit or remove</summary>
                   <div className="mt-4 grid gap-6 lg:grid-cols-[2fr_1fr]">

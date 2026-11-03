@@ -13,6 +13,8 @@ export function AppHeader({ account }: { readonly account: Account }) {
   const homes = signedIn ? account.roles : [];
   // The development coach's home is Assessment, so the separate link is only for other roles.
   const showAssessment = signedIn && assessmentSiteEnabled() && !account.roles.includes('development_coach');
+  // SeamState (AI swing reports) is separate from Assessment, so it has its own link for everyone, coaches included.
+  const showSeamstate = signedIn && assessmentSiteEnabled();
   return (
     <>
       {account.isTestAccount ? (
@@ -48,6 +50,11 @@ export function AppHeader({ account }: { readonly account: Account }) {
             {showAssessment ? (
               <Link href="/assessment" className="rounded-md px-3 py-2 font-semibold text-white no-underline hover:bg-white/10">
                 Assessment
+              </Link>
+            ) : null}
+            {showSeamstate ? (
+              <Link href="/seamstate" className="rounded-md px-3 py-2 font-semibold text-white no-underline hover:bg-white/10">
+                SeamState
               </Link>
             ) : null}
             <Link href="/settings" className="rounded-md px-3 py-2 font-semibold text-white no-underline hover:bg-white/10">

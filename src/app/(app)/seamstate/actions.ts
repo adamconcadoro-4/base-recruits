@@ -21,8 +21,7 @@ import { createClient } from '@/lib/supabase/server';
 export async function requestSwingAnalysisAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
   const off = switchedOff();
   if (off) return off;
-  if (!seamstateReadiness().ready) return failure('Swing analysis isn’t available yet.');
-  const assessmentId = field(formData, 'assessmentId');
+  if (!seamstateReadiness().ready) return failure('SeamState isn’t available yet.');
   const capture = captureFromForm(formData);
   if (!capture.ok) return failure(capture.message, capture.fieldErrors);
   const supabase = await createClient();
@@ -40,15 +39,14 @@ export async function requestSwingAnalysisAction(_previous: ActionState, formDat
   after(async () => {
     await dispatchDueJobs();
   });
-  revalidatePath(`/assessment/${assessmentId}`);
+  revalidatePath('/seamstate');
   return success(row?.created === false ? 'This clip is already being analyzed.' : 'Analysis requested. This page shows each step as it happens.');
 }
 
 export async function cancelSwingAnalysisAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
-  const assessmentId = field(formData, 'assessmentId');
   const { error } = await callRpc('seamstate_cancel_analysis', { p_job_id: field(formData, 'jobId') });
   if (error) return failure(error);
-  revalidatePath(`/assessment/${assessmentId}`);
+  revalidatePath('/seamstate');
   return success('Analysis cancelled.');
 }
 
@@ -63,12 +61,12 @@ export async function allowSwingAnalysisAction(_previous: ActionState, formData:
   });
   if (error) return failure(withDiagnostics(userMessageForDatabaseError(error), error));
   const row = (Array.isArray(data) ? data[0] : data) as { status?: string } | null;
-  revalidatePath(`/assessment/${field(formData, 'assessmentId')}`);
+  revalidatePath('/seamstate');
   revalidatePath('/athlete');
   return success(
     row?.status === 'pending_guardian'
       ? 'Saved. A linked parent or legal guardian needs to approve this from their account before any clip is analyzed.'
-      : 'Saved. You can now ask for a swing analysis. You can turn this off at any time.',
+      : 'Saved. You can now ask SeamState to analyze a clip. You can turn this off at any time.',
   );
 }
 
@@ -77,9 +75,9 @@ export async function stopSwingAnalysisPermissionAction(_previous: ActionState, 
   const supabase = await createClient();
   const { error } = await supabase.rpc('revoke_consent', { p_grant_id: field(formData, 'grantId') });
   if (error) return failure(withDiagnostics(userMessageForDatabaseError(error), error));
-  revalidatePath(`/assessment/${field(formData, 'assessmentId')}`);
+  revalidatePath('/seamstate');
   revalidatePath('/athlete');
-  return success('Assessment swing analysis is off. Nothing more is sent, and any analysis under way is cancelled.');
+  return success('SeamState is off. Nothing more is sent, and any analysis under way is cancelled.');
 }
 
 export async function reviewFindingAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
@@ -89,6 +87,19 @@ export async function reviewFindingAction(_previous: ActionState, formData: Form
   if (action === 'note' && !note) return failure('Write a note first.', { note: 'Write a note.' });
   const { error } = await callRpc('seamstate_review_finding', { p_finding_id: field(formData, 'findingId'), p_action: action, p_note: note });
   if (error) return failure(error);
-  revalidatePath(`/assessment/${field(formData, 'assessmentId')}/swing/${field(formData, 'jobId')}`);
+  revalidatePath(`/seamstate/report/${field(formData, 'jobId')}`);
   return success(action === 'approve' ? 'Approved.' : action === 'reject' ? 'Rejected. The finding stays visible, marked as rejected.' : 'Note added.');
+}
+
+/**
+ * The athlete's SeamState clip holder, so a clip can be uploaded without
+ * starting an assessment. The database creates it on first use, and only for
+ * people who can work on the athlete while uploads are open to them (18+).
+ */
+export async function openSeamstateClipsAction(athleteId: string): Promise<{ readonly ok: true; readonly assessmentId: string } | { readonly ok: false; readonly message: string }> {
+  const off = switchedOff();
+  if (off) return { ok: false, message: off.message ?? 'SeamState isn’t available yet.' };
+  const { data, error } = await callRpc<string>('seamstate_clip_home', { p_athlete_id: athleteId });
+  if (error || typeof data !== 'string') return { ok: false, message: error ?? 'We couldn’t start the upload.' };
+  return { ok: true, assessmentId: data };
 }

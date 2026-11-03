@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import { ClipsStep } from '@/app/(app)/assessment/[id]/clips-step';
 import { DetailsForm } from '@/app/(app)/assessment/[id]/details-form';
@@ -13,7 +13,7 @@ import { formatDateOnly } from '@/components/assessment/result-format';
 import { AssessmentStatusChip, protocolTitle } from '@/components/assessment/summaries';
 import { Notice } from '@/components/ui/notice';
 import { requireProtocol } from '@/lib/assessment/catalog/protocols';
-import { single, type SearchParams } from '@/lib/assessment/server/page-context';
+import { athleteQuery, single, type SearchParams } from '@/lib/assessment/server/page-context';
 import { getAssessment, getSwitches, listAthletes } from '@/lib/assessment/server/queries';
 import { cn } from '@/lib/utils/cn';
 
@@ -52,6 +52,8 @@ export default async function AssessmentWorkspacePage({
   if (!row) notFound();
   const athlete = athletes.data.find((option) => option.athlete_id === row.athlete_id);
   if (!athlete) notFound();
+  // SeamState clips are kept in a hidden holder, not an assessment; they have their own page.
+  if (row.purpose === 'seamstate_clips') redirect(`/seamstate${athleteQuery(athlete)}`);
 
   const definition = requireProtocol(row.protocol_key, row.protocol_version);
   const published = row.status === 'published';

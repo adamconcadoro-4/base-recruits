@@ -1,6 +1,6 @@
 # SeamState — Base Recruits Assessment engine (design, Milestone 1)
 
-> **Name on the site (F59, 2026-11-02):** people see this feature as **Assessment swing analysis**. "SeamState" stays as the internal name in code, the database, environment variables and the `seamstate-worker` service.
+> **Name and place on the site (F60, 2026-11-03):** SeamState is separate from Assessment again and is called **SeamState** on the site. It has its own page, `/seamstate` (header link "SeamState"), where a player uploads a clip and asks for a report without starting an assessment; reports are at `/seamstate/report/[jobId]`. Assessment clips no longer offer an analysis and link to SeamState instead. Clips uploaded there are kept in one hidden holder row per athlete (`assessments.purpose = 'seamstate_clips'`, made by `seamstate_clip_home`), so uploads, storage paths, permissions and the worker are unchanged. The holder never leaves draft and is left out of assessment lists. (F59's "Assessment swing analysis" wording, 2026-11-02, is replaced.)
 
 Status: **design approved 2026-10-27 (F30–F35); build in progress on a branch.** Nothing in this document is built yet unless a section says so. SeamState lives inside
 Assessment (`docs/assessment.md`), uses the same accounts, athletes, relations, switches and private storage, and stays
@@ -223,19 +223,20 @@ three settings (Milestone 4) follow.
 
 ### Screens as built
 
-- **Clips step** (`src/app/(app)/assessment/[id]/clips-step.tsx`, hitting assessments only). When SeamState is on, a
-  "SeamState swing analysis" panel explains the permission and lets the athlete allow it (`grant_consent`,
+- **SeamState page** (`src/app/(app)/seamstate/page.tsx`, since F60). Before F60 this lived in the assessment clips step;
+  that step now only links here. A "Permission" panel explains the permission and lets the athlete allow it (`grant_consent`,
   `seamstate_analysis`) or turn it off (`revoke_consent`, which cancels anything under way). A parent or coach sees
   what the athlete still has to do. Each uploaded clip gets a swing-details form (setting first; only that setting's
   questions are shown) and then its job status with the real stage name, refreshed every 5 seconds while it runs,
-  with a cancel button. The privacy sentence under the clips (and on the public Player Assessment page) says what
+  with a cancel button. The page also lists every SeamState report for the athlete, including ones made from assessment
+  clips before F60. The privacy sentence on this page, under assessment clips and on the public Player Assessment page says what
   SeamState sends, in the founder's approved wording (F36).
 - **The lock** (F36). `seamstate_enabled()` and `admin_set_seamstate_settings` require
   `private.seamstate_settings.outside_analysis_disclosed`, which no function sets. It was false while the site promised
   video was never sent to an outside analysis service; migration `20261028000500_seamstate_disclosure` set it with the
   approved replacement wording. A unit test (`tests/unit/seamstate-screens.test.ts`) fails if any migration sets it while
   either page still makes the old promise, and checks the approved wording on both pages.
-- **Swing report** (`/assessment/[id]/swing/[jobId]`): the video-check result with retake advice and which swings
+- **Swing report** (`/seamstate/report/[jobId]`; the old `/assessment/[id]/swing/[jobId]` links redirect there): the video-check result with retake advice and which swings
   were not counted (F37), then "What looks
   effective", "Possible adjustments" (with "Also noted"), "Your next practice" (experiment, cue, catalog drills
   labelled if not yet coach-reviewed, how to check it again) and "What this video cannot tell us". Every finding shows

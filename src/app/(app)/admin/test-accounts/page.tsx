@@ -37,7 +37,7 @@ export default async function TestAccountsPage() {
   return (
     <>
       <PageTitle title="Test accounts">
-        Try the site as a player or a parent, including uploading clips and requesting an Assessment swing analysis.{' '}
+        Try the site as a player or a parent, including uploading clips and requesting a SeamState swing analysis.{' '}
         <Link href="/admin" className="font-semibold text-royal-ink underline">
           Back to Admin
         </Link>
@@ -50,7 +50,7 @@ export default async function TestAccountsPage() {
         >
           <ul className="max-w-2xl list-disc space-y-2 pl-6">
             <li>Opening a test account signs this browser in as that player or parent. A colored bar stays at the top with a button back to your admin account.</li>
-            <li>Everything follows the same rules as for real families: video uploads and Assessment swing analysis only for players 18 or older, and the usual swing analysis limits per person.</li>
+            <li>Everything follows the same rules as for real families: video uploads and SeamState only for players 18 or older, and the usual SeamState limits per person.</li>
             <li>Swing analyses from a test player are real paid requests and count toward the site-wide monthly limit.</li>
             <li>College coaches never find test players in search. Every switch is recorded in the audit log.</li>
           </ul>
@@ -62,7 +62,7 @@ export default async function TestAccountsPage() {
               <legend className="font-semibold">Test player&apos;s age</legend>
               <label className="flex min-h-11 items-center gap-3">
                 <input type="radio" name="age" value="adult" defaultChecked className="size-5" />
-                18 or older (can upload clips and use Assessment swing analysis)
+                18 or older (can upload clips and use SeamState)
               </label>
               <label className="flex min-h-11 items-center gap-3">
                 <input type="radio" name="age" value="under_18" className="size-5" />

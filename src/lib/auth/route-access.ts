@@ -53,6 +53,8 @@ export const PROTECTED_ROUTES: readonly ProtectedRoute[] = [
   { prefix: '/admin', requirement: { role: 'admin' } },
   // Assessment: any onboarded account; what each person can see is decided by the database.
   { prefix: '/assessment', requirement: {}, signedOutPath: '/player-assessment' },
+  // SeamState: separate from Assessment, same rule.
+  { prefix: '/seamstate', requirement: {}, signedOutPath: '/player-assessment' },
 ];
 
 /**

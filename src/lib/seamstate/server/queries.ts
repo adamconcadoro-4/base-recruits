@@ -114,6 +114,48 @@ export async function getLatestJobsForClips(mediaIds: readonly string[]): Promis
   return latest;
 }
 
+export interface ReportListItem {
+  readonly jobId: string;
+  readonly state: JobState;
+  readonly createdAt: string;
+  readonly setting: CaptureSetting;
+  readonly cameraView: string;
+  readonly clipName: string | null;
+}
+
+/** Every SeamState request for the athlete, newest first, including ones made from older assessment clips. */
+export async function listSeamstateReports(athleteId: string): Promise<{ readonly data: readonly ReportListItem[]; readonly failed: boolean }> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('seamstate_jobs')
+    .select('id, state, created_at, seamstate_captures(setting, camera_view, assessment_media(label, original_name))')
+    .eq('athlete_id', athleteId)
+    .order('created_at', { ascending: false })
+    .limit(100);
+  type Row = {
+    id: string;
+    state: JobState;
+    created_at: string;
+    seamstate_captures: {
+      setting: CaptureSetting;
+      camera_view: string;
+      assessment_media: { label: string | null; original_name: string | null } | null;
+    } | null;
+  };
+  const rows = ((data ?? []) as unknown as Row[]).filter((row) => row.seamstate_captures);
+  return {
+    failed: Boolean(error),
+    data: rows.map((row) => ({
+      jobId: row.id,
+      state: row.state,
+      createdAt: row.created_at,
+      setting: row.seamstate_captures!.setting,
+      cameraView: row.seamstate_captures!.camera_view,
+      clipName: row.seamstate_captures!.assessment_media?.label ?? row.seamstate_captures!.assessment_media?.original_name ?? null,
+    })),
+  };
+}
+
 export interface FindingRow {
   readonly id: string;
   readonly position: number;
