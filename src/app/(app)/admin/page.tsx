@@ -181,7 +181,7 @@ export default async function AdminPage() {
         {assessmentSiteEnabled() ? (
           <DashboardSection
             id="seamstate"
-            title="Assessment swing analysis"
+            title="SeamState"
             description="Each analysis sends up to 24 still frames to the AI provider and is billed by the provider. The monthly limit stops new requests once it is reached; it starts at 0. Athletes under 18 stay excluded until you include them below."
           >
             <div className="space-y-4">
@@ -194,7 +194,7 @@ export default async function AdminPage() {
               ) : null}
               {seamstate && !seamstate.outsideAnalysisDisclosed ? (
                 <Notice tone="attention" title="Locked off">
-                  The site’s privacy wording does not yet describe the still frames Assessment swing analysis sends to an AI provider. It cannot be
+                  The site’s privacy wording does not yet describe the still frames SeamState sends to an AI provider. It cannot be
                   turned on until that wording is replaced through an approved site update.
                 </Notice>
               ) : null}
@@ -203,7 +203,7 @@ export default async function AdminPage() {
                   <p>
                     Analyses requested this month: {seamstate.usedThisMonth ?? 0} of {seamstate.monthlyLimit}.
                   </p>
-                  <ActionForm action={setSeamstateSettingsAction} submitLabel="Save swing analysis settings" variant="secondary">
+                  <ActionForm action={setSeamstateSettingsAction} submitLabel="Save SeamState settings" variant="secondary">
                     <label className="flex min-h-11 items-center gap-3">
                       <input
                         type="checkbox"
@@ -212,7 +212,7 @@ export default async function AdminPage() {
                         disabled={!seamstate.outsideAnalysisDisclosed}
                         className="size-5"
                       />
-                      Assessment swing analysis is on (needs Assessment and video uploads on)
+                      SeamState is on (needs Assessment and video uploads on)
                     </label>
                     <label className="flex min-h-11 items-center gap-3">
                       <input type="checkbox" name="minors_enabled" defaultChecked={seamstate.minorsEnabled} className="size-5" />
@@ -226,7 +226,7 @@ export default async function AdminPage() {
                   </ActionForm>
                 </>
               ) : (
-                <Notice tone="error">The swing analysis settings didn&apos;t load. Refresh to try again.</Notice>
+                <Notice tone="error">The SeamState settings didn&apos;t load. Refresh to try again.</Notice>
               )}
             </div>
           </DashboardSection>

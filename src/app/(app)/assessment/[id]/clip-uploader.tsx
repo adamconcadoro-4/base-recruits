@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
 import { beginUploadAction, cancelUploadAction, completeUploadAction } from '@/app/(app)/assessment/media-actions';
+import { openSeamstateClipsAction } from '@/app/(app)/seamstate/actions';
 import { Button } from '@/components/ui/button';
 import {
   CAMERA_VIEWS,
@@ -63,9 +64,10 @@ function sendFile(url: string, file: File, onProgress: (percent: number) => void
 /**
  * Uploads one clip to private storage: checks type and size first, registers
  * the clip, sends the file with a progress bar, then confirms it. Uploading
- * sends nothing to any analysis service.
+ * sends nothing to any analysis service. On the SeamState page the clip goes
+ * to the athlete's SeamState clips instead of an assessment.
  */
-export function ClipUploader({ assessmentId }: { readonly assessmentId: string }) {
+export function ClipUploader(props: { readonly assessmentId: string } | { readonly seamstateAthleteId: string }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
@@ -95,6 +97,17 @@ export function ClipUploader({ assessmentId }: { readonly assessmentId: string }
     const view = data.get('camera_view');
 
     setPhase({ kind: 'uploading', percent: 0 });
+    let assessmentId: string;
+    if ('assessmentId' in props) {
+      assessmentId = props.assessmentId;
+    } else {
+      const home = await openSeamstateClipsAction(props.seamstateAthleteId);
+      if (!home.ok) {
+        setPhase({ kind: 'error', message: home.message });
+        return;
+      }
+      assessmentId = home.assessmentId;
+    }
     const duration = await videoDuration(file);
     const started = await beginUploadAction({
       assessmentId,

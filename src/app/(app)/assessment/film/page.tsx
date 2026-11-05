@@ -78,7 +78,8 @@ export default async function FilmRoomPage({ searchParams }: { readonly searchPa
     const compare = compareMedia && compareMedia.status === 'uploaded' ? await loadClip(compareMedia) : null;
     if (assessment && clip) {
       const protocolDefinition = requireProtocol(assessment.protocol_key, assessment.protocol_version);
-      const intervalMetrics = protocolDefinition.metrics
+      // SeamState clips belong to no assessment, so no timing is recorded from them.
+      const intervalMetrics = (assessment.purpose === 'seamstate_clips' ? [] : protocolDefinition.metrics)
         .map((item) => requireMetric(item.key))
         .filter((metric) => metric.markers)
         .map((metric) => ({

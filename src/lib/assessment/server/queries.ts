@@ -67,6 +67,8 @@ export interface AssessmentRow {
   readonly reviewed_at: string | null;
   readonly created_at: string;
   readonly updated_at: string;
+  /** 'seamstate_clips' marks the athlete's hidden SeamState clip holder, which is not an assessment. */
+  readonly purpose: 'assessment' | 'seamstate_clips';
 }
 
 export interface RepetitionRow {
@@ -249,7 +251,7 @@ export interface Loaded<T> {
 }
 
 const ASSESSMENT_COLUMNS =
-  'id, athlete_id, discipline, mode, protocol_key, protocol_version, status, assessment_date, age_band, competition_level, bats, throws, drill_type, equipment, bat_details, camera_views, environment, surface, capture_limitations, notes, rep_goal, baseline_assessment_id, reassessment_of_id, reassessment_due_on, draft_version, current_revision_id, last_reopen_reason, review_requested_at, reviewed_at, created_at, updated_at';
+  'id, athlete_id, discipline, mode, protocol_key, protocol_version, status, assessment_date, age_band, competition_level, bats, throws, drill_type, equipment, bat_details, camera_views, environment, surface, capture_limitations, notes, rep_goal, baseline_assessment_id, reassessment_of_id, reassessment_due_on, draft_version, current_revision_id, last_reopen_reason, review_requested_at, reviewed_at, created_at, updated_at, purpose';
 
 export const getSwitches = cache(async (): Promise<{ enabled: boolean; video_enabled: boolean } | null> => {
   const supabase = await createClient();
@@ -283,10 +285,23 @@ export async function listAssessments(athleteId: string): Promise<Loaded<Assessm
     .from('assessments')
     .select(ASSESSMENT_COLUMNS)
     .eq('athlete_id', athleteId)
+    .eq('purpose', 'assessment')
     .order('assessment_date', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(200);
   return { data: (data ?? []) as unknown as AssessmentRow[], failed: Boolean(error) };
+}
+
+/** The athlete's hidden SeamState clip holder, if one has been made yet. */
+export async function getSeamstateHolderId(athleteId: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('assessments')
+    .select('id')
+    .eq('athlete_id', athleteId)
+    .eq('purpose', 'seamstate_clips')
+    .maybeSingle();
+  return (data as { id: string } | null)?.id ?? null;
 }
 
 export const getAssessment = cache(async (id: string): Promise<AssessmentRow | null> => {

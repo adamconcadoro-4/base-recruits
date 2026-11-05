@@ -79,7 +79,7 @@ export async function setSeamstateSettingsAction(_previous: ActionState, formDat
   revalidatePath('/assessment', 'layout');
   return success(
     enabled
-      ? `Assessment swing analysis is on: up to ${daily} a day and ${personMonthly} a month per person and ${monthly} a month in total, ${minors ? 'including' : 'not including'} athletes under 18.`
-      : 'Assessment swing analysis is off. No new analyses can be requested.',
+      ? `SeamState is on: up to ${daily} a day and ${personMonthly} a month per person and ${monthly} a month in total, ${minors ? 'including' : 'not including'} athletes under 18.`
+      : 'SeamState is off. No new analyses can be requested.',
   );
 }

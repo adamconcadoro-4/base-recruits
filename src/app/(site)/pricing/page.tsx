@@ -29,7 +29,7 @@ function price(amount: number): string {
 /** The plan's bullets, with its SeamState allowance while Assessment is on the site. */
 function planFeatures(plan: PlanDefinition, assessmentOn: boolean): readonly string[] {
   if (!assessmentOn || plan.seamstateAnalysesPerMonth === 0) return plan.features;
-  const analyses = `${plan.seamstateAnalysesPerMonth} Assessment swing analyses a month (hitters 18 and older for now)`;
+  const analyses = `${plan.seamstateAnalysesPerMonth} SeamState swing analyses a month (hitters 18 and older for now)`;
   return [...plan.features, analyses];
 }
 

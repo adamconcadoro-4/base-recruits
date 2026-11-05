@@ -2,13 +2,13 @@ import { randomUUID } from 'node:crypto';
 
 import Link from 'next/link';
 
-import { JobRefresher } from '@/app/(app)/assessment/[id]/job-refresher';
-import { SwingAnalysisForm } from '@/app/(app)/assessment/[id]/swing-analysis-form';
+import { JobRefresher } from '@/app/(app)/seamstate/job-refresher';
+import { SwingAnalysisForm } from '@/app/(app)/seamstate/swing-analysis-form';
 import {
   allowSwingAnalysisAction,
   cancelSwingAnalysisAction,
   stopSwingAnalysisPermissionAction,
-} from '@/app/(app)/assessment/seamstate-actions';
+} from '@/app/(app)/seamstate/actions';
 import { ActionForm } from '@/components/assessment/action-form';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip, type ChipTone } from '@/components/ui/status-chip';
@@ -32,13 +32,11 @@ const STATE_TONES: Readonly<Record<JobState, ChipTone>> = {
 
 /** Permission for SeamState, shown once above the clips. */
 export function SwingAnalysisIntro({
-  assessmentId,
   available,
   permission,
   relation,
   grantId,
 }: {
-  readonly assessmentId: string;
   readonly available: boolean;
   readonly permission: SeamstatePermission;
   readonly relation: AssessmentRelation;
@@ -48,25 +46,23 @@ export function SwingAnalysisIntro({
   const scope = CONSENT_SCOPES.seamstate_analysis;
   return (
     <section aria-labelledby="seamstate-title" className="max-w-3xl space-y-3 border-2 border-rule p-5">
-      <h3 id="seamstate-title" className="text-2xl text-navy">
-        Assessment swing analysis
-      </h3>
-      <p>Record your swing. Understand what is working. Know what to practice next.</p>
+      <h2 id="seamstate-title" className="text-2xl text-navy">
+        Permission
+      </h2>
       {!available ? (
-        <p className="text-slate">Swing analysis isn’t available yet. You can still upload clips and mark them in the Film Room.</p>
+        <p className="text-slate">SeamState isn’t available yet. You can still upload clips and mark them in the Film Room.</p>
       ) : permission === 'not_open_to_minors' ? (
         <p className="text-slate">
-          Swing analysis is open to hitters 18 and older for now. You can still upload clips and mark them in the Film Room.
+          SeamState is open to hitters 18 and older for now.
         </p>
       ) : permission === 'allowed' ? (
         <p className="text-sm text-slate">
-          Permission is on. Choose a clip below and tell us how it was filmed. Each report is a provisional AI assessment until a
+          Permission is on. Choose a clip below and tell us how it was filmed. Each report is a provisional AI review until a
           development coach reviews it.
         </p>
       ) : permission === 'waiting_for_guardian' ? (
         <Notice tone="attention" title="Waiting for a parent or guardian">
-          A linked parent or legal guardian needs to approve Assessment swing analysis from their Base Recruits account before any clip is
-          analyzed.
+          A linked parent or legal guardian needs to approve SeamState from their Base Recruits account before any clip is analyzed.
         </Notice>
       ) : permission === 'not_allowed' && relation === 'athlete' ? (
         <div className="space-y-3">
@@ -75,22 +71,22 @@ export function SwingAnalysisIntro({
             Nothing is sent until you ask for an analysis of a specific clip. If you are under 18, a linked parent or legal guardian must
             approve this too. You can turn it off at any time.
           </p>
-          <ActionForm action={allowSwingAnalysisAction} fields={{ assessmentId }} submitLabel="Allow Assessment swing analysis" variant="secondary" size="sm" />
+          <ActionForm action={allowSwingAnalysisAction} submitLabel="Allow SeamState" variant="secondary" size="sm" />
         </div>
       ) : permission === 'not_allowed' ? (
-        <p className="text-slate">The athlete needs to allow Assessment swing analysis from their own account before a clip can be analyzed.</p>
+        <p className="text-slate">The athlete needs to allow SeamState from their own account before a clip can be analyzed.</p>
       ) : (
-        <p className="text-slate">We couldn’t load the permission for swing analysis. Refresh the page to try again.</p>
+        <p className="text-slate">We couldn’t load the permission for SeamState. Refresh the page to try again.</p>
       )}
       {grantId && (permission === 'allowed' || permission === 'waiting_for_guardian') ? (
         <ActionForm
           action={stopSwingAnalysisPermissionAction}
-          fields={{ assessmentId, grantId }}
-          submitLabel="Turn off Assessment swing analysis"
+          fields={{ grantId }}
+          submitLabel="Turn off SeamState"
           pendingLabel="Turning off…"
           variant="secondary"
           size="sm"
-          confirm="Turn off Assessment swing analysis? Nothing more is sent, and any analysis under way is cancelled. Finished reports stay."
+          confirm="Turn off SeamState? Nothing more is sent, and any analysis under way is cancelled. Finished reports stay."
         />
       ) : null}
     </section>
@@ -99,14 +95,12 @@ export function SwingAnalysisIntro({
 
 /** Analysis status, the report link and the request form for one uploaded hitting clip. */
 export function ClipSwingAnalysis({
-  assessmentId,
   mediaId,
   job,
   canRequest,
   defaultSide,
   defaultView,
 }: {
-  readonly assessmentId: string;
   readonly mediaId: string;
   readonly job: ClipJob | undefined;
   /** SeamState is available and the athlete has allowed it. */
@@ -117,13 +111,13 @@ export function ClipSwingAnalysis({
   if (!job && !canRequest) return null;
   const finished = job ? isTerminal(job.state) : true;
   const form = canRequest ? (
-    <SwingAnalysisForm assessmentId={assessmentId} mediaId={mediaId} requestKey={randomUUID()} defaultSide={defaultSide} defaultView={defaultView} />
+    <SwingAnalysisForm mediaId={mediaId} requestKey={randomUUID()} defaultSide={defaultSide} defaultView={defaultView} />
   ) : null;
 
   return (
     <div className="space-y-4 border-t-2 border-rule pt-4">
       <div className="flex flex-wrap items-center gap-3">
-        <p className="font-semibold">Swing analysis</p>
+        <p className="font-semibold">SeamState report</p>
         {job ? <StatusChip tone={STATE_TONES[job.state]}>{JOB_STATE_LABELS[job.state]}</StatusChip> : null}
       </div>
       {job && !finished ? (
@@ -136,7 +130,7 @@ export function ClipSwingAnalysis({
           )}
           <ActionForm
             action={cancelSwingAnalysisAction}
-            fields={{ assessmentId, jobId: job.id }}
+            fields={{ jobId: job.id }}
             submitLabel="Cancel analysis"
             pendingLabel="Cancelling…"
             variant="secondary"
@@ -145,7 +139,7 @@ export function ClipSwingAnalysis({
         </>
       ) : null}
       {job && (job.state === 'complete' || job.state === 'partial') ? (
-        <Link href={`/assessment/${assessmentId}/swing/${job.id}`} className="font-semibold text-royal-ink underline">
+        <Link href={`/seamstate/report/${job.id}`} className="font-semibold text-royal-ink underline">
           Open the swing report
         </Link>
       ) : null}

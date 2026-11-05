@@ -59,6 +59,7 @@ export async function completeUploadAction(input: {
   if (error) return { ok: false, message: error };
   revalidatePath(`/assessment/${input.assessmentId}`);
   revalidatePath('/assessment/film');
+  revalidatePath('/seamstate');
   return { ok: true };
 }
 
@@ -81,7 +82,7 @@ export async function updateMediaAction(_previous: ActionState, formData: FormDa
       p_slowdown_factor: factor === null || Number.isNaN(factor) ? null : factor,
     },
     'Clip details saved.',
-    [`/assessment/${id}`, '/assessment/film'],
+    [`/assessment/${id}`, '/assessment/film', '/seamstate'],
   );
 }
 
@@ -91,10 +92,11 @@ export async function removeMediaAction(_previous: ActionState, formData: FormDa
   const { data, error } = await callRpc<string>('remove_assessment_media', { p_media_id: field(formData, 'mediaId') });
   if (error) return failure(error);
   if (!(await deleteClipFiles([data]))) {
-    return failure('The clip was removed from the assessment, but its file could not be deleted yet. Please tell support.');
+    return failure('The clip was removed, but its file could not be deleted yet. Please tell support.');
   }
   revalidatePath(`/assessment/${id}`);
   revalidatePath('/assessment/film');
+  revalidatePath('/seamstate');
   return success('Clip removed and its file deleted.');
 }
 
