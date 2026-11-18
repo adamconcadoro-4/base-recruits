@@ -230,7 +230,7 @@ describe('with the rest of the engine', () => {
     historicalTestPolicy: null,
     currentPolicies: [],
   };
-  const student: ApplicantInput = { applicantType: 'first_year', entryYear: 2027, gpa: { value: 3.2, scale: 4, type: 'unweighted' }, sat: { erw: 560, math: 560 }, act: null, submitScores: 'yes' };
+  const student: ApplicantInput = { applicantType: 'first_year', entryYear: 2027, gpa: { value: 3.2, scale: 4, type: 'unweighted' }, sat: { total: 1120 }, act: null, submitScores: 'yes' };
 
   it('turns an in-range level into a full group, and a below level into "not in your suggestions"', () => {
     const inRange = evaluateLevel({ position: 'pitcher', metrics: { fastball_mph: 83 } }, 'ncaa_d2');

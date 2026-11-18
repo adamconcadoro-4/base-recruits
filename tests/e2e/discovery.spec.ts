@@ -213,7 +213,7 @@ test.describe('current policy and the score comparison (BR-01, BR-04)', () => {
 
     // A score below the past range is a benchmark, not a requirement.
     await page.getByLabel('Yes', { exact: true }).check();
-    await page.getByLabel('SAT Math').fill('600');
+    await page.getByLabel('SAT total score').fill('1200');
     await page.getByRole('button', { name: 'Compare', exact: true }).click();
     card = page.getByRole('article', { name: HOPKINS.name });
     await expect(card.getByText('Met', { exact: true })).toBeVisible();
@@ -234,7 +234,7 @@ test.describe('current policy and the score comparison (BR-01, BR-04)', () => {
       if (request.method() === 'POST') bodies.push(request.postData() ?? '');
     });
     await page.goto('/match');
-    await page.getByLabel('SAT Reading and Writing').fill('730');
+    await page.getByLabel('SAT total score').fill('1460');
     await page.getByLabel('ACT composite').fill('31');
     await page.getByLabel('Your GPA').fill('3.87');
     await page.getByLabel('State', { exact: true }).selectOption('VT');
@@ -242,10 +242,10 @@ test.describe('current policy and the score comparison (BR-01, BR-04)', () => {
     await expect(page.getByRole('heading', { name: 'Results' })).toBeVisible();
     expect(bodies.length).toBeGreaterThan(0);
     for (const body of bodies) {
-      expect(body).not.toContain('730');
+      expect(body).not.toContain('1460');
       expect(body).not.toContain('3.87');
     }
-    expect(page.url()).not.toMatch(/730|3\.87/);
+    expect(page.url()).not.toMatch(/1460|3\.87/);
   });
 });
 

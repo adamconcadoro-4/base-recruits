@@ -238,8 +238,7 @@ export function MatchTool({ signedIn, thisYear }: { readonly signedIn: boolean; 
       {
         applicantType: value('applicantType'),
         entryYear: value('entryYear'),
-        satErw: value('satErw'),
-        satMath: value('satMath'),
+        satTotal: value('satTotal'),
         act: value('act'),
         submitScores: value('submitScores'),
         gpa: value('gpa'),
@@ -271,8 +270,7 @@ export function MatchTool({ signedIn, thisYear }: { readonly signedIn: boolean; 
   const fieldIds: Record<string, string> = {
     applicantType: 'm-applicantType-first_year',
     entryYear: 'm-entryYear',
-    satErw: 'm-satErw',
-    satMath: 'm-satMath',
+    satTotal: 'm-satTotal',
     act: 'm-act',
     submitScores: 'm-submitScores-yes',
     gpa: 'm-gpa',
@@ -316,8 +314,7 @@ export function MatchTool({ signedIn, thisYear }: { readonly signedIn: boolean; 
             <h2 className="pt-2 text-3xl text-navy">Test scores (optional)</h2>
             <p className="text-sm text-slate">Leave these empty if you haven&apos;t taken the SAT or ACT.</p>
             <div className="grid gap-4 sm:grid-cols-2">
-              <TextField id="m-satErw" name="satErw" label="SAT Reading and Writing" inputMode="numeric" hint="200–800" error={errors.satErw} autoComplete="off" />
-              <TextField id="m-satMath" name="satMath" label="SAT Math" inputMode="numeric" hint="200–800" error={errors.satMath} autoComplete="off" />
+              <TextField id="m-satTotal" name="satTotal" label="SAT total score" inputMode="numeric" hint="400–1600" error={errors.satTotal} autoComplete="off" />
               <TextField id="m-act" name="act" label="ACT composite" inputMode="numeric" hint="1–36" error={errors.act} autoComplete="off" />
             </div>
             <Fieldset legend="Will you send your scores?" error={errors.submitScores} errorId="m-submitScores-error">

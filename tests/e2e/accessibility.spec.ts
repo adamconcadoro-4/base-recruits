@@ -66,7 +66,7 @@ test('the athlete home meets WCAG 2.2 AA automated checks', async ({ page }) => 
 
 test('score comparison results meet WCAG 2.2 AA automated checks', async ({ page }) => {
   await page.goto('/match');
-  await page.getByLabel('SAT Math').fill('650');
+  await page.getByLabel('SAT total score').fill('1300');
   await page.getByLabel('State', { exact: true }).selectOption('VT');
   await page.getByRole('button', { name: 'Compare', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Results' })).toBeFocused();
@@ -76,11 +76,11 @@ test('score comparison results meet WCAG 2.2 AA automated checks', async ({ page
 
 test('a failed comparison moves focus to the list of problems', async ({ page }) => {
   await page.goto('/match');
-  await page.getByLabel('SAT Math').fill('805');
+  await page.getByLabel('SAT total score').fill('1605');
   await page.getByRole('button', { name: 'Compare', exact: true }).click();
   const problems = page.getByRole('alert').filter({ hasText: 'Check this field' });
   await expect(problems).toBeFocused();
-  await expect(page.getByLabel('SAT Math')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByLabel('SAT total score')).toHaveAttribute('aria-invalid', 'true');
   expect(await violations(page)).toEqual([]);
 });
 

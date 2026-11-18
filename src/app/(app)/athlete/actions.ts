@@ -61,3 +61,21 @@ export async function cancelInviteAction(_previous: ActionState, formData: FormD
   revalidatePath('/athlete');
   return success('Code cancelled.');
 }
+
+export async function shareNumbersWithFamilyAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('share_numbers_with_family', { p_link_id: field(formData, 'linkId') });
+  if (error) return failure(userMessageForDatabaseError(error));
+  revalidatePath('/athlete');
+  revalidatePath('/parent');
+  return success('Shared.');
+}
+
+export async function stopSharingNumbersAction(_previous: ActionState, formData: FormData): Promise<ActionState> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('revoke_consent', { p_grant_id: field(formData, 'grantId') });
+  if (error) return failure(userMessageForDatabaseError(error));
+  revalidatePath('/athlete');
+  revalidatePath('/parent');
+  return success('Sharing is off.');
+}

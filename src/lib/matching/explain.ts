@@ -25,8 +25,7 @@ export const EVIDENCE_LABELS: Readonly<Record<EvidenceStatus, string>> = {
 };
 
 export const BENCHMARK_NAMES: Readonly<Record<Benchmark['key'], string>> = {
-  sat_erw: 'SAT Reading and Writing',
-  sat_math: 'SAT Math',
+  sat_total: 'SAT total',
   act_composite: 'ACT composite',
   gpa: 'GPA',
 };
@@ -59,6 +58,8 @@ export const REASONS: Readonly<Record<ReasonCode, string>> = {
   GPA_WEIGHTING_NOT_STATED:
     'The school didn’t say whether these GPAs are weighted. If yours is unweighted and theirs are weighted, yours can look lower than it is.',
   GPA_SCALE_NOT_COMPARABLE: 'The school’s GPA range is on a 4.0 scale, so a GPA on another scale isn’t compared.',
+  SAT_TOTAL_FROM_SECTIONS:
+    'Schools report each SAT section separately, so this total range adds the two sections’ ranges. It is approximate.',
   SCORES_NOT_SUBMITTED: 'You said you won’t send scores, so they aren’t used.',
   SCORES_ONLY_IF_SUBMITTED: 'This comparison matters only if you send your scores.',
   SCORE_NOT_ENTERED: 'You didn’t enter this score.',

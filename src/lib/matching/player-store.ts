@@ -1,9 +1,11 @@
 /**
- * The player's academic and baseball numbers, remembered in this browser only so every
+ * The player's academic and baseball numbers, remembered in this browser so every
  * school page can show "your fit" without asking again (decision F45).
  *
- * - Stored in this device's localStorage, never sent to Base Recruits, never
- *   put in a link, never logged. The page says so and offers "Forget my numbers".
+ * - Stored in this device's localStorage, never put in a link, never logged.
+ *   The page says so and offers "Forget my numbers". They reach Base Recruits
+ *   only when a signed-in athlete ticks "Save to my account" (F63,
+ *   account-numbers.ts).
  * - Stored as the raw form values, and validated again with
  *   parseApplicantInput / parseCoreGpa every time they are used.
  * - Anything unexpected in storage (old version, wrong shape, oversized) is
@@ -21,8 +23,8 @@ export const PLAYER_FIELDS = [
   'gpa',
   'gpaScale',
   'gpaType',
-  'satErw',
-  'satMath',
+  // The SAT total (founder decision 2026-11-18). Saves from before then held two section scores; see parsePlayerNumbers.
+  'satTotal',
   'act',
   'submitScores',
   'coreGpaDivisionI',
@@ -46,8 +48,7 @@ export const EMPTY_PLAYER_NUMBERS: PlayerNumbers = {
   gpa: '',
   gpaScale: '4',
   gpaType: 'unweighted',
-  satErw: '',
-  satMath: '',
+  satTotal: '',
   act: '',
   submitScores: 'yes',
   coreGpaDivisionI: '',
@@ -83,6 +84,11 @@ export function parsePlayerNumbers(text: string | null): PlayerNumbers | null {
   const values = (data as { values?: unknown }).values;
   if (typeof values !== 'object' || values === null) return null;
   const out: Record<string, string> = { ...EMPTY_PLAYER_NUMBERS };
+  // Older saves kept the two SAT sections; both present means their sum is the total.
+  const { satErw, satMath } = values as Record<string, unknown>;
+  if (typeof satErw === 'string' && typeof satMath === 'string' && /^\d{3}$/.test(satErw.trim()) && /^\d{3}$/.test(satMath.trim())) {
+    out.satTotal = String(Number(satErw.trim()) + Number(satMath.trim()));
+  }
   for (const field of PLAYER_FIELDS) {
     const value = (values as Record<string, unknown>)[field];
     if (value === undefined) continue;
@@ -96,8 +102,7 @@ export function parsePlayerNumbers(text: string | null): PlayerNumbers | null {
 export function hasAnyNumber(numbers: PlayerNumbers): boolean {
   return [
     'gpa',
-    'satErw',
-    'satMath',
+    'satTotal',
     'act',
     'coreGpaDivisionI',
     'coreGpaDivisionII',

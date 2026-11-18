@@ -23,6 +23,7 @@ export const SITEMAP_PAGES = [
   '/',
   '/schools',
   '/match',
+  '/my-schools',
   '/how-it-works',
   '/athletes',
   '/transfers',

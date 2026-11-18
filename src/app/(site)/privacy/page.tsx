@@ -18,11 +18,17 @@ export default function PrivacyPage() {
         <ul>
           <li>
             <strong>Without an account:</strong> nothing personal. Schools you save and your comparison picks stay in this
-            browser. Scores you type into the score comparison stay in your browser and are never sent to us.
+            browser. Scores you type into the score comparison stay in your browser and are never sent to us. Grades and
+            baseball numbers you enter on My schools and school pages are remembered in this browser only.
           </li>
           <li>
             <strong>With a free account:</strong> your email address, the name you give, your account type, and your date
             of birth (used only for age rules). Schools you save to your account, and any correction reports you send.
+          </li>
+          <li>
+            <strong>Grades and baseball numbers, if you choose:</strong> athletes who tick &ldquo;Save to my account&rdquo;
+            have the grades, test scores and baseball numbers they typed in saved to their account, marked as not
+            verified. Untick it, or use &ldquo;Forget my numbers&rdquo;, to delete them.
           </li>
           <li>
             <strong>Family links:</strong> if an athlete links a parent or guardian account, the link and what the athlete
@@ -37,6 +43,10 @@ export default function PrivacyPage() {
       <ContentSection title="Who can see it" tone="ice">
         <ul>
           <li>Schools saved to your account are visible only to you.</li>
+          <li>
+            Grades and baseball numbers saved to your account are visible only to you and to any linked parent or guardian
+            you choose to share them with. Coaches can&apos;t see them.
+          </li>
           <li>Recruiting profiles and coach visibility are not open yet, so nothing about you is shown to coaches.</li>
           <li>
             When coach sharing opens, each kind of sharing will be a separate permission you can turn off. Permissions are

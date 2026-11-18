@@ -1,35 +1,27 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import Link from 'next/link';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { SelectField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip, type ChipTone } from '@/components/ui/status-chip';
-import {
-  METRIC_INFO,
-  POSITIONS,
-  POSITION_METRICS,
-  PUBLIC_BENCHMARKS,
-  evaluateLevel,
-  isPosition,
-  parseAthleticInput,
-  type AthleticLevelDetail,
-  type AthleticMetric,
-} from '@/lib/matching/athletic';
-import { levelForDivision, parseCoreGpa, type EligibilityStatus } from '@/lib/matching/eligibility';
+import { PlayerNumbersForm, TYPED_GRADES_NOTE } from '@/components/matching/player-numbers-form';
+import { AccountNumbersNote, initialNumbers, useAccountNumbers } from '@/components/matching/use-account-numbers';
+import type { AccountNumbers } from '@/lib/matching/account-numbers';
+import { METRIC_INFO, PUBLIC_BENCHMARKS, evaluateLevel, type AthleticLevelDetail, type AthleticMetric } from '@/lib/matching/athletic';
+import { levelForDivision, type EligibilityStatus } from '@/lib/matching/eligibility';
 import { BENCHMARK_LABELS, BENCHMARK_NAMES, REASONS } from '@/lib/matching/explain';
 import type { AcademicFit } from '@/lib/matching/fit';
 import {
   EMPTY_PLAYER_NUMBERS,
   forgetPlayerNumbers,
   hasAnyNumber,
-  readPlayerNumbers,
   savePlayerNumbers,
-  type PlayerField,
   type PlayerNumbers,
 } from '@/lib/matching/player-store';
-import { parseApplicantInput, type SchoolEvidence } from '@/lib/matching/rules';
+import { hasTypedAcademics, readPlayerInput, type PlayerErrors } from '@/lib/matching/player-input';
+import type { SchoolEvidence } from '@/lib/matching/rules';
 import { schoolFit, type SchoolFit } from '@/lib/matching/school-fit';
 import {
   ACADEMIC_FIT_LABELS,
@@ -44,7 +36,6 @@ import {
   GROUP_NAMES,
   LEVEL_LABELS,
   METRIC_LABELS,
-  POSITION_LABELS,
   SELF_REPORTED_NOTE,
   SUGGESTION_DISCLAIMER,
   power4Note,
@@ -70,7 +61,7 @@ const ELIGIBILITY_TONES: Readonly<Record<EligibilityStatus, ChipTone>> = {
 };
 const ATHLETIC_TONES: Readonly<Record<AthleticStatus, ChipTone>> = { in_range: 'positive', below: 'attention', not_enough_data: 'neutral' };
 
-type Errors = Partial<Record<PlayerField, string>>;
+type Errors = PlayerErrors;
 
 interface Props {
   readonly schoolName: string;
@@ -87,6 +78,8 @@ interface Props {
    * numbers are then compared with the Power 4 benchmarks. Null otherwise.
    */
   readonly power4Conference: string | null;
+  /** Set for signed-in athletes, who can save their numbers to their account (F63). */
+  readonly account: AccountNumbers | null;
 }
 
 interface Outcome {
@@ -97,47 +90,15 @@ interface Outcome {
 }
 
 function evaluate(numbers: PlayerNumbers, props: Props): Outcome | { readonly errors: Errors } {
-  const parsed = parseApplicantInput(
-    {
-      applicantType: numbers.applicantType,
-      entryYear: numbers.entryYear,
-      satErw: numbers.satErw,
-      satMath: numbers.satMath,
-      act: numbers.act,
-      submitScores: numbers.submitScores,
-      gpa: numbers.gpa,
-      gpaScale: numbers.gpaScale,
-      gpaType: numbers.gpaType,
-    },
-    props.thisYear,
-  );
-  const errors: Errors = parsed.ok ? {} : { ...(parsed.errors as Errors) };
-  const d1 = parseCoreGpa(numbers.coreGpaDivisionI);
-  const d2 = parseCoreGpa(numbers.coreGpaDivisionII);
-  if (!d1.ok) errors.coreGpaDivisionI = d1.error;
-  if (!d2.ok) errors.coreGpaDivisionII = d2.error;
-  const athletic = parseAthleticInput({
-    position: numbers.position,
-    fastball_mph: numbers.fastball_mph,
-    exit_velocity_mph: numbers.exit_velocity_mph,
-    sixty_yard_s: numbers.sixty_yard_s,
-    infield_velocity_mph: numbers.infield_velocity_mph,
-    outfield_velocity_mph: numbers.outfield_velocity_mph,
-    catcher_velocity_mph: numbers.catcher_velocity_mph,
-    pop_time_s: numbers.pop_time_s,
-  });
-  if (!athletic.ok) Object.assign(errors, athletic.errors);
-  if (!parsed.ok || !d1.ok || !d2.ok || !athletic.ok) return { errors };
+  const read = readPlayerInput(numbers, props.thisYear);
+  if (!read.ok) return { errors: read.errors };
   const level = levelForDivision(props.division);
-  const detail = athletic.input && level ? evaluateLevel(athletic.input, level, PUBLIC_BENCHMARKS, props.power4Conference !== null) : null;
+  const detail = read.athletic && level ? evaluateLevel(read.athletic, level, PUBLIC_BENCHMARKS, props.power4Conference !== null) : null;
   const athleticResult = props.athletic ?? (detail ? { status: detail.status, standardsVersion: detail.standardsVersion } : null);
   return {
-    fit: schoolFit(props.evidence, props.division, parsed.input, athleticResult, {
-      ncaaCoreGpaDivisionI: d1.value,
-      ncaaCoreGpaDivisionII: d2.value,
-    }),
+    fit: schoolFit(props.evidence, props.division, read.input, athleticResult, read.extras),
     athleticDetail: props.athletic ? null : detail,
-    positionEntered: athletic.input !== null,
+    positionEntered: read.athletic !== null,
   };
 }
 
@@ -201,8 +162,9 @@ function AthleticDetail({ detail, conference }: { readonly detail: AthleticLevel
 
 /**
  * "Your fit with this school" on a school page. The player's numbers are
- * compared in the browser and remembered on this device only
- * (src/lib/matching/player-store.ts); nothing is sent to Base Recruits.
+ * compared in the browser and remembered on this device
+ * (src/lib/matching/player-store.ts). They reach Base Recruits only when a
+ * signed-in athlete ticks "Save to my account" (F63).
  */
 export function SchoolFitPanel(props: Props) {
   const { schoolName, division, thisYear } = props;
@@ -211,18 +173,20 @@ export function SchoolFitPanel(props: Props) {
   const [editing, setEditing] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [notSaved, setNotSaved] = useState(false);
-  // The position chosen in the open form, so its own numbers can be asked for.
-  const [positionDraft, setPositionDraft] = useState<string | null>(null);
+  // Changes after "Forget my numbers", so the open form starts blank again.
+  const [formKey, setFormKey] = useState(0);
   const errorSummary = useRef<HTMLDivElement>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
   const [focusTarget, setFocusTarget] = useState<'errors' | 'result' | null>(null);
+  const accountNumbers = useAccountNumbers(props.account);
+  const account = props.account;
 
   useEffect(() => {
-    const stored = readPlayerNumbers();
+    const stored = initialNumbers(account);
     const start = stored ?? { ...EMPTY_PLAYER_NUMBERS, entryYear: String(thisYear + 1) };
     setNumbers(start);
     setEditing(!stored || !hasAnyNumber(stored));
-  }, [thisYear]);
+  }, [thisYear, account]);
 
   useEffect(() => {
     if (!focusTarget) return;
@@ -246,12 +210,7 @@ export function SchoolFitPanel(props: Props) {
   const ncaa = division === 'ncaa_d1' ? 'd1' : division === 'ncaa_d2' ? 'd2' : null;
   const level = levelForDivision(division);
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const next: Record<string, string> = { ...(numbers ?? EMPTY_PLAYER_NUMBERS) };
-    for (const [key, value] of form.entries()) if (typeof value === 'string' && key in next) next[key] = value.trim();
-    const candidate = next as PlayerNumbers;
+  function onSubmit(candidate: PlayerNumbers, saveToAccount: boolean) {
     const result = evaluate(candidate, props);
     if ('errors' in result) {
       setErrors(result.errors);
@@ -261,9 +220,9 @@ export function SchoolFitPanel(props: Props) {
     setErrors({});
     setNotSaved(!savePlayerNumbers(candidate));
     setNumbers(candidate);
-    setPositionDraft(null);
     setEditing(false);
     setFocusTarget('result');
+    void accountNumbers.persist(candidate, saveToAccount);
   }
 
   function onForget() {
@@ -271,122 +230,42 @@ export function SchoolFitPanel(props: Props) {
     setNumbers({ ...EMPTY_PLAYER_NUMBERS, entryYear: String(thisYear + 1) });
     setErrors({});
     setNotSaved(false);
-    setPositionDraft(null);
+    setFormKey((k) => k + 1);
     setEditing(true);
+    void accountNumbers.forget();
   }
 
   if (editing) {
-    const errorEntries = Object.entries(errors).filter(([, v]) => v);
-    const years = [thisYear, thisYear + 1, thisYear + 2, thisYear + 3, thisYear + 4];
-    const formPosition = positionDraft ?? numbers.position;
-    const positionMetrics = isPosition(formPosition) ? POSITION_METRICS[formPosition] : [];
     return (
-      <form onSubmit={onSubmit} noValidate className="space-y-6" aria-label={`See your fit with ${schoolName}`}>
-        <p>
-          Enter your numbers once and every school page shows how you compare. They are compared in your browser and
-          remembered on this device only. They are never sent to Base Recruits.
-        </p>
-        {errorEntries.length > 0 ? (
-          <div ref={errorSummary} tabIndex={-1} role="alert" className="border-l-4 border-danger bg-danger-soft px-4 py-3">
-            <p className="font-semibold">Check {errorEntries.length === 1 ? 'this field' : 'these fields'}:</p>
-            <ul className="mt-1 list-disc pl-5">
-              {errorEntries.map(([key, message]) => (
-                <li key={key}>
-                  <a href={`#fit-${key}`} className="font-semibold text-royal-ink underline">
-                    {message}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-        <h4 className="text-xl text-navy">Academics</h4>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <SelectField id="fit-applicantType" name="applicantType" label="Applying as" defaultValue={numbers.applicantType} error={errors.applicantType}>
-            <option value="first_year">A first-year student</option>
-            <option value="transfer">A transfer student</option>
-          </SelectField>
-          <SelectField id="fit-entryYear" name="entryYear" label="Entering college in fall" defaultValue={numbers.entryYear || String(thisYear + 1)} error={errors.entryYear}>
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </SelectField>
-          <TextField id="fit-gpa" name="gpa" label="GPA" inputMode="decimal" defaultValue={numbers.gpa} error={errors.gpa} autoComplete="off" />
-          <SelectField id="fit-gpaScale" name="gpaScale" label="GPA scale" defaultValue={numbers.gpaScale} error={errors.gpaScale}>
-            <option value="4">Out of 4.0</option>
-            <option value="5">Out of 5.0</option>
-            <option value="100">Out of 100</option>
-          </SelectField>
-          <SelectField id="fit-gpaType" name="gpaType" label="GPA type" defaultValue={numbers.gpaType}>
-            <option value="unweighted">Unweighted</option>
-            <option value="weighted">Weighted</option>
-            <option value="">Not sure</option>
-          </SelectField>
-          <SelectField id="fit-submitScores" name="submitScores" label="Will you send test scores?" defaultValue={numbers.submitScores} error={errors.submitScores}>
-            <option value="yes">Yes</option>
-            <option value="undecided">Not sure yet</option>
-            <option value="no">No</option>
-          </SelectField>
-          <TextField id="fit-satErw" name="satErw" label="SAT Reading and Writing" hint="200–800, optional" inputMode="numeric" defaultValue={numbers.satErw} error={errors.satErw} autoComplete="off" />
-          <TextField id="fit-satMath" name="satMath" label="SAT Math" hint="200–800, optional" inputMode="numeric" defaultValue={numbers.satMath} error={errors.satMath} autoComplete="off" />
-          <TextField id="fit-act" name="act" label="ACT composite" hint="1–36, optional" inputMode="numeric" defaultValue={numbers.act} error={errors.act} autoComplete="off" />
-          {ncaa === 'd1' ? (
-            <TextField id="fit-coreGpaDivisionI" name="coreGpaDivisionI" label="NCAA Division I core-course GPA" hint="Optional, from the NCAA Eligibility Center" inputMode="decimal" defaultValue={numbers.coreGpaDivisionI} error={errors.coreGpaDivisionI} autoComplete="off" />
-          ) : null}
-          {ncaa === 'd2' ? (
-            <TextField id="fit-coreGpaDivisionII" name="coreGpaDivisionII" label="NCAA Division II core-course GPA" hint="Optional, from the NCAA Eligibility Center" inputMode="decimal" defaultValue={numbers.coreGpaDivisionII} error={errors.coreGpaDivisionII} autoComplete="off" />
-          ) : null}
-        </div>
-
-        <h4 className="text-xl text-navy">Baseball numbers (optional)</h4>
-        <p className="text-sm text-slate">
-          Your best numbers, from a showcase or your own measuring. Leave any you don&apos;t know blank.
-        </p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <SelectField
-            id="fit-position"
-            name="position"
-            label="Main position"
-            value={formPosition}
-            onChange={(e) => setPositionDraft(e.currentTarget.value)}
-            error={errors.position}
-          >
-            <option value="">Choose a position</option>
-            {POSITIONS.map((p) => (
-              <option key={p} value={p}>
-                {POSITION_LABELS[p]}
-              </option>
-            ))}
-          </SelectField>
-          {positionMetrics.map((metric) => {
-            const info = METRIC_INFO[metric];
-            return (
-              <TextField
-                key={metric}
-                id={`fit-${metric}`}
-                name={metric}
-                label={`${METRIC_LABELS[metric]} (${info.unit === 's' ? 'seconds' : 'mph'})`}
-                hint={`${info.min}–${info.max}`}
-                inputMode="decimal"
-                defaultValue={numbers[metric]}
-                error={errors[metric]}
-                autoComplete="off"
-              />
-            );
-          })}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-4">
-          <Button type="submit">See your fit</Button>
-          {hasAnyNumber(numbers) ? (
-            <Button type="button" variant="quiet" onClick={onForget}>
-              Forget my numbers
-            </Button>
-          ) : null}
-        </div>
-      </form>
+      <div className="space-y-4">
+      <AccountNumbersNote note={accountNumbers.note} />
+      <PlayerNumbersForm
+        key={formKey}
+        idPrefix="fit"
+        numbers={numbers}
+        errors={errors}
+        thisYear={thisYear}
+        coreGpa={ncaa ? [ncaa] : []}
+        ariaLabel={`See your fit with ${schoolName}`}
+        submitLabel="See your fit"
+        errorSummaryRef={errorSummary}
+        onSubmit={onSubmit}
+        onForget={onForget}
+        accountSave={accountNumbers.canSave ? { checked: accountNumbers.onAccount } : undefined}
+        intro={
+          <p>
+            Enter your numbers once and every school page, and your{' '}
+            <Link href="/my-schools" className="font-semibold text-royal-ink underline">
+              My schools
+            </Link>{' '}
+            list, shows how you compare. They are compared in your browser and remembered on this device
+            {accountNumbers.canSave
+              ? '. They are saved to your account only if you tick “Save to my account”.'
+              : ' only. They are never sent to Base Recruits.'}
+          </p>
+        }
+      />
+      </div>
     );
   }
 
@@ -399,6 +278,7 @@ export function SchoolFitPanel(props: Props) {
 
   return (
     <div className="space-y-6" aria-live="polite">
+      <AccountNumbersNote note={accountNumbers.note} />
       {notSaved ? (
         <Notice tone="attention" title="Not remembered on this device">
           This browser won&apos;t store your numbers, so you&apos;ll need to enter them again on other school pages.
@@ -483,13 +363,18 @@ export function SchoolFitPanel(props: Props) {
           <dd className="space-y-2">
             <StatusChip tone={FIT_TONES[fit.academic.fit]}>{ACADEMIC_FIT_LABELS[fit.academic.fit]}</StatusChip>
             <p>{ACADEMIC_FIT_REASONS[fit.academic.reason]}</p>
+            {hasTypedAcademics(numbers) ? (
+              <p className="text-sm text-slate">
+                Your grades and scores are as you typed them. <strong>{TYPED_GRADES_NOTE}.</strong>
+              </p>
+            ) : null}
             {benchmarks.length > 0 ? (
               <ul className="list-disc space-y-1 pl-5 text-sm">
                 {benchmarks.map((b) => {
                   const gpa = b.key === 'gpa';
                   const show = (value: number | null) => (value === null ? '' : gpa ? value.toFixed(2) : String(value));
-                  // GPA notes travel with the GPA line: whether the school said it's weighted, or why it isn't compared.
-                  const notes = gpa ? b.reasons.filter((r) => r === 'GPA_WEIGHTING_NOT_STATED' || r === 'GPA_SCALE_NOT_COMPARABLE') : [];
+                  // Notes travel with their line: whether the school said its GPAs are weighted, why a GPA isn't compared, and that an SAT total range is added from the sections.
+                  const notes = b.reasons.filter((r) => r === 'GPA_WEIGHTING_NOT_STATED' || r === 'GPA_SCALE_NOT_COMPARABLE' || r === 'SAT_TOTAL_FROM_SECTIONS');
                   return (
                     <li key={b.key}>
                       {gpa ? 'High school GPA, middle half' : BENCHMARK_NAMES[b.key]}: {show(b.low)}–{show(b.high)} for the {b.term ?? 'past'} class

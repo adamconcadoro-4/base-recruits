@@ -138,8 +138,8 @@ describe('NAIA', () => {
 
   it('from 2.0 to 2.29, a qualifying test score makes two of three', () => {
     expect(checkEligibility('naia', player({ ...gpa(2.1), act: { composite: 18 } })).status).toBe('meets');
-    expect(checkEligibility('naia', player({ ...gpa(2.1), sat: { erw: 480, math: 490 } })).status).toBe('meets');
-    expect(checkEligibility('naia', player({ ...gpa(2.1), sat: { erw: 480, math: 480 } })).status).toBe('depends');
+    expect(checkEligibility('naia', player({ ...gpa(2.1), sat: { total: 970 } })).status).toBe('meets');
+    expect(checkEligibility('naia', player({ ...gpa(2.1), sat: { total: 960 } })).status).toBe('depends');
     expect(checkEligibility('naia', player(gpa(2.1)))).toMatchObject({ status: 'depends', reasons: ['NAIA_NEEDS_RANK_OR_TEST', 'CURRENT_NOT_FINAL'] });
   });
 

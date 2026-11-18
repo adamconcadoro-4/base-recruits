@@ -6,7 +6,7 @@ rule means changing this page, the code and its version number in the same pull 
 
 | Rule set | Code | Version |
 | --- | --- | --- |
-| Score and GPA comparison | `rules.ts` | `RULES_VERSION` 2026-10-31.1 |
+| Score and GPA comparison | `rules.ts` | `RULES_VERSION` 2026-11-18.1 |
 | Academic fit labels | `fit.ts` | `FIT_RULES_VERSION` 2026-10-31.1 |
 | Eligibility to compete | `eligibility.ts` | `ELIGIBILITY_RULES_VERSION` 2026-10-30.1 |
 | Combined suggestions | `suggestions.ts` | `SUGGESTION_RULES_VERSION` 2026-10-31.1 |
@@ -15,7 +15,7 @@ rule means changing this page, the code and its version number in the same pull 
 
 ## 1. What goes in
 
-- **Academics the player enters:** SAT section scores or ACT composite, whether they plan to send scores, GPA with its
+- **Academics the player enters:** SAT total score (founder decision 2026-11-18) or ACT composite, whether they plan to send scores, GPA with its
   scale and type (weighted or unweighted), first-year or transfer, entry year, and optionally their NCAA Division I and
   Division II core-course GPAs.
 - **School data already in the registry:** each program's division, state, campus setting, published cost of attendance
@@ -43,6 +43,13 @@ Taken only from the score and GPA comparison; no new cut-offs.
 
 Reported ranges are the middle 50% of a past entering class as a whole, not recruited athletes; that caveat is shown with
 every comparison.
+
+**SAT total (2026-11-18).** Players enter one SAT total (400–1600, in steps of 10), not two section scores. Schools report
+each section's middle 50% but not the total's, so the total is compared with the two 25th percentiles added and the two
+75th percentiles added. That range is approximate (a student at the 25th percentile in one section isn't always there in
+the other), and the reason "adds the two sections' ranges; it is approximate" is shown with every SAT comparison. A school
+that reports only one section has no total range, so the SAT isn't compared there. Numbers saved on a device before this
+change kept two sections; when both were saved, their sum becomes the total.
 
 **Open admission (F48).** A school that reports an open admission policy to the College Scorecard (IPEDS OPENADMP: it
 admits any applicant, or only requires a high school diploma or equivalent) is an academic fit whatever its score ranges
@@ -215,9 +222,13 @@ estimated. Known consequences:
 Every active program's page has a **Your fit** section (`src/components/matching/school-fit-panel.tsx`, rules in
 `src/lib/matching/school-fit.ts`). It applies exactly the rules above to that one school:
 
-- The player enters their numbers once. They are compared in the browser and remembered **on this device only**
-  (`src/lib/matching/player-store.ts`, decision F45): never sent to Base Recruits, never put in a link, and removed by
-  "Forget my numbers". Stored values are validated again every time they are used.
+- The player enters their numbers once. They are compared in the browser and remembered **on this device**
+  (`src/lib/matching/player-store.ts`, decision F45): never put in a link, and removed by "Forget my numbers". Stored
+  values are validated again every time they are used.
+- **Saved to the account only if the athlete chooses** (decision F63): a signed-in athlete sees a "Save to my account"
+  checkbox. Ticked, the numbers that pass the checks above are saved to the account (`account-numbers.ts`, only the
+  chosen position's baseball numbers) and load on any device; unticking it or "Forget my numbers" deletes them. A linked
+  parent sees them only while the athlete shares with that parent from the athlete home; coaches never see them.
 - It shows the overall group, then the three parts: athletic level (each number against the level's floor, with the
   floor's basis, the source and its date), academics (with the school's reported ranges next to the player's scores) and
   the academic minimum to compete, each with its reasons.
@@ -227,6 +238,31 @@ Every active program's page has a **Your fit** section (`src/components/matching
 - If the player is below the level's typical range, the page says the school isn't in their suggestions (the list sets it
   aside) and still shows every comparison.
 - Schools outside the five levels show the academic comparison only.
+
+## 6a. The My schools list (`/my-schools`)
+
+The full suggestions list (decision F61), built from the same engine (`suggestSchools`) and the same rules as above.
+
+- **Numbers:** the same on-device numbers as "Your fit" (`player-store.ts`, F45), read by one shared function
+  (`player-input.ts`) and entered through one shared form (`player-numbers-form.tsx`). Entering them on either page fills
+  the other. Nothing about the player is sent to the server unless a signed-in athlete ticks "Save to my account" (§6,
+  F63), and nothing is shown to coaches.
+- **Schools:** every listed school with an active program at the five levels (`src/app/(site)/my-schools/load.ts`), with
+  its latest admissions figures, published cost, checked testing policies, published GPA range and Power 4 membership
+  (matched by unit ID). Only public registry data reaches the browser.
+- **Filters:** levels (default **NCAA Division I, II and III**, founder decision 2026-11-17; NAIA and junior college can be
+  ticked), states, campus settings and a published cost-of-attendance budget, applied exactly as §4 says. Unticking every
+  level shows nothing rather than everything. Filters are remembered on this device (`list-filters.ts`).
+- **Athletic results:** the player's position and numbers against the public benchmarks for every level
+  (`evaluateAthletic`), with Power 4 schools on the Power 4 floors (F50). A "By level" table shows each level's athletic
+  result and academic minimum to compete.
+- **Presentation:** groups in the order Strong fit, Possible fit, Reach, Not enough data, by name (or published cost if the
+  player chooses), 25 at a time. Not enough data is sub-grouped by the academic result, so a player who hasn't entered
+  baseball numbers still sees what is known (as §6 does on a school page). Each school shows its academic label,
+  athletic status, any eligibility flag, its reasons and its own comparisons, and can be saved to the shortlist.
+  Set-aside schools are counted by reason, including programs in associations not placed by level.
+- **Typed grades:** wherever the player's grades or scores are shown they are marked "Needs transcripts for
+  verification" (founder decision 2026-11-17).
 
 ## 7. Known gaps (next steps)
 
@@ -241,5 +277,8 @@ Every active program's page has a **Your fit** section (`src/components/matching
   route to full coverage.
 - **Coverage:** in the 2024-25 registry snapshot 739 of 1,670 programs report SAT ranges. Schools without ranges (many
   test-optional four-year schools and most junior colleges) fall under "academics not compared".
-- **Pages:** each school page shows "Your fit" (§6). The full suggestions list page, and the paywall and billing it
-  sits behind, are the next build. "Your fit" is open to everyone until the paywall exists (F19).
+- **Pages:** each school page shows "Your fit" (§6) and `/my-schools` shows the full list (§6a). Both are open to
+  everyone; no paywall or billing exists (F19).
+- **Saving academics to the account** is built (F63, 2026-11-18): optional for athletes, shared only with a parent the
+  athlete names. Coaches would see academics only if the player turns on a "Show academics" setting, off by default
+  (founder decision 2026-11-17); that setting is not built.

@@ -30,7 +30,7 @@ const player = (overrides: Partial<ApplicantInput> = {}): ApplicantInput => ({
   applicantType: 'first_year',
   entryYear: 2027,
   gpa: { value: 3.3, scale: 4, type: 'unweighted' },
-  sat: { erw: 600, math: 600 },
+  sat: { total: 1200 },
   act: null,
   submitScores: 'yes',
   ...overrides,
@@ -40,7 +40,8 @@ const IN_RANGE = { status: 'in_range', standardsVersion: 'test-standards' } as c
 
 describe('schoolFit', () => {
   it('gives the same group the suggestion list would', () => {
-    const ev = evidence([560, 640], [620, 700]);
+    // SAT total within the summed range, GPA below the published middle half: a stretch, so Possible fit.
+    const ev: SchoolEvidence = { ...evidence([560, 640], [560, 640]), gpa: { low: 3.5, high: 3.9, term: 'Fall 2025', weighting: 'unweighted' } };
     const fit = schoolFit(ev, 'ncaa_d2', player(), IN_RANGE);
     const list = suggestSchools(
       [{ school: { slug: ev.slug, name: 'Example University', state: 'NY', setting: 'city', division_code: 'ncaa_d2', cost_of_attendance: 30000, cost_year: '2025-26' }, evidence: ev }],
@@ -74,7 +75,14 @@ describe('schoolFit', () => {
 });
 
 describe('player numbers on this device', () => {
-  const filled = { ...EMPTY_PLAYER_NUMBERS, entryYear: '2027', gpa: '3.4', satErw: '610', satMath: '590' };
+  const filled = { ...EMPTY_PLAYER_NUMBERS, entryYear: '2027', gpa: '3.4', satTotal: '1200' };
+
+  it('turns an older save’s two SAT sections into the total (founder decision 2026-11-18)', () => {
+    const old = parsePlayerNumbers(JSON.stringify({ v: 1, values: { gpa: '3.4', satErw: '610', satMath: '590' } }));
+    expect(old?.satTotal).toBe('1200');
+    expect(old).not.toHaveProperty('satErw');
+    expect(parsePlayerNumbers(JSON.stringify({ v: 1, values: { satErw: '610' } }))?.satTotal).toBe('');
+  });
 
   it('round-trips every field', () => {
     expect(parsePlayerNumbers(serializePlayerNumbers(filled))).toEqual(filled);

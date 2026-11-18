@@ -8,7 +8,10 @@ import { Notice } from '@/components/ui/notice';
 import { StatusChip } from '@/components/ui/status-chip';
 import { requireAccess } from '@/lib/auth/guard';
 import { CONSENT_SCOPES, type ConsentScope } from '@/lib/consent/scopes';
-import { RELATIONSHIP_LABELS, type FamilyLinkRow } from '@/lib/family/family';
+import { formatDate, RELATIONSHIP_LABELS, type FamilyLinkRow } from '@/lib/family/family';
+import { fromAccountRow, type SavedNumbersRow } from '@/lib/matching/account-numbers';
+import { academicsLine, baseballLine } from '@/lib/matching/numbers-summary';
+import { TYPED_GRADES_NOTE } from '@/lib/matching/suggestions-explain';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = { title: 'Parent and guardian home' };
@@ -22,19 +25,26 @@ interface ApprovalRequest {
   readonly grantee_email?: string | null;
 }
 
+interface SharedNumbersRow extends SavedNumbersRow {
+  readonly athlete_id: string;
+  readonly athlete_name: string | null;
+}
+
 export default async function ParentHomePage() {
   await requireAccess('/parent');
   const supabase = await createClient();
-  const [linksResult, requestsResult] = await Promise.all([
+  const [linksResult, requestsResult, sharedResult] = await Promise.all([
     supabase.rpc('list_family_links'),
     supabase.rpc('guardian_consent_requests'),
+    supabase.rpc('family_shared_numbers'),
   ]);
 
   const links = ((linksResult.data ?? []) as FamilyLinkRow[]).filter(
     (link) => link.my_side === 'guardian' && link.status !== 'ended',
   );
   const pending = (requestsResult.data ?? []) as ApprovalRequest[];
-  const loadFailed = Boolean(linksResult.error || requestsResult.error);
+  const shared = (sharedResult.data ?? []) as SharedNumbersRow[];
+  const loadFailed = Boolean(linksResult.error || requestsResult.error || sharedResult.error);
 
   return (
     <>
@@ -114,6 +124,40 @@ export default async function ParentHomePage() {
             </ul>
           ) : (
             <p>You aren&apos;t linked to an athlete yet.</p>
+          )}
+        </DashboardSection>
+
+        <DashboardSection
+          id="shared-numbers"
+          title="Grades and baseball numbers"
+          description="What your athlete saved and chose to share with you. They can stop sharing at any time."
+        >
+          {shared.length > 0 ? (
+            <ul className="divide-y-2 divide-rule border-y-2 border-rule">
+              {shared.map((row) => {
+                const numbers = fromAccountRow(row);
+                const academics = academicsLine(numbers);
+                return (
+                  <li key={row.athlete_id} className="space-y-2 py-4">
+                    <p className="font-semibold">{row.athlete_name ?? 'Your athlete'}</p>
+                    <p>
+                      {academics || 'No grades or test scores saved.'}{' '}
+                      {academics ? <StatusChip tone="attention">{TYPED_GRADES_NOTE}</StatusChip> : null}
+                    </p>
+                    <p>{baseballLine(numbers) || 'No position or baseball numbers saved.'}</p>
+                    <p className="text-sm text-slate">
+                      Typed in by your athlete, last saved {formatDate(row.updated_at)}. Base Recruits hasn&apos;t checked
+                      them.
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p>
+              Nothing is shared with you yet. Your athlete can save their grades and baseball numbers on My schools,
+              then share them with you from their athlete home.
+            </p>
           )}
         </DashboardSection>
 

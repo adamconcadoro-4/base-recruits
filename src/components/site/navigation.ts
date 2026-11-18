@@ -7,13 +7,14 @@ export interface NavItem {
 
 /**
  * Header navigation (spec §4: Search Schools, How It Works, For Coaches,
- * Pricing, Login), plus the working discovery tools: score comparison and
- * saved schools. Labels describe what each page does today
+ * Pricing, Login), plus the working discovery tools: the My schools list
+ * (which replaces the score comparison in the header; /match stays in the
+ * footer) and saved schools. Labels describe what each page does today
  * (src/config/availability.ts).
  */
 export const PRIMARY_NAV: readonly NavItem[] = [
   { href: '/schools', label: 'Explore programs' },
-  { href: '/match', label: 'Compare scores' },
+  { href: '/my-schools', label: 'My schools' },
   { href: '/saved', label: 'Saved schools' },
   { href: '/how-it-works', label: 'How it works' },
   { href: '/coaches', label: 'For coaches' },
@@ -26,6 +27,7 @@ export const FOOTER_NAV: ReadonlyArray<{ readonly heading: string; readonly item
     items: [
       { href: '/schools', label: 'Explore programs' },
       { href: '/compare', label: 'Compare schools' },
+      { href: '/my-schools', label: 'My schools' },
       { href: '/saved', label: 'Saved schools' },
       { href: '/match', label: 'Compare your scores' },
       { href: '/resources', label: 'Recruiting resources' },
