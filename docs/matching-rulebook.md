@@ -228,6 +228,30 @@ Every active program's page has a **Your fit** section (`src/components/matching
   aside) and still shows every comparison.
 - Schools outside the five levels show the academic comparison only.
 
+## 6a. The My schools list (`/my-schools`)
+
+The full suggestions list (decision F61), built from the same engine (`suggestSchools`) and the same rules as above.
+
+- **Numbers:** the same on-device numbers as "Your fit" (`player-store.ts`, F45), read by one shared function
+  (`player-input.ts`) and entered through one shared form (`player-numbers-form.tsx`). Entering them on either page fills
+  the other. Nothing about the player is sent to the server, saved to the account or shown to coaches.
+- **Schools:** every listed school with an active program at the five levels (`src/app/(site)/my-schools/load.ts`), with
+  its latest admissions figures, published cost, checked testing policies, published GPA range and Power 4 membership
+  (matched by unit ID). Only public registry data reaches the browser.
+- **Filters:** levels (default **NCAA Division I, II and III**, founder decision 2026-11-17; NAIA and junior college can be
+  ticked), states, campus settings and a published cost-of-attendance budget, applied exactly as §4 says. Unticking every
+  level shows nothing rather than everything. Filters are remembered on this device (`list-filters.ts`).
+- **Athletic results:** the player's position and numbers against the public benchmarks for every level
+  (`evaluateAthletic`), with Power 4 schools on the Power 4 floors (F50). A "By level" table shows each level's athletic
+  result and academic minimum to compete.
+- **Presentation:** groups in the order Strong fit, Possible fit, Reach, Not enough data, by name (or published cost if the
+  player chooses), 25 at a time. Not enough data is sub-grouped by the academic result, so a player who hasn't entered
+  baseball numbers still sees what is known (as §6 does on a school page). Each school shows its academic label,
+  athletic status, any eligibility flag, its reasons and its own comparisons, and can be saved to the shortlist.
+  Set-aside schools are counted by reason, including programs in associations not placed by level.
+- **Typed grades:** wherever the player's grades or scores are shown they are marked "Needs transcripts for
+  verification" (founder decision 2026-11-17).
+
 ## 7. Known gaps (next steps)
 
 - **Paul's standards:** loaded as a "partner" benchmark set in the same shape as `PUBLIC_BENCHMARKS` once his sample,
@@ -241,5 +265,8 @@ Every active program's page has a **Your fit** section (`src/components/matching
   route to full coverage.
 - **Coverage:** in the 2024-25 registry snapshot 739 of 1,670 programs report SAT ranges. Schools without ranges (many
   test-optional four-year schools and most junior colleges) fall under "academics not compared".
-- **Pages:** each school page shows "Your fit" (§6). The full suggestions list page, and the paywall and billing it
-  sits behind, are the next build. "Your fit" is open to everyone until the paywall exists (F19).
+- **Pages:** each school page shows "Your fit" (§6) and `/my-schools` shows the full list (§6a). Both are open to
+  everyone; no paywall or billing exists (F19).
+- **Saving academics to the account** (so a player doesn't retype them on a new device, and a linked parent sees them)
+  is not built and not decided; it would change F45. Coaches would see academics only if the player turns on a
+  "Show academics" setting, off by default (founder decision 2026-11-17).

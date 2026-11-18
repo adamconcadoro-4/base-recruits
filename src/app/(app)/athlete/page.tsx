@@ -228,10 +228,14 @@ export default async function AthleteHomePage() {
         <DashboardSection id="next-step" title="Your next step">
           <div className="space-y-4">
             <p className="max-w-2xl">
-              Explore baseball programs and save the ones worth a closer look. Recruiting profiles come later.
+              Enter your grades and baseball numbers once to see which programs fit, then save the ones worth a closer
+              look. Recruiting profiles come later.
             </p>
             <div className="flex flex-wrap gap-3">
-              <ButtonLink href="/schools">Explore Baseball Programs</ButtonLink>
+              <ButtonLink href="/my-schools">My schools</ButtonLink>
+              <ButtonLink href="/schools" variant="secondary">
+                Explore Baseball Programs
+              </ButtonLink>
               <ButtonLink href="/saved" variant="secondary">
                 Saved schools
               </ButtonLink>

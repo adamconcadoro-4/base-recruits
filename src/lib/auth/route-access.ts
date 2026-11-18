@@ -66,6 +66,7 @@ export const PUBLIC_ROUTES = [
   '/schools',
   '/schools/example-slug',
   '/match',
+  '/my-schools',
   '/compare',
   '/saved',
   '/support',

@@ -27,11 +27,11 @@ export const GROUP_NAMES: Readonly<Record<SuggestionGroup, string>> = {
 
 export const GROUP_DESCRIPTIONS: Readonly<Record<SuggestionGroup, string>> = {
   strong_fit:
-    'Your assessment is in range for this level, and you’re an academic fit: your scores are within or above every range the school reported, or the school has open admission.',
+    'Your baseball numbers are in the typical range for this level, and you’re an academic fit: your scores are within or above every range the school reported, or the school has open admission.',
   possible_fit:
-    'Your assessment is in range for this level, and some of your scores are below a range the school reported, or meeting the level’s academic minimum depends on your class rank or a test score.',
+    'Your baseball numbers are in the typical range for this level, and some of your scores are below a range the school reported, or meeting the level’s academic minimum depends on your class rank or a test score.',
   reach:
-    'Your assessment is in range for this level, but your scores are below the school’s reported ranges, or your GPA is below, or may be below, the level’s academic minimum to compete.',
+    'Your baseball numbers are in the typical range for this level, but your scores are below the school’s reported ranges, or your GPA is below, or may be below, the level’s academic minimum to compete.',
   not_enough_data: 'We couldn’t compare enough to place these schools. They are shown so nothing is hidden from you.',
 };
 
@@ -96,8 +96,8 @@ export const ELIGIBILITY_REASONS: Readonly<Record<EligibilityReason, string>> = 
 };
 
 export const SUGGESTION_REASONS: Readonly<Record<SuggestionReason, string>> = {
-  ATHLETIC_IN_RANGE: 'Your assessment results are in range for this level’s standards.',
-  ATHLETIC_NOT_ASSESSED: 'There is no assessment result for this level yet.',
+  ATHLETIC_IN_RANGE: 'Your baseball numbers are in the typical range for this level on at least half of what was compared.',
+  ATHLETIC_NOT_ASSESSED: 'Not enough of your baseball numbers could be compared with this level’s benchmarks yet.',
   ACADEMIC_FIT: ACADEMIC_FIT_REASONS.SCORES_AT_OR_ABOVE,
   ACADEMIC_OPEN_ADMISSION: ACADEMIC_FIT_REASONS.OPEN_ADMISSION,
   ACADEMIC_STRETCH: ACADEMIC_FIT_REASONS.SOME_SCORES_BELOW,
@@ -114,7 +114,7 @@ export const SUGGESTION_REASONS: Readonly<Record<SuggestionReason, string>> = {
 export const EXCLUSION_REASONS: Readonly<Record<ExclusionReason, string>> = {
   LEVEL_NOT_SUGGESTED: 'Programs in associations we don’t suggest by level yet (USCAA, NCCAA, independents, unconfirmed divisions).',
   LEVEL_NOT_CHOSEN: 'Levels you chose not to see.',
-  ATHLETIC_BELOW_LEVEL: 'Levels where your assessment results are below the standard.',
+  ATHLETIC_BELOW_LEVEL: 'Schools at levels where your baseball numbers are below the typical range.',
   OVER_BUDGET: 'Schools whose published cost of attendance is over your budget.',
   OUTSIDE_CHOSEN_STATES: 'Schools outside the states you chose.',
   OUTSIDE_CHOSEN_SETTINGS: 'Schools outside the campus settings you chose.',

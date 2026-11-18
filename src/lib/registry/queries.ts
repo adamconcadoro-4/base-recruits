@@ -4,8 +4,8 @@ import { cache } from 'react';
 
 import { createClient } from '@/lib/supabase/server';
 
-import { MAX_COMPARE, toSearchArgs, type ExplorerState } from './search-params';
-import type { CurrentPolicy, GpaRangeRow, RegistryCoverage, SchoolRecord, SchoolSummary } from './types';
+import { MAX_COMPARE, parseExplorerParams, toSearchArgs, type ExplorerState } from './search-params';
+import type { CurrentPolicy, DivisionCode, GpaRangeRow, RegistryCoverage, SchoolRecord, SchoolSummary } from './types';
 
 export interface SearchResult {
   readonly rows: readonly SchoolSummary[];
@@ -85,5 +85,33 @@ export async function gpaRanges(slugs: readonly string[]): Promise<ReadonlyMap<s
   const { data, error } = await supabase.rpc('gpa_ranges_for', { p_slugs: slugs.slice(0, 1000) });
   if (error) return 'failed';
   for (const row of (data ?? []) as GpaRangeRow[]) map.set(row.slug, { ...row, low: Number(row.low), high: Number(row.high) });
+  return map;
+}
+
+/** Every listed school with an active program in these divisions (pages of 100, the database's limit, fetched together). */
+export async function allSchoolsIn(divisions: readonly DivisionCode[]): Promise<readonly SchoolSummary[] | 'failed'> {
+  const search = (page: number) => searchSchools(parseExplorerParams({ division: [...divisions], page: String(page), sort: 'name' }), 100);
+  const first = await search(1);
+  if (first.failed) return 'failed';
+  const pages = Math.min(Math.ceil(first.total / 100), 60);
+  const rest = await Promise.all(Array.from({ length: Math.max(pages - 1, 0) }, (_, i) => search(i + 2)));
+  if (rest.some((r) => r.failed)) return 'failed';
+  return [first, ...rest].flatMap((r) => r.rows);
+}
+
+/** How many listed schools have an active program in these divisions. */
+export async function countSchoolsIn(divisions: readonly DivisionCode[]): Promise<number | null> {
+  const result = await searchSchools(parseExplorerParams({ division: [...divisions] }), 1);
+  return result.failed ? null : result.total;
+}
+
+/** The slugs of listed schools with these federal unit IDs (for Power 4 membership, which is kept by unit ID). */
+export async function slugsForUnitIds(unitids: readonly number[]): Promise<ReadonlyMap<number, string> | 'failed'> {
+  const map = new Map<number, string>();
+  if (unitids.length === 0) return map;
+  const supabase = await createClient();
+  const { data, error } = await supabase.from('institutions').select('slug, unitid').in('unitid', unitids.slice(0, 200));
+  if (error) return 'failed';
+  for (const row of (data ?? []) as { slug: string; unitid: number }[]) map.set(row.unitid, row.slug);
   return map;
 }

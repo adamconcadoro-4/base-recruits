@@ -51,6 +51,11 @@ export const FEATURES = {
     name: 'Academic comparison',
     now: 'Compare your SAT or ACT with the score ranges schools reported for a past entering class. GPA comparisons and current testing policies are limited by the data available.',
   },
+  school_suggestions: {
+    status: 'pilot',
+    name: 'My schools',
+    now: 'Enter your grades and baseball numbers once and see every D1, D2 and D3 program (NAIA and junior college if you choose) sorted into Strong fit, Possible fit, Reach and Not enough data, with the reasons. Numbers stay on your device.',
+  },
   correction_reports: {
     status: 'available',
     name: 'Correction reports',
