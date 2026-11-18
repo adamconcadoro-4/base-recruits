@@ -6,7 +6,7 @@ rule means changing this page, the code and its version number in the same pull 
 
 | Rule set | Code | Version |
 | --- | --- | --- |
-| Score and GPA comparison | `rules.ts` | `RULES_VERSION` 2026-10-31.1 |
+| Score and GPA comparison | `rules.ts` | `RULES_VERSION` 2026-11-18.1 |
 | Academic fit labels | `fit.ts` | `FIT_RULES_VERSION` 2026-10-31.1 |
 | Eligibility to compete | `eligibility.ts` | `ELIGIBILITY_RULES_VERSION` 2026-10-30.1 |
 | Combined suggestions | `suggestions.ts` | `SUGGESTION_RULES_VERSION` 2026-10-31.1 |
@@ -15,7 +15,7 @@ rule means changing this page, the code and its version number in the same pull 
 
 ## 1. What goes in
 
-- **Academics the player enters:** SAT section scores or ACT composite, whether they plan to send scores, GPA with its
+- **Academics the player enters:** SAT total score (founder decision 2026-11-18) or ACT composite, whether they plan to send scores, GPA with its
   scale and type (weighted or unweighted), first-year or transfer, entry year, and optionally their NCAA Division I and
   Division II core-course GPAs.
 - **School data already in the registry:** each program's division, state, campus setting, published cost of attendance
@@ -43,6 +43,13 @@ Taken only from the score and GPA comparison; no new cut-offs.
 
 Reported ranges are the middle 50% of a past entering class as a whole, not recruited athletes; that caveat is shown with
 every comparison.
+
+**SAT total (2026-11-18).** Players enter one SAT total (400–1600, in steps of 10), not two section scores. Schools report
+each section's middle 50% but not the total's, so the total is compared with the two 25th percentiles added and the two
+75th percentiles added. That range is approximate (a student at the 25th percentile in one section isn't always there in
+the other), and the reason "adds the two sections' ranges; it is approximate" is shown with every SAT comparison. A school
+that reports only one section has no total range, so the SAT isn't compared there. Numbers saved on a device before this
+change kept two sections; when both were saved, their sum becomes the total.
 
 **Open admission (F48).** A school that reports an open admission policy to the College Scorecard (IPEDS OPENADMP: it
 admits any applicant, or only requires a high school diploma or equivalent) is an academic fit whatever its score ranges

@@ -33,7 +33,7 @@
  * tested anywhere.
  */
 
-export const RULES_VERSION = '2026-10-31.1';
+export const RULES_VERSION = '2026-11-18.1';
 
 export type ApplicantType = 'first_year' | 'transfer';
 export type TestPolicy = 'required' | 'considered_not_required' | 'not_considered';
@@ -45,7 +45,8 @@ export interface ApplicantInput {
   /** The fall the applicant would enroll. */
   readonly entryYear: number;
   readonly gpa: { readonly value: number; readonly scale: number; readonly type: GpaType } | null;
-  readonly sat: { readonly erw: number | null; readonly math: number | null } | null;
+  /** The SAT total (Reading and Writing plus Math), 400–1600 (founder decision 2026-11-18: players enter the total). */
+  readonly sat: { readonly total: number } | null;
   readonly act: { readonly composite: number } | null;
   readonly submitScores: SubmitIntent;
 }
@@ -108,6 +109,7 @@ export type ReasonCode =
   | 'GPA_RANGE_PUBLISHED'
   | 'GPA_WEIGHTING_NOT_STATED'
   | 'GPA_SCALE_NOT_COMPARABLE'
+  | 'SAT_TOTAL_FROM_SECTIONS'
   | 'SCORES_NOT_SUBMITTED'
   | 'SCORES_ONLY_IF_SUBMITTED'
   | 'SCORE_NOT_ENTERED'
@@ -127,7 +129,7 @@ export interface Requirement {
 }
 
 export interface Benchmark {
-  readonly key: 'sat_erw' | 'sat_math' | 'act_composite' | 'gpa';
+  readonly key: 'sat_total' | 'act_composite' | 'gpa';
   readonly status: BenchmarkStatus;
   readonly applicant: number | null;
   readonly low: number | null;
@@ -157,8 +159,22 @@ export function termYear(term: string | null): number | null {
   return match ? Number(match[1]) : null;
 }
 
-export function isValidSatSection(value: number): boolean {
-  return Number.isInteger(value) && value >= 200 && value <= 800 && value % 10 === 0;
+export function isValidSatTotal(value: number): boolean {
+  return Number.isInteger(value) && value >= 400 && value <= 1600 && value % 10 === 0;
+}
+
+/**
+ * Schools report each SAT section's middle 50% separately, not the total's.
+ * The total range compared against is the two 25th percentiles added and the
+ * two 75th percentiles added, which is approximate (a student at the 25th
+ * percentile in one section isn't always there in the other), and the page
+ * says so every time. Null unless both sections are reported.
+ */
+export function satTotalRange(evidence: SchoolEvidence): readonly [number | null, number | null] {
+  const [erwLow, erwHigh] = evidence.satErw;
+  const [mathLow, mathHigh] = evidence.satMath;
+  if (erwLow === null || erwHigh === null || mathLow === null || mathHigh === null) return [null, null];
+  return [erwLow + mathLow, erwHigh + mathHigh];
 }
 
 export function isValidActComposite(value: number): boolean {
@@ -171,7 +187,7 @@ export function applicablePolicy(evidence: SchoolEvidence, input: ApplicantInput
 }
 
 function hasScore(input: ApplicantInput): boolean {
-  return (input.sat !== null && (input.sat.erw !== null || input.sat.math !== null)) || input.act !== null;
+  return input.sat !== null || input.act !== null;
 }
 
 function testingRequirement(policy: CheckedPolicy | null, input: ApplicantInput): Requirement {
@@ -259,8 +275,7 @@ export function compareSchool(evidence: SchoolEvidence, input: ApplicantInput): 
       requirements,
       requirementSummary: summarize(requirements),
       benchmarks: [
-        blocked('sat_erw', input.sat?.erw ?? null, evidence.satErw),
-        blocked('sat_math', input.sat?.math ?? null, evidence.satMath),
+        blocked('sat_total', input.sat?.total ?? null, satTotalRange(evidence)),
         blocked('act_composite', input.act?.composite ?? null, evidence.actComposite),
         { ...gpa, status: 'not_comparable', reasons: ['TRANSFER_FIRST_YEAR_DATA_NOT_APPLICABLE'] },
       ],
@@ -280,18 +295,17 @@ export function compareSchool(evidence: SchoolEvidence, input: ApplicantInput): 
   const extra: ReasonCode[] = input.submitScores === 'undecided' ? ['SCORES_ONLY_IF_SUBMITTED'] : [];
 
   const benchmarks: Benchmark[] = noData
-    ? (['sat_erw', 'sat_math', 'act_composite'] as const).map((key) => ({
+    ? (['sat_total', 'act_composite'] as const).map((key) => ({
         key,
         status: blocked ? ('not_comparable' as const) : ('not_reported' as const),
-        applicant: key === 'act_composite' ? (input.act?.composite ?? null) : key === 'sat_erw' ? (input.sat?.erw ?? null) : (input.sat?.math ?? null),
+        applicant: key === 'act_composite' ? (input.act?.composite ?? null) : (input.sat?.total ?? null),
         low: null,
         high: null,
         term: null,
         reasons: [blocked ?? 'NO_ADMISSIONS_DATA'],
       }))
     : [
-        scoreBenchmark('sat_erw', input.sat?.erw ?? null, evidence.satErw, evidence.admissionsTerm, blocked, extra),
-        scoreBenchmark('sat_math', input.sat?.math ?? null, evidence.satMath, evidence.admissionsTerm, blocked, extra),
+        scoreBenchmark('sat_total', input.sat?.total ?? null, satTotalRange(evidence), evidence.admissionsTerm, blocked, [...extra, 'SAT_TOTAL_FROM_SECTIONS']),
         scoreBenchmark('act_composite', input.act?.composite ?? null, evidence.actComposite, evidence.admissionsTerm, blocked, extra),
       ];
   benchmarks.push(gpa);
@@ -339,8 +353,7 @@ export function scoreGroup(result: ComparisonResult): ScoreGroup {
 export function parseApplicantInput(raw: {
   readonly applicantType: string;
   readonly entryYear: string;
-  readonly satErw: string;
-  readonly satMath: string;
+  readonly satTotal: string;
   readonly act: string;
   readonly submitScores: string;
   readonly gpa: string;
@@ -355,11 +368,9 @@ export function parseApplicantInput(raw: {
     errors.entryYear = `Choose a year from ${thisYear} to ${thisYear + 4}.`;
   }
   const num = (value: string) => (value.trim() === '' ? null : Number(value));
-  const erw = num(raw.satErw);
-  const math = num(raw.satMath);
+  const satTotal = num(raw.satTotal);
   const act = num(raw.act);
-  if (erw !== null && !isValidSatSection(erw)) errors.satErw = 'Enter a section score from 200 to 800, in steps of 10.';
-  if (math !== null && !isValidSatSection(math)) errors.satMath = 'Enter a section score from 200 to 800, in steps of 10.';
+  if (satTotal !== null && !isValidSatTotal(satTotal)) errors.satTotal = 'Enter a total SAT score from 400 to 1600, in steps of 10.';
   if (act !== null && !isValidActComposite(act)) errors.act = 'Enter a composite from 1 to 36.';
   const submitScores = raw.submitScores === 'yes' || raw.submitScores === 'no' || raw.submitScores === 'undecided' ? raw.submitScores : null;
   if (!submitScores) errors.submitScores = 'Choose whether you plan to send scores.';
@@ -377,7 +388,7 @@ export function parseApplicantInput(raw: {
       applicantType,
       entryYear,
       gpa: gpaValue === null ? null : { value: gpaValue, scale, type: gpaType },
-      sat: erw === null && math === null ? null : { erw, math },
+      sat: satTotal === null ? null : { total: satTotal },
       act: act === null ? null : { composite: act },
       submitScores,
     },

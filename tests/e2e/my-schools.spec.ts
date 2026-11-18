@@ -19,8 +19,7 @@ test('enter numbers once, see every D1–D3 program grouped, then the same numbe
   const form = page.getByRole('form', { name: 'Your numbers for My schools' });
   await expect(form.getByText('remembered on this device only')).toBeVisible();
   await form.getByLabel('GPA', { exact: true }).fill('3.4');
-  await form.getByLabel('SAT Reading and Writing').fill('600');
-  await form.getByLabel('SAT Math').fill('600');
+  await form.getByLabel('SAT total score').fill('1200');
   await form.getByRole('button', { name: 'Show my schools' }).click();
 
   // No baseball numbers yet: every school is Not enough data, sub-grouped by the academic result.
@@ -49,7 +48,7 @@ test('enter numbers once, see every D1–D3 program grouped, then the same numbe
   expect(axe.violations.map((v) => v.id)).toEqual([]);
 
   // Nothing about the player was posted to the server.
-  expect(sent.filter((body) => body.includes('3.4') || body.includes('88'))).toEqual([]);
+  expect(sent.filter((body) => body.includes('3.4') || body.includes('1200'))).toEqual([]);
 
   // The same numbers open straight to the result on a school page.
   await page.goto('/schools/stanford-university-ca');

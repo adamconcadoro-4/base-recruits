@@ -49,7 +49,7 @@ const applicant = (overrides: Partial<ApplicantInput> = {}): ApplicantInput => (
   applicantType: 'first_year',
   entryYear: 2027,
   gpa: { value: 3.6, scale: 4, type: 'unweighted' },
-  sat: { erw: 610, math: 610 },
+  sat: { total: 1220 },
   act: null,
   submitScores: 'yes',
   ...overrides,
@@ -102,7 +102,9 @@ describe('testing requirement', () => {
 describe('historical benchmarks', () => {
   it('below a past range is a benchmark, not a requirement failure', () => {
     const result = compareSchool(unchecked, applicant());
-    expect(result.benchmarks[0]).toMatchObject({ key: 'sat_erw', status: 'below', low: 700, high: 760, term: 'Fall 2024' });
+    // The total range adds the two section ranges (700–760 and 720–790), and says it is approximate.
+    expect(result.benchmarks[0]).toMatchObject({ key: 'sat_total', status: 'below', low: 1420, high: 1550, term: 'Fall 2024' });
+    expect(result.benchmarks[0]?.reasons).toContain('SAT_TOTAL_FROM_SECTIONS');
     expect(result.benchmarks[0]?.reasons).toContain('BELOW_RANGE_IS_NOT_A_REQUIREMENT');
     expect(result.benchmarks[0]?.reasons).toContain('WHOLE_CLASS_NOT_ATHLETES');
     expect(result.requirementSummary).not.toBe('not_met');
@@ -110,10 +112,11 @@ describe('historical benchmarks', () => {
   });
 
   it('places scores within and above the range, and mixes them honestly', () => {
-    const result = compareSchool(unchecked, applicant({ sat: { erw: 760, math: 800 }, act: { composite: 30 } }));
-    expect(result.benchmarks.map((b) => b.status)).toEqual(['within', 'above', 'below', 'not_reported']);
+    const result = compareSchool(unchecked, applicant({ sat: { total: 1600 }, act: { composite: 30 } }));
+    expect(result.benchmarks.map((b) => b.status)).toEqual(['above', 'below', 'not_reported']);
     expect(scoreGroup(result)).toBe('mixed');
-    expect(scoreGroup(compareSchool(unchecked, applicant({ sat: { erw: 760, math: 800 } })))).toBe('at_or_above');
+    expect(scoreGroup(compareSchool(unchecked, applicant({ sat: { total: 1500 } })))).toBe('at_or_above');
+    expect(compareSchool(unchecked, applicant({ sat: { total: 1420 } })).benchmarks[0]?.status).toBe('within');
   });
 
   it('a score the applicant will not send is not compared', () => {
@@ -123,8 +126,13 @@ describe('historical benchmarks', () => {
   });
 
   it('a score that was not entered is not compared', () => {
-    const result = compareSchool(unchecked, applicant({ sat: { erw: 720, math: null } }));
-    expect(result.benchmarks[1]).toMatchObject({ key: 'sat_math', status: 'not_comparable', reasons: ['SCORE_NOT_ENTERED'] });
+    const result = compareSchool(unchecked, applicant({ sat: null, act: { composite: 33 } }));
+    expect(result.benchmarks[0]).toMatchObject({ key: 'sat_total', status: 'not_comparable', reasons: ['SCORE_NOT_ENTERED'] });
+  });
+
+  it('a total range needs both sections reported; one section alone is never stretched into a total', () => {
+    const oneSection: SchoolEvidence = { ...unchecked, satMath: [null, null] };
+    expect(compareSchool(oneSection, applicant()).benchmarks[0]).toMatchObject({ key: 'sat_total', status: 'not_reported', low: null, high: null, reasons: ['RANGE_NOT_REPORTED'] });
   });
 
   it('GPA is not compared when the school published no GPA range; nothing is estimated', () => {
@@ -200,8 +208,7 @@ describe('input validation', () => {
   const raw = {
     applicantType: 'first_year',
     entryYear: '2027',
-    satErw: '',
-    satMath: '',
+    satTotal: '',
     act: '',
     submitScores: 'yes',
     gpa: '',
@@ -216,9 +223,12 @@ describe('input validation', () => {
   });
 
   it('rejects impossible scores, GPAs and years with a message per field', () => {
-    const parsed = parseApplicantInput({ ...raw, satErw: '805', satMath: '615', act: '40', gpa: '4.5', entryYear: '2040' }, 2026);
+    const parsed = parseApplicantInput({ ...raw, satTotal: '1605', act: '40', gpa: '4.5', entryYear: '2040' }, 2026);
     expect(parsed.ok).toBe(false);
-    if (!parsed.ok) expect(Object.keys(parsed.errors).sort()).toEqual(['act', 'entryYear', 'gpa', 'satErw', 'satMath']);
+    if (!parsed.ok) expect(Object.keys(parsed.errors).sort()).toEqual(['act', 'entryYear', 'gpa', 'satTotal']);
+    for (const bad of ['390', '1610', '1215', 'abc']) expect(parseApplicantInput({ ...raw, satTotal: bad }, 2026).ok).toBe(false);
+    const ok = parseApplicantInput({ ...raw, satTotal: '1210' }, 2026);
+    expect(ok.ok && ok.input.sat).toEqual({ total: 1210 });
   });
 
   it('rejects an unknown applicant type instead of guessing', () => {
@@ -257,7 +267,7 @@ describe('GPA against a published range (F51)', () => {
     expect(scoreGroup(compareSchool(withGpa, noScores))).toBe('below');
     expect(gpaOf({ ...withGpa, currentPolicies: [{ applicant_type: 'first_year', entry_year: 2027, test_policy: 'not_considered', ...CHECKED }] }, at(3.5))?.status).toBe('within');
     // SAT within or above and GPA below: mixed.
-    expect(scoreGroup(compareSchool(withGpa, applicant({ sat: { erw: 760, math: 800 }, gpa: { value: 3.0, scale: 4, type: 'unweighted' } })))).toBe('mixed');
+    expect(scoreGroup(compareSchool(withGpa, applicant({ sat: { total: 1560 }, gpa: { value: 3.0, scale: 4, type: 'unweighted' } })))).toBe('mixed');
   });
 
   it('a GPA range counts as reported evidence, also for a school with no test-score figures', () => {

@@ -15,8 +15,7 @@ test('enter numbers once, see the fit on every school page, then forget them', a
   await expect(fit.getByText('remembered on this device only')).toBeVisible();
 
   await fit.getByLabel('GPA', { exact: true }).fill('3.4');
-  await fit.getByLabel('SAT Reading and Writing').fill('500');
-  await fit.getByLabel('SAT Math').fill('500');
+  await fit.getByLabel('SAT total score').fill('1000');
   await fit.getByRole('button', { name: 'See your fit' }).click();
 
   await expect(fit.getByRole('heading', { name: 'Your fit with Stanford University' })).toBeFocused();
@@ -67,8 +66,8 @@ test('enter numbers once, see the fit on every school page, then forget them', a
 test('an invalid number is explained and nothing is shown until it is fixed', async ({ page }) => {
   await page.goto('/schools/stanford-university-ca');
   const fit = page.getByRole('region', { name: 'Your fit' });
-  await fit.getByLabel('SAT Math').fill('900');
+  await fit.getByLabel('SAT total score').fill('1700');
   await fit.getByRole('button', { name: 'See your fit' }).click();
-  await expect(fit.getByRole('alert')).toContainText('Enter a section score from 200 to 800');
+  await expect(fit.getByRole('alert')).toContainText('Enter a total SAT score from 400 to 1600');
   await expect(fit.getByRole('heading', { name: /Your fit with/ })).toHaveCount(0);
 });

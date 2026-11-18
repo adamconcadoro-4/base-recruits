@@ -12,7 +12,7 @@ import { StatusChip, type ChipTone } from '@/components/ui/status-chip';
 import { PUBLIC_BENCHMARKS, evaluateAthletic } from '@/lib/matching/athletic';
 import type { ListCandidate } from '@/lib/matching/candidates';
 import { LEVELS, type EligibilityStatus, type Level } from '@/lib/matching/eligibility';
-import { BENCHMARK_LABELS, BENCHMARK_NAMES } from '@/lib/matching/explain';
+import { BENCHMARK_LABELS, BENCHMARK_NAMES, REASONS } from '@/lib/matching/explain';
 import { ACADEMIC_FITS, type AcademicFit } from '@/lib/matching/fit';
 import {
   BUDGET_CHOICES,
@@ -133,9 +133,7 @@ function yourNumbersLine(numbers: PlayerNumbers): string {
     const type = numbers.gpaType === 'unweighted' ? 'unweighted' : numbers.gpaType === 'weighted' ? 'weighted' : 'type not stated';
     parts.push(`GPA ${numbers.gpa} out of ${numbers.gpaScale === '100' ? '100' : `${numbers.gpaScale}.0`} (${type})`);
   }
-  if (numbers.satErw.trim() || numbers.satMath.trim()) {
-    parts.push(`SAT ${numbers.satErw.trim() || '–'} Reading and Writing, ${numbers.satMath.trim() || '–'} Math`);
-  }
+  if (numbers.satTotal.trim()) parts.push(`SAT ${numbers.satTotal.trim()}`);
   if (numbers.act.trim()) parts.push(`ACT ${numbers.act}`);
   if (numbers.coreGpaDivisionI.trim()) parts.push(`Division I core-course GPA ${numbers.coreGpaDivisionI}`);
   if (numbers.coreGpaDivisionII.trim()) parts.push(`Division II core-course GPA ${numbers.coreGpaDivisionII}`);
@@ -190,6 +188,7 @@ function SchoolRow({ s, signedIn, saved }: { readonly s: Suggestion; readonly si
               <li key={b.key}>
                 {gpa ? 'High school GPA, middle half' : BENCHMARK_NAMES[b.key]}: {show(b.low)}–{show(b.high)} for the {b.term ?? 'past'} class; yours{' '}
                 {show(b.applicant)} ({BENCHMARK_LABELS[b.status].toLowerCase()}).
+                {b.reasons.includes('SAT_TOTAL_FROM_SECTIONS') ? <span className="block text-slate">{REASONS.SAT_TOTAL_FROM_SECTIONS}</span> : null}
               </li>
             );
           })}

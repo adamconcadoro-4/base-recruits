@@ -132,7 +132,9 @@ export default async function DataMethodologyPage() {
           <li>Admissions describe one fall entering class (for example Fall 2024).</li>
           <li>
             SAT and ACT ranges are the 25th to 75th percentile of enrolled first-time students whose scores were used in
-            the admission decision. SAT sections are shown separately; we don&apos;t add them into a total.
+            the admission decision. School pages show the SAT sections as the school reported them. To compare your SAT
+            total, we add the two sections&apos; 25th percentiles and the two 75th percentiles. Schools don&apos;t report a
+            total range, so that range is approximate, and every comparison says so.
           </li>
           <li>Prices are published sticker prices for one academic year, before aid. We link each school&apos;s own net price calculator.</li>
           <li>Enrollment is fall undergraduate degree-seeking enrollment.</li>

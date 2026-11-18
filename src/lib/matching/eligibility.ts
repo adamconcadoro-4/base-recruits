@@ -238,7 +238,7 @@ function comparableGpa(input: ApplicantInput): { readonly value: number } | { re
 function naiaTestMet(input: ApplicantInput, rule: NaiaRule): boolean {
   if (input.submitScores !== 'yes') return false;
   const act = input.act?.composite ?? null;
-  const satTotal = input.sat && input.sat.erw !== null && input.sat.math !== null ? input.sat.erw + input.sat.math : null;
+  const satTotal = input.sat?.total ?? null;
   return (act !== null && act >= rule.actMinimum) || (satTotal !== null && satTotal >= rule.satMinimum);
 }
 

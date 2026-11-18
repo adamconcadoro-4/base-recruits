@@ -33,7 +33,7 @@ import {
 
 const CHECKED = { source_url: 'https://admissions.example.edu/testing', verified_at: '2026-10-23T00:00:00Z' } as const;
 
-function evidence(slug: string, erw: [number | null, number | null], math: [number | null, number | null], required = false): SchoolEvidence {
+function evidence(slug: string, erw: [number | null, number | null], math: [number | null, number | null], required = false, gpa: SchoolEvidence['gpa'] = null): SchoolEvidence {
   return {
     slug,
     admissionsTerm: erw[0] === null && math[0] === null ? null : 'Fall 2025',
@@ -42,6 +42,7 @@ function evidence(slug: string, erw: [number | null, number | null], math: [numb
     actComposite: [null, null],
     historicalTestPolicy: null,
     currentPolicies: required ? [{ applicant_type: 'first_year', entry_year: 2027, test_policy: 'required', ...CHECKED }] : [],
+    gpa,
   };
 }
 
@@ -49,12 +50,12 @@ function candidate(
   slug: string,
   name: string,
   division: SuggestionCandidate['school']['division_code'],
-  ranges: { erw: [number | null, number | null]; math: [number | null, number | null]; required?: boolean },
+  ranges: { erw: [number | null, number | null]; math: [number | null, number | null]; required?: boolean; gpa?: SchoolEvidence['gpa'] },
   extra: Partial<SuggestionCandidate['school']> = {},
 ): SuggestionCandidate {
   return {
     school: { slug, name, state: 'NY', setting: 'suburb', division_code: division, cost_of_attendance: 40000, cost_year: '2025-26', ...extra },
-    evidence: evidence(slug, ranges.erw, ranges.math, ranges.required),
+    evidence: evidence(slug, ranges.erw, ranges.math, ranges.required, ranges.gpa ?? null),
   };
 }
 
@@ -62,7 +63,7 @@ const player = (overrides: Partial<ApplicantInput> = {}): ApplicantInput => ({
   applicantType: 'first_year',
   entryYear: 2027,
   gpa: { value: 3.3, scale: 4, type: 'unweighted' },
-  sat: { erw: 600, math: 600 },
+  sat: { total: 1200 },
   act: null,
   submitScores: 'yes',
   ...overrides,
@@ -74,7 +75,8 @@ const inRange = (...levels: (keyof AthleticProfile['byLevel'])[]): AthleticProfi
 });
 
 const AT = { erw: [560, 640] as [number, number], math: [560, 640] as [number, number] };
-const MIXED = { erw: [560, 640] as [number, number], math: [620, 700] as [number, number] };
+// SAT total within the summed range (1120–1280), GPA below the published middle half: some numbers below, so a stretch.
+const MIXED = { erw: [560, 640] as [number, number], math: [560, 640] as [number, number], gpa: { low: 3.5, high: 3.9, term: 'Fall 2025', weighting: 'unweighted' as const } };
 const ABOVE = { erw: [650, 720] as [number, number], math: [650, 720] as [number, number] };
 const NONE = { erw: [null, null] as [null, null], math: [null, null] as [null, null] };
 
@@ -192,11 +194,11 @@ describe('suggestSchools', () => {
   });
 
   it('NAIA eligibility that depends on class rank caps the school at Possible fit', () => {
-    const list = suggestSchools(schools, player({ gpa: { value: 2.1, scale: 4, type: 'unweighted' }, sat: { erw: 450, math: 450 } }), inRange('naia'));
+    const list = suggestSchools(schools, player({ gpa: { value: 2.1, scale: 4, type: 'unweighted' }, sat: { total: 900 } }), inRange('naia'));
     expect(list.eligibilityByLevel.naia.status).toBe('depends');
     // The SAT is below the NAIA test minimum but the ranges here are lower still for this fixture school.
     const lowRanges = [candidate('naia-low', 'Pine College', 'naia', { erw: [400, 480], math: [400, 480] })];
-    const low = suggestSchools(lowRanges, player({ gpa: { value: 2.1, scale: 4, type: 'unweighted' }, sat: { erw: 450, math: 450 } }), inRange('naia'));
+    const low = suggestSchools(lowRanges, player({ gpa: { value: 2.1, scale: 4, type: 'unweighted' }, sat: { total: 900 } }), inRange('naia'));
     expect(low.groups.possible_fit.map((s) => s.school.slug)).toEqual(['naia-low']);
     expect(low.groups.possible_fit[0]?.reasons).toContain('ELIGIBILITY_DEPENDS');
   });
@@ -214,8 +216,8 @@ describe('suggestSchools', () => {
   it('a better test score never moves a school to a lower group', () => {
     const naia = [candidate('naia-low', 'Redbud College', 'naia', { erw: [400, 480], math: [400, 480] })];
     const weighted = { value: 3.4, scale: 4, type: 'weighted' as const };
-    const lower = suggestSchools(naia, player({ gpa: weighted, sat: { erw: 480, math: 480 } }), inRange('naia'));
-    const higher = suggestSchools(naia, player({ gpa: weighted, sat: { erw: 490, math: 490 } }), inRange('naia'));
+    const lower = suggestSchools(naia, player({ gpa: weighted, sat: { total: 960 } }), inRange('naia'));
+    const higher = suggestSchools(naia, player({ gpa: weighted, sat: { total: 980 } }), inRange('naia'));
     // SAT 960 misses the NAIA's 970, 980 meets it; with a weighted GPA eligibility stays "not checked" either way,
     // so the better score can't cap the school at Possible fit.
     expect(lower.eligibilityByLevel.naia.status).toBe('unknown');
@@ -300,7 +302,8 @@ describe('open admission (F48)', () => {
 
 describe('academic fit and wording', () => {
   it('derives the label from the existing comparison only', () => {
-    const fit = (ranges: typeof AT | typeof NONE, input = player()) => academicFit(compareSchool(evidence('x', ranges.erw, ranges.math), input)).fit;
+    const fit = (ranges: { erw: [number | null, number | null]; math: [number | null, number | null]; gpa?: SchoolEvidence['gpa'] }, input = player()) =>
+      academicFit(compareSchool(evidence('x', ranges.erw, ranges.math, false, ranges.gpa ?? null), input)).fit;
     expect(fit(AT)).toBe('fit');
     expect(fit(MIXED)).toBe('stretch');
     expect(fit(ABOVE)).toBe('reach');

@@ -29,8 +29,7 @@ export function readPlayerInput(numbers: PlayerNumbers, thisYear: number): Playe
     {
       applicantType: numbers.applicantType,
       entryYear: numbers.entryYear,
-      satErw: numbers.satErw,
-      satMath: numbers.satMath,
+      satTotal: numbers.satTotal,
       act: numbers.act,
       submitScores: numbers.submitScores,
       gpa: numbers.gpa,
@@ -66,5 +65,5 @@ export function readPlayerInput(numbers: PlayerNumbers, thisYear: number): Playe
 
 /** True when the player typed any grade or test score (the parts that need transcripts to verify). */
 export function hasTypedAcademics(numbers: PlayerNumbers): boolean {
-  return (['gpa', 'satErw', 'satMath', 'act', 'coreGpaDivisionI', 'coreGpaDivisionII'] as const).some((f) => numbers[f].trim() !== '');
+  return (['gpa', 'satTotal', 'act', 'coreGpaDivisionI', 'coreGpaDivisionII'] as const).some((f) => numbers[f].trim() !== '');
 }

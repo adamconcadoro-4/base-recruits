@@ -103,8 +103,7 @@ export function PlayerNumbersForm(props: Props) {
           <option value="undecided">Not sure yet</option>
           <option value="no">No</option>
         </SelectField>
-        <TextField id={id('satErw')} name="satErw" label="SAT Reading and Writing" hint="200–800, optional" inputMode="numeric" defaultValue={numbers.satErw} error={errors.satErw} autoComplete="off" />
-        <TextField id={id('satMath')} name="satMath" label="SAT Math" hint="200–800, optional" inputMode="numeric" defaultValue={numbers.satMath} error={errors.satMath} autoComplete="off" />
+        <TextField id={id('satTotal')} name="satTotal" label="SAT total score" hint="400–1600, optional" inputMode="numeric" defaultValue={numbers.satTotal} error={errors.satTotal} autoComplete="off" />
         <TextField id={id('act')} name="act" label="ACT composite" hint="1–36, optional" inputMode="numeric" defaultValue={numbers.act} error={errors.act} autoComplete="off" />
         {coreGpa.includes('d1') ? (
           <TextField id={id('coreGpaDivisionI')} name="coreGpaDivisionI" label="NCAA Division I core-course GPA" hint="Optional, from the NCAA Eligibility Center" inputMode="decimal" defaultValue={numbers.coreGpaDivisionI} error={errors.coreGpaDivisionI} autoComplete="off" />

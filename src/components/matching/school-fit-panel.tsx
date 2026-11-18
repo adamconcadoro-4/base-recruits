@@ -358,8 +358,8 @@ export function SchoolFitPanel(props: Props) {
                 {benchmarks.map((b) => {
                   const gpa = b.key === 'gpa';
                   const show = (value: number | null) => (value === null ? '' : gpa ? value.toFixed(2) : String(value));
-                  // GPA notes travel with the GPA line: whether the school said it's weighted, or why it isn't compared.
-                  const notes = gpa ? b.reasons.filter((r) => r === 'GPA_WEIGHTING_NOT_STATED' || r === 'GPA_SCALE_NOT_COMPARABLE') : [];
+                  // Notes travel with their line: whether the school said its GPAs are weighted, why a GPA isn't compared, and that an SAT total range is added from the sections.
+                  const notes = b.reasons.filter((r) => r === 'GPA_WEIGHTING_NOT_STATED' || r === 'GPA_SCALE_NOT_COMPARABLE' || r === 'SAT_TOTAL_FROM_SECTIONS');
                   return (
                     <li key={b.key}>
                       {gpa ? 'High school GPA, middle half' : BENCHMARK_NAMES[b.key]}: {show(b.low)}–{show(b.high)} for the {b.term ?? 'past'} class

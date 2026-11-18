@@ -136,7 +136,7 @@ describe('toListCandidate', () => {
 
 describe('readPlayerInput', () => {
   it('reads grades, core-course GPAs and baseball numbers together', () => {
-    const r = readPlayerInput(numbers({ gpa: '3.4', satErw: '600', satMath: '610', coreGpaDivisionI: '3.2', position: 'pitcher', fastball_mph: '88' }), 2026);
+    const r = readPlayerInput(numbers({ gpa: '3.4', satTotal: '1210', coreGpaDivisionI: '3.2', position: 'pitcher', fastball_mph: '88' }), 2026);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.input.gpa).toEqual({ value: 3.4, scale: 4, type: 'unweighted' });
@@ -145,10 +145,10 @@ describe('readPlayerInput', () => {
   });
 
   it('collects every field error at once', () => {
-    const r = readPlayerInput(numbers({ satErw: '805', coreGpaDivisionII: 'x', position: 'pitcher', fastball_mph: '300' }), 2026);
+    const r = readPlayerInput(numbers({ satTotal: '1605', coreGpaDivisionII: 'x', position: 'pitcher', fastball_mph: '300' }), 2026);
     expect(r.ok).toBe(false);
     if (r.ok) return;
-    expect(Object.keys(r.errors).sort()).toEqual(['coreGpaDivisionII', 'fastball_mph', 'satErw']);
+    expect(Object.keys(r.errors).sort()).toEqual(['coreGpaDivisionII', 'fastball_mph', 'satTotal']);
   });
 
   it('has no baseball input without a position', () => {
@@ -209,14 +209,14 @@ describe('the list end to end', () => {
 
   it('compares Power 4 schools with the Power 4 benchmarks (F50)', () => {
     // 86 mph: in the Division I typical range, below the Power 4 one (87 and up).
-    const l = list(numbers({ gpa: '3.6', satErw: '600', satMath: '600', position: 'pitcher', fastball_mph: '86' }));
+    const l = list(numbers({ gpa: '3.6', satTotal: '1200', position: 'pitcher', fastball_mph: '86' }));
     expect(l.groups.strong_fit.map((s) => s.school.slug)).toEqual(['a-ny', 'd3-ny']);
     expect(l.excluded.ATHLETIC_BELOW_LEVEL).toBe(1);
     expect(l.excluded.LEVEL_NOT_CHOSEN).toBe(1);
   });
 
   it('puts everything under Not enough data until baseball numbers are entered', () => {
-    const l = list(numbers({ gpa: '3.6', satErw: '600', satMath: '600' }));
+    const l = list(numbers({ gpa: '3.6', satTotal: '1200' }));
     expect(l.groups.not_enough_data).toHaveLength(3);
     expect(l.groups.not_enough_data.every((s) => s.academic.fit === 'fit')).toBe(true);
   });
