@@ -4,6 +4,8 @@ import {
   approveLinkAction,
   cancelInviteAction,
   endLinkAction,
+  shareNumbersWithFamilyAction,
+  stopSharingNumbersAction,
   turnOffCoachVisibilityAction,
   turnOnCoachVisibilityAction,
 } from '@/app/(app)/athlete/actions';
@@ -16,6 +18,9 @@ import { StatusChip } from '@/components/ui/status-chip';
 import { requireAccess } from '@/lib/auth/guard';
 import { CONSENT_SCOPES } from '@/lib/consent/scopes';
 import { formatDate, RELATIONSHIP_LABELS, type FamilyLinkRow } from '@/lib/family/family';
+import { fromAccountRow, type SavedNumbersRow } from '@/lib/matching/account-numbers';
+import { academicsLine, baseballLine } from '@/lib/matching/numbers-summary';
+import { TYPED_GRADES_NOTE } from '@/lib/matching/suggestions-explain';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = { title: 'Athlete home' };
@@ -25,6 +30,14 @@ interface GrantRow {
   readonly scope: string;
   readonly in_effect: boolean;
   readonly waiting_for_guardian: boolean;
+}
+
+interface NumbersAccessRow {
+  readonly link_id: string;
+  readonly guardian_name: string | null;
+  readonly relationship: FamilyLinkRow['relationship'];
+  readonly grant_id: string | null;
+  readonly in_effect: boolean;
 }
 
 interface InviteRow {
@@ -53,7 +66,7 @@ function VisibilityChip({ state }: { readonly state: VisibilityState }) {
 export default async function AthleteHomePage() {
   const account = await requireAccess('/athlete');
   const supabase = await createClient();
-  const [grantsResult, linksResult, invitesResult] = await Promise.all([
+  const [grantsResult, linksResult, invitesResult, numbersResult, numbersAccessResult] = await Promise.all([
     supabase.rpc('my_consent_grants'),
     supabase.rpc('list_family_links'),
     supabase
@@ -63,6 +76,8 @@ export default async function AthleteHomePage() {
       .is('cancelled_at', null)
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false }),
+    supabase.rpc('my_numbers'),
+    supabase.rpc('numbers_family_access'),
   ]);
 
   const grants = (grantsResult.data ?? []) as GrantRow[];
@@ -72,7 +87,12 @@ export default async function AthleteHomePage() {
   const hasActiveGuardian = links.some(
     (link) => link.status === 'active' && (link.relationship === 'parent' || link.relationship === 'legal_guardian'),
   );
-  const loadFailed = Boolean(grantsResult.error || linksResult.error || invitesResult.error);
+  const savedRow = ((numbersResult.data ?? []) as SavedNumbersRow[])[0] ?? null;
+  const savedNumbers = savedRow ? fromAccountRow(savedRow) : null;
+  const numbersAccess = (numbersAccessResult.data ?? []) as NumbersAccessRow[];
+  const loadFailed = Boolean(
+    grantsResult.error || linksResult.error || invitesResult.error || numbersResult.error || numbersAccessResult.error,
+  );
   const visibility: VisibilityState = grantsResult.error
     ? 'unknown'
     : discovery === null
@@ -143,6 +163,89 @@ export default async function AthleteHomePage() {
                   variant="secondary"
                 />
               ) : null}
+            </div>
+          </div>
+        </DashboardSection>
+
+        <DashboardSection
+          id="numbers-sharing"
+          title="Grades and baseball numbers"
+          description="Save them once to use on every device, and choose which parent or guardian can see them. Coaches can’t see them."
+          aside={savedNumbers ? <StatusChip tone="positive">Saved to your account</StatusChip> : <StatusChip tone="neutral">Not saved</StatusChip>}
+        >
+          <div className="space-y-6">
+            {savedRow && savedNumbers ? (
+              <div className="space-y-2">
+                <p>
+                  {academicsLine(savedNumbers) || 'No grades or test scores saved.'}{' '}
+                  {academicsLine(savedNumbers) ? <StatusChip tone="attention">{TYPED_GRADES_NOTE}</StatusChip> : null}
+                </p>
+                <p>{baseballLine(savedNumbers) || 'No position or baseball numbers saved.'}</p>
+                <p className="text-sm text-slate">Last saved {formatDate(savedRow.updated_at)}. Change or remove them on My schools.</p>
+              </div>
+            ) : (
+              <p className="max-w-2xl">
+                Nothing is saved to your account yet. On My schools, enter your numbers and tick &ldquo;Save to my
+                account&rdquo;.
+              </p>
+            )}
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href="/my-schools" variant={savedNumbers ? 'secondary' : 'primary'}>
+                {savedNumbers ? 'Change on My schools' : 'Go to My schools'}
+              </ButtonLink>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-2xl text-navy">Who can see them</h3>
+              {numbersAccess.length > 0 ? (
+                <ul className="divide-y-2 divide-rule border-y-2 border-rule">
+                  {numbersAccess.map((row) => (
+                    <li key={row.link_id} className="flex flex-wrap items-start justify-between gap-4 py-4">
+                      <div>
+                        <p className="font-semibold">{row.guardian_name ?? 'Family member'}</p>
+                        <p className="text-sm text-slate">{RELATIONSHIP_LABELS[row.relationship]}</p>
+                        <div className="mt-2">
+                          {row.in_effect ? (
+                            <StatusChip tone="positive">Can see your grades and numbers</StatusChip>
+                          ) : (
+                            <StatusChip tone="neutral">Can&apos;t see them</StatusChip>
+                          )}
+                        </div>
+                      </div>
+                      {row.in_effect && row.grant_id ? (
+                        <ActionButtonForm
+                          action={stopSharingNumbersAction}
+                          fields={{ grantId: row.grant_id }}
+                          label="Stop sharing"
+                          pendingLabel="Saving…"
+                          variant="secondary"
+                          size="sm"
+                        />
+                      ) : (
+                        <ActionButtonForm
+                          action={shareNumbersWithFamilyAction}
+                          fields={{ linkId: row.link_id }}
+                          label={`Share with ${row.guardian_name ?? 'them'}`}
+                          pendingLabel="Saving…"
+                          size="sm"
+                        />
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="max-w-2xl">
+                  Only you. To share them with a parent or guardian, link them in{' '}
+                  <a href="#family-access" className="font-semibold text-royal-ink underline">
+                    Family access
+                  </a>{' '}
+                  first.
+                </p>
+              )}
+              <p className="max-w-2xl text-sm text-slate">
+                A parent or guardian you share with sees what you saved, marked &ldquo;{TYPED_GRADES_NOTE}&rdquo;. They
+                can&apos;t change it. Stopping sharing, or removing their family access, takes effect straight away.
+              </p>
             </div>
           </div>
         </DashboardSection>

@@ -4,11 +4,13 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 
 import { PlayerNumbersForm, TYPED_GRADES_NOTE } from '@/components/matching/player-numbers-form';
+import { AccountNumbersNote, initialNumbers, useAccountNumbers } from '@/components/matching/use-account-numbers';
 import { SaveButton } from '@/components/shortlist/save-button';
 import { Button } from '@/components/ui/button';
 import { SelectField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip, type ChipTone } from '@/components/ui/status-chip';
+import type { AccountNumbers } from '@/lib/matching/account-numbers';
 import { PUBLIC_BENCHMARKS, evaluateAthletic } from '@/lib/matching/athletic';
 import type { ListCandidate } from '@/lib/matching/candidates';
 import { LEVELS, type EligibilityStatus, type Level } from '@/lib/matching/eligibility';
@@ -22,8 +24,9 @@ import {
   toPreferences,
   type ListFilters,
 } from '@/lib/matching/list-filters';
+import { academicsLine } from '@/lib/matching/numbers-summary';
 import { hasTypedAcademics, readPlayerInput, type PlayerErrors } from '@/lib/matching/player-input';
-import { EMPTY_PLAYER_NUMBERS, forgetPlayerNumbers, hasAnyNumber, readPlayerNumbers, savePlayerNumbers, type PlayerNumbers } from '@/lib/matching/player-store';
+import { EMPTY_PLAYER_NUMBERS, forgetPlayerNumbers, hasAnyNumber, savePlayerNumbers, type PlayerNumbers } from '@/lib/matching/player-store';
 import {
   ACADEMIC_FIT_LABELS,
   ATHLETIC_STATUS_LABELS,
@@ -97,6 +100,8 @@ interface Props {
   readonly signedIn: boolean;
   /** The account's saved schools when signed in. */
   readonly savedSlugs: readonly string[];
+  /** Set for signed-in athletes, who can save their numbers to their account (F63). */
+  readonly account: AccountNumbers | null;
 }
 
 interface Computed {
@@ -125,19 +130,6 @@ function Checkbox({ id, checked, onChange, children }: { readonly id: string; re
 
 function toggle<T>(list: readonly T[], value: T, on: boolean): T[] {
   return on ? [...new Set([...list, value])] : list.filter((v) => v !== value);
-}
-
-function yourNumbersLine(numbers: PlayerNumbers): string {
-  const parts: string[] = [];
-  if (numbers.gpa.trim()) {
-    const type = numbers.gpaType === 'unweighted' ? 'unweighted' : numbers.gpaType === 'weighted' ? 'weighted' : 'type not stated';
-    parts.push(`GPA ${numbers.gpa} out of ${numbers.gpaScale === '100' ? '100' : `${numbers.gpaScale}.0`} (${type})`);
-  }
-  if (numbers.satTotal.trim()) parts.push(`SAT ${numbers.satTotal.trim()}`);
-  if (numbers.act.trim()) parts.push(`ACT ${numbers.act}`);
-  if (numbers.coreGpaDivisionI.trim()) parts.push(`Division I core-course GPA ${numbers.coreGpaDivisionI}`);
-  if (numbers.coreGpaDivisionII.trim()) parts.push(`Division II core-course GPA ${numbers.coreGpaDivisionII}`);
-  return parts.join('; ');
 }
 
 function SchoolRow({ s, signedIn, saved }: { readonly s: Suggestion; readonly signedIn: boolean; readonly saved: boolean }) {
@@ -401,7 +393,8 @@ function Filters({ filters, onChange }: { readonly filters: ListFilters; readonl
  * fit, Possible fit, Reach and Not enough data by the approved rules
  * (docs/matching-rulebook.md). The player's numbers are the same ones "Your
  * fit" uses on school pages, compared in the browser and remembered on this
- * device only (decision F45). Nothing about the player is sent anywhere.
+ * device (decision F45). They reach Base Recruits only when a signed-in
+ * athlete ticks "Save to my account" (F63).
  */
 export function MySchoolsList(props: Props) {
   const { thisYear, signedIn } = props;
@@ -415,13 +408,15 @@ export function MySchoolsList(props: Props) {
   const resultsHeading = useRef<HTMLHeadingElement>(null);
   const [focusTarget, setFocusTarget] = useState<'errors' | 'results' | null>(null);
   const saved = useMemo(() => new Set(props.savedSlugs), [props.savedSlugs]);
+  const account = props.account;
+  const accountNumbers = useAccountNumbers(account);
 
   useEffect(() => {
-    const stored = readPlayerNumbers();
+    const stored = initialNumbers(account);
     setNumbers(stored ?? { ...EMPTY_PLAYER_NUMBERS, entryYear: String(thisYear + 1) });
     setEditing(!stored || !hasAnyNumber(stored));
     setFilters(readListFilters() ?? DEFAULT_LIST_FILTERS);
-  }, [thisYear]);
+  }, [thisYear, account]);
 
   useEffect(() => {
     if (!focusTarget) return;
@@ -440,7 +435,7 @@ export function MySchoolsList(props: Props) {
 
   if (numbers === null) return <p className="text-slate">Loading your numbers…</p>;
 
-  function onSubmit(candidate: PlayerNumbers) {
+  function onSubmit(candidate: PlayerNumbers, saveToAccount: boolean) {
     const result = compute(candidate, filters, props);
     if ('errors' in result) {
       setErrors(result.errors);
@@ -452,6 +447,7 @@ export function MySchoolsList(props: Props) {
     setNumbers(candidate);
     setEditing(false);
     setFocusTarget('results');
+    void accountNumbers.persist(candidate, saveToAccount);
   }
 
   function onForget() {
@@ -461,6 +457,7 @@ export function MySchoolsList(props: Props) {
     setNotSaved(false);
     setFormKey((k) => k + 1);
     setEditing(true);
+    void accountNumbers.forget();
   }
 
   function onFilters(next: ListFilters) {
@@ -474,6 +471,7 @@ export function MySchoolsList(props: Props) {
         <h2 id="ms-numbers" className="text-2xl text-navy">
           Your numbers
         </h2>
+        <AccountNumbersNote note={accountNumbers.note} />
         <PlayerNumbersForm
           key={formKey}
           idPrefix="ms"
@@ -486,6 +484,7 @@ export function MySchoolsList(props: Props) {
           errorSummaryRef={errorSummary}
           onSubmit={onSubmit}
           onForget={onForget}
+          accountSave={accountNumbers.canSave ? { checked: accountNumbers.onAccount } : undefined}
           secondary={
             hasAnyNumber(numbers) && Object.keys(errors).length === 0 ? (
               <Button type="button" variant="secondary" onClick={() => setEditing(false)}>
@@ -497,8 +496,10 @@ export function MySchoolsList(props: Props) {
             <p>
               Enter your numbers once. Every program at the levels you choose is sorted into Strong fit, Possible fit,
               Reach and Not enough data, and every school page shows the same result. Your numbers are compared in your
-              browser and remembered on this device only. They are never sent to Base Recruits, and coaches can&apos;t
-              see them.
+              browser and remembered on this device
+              {accountNumbers.canSave
+                ? '. They are saved to your account only if you tick “Save to my account”, and coaches can’t see them.'
+                : ' only. They are never sent to Base Recruits, and coaches can’t see them.'}
             </p>
           }
         />
@@ -509,11 +510,12 @@ export function MySchoolsList(props: Props) {
   if (!computed || 'errors' in computed) return null;
   const { list, athletic, positionEntered } = computed;
   const total = list ? SUGGESTION_GROUPS.reduce((n, g) => n + list.groups[g].length, 0) : 0;
-  const academicsLine = yourNumbersLine(numbers);
+  const academics = academicsLine(numbers);
   const chosenLevels = LEVELS.filter((l) => filters.levels.includes(l));
 
   return (
     <div className="space-y-8">
+      <AccountNumbersNote note={accountNumbers.note} />
       {notSaved ? (
         <Notice tone="attention" title="Not remembered on this device">
           This browser won&apos;t store your numbers, so you&apos;ll need to enter them again next time.
@@ -525,9 +527,9 @@ export function MySchoolsList(props: Props) {
           Your numbers
         </h2>
         <p>
-          {academicsLine ? (
+          {academics ? (
             <>
-              {academicsLine}.{' '}
+              {academics}.{' '}
               {hasTypedAcademics(numbers) ? <StatusChip tone="attention">{TYPED_GRADES_NOTE}</StatusChip> : null}
             </>
           ) : (
@@ -556,6 +558,14 @@ export function MySchoolsList(props: Props) {
             Forget my numbers
           </Button>
         </div>
+        {accountNumbers.onAccount ? (
+          <p className="text-sm text-slate">
+            Saved to your account. Coaches can&apos;t see them.{' '}
+            <Link href="/athlete#numbers-sharing" className="font-semibold text-royal-ink underline">
+              Share them with a parent or guardian
+            </Link>
+          </p>
+        ) : null}
       </section>
 
       {list !== null ? (

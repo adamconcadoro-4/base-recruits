@@ -29,6 +29,7 @@ import {
   placeLabel,
 } from '@/lib/registry/labels';
 import { isSignedIn } from '@/lib/auth/session';
+import { loadAccountNumbers } from '@/lib/matching/account-numbers-server';
 import { COMPARE_COOKIE, readCompareCookie } from '@/lib/registry/compare-selection';
 import { APPLICANT_LABELS, entryLabel } from '@/lib/registry/policy';
 import { currentPolicies, getSchool, gpaRanges, mySavedSlugs } from '@/lib/registry/queries';
@@ -110,7 +111,7 @@ export default async function SchoolPage({ params }: { readonly params: Params }
   // A GPA range the school published (F51); null when none is on record or it didn't load.
   const gpa = gpaMap === 'failed' ? null : (gpaMap.get(institution.slug) ?? null);
   const policies = policyMap === 'failed' ? null : (policyMap.get(institution.slug) ?? []);
-  const savedSlugs = signedIn ? await mySavedSlugs() : null;
+  const [savedSlugs, accountNumbers] = signedIn ? await Promise.all([mySavedSlugs(), loadAccountNumbers()]) : [null, null];
   const compareSelection = readCompareCookie(cookieStore.get(COMPARE_COOKIE)?.value);
   const programChecked = program !== null && program.verification !== 'federal_report';
   // Added by hand because the federal athletics report leaves the school out.
@@ -277,6 +278,7 @@ export default async function SchoolPage({ params }: { readonly params: Params }
               thisYear={thisYear}
               athletic={null}
               power4Conference={power4 ? POWER4_CONFERENCE_NAMES[power4] : null}
+              account={accountNumbers}
             />
           </Section>
         ) : null}

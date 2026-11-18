@@ -222,9 +222,13 @@ estimated. Known consequences:
 Every active program's page has a **Your fit** section (`src/components/matching/school-fit-panel.tsx`, rules in
 `src/lib/matching/school-fit.ts`). It applies exactly the rules above to that one school:
 
-- The player enters their numbers once. They are compared in the browser and remembered **on this device only**
-  (`src/lib/matching/player-store.ts`, decision F45): never sent to Base Recruits, never put in a link, and removed by
-  "Forget my numbers". Stored values are validated again every time they are used.
+- The player enters their numbers once. They are compared in the browser and remembered **on this device**
+  (`src/lib/matching/player-store.ts`, decision F45): never put in a link, and removed by "Forget my numbers". Stored
+  values are validated again every time they are used.
+- **Saved to the account only if the athlete chooses** (decision F63): a signed-in athlete sees a "Save to my account"
+  checkbox. Ticked, the numbers that pass the checks above are saved to the account (`account-numbers.ts`, only the
+  chosen position's baseball numbers) and load on any device; unticking it or "Forget my numbers" deletes them. A linked
+  parent sees them only while the athlete shares with that parent from the athlete home; coaches never see them.
 - It shows the overall group, then the three parts: athletic level (each number against the level's floor, with the
   floor's basis, the source and its date), academics (with the school's reported ranges next to the player's scores) and
   the academic minimum to compete, each with its reasons.
@@ -241,7 +245,8 @@ The full suggestions list (decision F61), built from the same engine (`suggestSc
 
 - **Numbers:** the same on-device numbers as "Your fit" (`player-store.ts`, F45), read by one shared function
   (`player-input.ts`) and entered through one shared form (`player-numbers-form.tsx`). Entering them on either page fills
-  the other. Nothing about the player is sent to the server, saved to the account or shown to coaches.
+  the other. Nothing about the player is sent to the server unless a signed-in athlete ticks "Save to my account" (§6,
+  F63), and nothing is shown to coaches.
 - **Schools:** every listed school with an active program at the five levels (`src/app/(site)/my-schools/load.ts`), with
   its latest admissions figures, published cost, checked testing policies, published GPA range and Power 4 membership
   (matched by unit ID). Only public registry data reaches the browser.
@@ -274,6 +279,6 @@ The full suggestions list (decision F61), built from the same engine (`suggestSc
   test-optional four-year schools and most junior colleges) fall under "academics not compared".
 - **Pages:** each school page shows "Your fit" (§6) and `/my-schools` shows the full list (§6a). Both are open to
   everyone; no paywall or billing exists (F19).
-- **Saving academics to the account** (so a player doesn't retype them on a new device, and a linked parent sees them)
-  is not built and not decided; it would change F45. Coaches would see academics only if the player turns on a
-  "Show academics" setting, off by default (founder decision 2026-11-17).
+- **Saving academics to the account** is built (F63, 2026-11-18): optional for athletes, shared only with a parent the
+  athlete names. Coaches would see academics only if the player turns on a "Show academics" setting, off by default
+  (founder decision 2026-11-17); that setting is not built.

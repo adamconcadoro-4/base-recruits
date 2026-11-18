@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Notice } from '@/components/ui/notice';
 import { StatusChip, type ChipTone } from '@/components/ui/status-chip';
 import { PlayerNumbersForm, TYPED_GRADES_NOTE } from '@/components/matching/player-numbers-form';
+import { AccountNumbersNote, initialNumbers, useAccountNumbers } from '@/components/matching/use-account-numbers';
+import type { AccountNumbers } from '@/lib/matching/account-numbers';
 import { METRIC_INFO, PUBLIC_BENCHMARKS, evaluateLevel, type AthleticLevelDetail, type AthleticMetric } from '@/lib/matching/athletic';
 import { levelForDivision, type EligibilityStatus } from '@/lib/matching/eligibility';
 import { BENCHMARK_LABELS, BENCHMARK_NAMES, REASONS } from '@/lib/matching/explain';
@@ -15,7 +17,6 @@ import {
   EMPTY_PLAYER_NUMBERS,
   forgetPlayerNumbers,
   hasAnyNumber,
-  readPlayerNumbers,
   savePlayerNumbers,
   type PlayerNumbers,
 } from '@/lib/matching/player-store';
@@ -77,6 +78,8 @@ interface Props {
    * numbers are then compared with the Power 4 benchmarks. Null otherwise.
    */
   readonly power4Conference: string | null;
+  /** Set for signed-in athletes, who can save their numbers to their account (F63). */
+  readonly account: AccountNumbers | null;
 }
 
 interface Outcome {
@@ -159,8 +162,9 @@ function AthleticDetail({ detail, conference }: { readonly detail: AthleticLevel
 
 /**
  * "Your fit with this school" on a school page. The player's numbers are
- * compared in the browser and remembered on this device only
- * (src/lib/matching/player-store.ts); nothing is sent to Base Recruits.
+ * compared in the browser and remembered on this device
+ * (src/lib/matching/player-store.ts). They reach Base Recruits only when a
+ * signed-in athlete ticks "Save to my account" (F63).
  */
 export function SchoolFitPanel(props: Props) {
   const { schoolName, division, thisYear } = props;
@@ -174,13 +178,15 @@ export function SchoolFitPanel(props: Props) {
   const errorSummary = useRef<HTMLDivElement>(null);
   const resultHeading = useRef<HTMLHeadingElement>(null);
   const [focusTarget, setFocusTarget] = useState<'errors' | 'result' | null>(null);
+  const accountNumbers = useAccountNumbers(props.account);
+  const account = props.account;
 
   useEffect(() => {
-    const stored = readPlayerNumbers();
+    const stored = initialNumbers(account);
     const start = stored ?? { ...EMPTY_PLAYER_NUMBERS, entryYear: String(thisYear + 1) };
     setNumbers(start);
     setEditing(!stored || !hasAnyNumber(stored));
-  }, [thisYear]);
+  }, [thisYear, account]);
 
   useEffect(() => {
     if (!focusTarget) return;
@@ -204,7 +210,7 @@ export function SchoolFitPanel(props: Props) {
   const ncaa = division === 'ncaa_d1' ? 'd1' : division === 'ncaa_d2' ? 'd2' : null;
   const level = levelForDivision(division);
 
-  function onSubmit(candidate: PlayerNumbers) {
+  function onSubmit(candidate: PlayerNumbers, saveToAccount: boolean) {
     const result = evaluate(candidate, props);
     if ('errors' in result) {
       setErrors(result.errors);
@@ -216,6 +222,7 @@ export function SchoolFitPanel(props: Props) {
     setNumbers(candidate);
     setEditing(false);
     setFocusTarget('result');
+    void accountNumbers.persist(candidate, saveToAccount);
   }
 
   function onForget() {
@@ -225,10 +232,13 @@ export function SchoolFitPanel(props: Props) {
     setNotSaved(false);
     setFormKey((k) => k + 1);
     setEditing(true);
+    void accountNumbers.forget();
   }
 
   if (editing) {
     return (
+      <div className="space-y-4">
+      <AccountNumbersNote note={accountNumbers.note} />
       <PlayerNumbersForm
         key={formKey}
         idPrefix="fit"
@@ -241,17 +251,21 @@ export function SchoolFitPanel(props: Props) {
         errorSummaryRef={errorSummary}
         onSubmit={onSubmit}
         onForget={onForget}
+        accountSave={accountNumbers.canSave ? { checked: accountNumbers.onAccount } : undefined}
         intro={
           <p>
             Enter your numbers once and every school page, and your{' '}
             <Link href="/my-schools" className="font-semibold text-royal-ink underline">
               My schools
             </Link>{' '}
-            list, shows how you compare. They are compared in your browser and remembered on this device only. They are
-            never sent to Base Recruits.
+            list, shows how you compare. They are compared in your browser and remembered on this device
+            {accountNumbers.canSave
+              ? '. They are saved to your account only if you tick “Save to my account”.'
+              : ' only. They are never sent to Base Recruits.'}
           </p>
         }
       />
+      </div>
     );
   }
 
@@ -264,6 +278,7 @@ export function SchoolFitPanel(props: Props) {
 
   return (
     <div className="space-y-6" aria-live="polite">
+      <AccountNumbersNote note={accountNumbers.note} />
       {notSaved ? (
         <Notice tone="attention" title="Not remembered on this device">
           This browser won&apos;t store your numbers, so you&apos;ll need to enter them again on other school pages.

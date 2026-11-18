@@ -1,9 +1,11 @@
 /**
- * The player's academic and baseball numbers, remembered in this browser only so every
+ * The player's academic and baseball numbers, remembered in this browser so every
  * school page can show "your fit" without asking again (decision F45).
  *
- * - Stored in this device's localStorage, never sent to Base Recruits, never
- *   put in a link, never logged. The page says so and offers "Forget my numbers".
+ * - Stored in this device's localStorage, never put in a link, never logged.
+ *   The page says so and offers "Forget my numbers". They reach Base Recruits
+ *   only when a signed-in athlete ticks "Save to my account" (F63,
+ *   account-numbers.ts).
  * - Stored as the raw form values, and validated again with
  *   parseApplicantInput / parseCoreGpa every time they are used.
  * - Anything unexpected in storage (old version, wrong shape, oversized) is

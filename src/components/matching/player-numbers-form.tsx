@@ -7,10 +7,9 @@ import { SelectField, TextField } from '@/components/ui/field';
 import { METRIC_INFO, POSITIONS, POSITION_METRICS, isPosition } from '@/lib/matching/athletic';
 import type { PlayerErrors } from '@/lib/matching/player-input';
 import { EMPTY_PLAYER_NUMBERS, hasAnyNumber, type PlayerNumbers } from '@/lib/matching/player-store';
-import { METRIC_LABELS, POSITION_LABELS } from '@/lib/matching/suggestions-explain';
+import { METRIC_LABELS, POSITION_LABELS, TYPED_GRADES_NOTE } from '@/lib/matching/suggestions-explain';
 
-/** Shown wherever typed grades appear (founder decision, 2026-11-17). */
-export const TYPED_GRADES_NOTE = 'Needs transcripts for verification';
+export { TYPED_GRADES_NOTE };
 
 interface Props {
   /** Prefix for field ids, so two forms never share an id (school page "fit", My schools "ms"). */
@@ -24,7 +23,9 @@ interface Props {
   readonly submitLabel: string;
   readonly intro: ReactNode;
   readonly errorSummaryRef?: Ref<HTMLDivElement>;
-  readonly onSubmit: (next: PlayerNumbers) => void;
+  /** Whether "Save to my account" is ticked to start; leave out when the visitor can't save to an account. */
+  readonly accountSave?: { readonly checked: boolean };
+  readonly onSubmit: (next: PlayerNumbers, saveToAccount: boolean) => void;
   readonly onForget: () => void;
   /** Shown beside the submit button when the player has numbers saved (for example "Cancel"). */
   readonly secondary?: ReactNode;
@@ -32,8 +33,9 @@ interface Props {
 
 /**
  * The player's academic and baseball numbers, entered once and remembered on
- * this device (src/lib/matching/player-store.ts). Used by "Your fit" on school
- * pages and by the My schools list, so both ask the same questions.
+ * this device (src/lib/matching/player-store.ts), and saved to the account
+ * when a signed-in athlete ticks "Save to my account" (F63). Used by "Your
+ * fit" on school pages and by the My schools list, so both ask the same questions.
  */
 export function PlayerNumbersForm(props: Props) {
   const { idPrefix, numbers, errors, thisYear, coreGpa } = props;
@@ -46,7 +48,7 @@ export function PlayerNumbersForm(props: Props) {
     const form = new FormData(event.currentTarget);
     const next: Record<string, string> = { ...EMPTY_PLAYER_NUMBERS, ...numbers };
     for (const [key, value] of form.entries()) if (typeof value === 'string' && key in next) next[key] = value.trim();
-    props.onSubmit(next as PlayerNumbers);
+    props.onSubmit(next as PlayerNumbers, props.accountSave !== undefined && form.get('saveToAccount') === 'on');
   }
 
   const errorEntries = Object.entries(errors).filter(([, v]) => v);
@@ -148,6 +150,28 @@ export function PlayerNumbersForm(props: Props) {
           );
         })}
       </div>
+
+      {props.accountSave ? (
+        <div className="flex items-start gap-3 rounded-md border-2 border-rule p-4">
+          <input
+            id={id('saveToAccount')}
+            name="saveToAccount"
+            type="checkbox"
+            defaultChecked={props.accountSave.checked}
+            aria-describedby={id('saveToAccount-hint')}
+            className="mt-1 size-5 accent-royal"
+          />
+          <div>
+            <label htmlFor={id('saveToAccount')} className="font-semibold">
+              Save to my account
+            </label>
+            <p id={id('saveToAccount-hint')} className="text-sm text-slate">
+              See them when you sign in on any device, and choose a parent or guardian to share them with. Coaches
+              can&apos;t see them. Untick this, or use &ldquo;Forget my numbers&rdquo;, to remove them from your account.
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-4">
         <Button type="submit">{props.submitLabel}</Button>

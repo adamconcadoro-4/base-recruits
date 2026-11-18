@@ -173,5 +173,8 @@ export function power4Note(conference: string): string {
   return `This school plays in the ${conference}, a Power 4 conference, so your numbers are compared with players who committed to Power 4 programs (ACC, Big Ten, Big 12 and SEC). “One level down” here means other Division I programs.`;
 }
 
+/** Shown wherever typed grades appear (founder decision, 2026-11-17). */
+export const TYPED_GRADES_NOTE = 'Needs transcripts for verification';
+
 export const SELF_REPORTED_NOTE =
   'Based on numbers you entered yourself; Base Recruits hasn’t measured or verified them. Compare like with like: these benchmarks use best showcase numbers.';

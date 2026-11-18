@@ -5,6 +5,7 @@ import { MySchoolsList } from '@/components/matching/my-schools-list';
 import { ContentSection, PageIntro } from '@/components/site/page-intro';
 import { Notice } from '@/components/ui/notice';
 import { isSignedIn } from '@/lib/auth/session';
+import { loadAccountNumbers } from '@/lib/matching/account-numbers-server';
 import { mySavedSlugs } from '@/lib/registry/queries';
 
 import { loadListCandidates } from './load';
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 
 export default async function MySchoolsPage() {
   const [load, signedIn] = await Promise.all([loadListCandidates(), isSignedIn()]);
-  const savedSlugs = signedIn ? ((await mySavedSlugs()) ?? []) : [];
+  const [savedSlugs, accountNumbers] = signedIn ? await Promise.all([mySavedSlugs(), loadAccountNumbers()]) : [null, null];
   const thisYear = new Date().getUTCFullYear();
 
   return (
@@ -30,13 +31,13 @@ export default async function MySchoolsPage() {
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:px-6">
         <noscript>
           <Notice tone="attention" title="This list needs JavaScript">
-            Your numbers are compared in your browser so they never leave your device. Turn on JavaScript to use it, or
+            Your numbers are compared in your browser. Turn on JavaScript to use it, or
             browse school pages, which show each school&apos;s reported ranges.
           </Notice>
         </noscript>
         {load.status === 'failed' ? (
           <Notice tone="error" title="The schools didn't load">
-            Something went wrong on our side. Your numbers are safe on this device. Refresh the page to try again.
+            Something went wrong on our side. Your numbers are still saved. Refresh the page to try again.
           </Notice>
         ) : (
           <MySchoolsList
@@ -44,7 +45,8 @@ export default async function MySchoolsPage() {
             otherAssociations={load.otherAssociations}
             thisYear={thisYear}
             signedIn={signedIn}
-            savedSlugs={savedSlugs}
+            savedSlugs={savedSlugs ?? []}
+            account={accountNumbers}
           />
         )}
       </div>
